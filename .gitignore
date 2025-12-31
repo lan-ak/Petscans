@@ -1,41 +1,74 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Xcode
+build/
+DerivedData/
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+*.xcscmblueprint
+*.xcworkspace
+!default.xcworkspace
 
-# dependencies
-node_modules/
+# Swift Package Manager
+.build/
+Packages/
+Package.resolved
+*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
 
-# Expo
-.expo/
-dist/
-web-build/
-expo-env.d.ts
+# CocoaPods
+Pods/
+Podfile.lock
+*.xcworkspace
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+# Carthage
+Carthage/Build/
+Carthage/Checkouts/
 
-# Metro
-.metro-health-check*
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+# Code Injection
+iOSInjectionProject/
 
 # macOS
 .DS_Store
-*.pem
+.AppleDouble
+.LSOverride
+._*
 
-# local env files
-.env*.local
+# Thumbnails
+Thumbs.db
 
-# typescript
-*.tsbuildinfo
+# IDE
+.idea/
+*.swp
+*.swo
+*~
 
-# generated native folders
-/ios
-/android
+# Environment
+.env
+.env.local
+*.env
+
+# Archives
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Playgrounds
+timeline.xctimeline
+playground.xcworkspace
+
+# Swift Playgrounds
+*.playground/
