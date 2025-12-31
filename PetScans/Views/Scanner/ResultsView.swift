@@ -57,6 +57,14 @@ struct ResultsView: View {
                     }
                     .caption()
                     .foregroundColor(ColorTokens.textSecondary)
+
+                    // Score source badge
+                    HStack(spacing: SpacingTokens.xxxs) {
+                        Image(systemName: scoreBreakdown.scoreSource.icon)
+                        Text(scoreBreakdown.scoreSource.badge)
+                    }
+                    .labelSmall()
+                    .badgeStyle(color: scoreBreakdown.scoreSource.badgeColor)
                 }
 
                 // Main score
@@ -73,6 +81,28 @@ struct ResultsView: View {
                     ScoreBarView(label: "Suitability", score: scoreBreakdown.suitability)
                 }
                 .cardStyle(backgroundColor: ColorTokens.surfaceSecondary)
+
+                // OCR info banner
+                if scoreBreakdown.scoreSource == .ocrEstimated {
+                    HStack(spacing: SpacingTokens.xs) {
+                        Image(systemName: "info.circle.fill")
+                            .foregroundColor(ColorTokens.info)
+                            .font(TypographyTokens.heading3)
+
+                        VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
+                            Text("Estimated Score")
+                                .heading3()
+                            Text("Based on ingredients from photo. Match rate: \(scoreBreakdown.matchPercentage)%")
+                                .caption()
+                                .foregroundColor(ColorTokens.textSecondary)
+                        }
+                        Spacer()
+                    }
+                    .cardStyle(
+                        backgroundColor: ColorTokens.info.opacity(0.1),
+                        cornerRadius: SpacingTokens.radiusMedium
+                    )
+                }
 
                 // Warning flags
                 if !scoreBreakdown.flags.isEmpty {
@@ -200,7 +230,9 @@ struct ResultsView: View {
             ],
             unmatched: ["mystery ingredient", "natural flavoring blend"],
             matchedCount: 8,
-            totalCount: 10
+            totalCount: 10,
+            scoreSource: .databaseVerified,
+            ocrConfidence: nil
         ),
         matchedIngredients: [
             MatchedIngredient(ingredientId: "ing_chicken", labelName: "Chicken", rank: 1),

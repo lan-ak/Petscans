@@ -73,9 +73,9 @@ final class Scan {
 
     var scoreBreakdown: ScoreBreakdown {
         guard let data = scoreBreakdownJSON.data(using: .utf8) else {
-            return ScoreBreakdown(total: 0, safety: 0, nutrition: nil, suitability: 0, flags: [], unmatched: [], matchedCount: 0, totalCount: 0)
+            return ScoreBreakdown(total: 0, safety: 0, nutrition: nil, suitability: 0, flags: [], unmatched: [], matchedCount: 0, totalCount: 0, scoreSource: .databaseVerified, ocrConfidence: nil)
         }
-        return (try? JSONDecoder().decode(ScoreBreakdown.self, from: data)) ?? ScoreBreakdown(total: 0, safety: 0, nutrition: nil, suitability: 0, flags: [], unmatched: [], matchedCount: 0, totalCount: 0)
+        return (try? JSONDecoder().decode(ScoreBreakdown.self, from: data)) ?? ScoreBreakdown(total: 0, safety: 0, nutrition: nil, suitability: 0, flags: [], unmatched: [], matchedCount: 0, totalCount: 0, scoreSource: .databaseVerified, ocrConfidence: nil)
     }
 
     var speciesEnum: Species {

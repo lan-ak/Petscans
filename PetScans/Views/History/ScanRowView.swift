@@ -87,7 +87,9 @@ struct ScanRowView: View {
                     flags: [],
                     unmatched: [],
                     matchedCount: 10,
-                    totalCount: 10
+                    totalCount: 10,
+                    scoreSource: .databaseVerified,
+                    ocrConfidence: nil
                 ),
                 isFavorite: true
             )
@@ -110,7 +112,9 @@ struct ScanRowView: View {
                     flags: [WarningFlag(severity: .critical, title: "Issue", explain: "Problem", ingredientId: nil)],
                     unmatched: [],
                     matchedCount: 5,
-                    totalCount: 8
+                    totalCount: 8,
+                    scoreSource: .databaseVerified,
+                    ocrConfidence: nil
                 )
             )
             return scan

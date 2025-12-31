@@ -9,11 +9,20 @@ struct AllergenSettingsView: View {
     var body: some View {
         List {
             Section {
-                ForEach(allergens, id: \.self) { allergen in
+                ForEach(allergens.indices, id: \.self) { index in
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.orange)
-                        Text(allergen.capitalized)
+                        Text(allergens[index].capitalized)
+                        Spacer()
+                        Button(action: {
+                            deleteAllergen(at: IndexSet(integer: index))
+                        }) {
+                            Image(systemName: "trash")
+                                .foregroundColor(.red)
+                                .imageScale(.medium)
+                        }
+                        .buttonStyle(.borderless)
                     }
                 }
                 .onDelete(perform: deleteAllergen)
@@ -87,8 +96,7 @@ struct AllergenSettingsView: View {
         return LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: 8) {
             ForEach(commonAllergens, id: \.self) { allergen in
                 Button {
-                    newAllergen = allergen
-                    addAllergen()
+                    addCommonAllergen(allergen)
                 } label: {
                     Text(allergen)
                         .font(.caption)
@@ -106,6 +114,7 @@ struct AllergenSettingsView: View {
                         )
                         .cornerRadius(8)
                 }
+                .buttonStyle(.plain)
                 .disabled(allergens.contains(allergen.lowercased()))
             }
         }
@@ -135,6 +144,16 @@ struct AllergenSettingsView: View {
         allergens.sort()
         saveAllergens()
         newAllergen = ""
+        showAddSheet = false
+    }
+
+    private func addCommonAllergen(_ allergen: String) {
+        let lowercased = allergen.lowercased()
+        guard !allergens.contains(lowercased) else { return }
+
+        allergens.append(lowercased)
+        allergens.sort()
+        saveAllergens()
         showAddSheet = false
     }
 

@@ -3,7 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>PetScans needs camera access to scan product barcodes</string>
+	<string>PetScans needs camera access to scan product barcodes and ingredient labels on pet food products.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>PetScans can analyze ingredient labels from your photo library.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

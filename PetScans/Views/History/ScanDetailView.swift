@@ -220,7 +220,9 @@ struct ScanDetailView: View {
                         ],
                         unmatched: ["Carrots"],
                         matchedCount: 4,
-                        totalCount: 5
+                        totalCount: 5,
+                        scoreSource: .databaseVerified,
+                        ocrConfidence: nil
                     ),
                     notes: "Got this at the pet store",
                     isFavorite: true

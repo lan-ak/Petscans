@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import SwiftData
 import Combine
+import UIKit
 
 /// ViewModel for the scanner workflow, managing state and business logic
 @MainActor
@@ -12,6 +13,9 @@ final class ScannerViewModel: ObservableObject {
         case scanning
         case loading
         case error
+        case productNotFound
+        case ocrCapture
+        case ocrProcessing
         case selectOptions
         case manualEntry
         case results
@@ -72,12 +76,16 @@ final class ScannerViewModel: ObservableObject {
     @Published var matchedIngredients: [MatchedIngredient] = []
     @Published var scoreBreakdown: ScoreBreakdown?
     @Published var currentError: ScanError?
+    @Published var ocrImage: UIImage?
+    @Published var ocrConfidence: Float?
+    @Published var scoreSource: ScoreSource = .databaseVerified
 
     // MARK: - Dependencies
 
     private let apiService: PetFoodAPIServiceProtocol
     private let ingredientMatcher: IngredientMatcher
     private let scoreCalculator: ScoreCalculator
+    private let ocrService: OCRServiceProtocol
 
     // MARK: - Haptic Feedback
 
@@ -88,11 +96,13 @@ final class ScannerViewModel: ObservableObject {
     init(
         apiService: PetFoodAPIServiceProtocol = PetFoodAPIService(),
         ingredientMatcher: IngredientMatcher = IngredientMatcher(),
-        scoreCalculator: ScoreCalculator = ScoreCalculator()
+        scoreCalculator: ScoreCalculator = ScoreCalculator(),
+        ocrService: OCRServiceProtocol = OCRService()
     ) {
         self.apiService = apiService
         self.ingredientMatcher = ingredientMatcher
         self.scoreCalculator = scoreCalculator
+        self.ocrService = ocrService
         successFeedback.prepare()
     }
 
@@ -110,19 +120,20 @@ final class ScannerViewModel: ObservableObject {
                 productName = result.productName
                 brand = result.brand
                 imageUrl = result.imageUrl
+                scoreSource = .databaseVerified
 
                 if let ingredients = result.ingredientsText, !ingredients.isEmpty {
                     ingredientsText = ingredients
                     step = .selectOptions
                 } else {
                     // Product found but no ingredients
-                    step = .manualEntry
+                    step = .productNotFound
                 }
             } catch let error as APIError {
                 switch error {
                 case .productNotFound:
-                    // Not an error - just means manual entry needed
-                    step = .manualEntry
+                    // Not an error - show options for OCR or manual entry
+                    step = .productNotFound
                 case .networkError(let underlying):
                     currentError = .networkError(underlying: underlying)
                     step = .error
@@ -149,23 +160,58 @@ final class ScannerViewModel: ObservableObject {
         productName = name
         brand = brandName
         ingredientsText = ingredients
+        scoreSource = .manualEntry
         step = .selectOptions
     }
 
     func goToManualEntry() {
+        scoreSource = .manualEntry
         step = .manualEntry
+    }
+
+    func handleOCRCapture(_ image: UIImage) {
+        ocrImage = image
+        step = .ocrProcessing
+
+        Task {
+            do {
+                let result = try await ocrService.extractText(from: image)
+                ingredientsText = result.text
+                ocrConfidence = result.confidence
+                scoreSource = .ocrEstimated
+                step = .selectOptions
+            } catch let error as OCRService.OCRError {
+                handleOCRError(error)
+            } catch {
+                currentError = .networkError(underlying: error)
+                step = .error
+            }
+        }
+    }
+
+    private func handleOCRError(_ error: OCRService.OCRError) {
+        // Convert OCR errors to scan errors
+        switch error {
+        case .noTextDetected, .lowConfidence, .imageTooSmall:
+            currentError = .noIngredients
+        case .processingFailed(let underlying):
+            currentError = .networkError(underlying: underlying)
+        }
+        step = .error
     }
 
     func performAnalysis(petAllergens: [String] = []) {
         // Match ingredients
         matchedIngredients = ingredientMatcher.match(rawIngredients: ingredientsText)
 
-        // Calculate score with allergens
+        // Calculate score with allergens and score source
         scoreBreakdown = scoreCalculator.calculate(
             species: selectedSpecies,
             category: selectedCategory,
             matched: matchedIngredients,
-            petAllergens: petAllergens
+            petAllergens: petAllergens,
+            scoreSource: scoreSource,
+            ocrConfidence: ocrConfidence
         )
 
         step = .results
@@ -210,6 +256,9 @@ final class ScannerViewModel: ObservableObject {
         matchedIngredients = []
         scoreBreakdown = nil
         currentError = nil
+        ocrImage = nil
+        ocrConfidence = nil
+        scoreSource = .databaseVerified
     }
 
     // MARK: - Share Content

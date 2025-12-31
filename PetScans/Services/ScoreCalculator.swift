@@ -48,7 +48,9 @@ struct ScoreCalculator {
         species: Species,
         category: Category,
         matched: [MatchedIngredient],
-        petAllergens: [String] = []
+        petAllergens: [String] = [],
+        scoreSource: ScoreSource = .databaseVerified,
+        ocrConfidence: Float? = nil
     ) -> ScoreBreakdown {
         let normalizedAllergens = normalizeAllergens(petAllergens)
 
@@ -89,7 +91,9 @@ struct ScoreCalculator {
             flags: allFlags,
             unmatched: unmatched,
             matchedCount: matchedCount,
-            totalCount: totalCount
+            totalCount: totalCount,
+            scoreSource: scoreSource,
+            ocrConfidence: ocrConfidence
         )
     }
 

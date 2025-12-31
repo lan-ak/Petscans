@@ -25,6 +25,15 @@ struct ScannerView: View {
                 case .error:
                     errorView
 
+                case .productNotFound:
+                    productNotFoundView
+
+                case .ocrCapture:
+                    ocrCaptureView
+
+                case .ocrProcessing:
+                    ocrProcessingView
+
                 case .selectOptions:
                     SpeciesCategoryPicker(
                         productName: viewModel.productName,
@@ -153,6 +162,36 @@ struct ScannerView: View {
                 alternativeLabel: "Enter Manually"
             )
         }
+    }
+
+    private var productNotFoundView: some View {
+        ProductNotFoundView(
+            barcode: viewModel.barcode,
+            onTakePhoto: {
+                viewModel.step = .ocrCapture
+            },
+            onManualEntry: {
+                viewModel.goToManualEntry()
+            },
+            onRetry: {
+                viewModel.retryLastScan()
+            }
+        )
+    }
+
+    private var ocrCaptureView: some View {
+        IngredientCameraView(
+            onImageSelected: { image in
+                viewModel.handleOCRCapture(image)
+            },
+            onCancel: {
+                viewModel.step = .productNotFound
+            }
+        )
+    }
+
+    private var ocrProcessingView: some View {
+        OCRProcessingView()
     }
 }
 
