@@ -83,6 +83,9 @@ struct ScannerView: View {
                 )
                 .ignoresSafeArea()
 
+                // Scanning reticle overlay
+                ScanningReticleView()
+
                 // Overlay with manual entry button
                 VStack {
                     Spacer()
@@ -91,10 +94,10 @@ struct ScannerView: View {
                         viewModel.goToManualEntry()
                     } label: {
                         Label("Enter Manually", systemImage: "keyboard")
-                            .font(.headline)
+                            .labelLarge()
                             .padding()
                             .background(.ultraThinMaterial)
-                            .cornerRadius(12)
+                            .cornerRadius(SpacingTokens.radiusMedium)
                     }
                     .padding(.bottom, 40)
                 }
@@ -107,35 +110,36 @@ struct ScannerView: View {
     }
 
     private var loadingView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: SpacingTokens.md) {
             ProgressView()
                 .scaleEffect(1.5)
 
             Text("Looking up product...")
-                .font(.headline)
-                .foregroundColor(.secondary)
+                .heading2()
+                .foregroundColor(ColorTokens.textSecondary)
 
             if let code = viewModel.barcode {
                 Text("Barcode: \(code)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .caption()
+                    .foregroundColor(ColorTokens.textSecondary)
             }
 
             Button("Cancel") {
                 viewModel.reset()
             }
-            .padding(.top, 20)
-            .foregroundColor(.secondary)
+            .padding(.top, SpacingTokens.md)
+            .foregroundColor(ColorTokens.textSecondary)
         }
     }
 
+    @ViewBuilder
     private var errorView: some View {
         if let error = viewModel.currentError {
             NetworkErrorView(
                 title: error.errorDescription ?? "Error",
                 message: error.recoverySuggestion ?? "An error occurred.",
                 canRetry: error.canRetry,
-                onRetry: error.canRetry ? viewModel.retryLastScan : nil,
+                onRetry: { viewModel.retryLastScan() },
                 onAlternative: viewModel.goToManualEntry,
                 alternativeLabel: "Enter Manually"
             )
@@ -144,7 +148,7 @@ struct ScannerView: View {
                 title: "Unknown Error",
                 message: "Something went wrong. Please try again.",
                 canRetry: true,
-                onRetry: viewModel.retryLastScan,
+                onRetry: { viewModel.retryLastScan() },
                 onAlternative: viewModel.goToManualEntry,
                 alternativeLabel: "Enter Manually"
             )

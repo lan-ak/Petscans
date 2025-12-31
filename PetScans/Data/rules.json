@@ -1,0 +1,89 @@
+[
+  {
+    "id": "rule_xylitol_dog_critical",
+    "ingredientId": "ing_xylitol",
+    "appliesTo": {
+      "species": [
+        "dog"
+      ],
+      "categories": [
+        "food",
+        "treat"
+      ]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Xylitol can cause dangerous low blood sugar and liver injury in dogs. Treat as an emergency exposure.",
+    "evidence": "strong",
+    "createdAt": "2025-12-30T01:11:13.392714Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_tea_tree_cat_critical",
+    "ingredientId": "ing_tea_tree_oil",
+    "appliesTo": {
+      "species": [
+        "cat"
+      ],
+      "categories": [
+        "cosmetic"
+      ]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Tea tree oil can be toxic to cats, even at low concentrations, especially if licked off the coat.",
+    "evidence": "strong",
+    "createdAt": "2025-12-30T01:11:13.392714Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_permethrin_cat_critical_exposure",
+    "ingredientId": "ing_permethrin",
+    "appliesTo": {
+      "species": [
+        "cat"
+      ],
+      "categories": [
+        "cosmetic"
+      ]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Permethrin is extremely toxic to cats. Cats can be poisoned by direct application or close contact with treated dogs.",
+    "evidence": "strong",
+    "createdAt": "2025-12-30T01:11:13.392714Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_garlic_caution",
+    "ingredientId": "ing_garlic",
+    "appliesTo": {
+      "species": [
+        "dog",
+        "cat"
+      ],
+      "categories": [
+        "food",
+        "treat"
+      ]
+    },
+    "type": "toxicity",
+    "severity": "high",
+    "action": "avoid_or_limit",
+    "penalty": 30,
+    "scoreImpact": -30,
+    "explain": "Garlic can be harmful in higher amounts. Risk is dose dependent. Prefer avoiding unless clearly formulated safely.",
+    "evidence": "medium",
+    "createdAt": "2025-12-30T01:11:13.392714Z",
+    "schemaVersion": "rules_v2"
+  }
+]
