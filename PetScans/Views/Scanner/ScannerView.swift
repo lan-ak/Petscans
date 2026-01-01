@@ -163,6 +163,9 @@ struct ScannerView: View {
     private var productNotFoundView: some View {
         ProductNotFoundView(
             barcode: viewModel.barcode,
+            productName: viewModel.productName,
+            brand: viewModel.brand,
+            imageUrl: viewModel.imageUrl,
             isManualSearch: viewModel.isManualSearch,
             onTakePhoto: {
                 viewModel.step = .ocrCapture

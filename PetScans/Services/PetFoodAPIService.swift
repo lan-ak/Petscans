@@ -11,6 +11,24 @@ actor PetFoodAPIService: PetFoodAPIServiceProtocol {
         self.database = database
     }
 
+    /// Generate barcode variants (UPC-A ↔ EAN-13 conversion)
+    /// - Parameter barcode: The original barcode
+    /// - Returns: Array of barcode variants to try (original first, then alternatives)
+    private func barcodeVariants(_ barcode: String) -> [String] {
+        var variants = [barcode]
+        let digits = barcode.filter { $0.isNumber }
+
+        // 12 digits (UPC-A) → add leading 0 for EAN-13
+        if digits.count == 12 {
+            variants.append("0" + digits)
+        }
+        // 13 digits starting with 0 → try without leading 0 (UPC-A)
+        if digits.count == 13 && digits.hasPrefix("0") {
+            variants.append(String(digits.dropFirst()))
+        }
+        return variants
+    }
+
     /// Look up a product by barcode (offline-first with API fallback)
     /// - Parameter barcode: The barcode to look up
     /// - Returns: Product information
@@ -22,29 +40,38 @@ actor PetFoodAPIService: PetFoodAPIServiceProtocol {
             throw APIError.productNotFound
         }
 
-        // 1. Try local database first (offline-first)
-        if let cachedProduct = try? await database.lookupProduct(barcode: cleanedBarcode) {
-            return cachedProduct
+        // Generate barcode variants (UPC-A ↔ EAN-13)
+        let variants = barcodeVariants(cleanedBarcode)
+
+        // 1. Try local database first (offline-first) with all variants
+        for variant in variants {
+            if let cachedProduct = try? await database.lookupProduct(barcode: variant) {
+                return cachedProduct
+            }
         }
 
-        // 2. Fallback to V2 API
-        let product = try await fetchFromV2API(barcode: cleanedBarcode)
-
-        // 3. Cache the result for future offline use
-        Task.detached { [database] in
-            let dbProduct = DatabaseProduct(
-                code: cleanedBarcode,
-                productName: product.productName,
-                brands: product.brand,
-                ingredientsText: product.ingredientsText,
-                imageUrl: product.imageUrl,
-                imageFrontUrl: product.imageUrl,
-                lastModifiedT: nil
-            )
-            try? await database.upsertProduct(dbProduct)
+        // 2. Fallback to V2 API with all variants
+        for variant in variants {
+            if let product = try? await fetchFromV2API(barcode: variant) {
+                // 3. Cache the result for future offline use
+                Task.detached { [database] in
+                    let dbProduct = DatabaseProduct(
+                        code: variant,
+                        productName: product.productName,
+                        brands: product.brand,
+                        ingredientsText: product.ingredientsText,
+                        imageUrl: product.imageUrl,
+                        imageFrontUrl: product.imageUrl,
+                        lastModifiedT: nil
+                    )
+                    try? await database.upsertProduct(dbProduct)
+                }
+                return product
+            }
         }
 
-        return product
+        // All variants failed
+        throw APIError.productNotFound
     }
 
     /// Fetch product from V2 API
