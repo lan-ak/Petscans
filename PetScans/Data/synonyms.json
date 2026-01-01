@@ -699,6 +699,391 @@
   "dried blood": "ing_blood_meal",
 
   "hydrolyzed protein": "ing_hydrolyzed_protein",
-  "hydrolyzed chicken": "ing_hydrolyzed_protein",
-  "hydrolyzed soy": "ing_hydrolyzed_protein"
+  "hydrolyzed chicken": "ing_hydrolyzed_chicken",
+  "hydrolyzed soy": "ing_hydrolyzed_soy",
+
+  "riboflavin": "ing_vitamin_b2",
+  "vitamin b2": "ing_vitamin_b2",
+  "riboflavin supplement": "ing_vitamin_b2",
+  "riboflavin-5-phosphate": "ing_vitamin_b2",
+
+  "pantothenic acid": "ing_vitamin_b5",
+  "vitamin b5": "ing_vitamin_b5",
+  "d-calcium pantothenate": "ing_vitamin_b5",
+  "calcium pantothenate": "ing_vitamin_b5",
+  "pantothenate": "ing_vitamin_b5",
+
+  "pyridoxine": "ing_vitamin_b6",
+  "vitamin b6": "ing_vitamin_b6",
+  "pyridoxine hydrochloride": "ing_vitamin_b6",
+  "pyridoxine hcl": "ing_vitamin_b6",
+
+  "vitamin k1": "ing_vitamin_k1",
+  "phytonadione": "ing_vitamin_k1",
+  "phylloquinone": "ing_vitamin_k1",
+
+  "cobalt": "ing_cobalt",
+  "cobalt carbonate": "ing_cobalt",
+  "cobalt sulfate": "ing_cobalt",
+
+  "chromium": "ing_chromium",
+  "chromium picolinate": "ing_chromium",
+  "chromium chloride": "ing_chromium",
+
+  "molybdenum": "ing_molybdenum",
+  "sodium molybdate": "ing_molybdenum",
+
+  "zinc proteinate": "ing_zinc_proteinate",
+  "zinc protein complex": "ing_zinc_proteinate",
+
+  "copper proteinate": "ing_copper_proteinate",
+  "copper protein complex": "ing_copper_proteinate",
+
+  "iron proteinate": "ing_iron_proteinate",
+  "iron protein complex": "ing_iron_proteinate",
+
+  "manganese proteinate": "ing_manganese_proteinate",
+  "manganese protein complex": "ing_manganese_proteinate",
+
+  "zinc amino acid chelate": "ing_zinc_amino_acid_chelate",
+  "chelated zinc": "ing_zinc_amino_acid_chelate",
+  "zinc bisglycinate": "ing_zinc_amino_acid_chelate",
+
+  "iron amino acid chelate": "ing_iron_amino_acid_chelate",
+  "chelated iron": "ing_iron_amino_acid_chelate",
+  "iron bisglycinate": "ing_iron_amino_acid_chelate",
+
+  "copper amino acid chelate": "ing_copper_amino_acid_chelate",
+  "chelated copper": "ing_copper_amino_acid_chelate",
+
+  "green tea extract": "ing_green_tea_extract",
+  "camellia sinensis": "ing_green_tea_extract",
+
+  "grape seed extract": "ing_grape_seed_extract",
+  "grapeseed extract": "ing_grape_seed_extract",
+
+  "marigold extract": "ing_marigold_extract",
+  "tagetes erecta": "ing_marigold_extract",
+  "lutein": "ing_marigold_extract",
+
+  "calcium propionate": "ing_calcium_propionate",
+
+  "sorbic acid": "ing_sorbic_acid",
+
+  "sodium benzoate": "ing_sodium_benzoate",
+  "benzoate": "ing_sodium_benzoate",
+
+  "tbhq": "ing_tbhq",
+  "tertiary butylhydroquinone": "ing_tbhq",
+  "tert-butylhydroquinone": "ing_tbhq",
+
+  "cellulose gum": "ing_cellulose_gum",
+  "carboxymethyl cellulose": "ing_cellulose_gum",
+  "cmc": "ing_cellulose_gum",
+
+  "methylcellulose": "ing_methylcellulose",
+  "methyl cellulose": "ing_methylcellulose",
+
+  "cassia gum": "ing_cassia_gum",
+
+  "pectin": "ing_pectin",
+  "apple pectin": "ing_pectin",
+  "citrus pectin": "ing_pectin",
+
+  "modified food starch": "ing_modified_food_starch",
+  "modified starch": "ing_modified_food_starch",
+  "modified corn starch": "ing_modified_food_starch",
+
+  "tapioca starch": "ing_tapioca_starch",
+  "cassava starch": "ing_tapioca_starch",
+
+  "mono and diglycerides": "ing_mono_diglycerides",
+  "monoglycerides": "ing_mono_diglycerides",
+  "diglycerides": "ing_mono_diglycerides",
+
+  "polysorbate 80": "ing_polysorbate_80",
+  "tween 80": "ing_polysorbate_80",
+
+  "sunflower lecithin": "ing_sunflower_lecithin",
+
+  "iron oxide": "ing_iron_oxide",
+  "iron oxides": "ing_iron_oxide",
+
+  "red 40": "ing_red_40",
+  "allura red": "ing_red_40",
+  "fd&c red 40": "ing_red_40",
+
+  "yellow 5": "ing_yellow_5",
+  "tartrazine": "ing_yellow_5",
+  "fd&c yellow 5": "ing_yellow_5",
+
+  "yellow 6": "ing_yellow_6",
+  "sunset yellow": "ing_yellow_6",
+  "fd&c yellow 6": "ing_yellow_6",
+
+  "blue 2": "ing_blue_2",
+  "indigotine": "ing_blue_2",
+  "fd&c blue 2": "ing_blue_2",
+
+  "liver digest": "ing_liver_digest",
+  "beef liver digest": "ing_liver_digest",
+  "chicken liver digest": "ing_liver_digest",
+
+  "smoke flavor": "ing_smoke_flavor",
+  "natural smoke flavor": "ing_smoke_flavor",
+  "smoke flavoring": "ing_smoke_flavor",
+
+  "yeast extract": "ing_yeast_extract",
+  "autolyzed yeast": "ing_yeast_extract",
+
+  "hydrolyzed yeast": "ing_hydrolyzed_yeast",
+  "yeast cell wall": "ing_hydrolyzed_yeast",
+
+  "amaranth": "ing_amaranth",
+  "amaranth flour": "ing_amaranth",
+
+  "buckwheat": "ing_buckwheat",
+  "buckwheat flour": "ing_buckwheat",
+
+  "rye": "ing_rye",
+  "rye flour": "ing_rye",
+  "rye grain": "ing_rye",
+
+  "spelt": "ing_spelt",
+  "spelt flour": "ing_spelt",
+
+  "rice flour": "ing_rice_flour",
+  "ground rice": "ing_rice_flour",
+
+  "rice bran": "ing_rice_bran",
+
+  "brewers rice": "ing_brewers_rice",
+  "brewer's rice": "ing_brewers_rice",
+
+  "oat flour": "ing_oat_flour",
+
+  "oat fiber": "ing_oat_fiber",
+  "oat hull fiber": "ing_oat_fiber",
+
+  "wheat flour": "ing_wheat_flour",
+  "enriched wheat flour": "ing_wheat_flour",
+
+  "wheat gluten": "ing_wheat_gluten",
+  "vital wheat gluten": "ing_wheat_gluten",
+
+  "wheat middlings": "ing_wheat_middlings",
+  "wheat mill run": "ing_wheat_middlings",
+  "wheat shorts": "ing_wheat_middlings",
+
+  "corn flour": "ing_corn_flour",
+  "maize flour": "ing_corn_flour",
+
+  "corn starch": "ing_corn_starch",
+  "cornstarch": "ing_corn_starch",
+  "maize starch": "ing_corn_starch",
+
+  "corn bran": "ing_corn_bran",
+
+  "navy beans": "ing_navy_beans",
+  "white beans": "ing_navy_beans",
+
+  "kidney beans": "ing_kidney_beans",
+  "red kidney beans": "ing_kidney_beans",
+
+  "black beans": "ing_black_beans",
+  "black turtle beans": "ing_black_beans",
+
+  "fava beans": "ing_fava_beans",
+  "broad beans": "ing_fava_beans",
+
+  "pea fiber": "ing_pea_fiber",
+  "pea hull fiber": "ing_pea_fiber",
+
+  "pea starch": "ing_pea_starch",
+
+  "arrowroot": "ing_arrowroot",
+  "arrowroot starch": "ing_arrowroot",
+  "arrowroot flour": "ing_arrowroot",
+
+  "potato starch": "ing_potato_starch",
+
+  "potato protein": "ing_potato_protein",
+  "potato protein isolate": "ing_potato_protein",
+
+  "powdered cellulose": "ing_powdered_cellulose",
+
+  "tomato pomace": "ing_tomato_pomace",
+  "dried tomato pomace": "ing_tomato_pomace",
+
+  "apple pomace": "ing_apple_pomace",
+  "dried apple pomace": "ing_apple_pomace",
+
+  "psyllium husk": "ing_psyllium_husk",
+  "psyllium": "ing_psyllium_husk",
+  "psyllium seed husk": "ing_psyllium_husk",
+
+  "miscanthus grass": "ing_miscanthus_grass",
+  "miscanthus fiber": "ing_miscanthus_grass",
+
+  "hydrolyzed chicken liver": "ing_hydrolyzed_chicken",
+  "hydrolyzed chicken protein": "ing_hydrolyzed_chicken",
+
+  "hydrolyzed salmon": "ing_hydrolyzed_salmon",
+  "hydrolyzed salmon protein": "ing_hydrolyzed_salmon",
+
+  "hydrolyzed soy protein": "ing_hydrolyzed_soy",
+
+  "hydrolyzed vegetable protein": "ing_hydrolyzed_vegetable_protein",
+  "hvp": "ing_hydrolyzed_vegetable_protein",
+
+  "wild boar": "ing_wild_boar",
+  "boar": "ing_wild_boar",
+  "wild boar meal": "ing_wild_boar",
+
+  "elk": "ing_elk",
+  "elk meat": "ing_elk",
+  "elk meal": "ing_elk",
+
+  "ostrich": "ing_ostrich",
+  "ostrich meat": "ing_ostrich",
+  "ostrich meal": "ing_ostrich",
+
+  "alligator": "ing_alligator",
+  "alligator meat": "ing_alligator",
+
+  "black soldier fly larvae": "ing_black_soldier_fly",
+  "bsfl": "ing_black_soldier_fly",
+  "black soldier fly": "ing_black_soldier_fly",
+  "hermetia illucens": "ing_black_soldier_fly",
+
+  "cricket protein": "ing_cricket_protein",
+  "cricket meal": "ing_cricket_protein",
+  "cricket flour": "ing_cricket_protein",
+  "acheta domesticus": "ing_cricket_protein",
+
+  "mealworm protein": "ing_mealworm_protein",
+  "mealworm meal": "ing_mealworm_protein",
+  "tenebrio molitor": "ing_mealworm_protein",
+
+  "soy protein isolate": "ing_soy_protein_isolate",
+
+  "soy protein concentrate": "ing_soy_protein_concentrate",
+
+  "canola meal": "ing_canola_meal",
+  "rapeseed meal": "ing_canola_meal",
+
+  "sunflower meal": "ing_sunflower_meal",
+  "sunflower seed meal": "ing_sunflower_meal",
+
+  "catfish": "ing_catfish",
+  "catfish meal": "ing_catfish",
+  "channel catfish": "ing_catfish",
+
+  "tilapia": "ing_tilapia",
+  "tilapia meal": "ing_tilapia",
+
+  "ocean fish meal": "ing_ocean_fish_meal",
+  "marine fish meal": "ing_ocean_fish_meal",
+
+  "krill meal": "ing_krill_meal",
+  "antarctic krill meal": "ing_krill_meal",
+
+  "green-lipped mussel": "ing_green_lipped_mussel",
+  "green lipped mussel": "ing_green_lipped_mussel",
+  "new zealand green mussel": "ing_green_lipped_mussel",
+  "perna canaliculus": "ing_green_lipped_mussel",
+
+  "shrimp meal": "ing_shrimp_meal",
+
+  "squid": "ing_squid",
+  "squid meal": "ing_squid",
+  "calamari": "ing_squid",
+
+  "safflower oil": "ing_safflower_oil",
+  "high oleic safflower oil": "ing_safflower_oil",
+
+  "mct oil": "ing_mct_oil",
+  "medium chain triglycerides": "ing_mct_oil",
+  "caprylic capric triglyceride": "ing_mct_oil",
+
+  "beef tallow": "ing_beef_tallow",
+  "tallow": "ing_beef_tallow",
+  "beef fat": "ing_beef_tallow",
+
+  "pork fat": "ing_pork_fat",
+  "lard": "ing_pork_fat",
+
+  "poultry fat": "ing_poultry_fat",
+  "chicken and turkey fat": "ing_poultry_fat",
+
+  "herring oil": "ing_herring_oil",
+
+  "anchovy oil": "ing_anchovy_oil",
+
+  "pomegranate": "ing_pomegranate",
+  "pomegranate extract": "ing_pomegranate",
+
+  "acai": "ing_acai",
+  "acai berry": "ing_acai",
+  "acai extract": "ing_acai",
+
+  "goji berries": "ing_goji_berries",
+  "goji": "ing_goji_berries",
+  "wolfberry": "ing_goji_berries",
+
+  "chia seeds": "ing_chia_seeds",
+  "chia": "ing_chia_seeds",
+  "chia seed": "ing_chia_seeds",
+
+  "hemp seeds": "ing_hemp_seeds",
+  "hemp seed": "ing_hemp_seeds",
+  "hemp hearts": "ing_hemp_seeds",
+
+  "seaweed": "ing_seaweed",
+  "dried seaweed": "ing_seaweed",
+  "sea vegetables": "ing_seaweed",
+
+  "lactobacillus acidophilus": "ing_lactobacillus_acidophilus",
+  "l. acidophilus": "ing_lactobacillus_acidophilus",
+
+  "bifidobacterium animalis": "ing_bifidobacterium_animalis",
+  "b. animalis": "ing_bifidobacterium_animalis",
+  "bifidobacterium lactis": "ing_bifidobacterium_animalis",
+
+  "enterococcus faecium": "ing_enterococcus_faecium",
+  "e. faecium": "ing_enterococcus_faecium",
+
+  "bacillus coagulans": "ing_bacillus_coagulans",
+  "b. coagulans": "ing_bacillus_coagulans",
+
+  "dried fermentation products": "ing_dried_fermentation_products",
+  "fermentation extract": "ing_dried_fermentation_products",
+
+  "aspergillus oryzae": "ing_aspergillus_oryzae",
+  "a. oryzae": "ing_aspergillus_oryzae",
+  "aspergillus oryzae fermentation extract": "ing_aspergillus_oryzae",
+
+  "trichoderma longibrachiatum": "ing_trichoderma_longibrachiatum",
+  "trichoderma longibrachiatum fermentation extract": "ing_trichoderma_longibrachiatum",
+
+  "protease": "ing_protease",
+  "proteolytic enzymes": "ing_protease",
+
+  "amylase": "ing_amylase",
+  "alpha amylase": "ing_amylase",
+
+  "lipase": "ing_lipase",
+
+  "cellulase": "ing_cellulase",
+
+  "glucosamine hydrochloride": "ing_glucosamine_hydrochloride",
+  "glucosamine hcl": "ing_glucosamine_hydrochloride",
+
+  "calcium ascorbate": "ing_calcium_ascorbate",
+
+  "sodium ascorbate": "ing_sodium_ascorbate",
+
+  "dried egg product": "ing_dried_egg_product",
+  "dehydrated egg": "ing_dried_egg_product",
+  "dried whole egg": "ing_dried_egg_product"
 }

@@ -171,7 +171,7 @@ struct ScannerView: View {
                 viewModel.goToIngredientSelection()
             },
             onRetry: {
-                viewModel.retryLastScan()
+                viewModel.restartScanning()
             }
         )
     }

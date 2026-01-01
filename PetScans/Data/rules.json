@@ -736,5 +736,113 @@
     "source": "EFSA",
     "createdAt": "2026-01-01T00:00:00.000Z",
     "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_tbhq_caution",
+    "ingredientId": "ing_tbhq",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 15,
+    "scoreImpact": -15,
+    "explain": "TBHQ is a synthetic antioxidant preservative. While FDA approved in limited amounts, some studies have raised concerns about long-term exposure.",
+    "evidence": "medium",
+    "source": "FDA, EFSA",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_sodium_benzoate_caution",
+    "ingredientId": "ing_sodium_benzoate",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "info",
+    "action": "caution",
+    "penalty": 5,
+    "scoreImpact": -5,
+    "explain": "Sodium benzoate is an antimicrobial preservative. Some pets may be sensitive to it. Generally considered safe in small amounts.",
+    "evidence": "medium",
+    "source": "FDA GRAS",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_red_40_caution",
+    "ingredientId": "ing_red_40",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "info",
+    "action": "caution",
+    "penalty": 8,
+    "scoreImpact": -8,
+    "explain": "Red 40 is an artificial food colorant with no nutritional value. Added purely for visual appeal to pet owners. Some animals may show sensitivity.",
+    "evidence": "medium",
+    "source": "FDA, CSPI",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_yellow_5_caution",
+    "ingredientId": "ing_yellow_5",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "info",
+    "action": "caution",
+    "penalty": 8,
+    "scoreImpact": -8,
+    "explain": "Yellow 5 (Tartrazine) is an artificial food colorant with no nutritional value. Added purely for visual appeal. Some animals may show sensitivity.",
+    "evidence": "medium",
+    "source": "FDA, CSPI",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_yellow_6_caution",
+    "ingredientId": "ing_yellow_6",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "info",
+    "action": "caution",
+    "penalty": 8,
+    "scoreImpact": -8,
+    "explain": "Yellow 6 (Sunset Yellow) is an artificial food colorant with no nutritional value. Added purely for visual appeal. Some animals may show sensitivity.",
+    "evidence": "medium",
+    "source": "FDA, CSPI",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_blue_2_caution",
+    "ingredientId": "ing_blue_2",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "info",
+    "action": "caution",
+    "penalty": 8,
+    "scoreImpact": -8,
+    "explain": "Blue 2 (Indigotine) is an artificial food colorant with no nutritional value. Added purely for visual appeal. Some animals may show sensitivity.",
+    "evidence": "medium",
+    "source": "FDA, CSPI",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
   }
 ]

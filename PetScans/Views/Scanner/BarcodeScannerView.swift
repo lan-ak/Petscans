@@ -43,8 +43,9 @@ struct BarcodeScannerView: UIViewRepresentable {
             let session = AVCaptureSession()
             session.beginConfiguration()
 
-            // Set up camera input
-            guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else {
+            // Set up camera input - prefer ultra-wide for close-up focus
+            guard let videoCaptureDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
+                ?? AVCaptureDevice.default(for: .video) else {
                 onError("No camera available")
                 return
             }
@@ -62,6 +63,20 @@ struct BarcodeScannerView: UIViewRepresentable {
             } else {
                 onError("Unable to add camera input")
                 return
+            }
+
+            // Configure focus for close-up scanning
+            do {
+                try videoCaptureDevice.lockForConfiguration()
+                if videoCaptureDevice.isFocusModeSupported(.continuousAutoFocus) {
+                    videoCaptureDevice.focusMode = .continuousAutoFocus
+                }
+                if videoCaptureDevice.isAutoFocusRangeRestrictionSupported {
+                    videoCaptureDevice.autoFocusRangeRestriction = .near
+                }
+                videoCaptureDevice.unlockForConfiguration()
+            } catch {
+                // Continue without optimized focus if configuration fails
             }
 
             // Set up metadata output for barcode scanning

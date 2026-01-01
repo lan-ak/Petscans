@@ -51,27 +51,6 @@ struct SettingsView: View {
                 }
 
                 Section {
-                    Link(destination: URL(string: "https://world.openpetfoodfacts.org")!) {
-                        HStack {
-                            Image(systemName: "link")
-                                .foregroundColor(ColorTokens.brandPrimary)
-                                .frame(width: 28)
-
-                            Text("Open Pet Food Facts")
-
-                            Spacer()
-
-                            Image(systemName: "arrow.up.right.square")
-                                .foregroundColor(ColorTokens.textSecondary)
-                        }
-                    }
-                } header: {
-                    Text("Data Source")
-                } footer: {
-                    Text("Product data is provided by the Open Pet Food Facts community database.")
-                }
-
-                Section {
                     NavigationLink {
                         ReferencesView()
                     } label: {

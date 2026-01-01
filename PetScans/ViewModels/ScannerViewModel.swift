@@ -158,6 +158,12 @@ final class ScannerViewModel: ObservableObject {
         handleBarcodeScan(code)
     }
 
+    func restartScanning() {
+        barcode = nil
+        step = .scanning
+        currentError = nil
+    }
+
     func handleManualEntry(name: String?, brandName: String?, ingredients: String) {
         productName = name ?? ""
         brand = brandName
