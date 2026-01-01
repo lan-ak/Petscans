@@ -93,7 +93,7 @@ struct CacheSettingsView: View {
             } header: {
                 Text("Sync")
             } footer: {
-                Text("Download all \(Text("1,897").bold()) pet food products for offline access. Requires WiFi connection.")
+                Text("Download all available pet food products for offline access. Requires WiFi connection.")
             }
 
             Section {

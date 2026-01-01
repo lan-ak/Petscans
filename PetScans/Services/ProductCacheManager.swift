@@ -123,7 +123,7 @@ class ProductCacheManager: ObservableObject {
     /// Fetch a single page of products from the V2 search API
     private func fetchProductsPage(page: Int) async throws -> V2SearchResponse {
         let fields = "code,product_name,brands,ingredients_text,image_url,image_front_url,last_modified_t"
-        let urlString = "\(baseURL)/search?categories_tags_en=pet-food&page_size=100&page=\(page)&fields=\(fields)"
+        let urlString = "\(baseURL)/search?page_size=100&page=\(page)&fields=\(fields)"
 
         guard let url = URL(string: urlString) else {
             throw CacheError.invalidURL
