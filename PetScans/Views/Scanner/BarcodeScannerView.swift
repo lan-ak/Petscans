@@ -137,26 +137,26 @@ struct ScannerUnavailableView: View {
     let onManualEntry: () -> Void
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: SpacingTokens.md) {
             Image(systemName: "barcode.viewfinder")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
+                .font(.system(size: SpacingTokens.iconXLarge))
+                .foregroundColor(ColorTokens.textSecondary)
 
             Text("Camera Not Available")
-                .font(.title2.bold())
+                .displaySmall()
 
             Text("Barcode scanning requires a device with a camera.")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
+                .bodySmall()
+                .foregroundColor(ColorTokens.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
             Button("Enter Manually") {
                 onManualEntry()
             }
-            .buttonStyle(.borderedProminent)
+            .primaryButtonStyle()
         }
-        .padding()
+        .padding(SpacingTokens.sm)
     }
 }
 

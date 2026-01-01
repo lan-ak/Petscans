@@ -62,9 +62,9 @@ struct FilterChip: View {
                     .labelMedium()
             }
             .padding(.horizontal, SpacingTokens.xs)
-            .padding(.vertical, SpacingTokens.xxxs + 2)
+            .padding(.vertical, SpacingTokens.xxs)
             .background(isSelected ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)
-            .foregroundColor(isSelected ? .white : .primary)
+            .foregroundColor(isSelected ? .white : ColorTokens.textPrimary)
             .cornerRadius(SpacingTokens.radiusLarge)
         }
     }

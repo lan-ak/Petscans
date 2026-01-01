@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ResultsView: View {
-    let productName: String?
+    let productName: String
     let brand: String?
     let imageUrl: String?
     let species: Species
@@ -38,8 +38,8 @@ struct ResultsView: View {
 
                 // Product header
                 VStack(spacing: SpacingTokens.xxs) {
-                    if let name = productName {
-                        Text(name)
+                    if !productName.isEmpty {
+                        Text(productName)
                             .displaySmall()
                             .multilineTextAlignment(.center)
                     }
@@ -194,7 +194,7 @@ struct ResultsView: View {
 
     private var productPlaceholder: some View {
         Image(systemName: "photo")
-            .font(.system(size: 40))
+            .font(.system(size: SpacingTokens.iconXLarge * 0.67))
             .foregroundColor(ColorTokens.textSecondary)
             .frame(width: 120, height: 120)
             .background(ColorTokens.surfacePrimary)

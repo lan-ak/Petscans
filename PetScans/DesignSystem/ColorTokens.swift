@@ -79,6 +79,9 @@ struct ColorTokens {
     /// Information state - blue
     static let info = severityInfo
 
+    /// Favorite/star state - yellow
+    static let favorite = Color(red: 0xFF/255, green: 0xCC/255, blue: 0x00/255)
+
     // MARK: - Neutral Colors
 
     /// App-wide background with subtle green tint to reinforce Yuka branding

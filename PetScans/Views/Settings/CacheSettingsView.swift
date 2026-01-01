@@ -10,14 +10,14 @@ struct CacheSettingsView: View {
                     Text("Products Cached")
                     Spacer()
                     Text("\(cacheManager.productCount)")
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ColorTokens.textSecondary)
                 }
 
                 HStack {
                     Text("Database Size")
                     Spacer()
                     Text(String(format: "%.1f MB", cacheManager.databaseSizeMB))
-                        .foregroundColor(.secondary)
+                        .foregroundColor(ColorTokens.textSecondary)
                 }
 
                 if let lastSync = cacheManager.lastSyncDate {
@@ -25,7 +25,7 @@ struct CacheSettingsView: View {
                         Text("Last Updated")
                         Spacer()
                         Text(lastSync, style: .relative)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(ColorTokens.textSecondary)
                     }
                 }
             } header: {
@@ -44,7 +44,7 @@ struct CacheSettingsView: View {
                     }
 
                 case let .syncing(page, totalPages):
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xs) {
                         HStack {
                             ProgressView(value: cacheManager.progress) {
                                 Text("Downloading...")
@@ -53,42 +53,42 @@ struct CacheSettingsView: View {
                         }
 
                         Text("Page \(page) of \(totalPages)")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .caption()
+                            .foregroundColor(ColorTokens.textSecondary)
 
                         Text("This may take 1-2 minutes. Please keep the app open.")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .caption()
+                            .foregroundColor(ColorTokens.textSecondary)
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, SpacingTokens.xxxs)
 
                 case .completed:
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
+                            .foregroundColor(ColorTokens.success)
                         Text("Download Complete!")
                     }
 
                 case .failed(let error):
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(.red)
+                                .foregroundColor(ColorTokens.error)
                             Text("Download Failed")
                         }
 
                         Text(error.localizedDescription)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
+                            .caption()
+                            .foregroundColor(ColorTokens.textSecondary)
 
                         Button("Try Again") {
                             Task {
                                 await cacheManager.fullSync()
                             }
                         }
-                        .buttonStyle(.bordered)
+                        .secondaryButtonStyle()
                     }
-                    .padding(.vertical, 4)
+                    .padding(.vertical, SpacingTokens.xxxs)
                 }
             } header: {
                 Text("Sync")

@@ -5,13 +5,6 @@ struct ScannerView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = ScannerViewModel()
 
-    // Get allergens from UserDefaults
-    @AppStorage("petAllergens") private var petAllergensData: Data = Data()
-
-    private var petAllergens: [String] {
-        (try? JSONDecoder().decode([String].self, from: petAllergensData)) ?? []
-    }
-
     var body: some View {
         NavigationStack {
             Group {
@@ -36,12 +29,14 @@ struct ScannerView: View {
 
                 case .selectOptions:
                     SpeciesCategoryPicker(
-                        productName: viewModel.productName,
+                        productName: $viewModel.productName,
                         brand: viewModel.brand,
+                        isUnknownProduct: viewModel.scoreSource != .databaseVerified,
+                        selectedPet: $viewModel.selectedPet,
                         species: $viewModel.selectedSpecies,
                         category: $viewModel.selectedCategory,
                         onAnalyze: {
-                            viewModel.performAnalysis(petAllergens: petAllergens)
+                            viewModel.performAnalysis()
                         },
                         onCancel: viewModel.reset
                     )
@@ -61,7 +56,7 @@ struct ScannerView: View {
                             productName: viewModel.productName,
                             brand: viewModel.brand,
                             imageUrl: viewModel.imageUrl,
-                            species: viewModel.selectedSpecies,
+                            species: viewModel.selectedPet?.speciesEnum ?? viewModel.selectedSpecies,
                             category: viewModel.selectedCategory,
                             scoreBreakdown: breakdown,
                             matchedIngredients: viewModel.matchedIngredients,
@@ -109,7 +104,7 @@ struct ScannerView: View {
                             .background(.ultraThinMaterial)
                             .cornerRadius(SpacingTokens.radiusMedium)
                     }
-                    .padding(.bottom, 40)
+                    .padding(.bottom, SpacingTokens.xxl)
                 }
             } else {
                 ScannerUnavailableView {

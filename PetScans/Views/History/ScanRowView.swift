@@ -36,7 +36,7 @@ struct ScanRowView: View {
                     if scan.isFavorite {
                         Image(systemName: "star.fill")
                             .caption()
-                            .foregroundColor(.yellow)
+                            .foregroundColor(ColorTokens.favorite)
                     }
 
                     if scan.hasCriticalFlags {

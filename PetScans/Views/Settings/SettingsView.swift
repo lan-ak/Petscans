@@ -1,38 +1,35 @@
 import SwiftUI
+import SwiftData
 
 struct SettingsView: View {
-    @AppStorage("petAllergens") private var petAllergensData: Data = Data()
-
-    private var allergenCount: Int {
-        (try? JSONDecoder().decode([String].self, from: petAllergensData))?.count ?? 0
-    }
+    @Query private var pets: [Pet]
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     NavigationLink {
-                        AllergenSettingsView()
+                        PetListView()
                     } label: {
                         HStack {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(ColorTokens.warning)
+                            Image(systemName: "pawprint.fill")
+                                .foregroundColor(ColorTokens.brandPrimary)
                                 .frame(width: 28)
 
-                            Text("Pet Allergens")
+                            Text("My Pets")
 
                             Spacer()
 
-                            if allergenCount > 0 {
-                                Text("\(allergenCount)")
+                            if pets.count > 0 {
+                                Text("\(pets.count)")
                                     .foregroundColor(ColorTokens.textSecondary)
                             }
                         }
                     }
                 } header: {
-                    Text("Pet Profile")
+                    Text("Pet Profiles")
                 } footer: {
-                    Text("Configure ingredients your pet is allergic to. These will be flagged when scanning products.")
+                    Text("Manage your pets and their individual allergen profiles.")
                 }
 
                 Section {

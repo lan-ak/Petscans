@@ -41,7 +41,6 @@
 		A1000034 /* PetFoodAPIServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000035 /* PetFoodAPIServiceProtocol.swift */; };
 		A1000035 /* NetworkErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000036 /* NetworkErrorView.swift */; };
 		A1000036 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000037 /* SettingsView.swift */; };
-		A1000037 /* AllergenSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000038 /* AllergenSettingsView.swift */; };
 		A1000038 /* ScoreBreakdown+ShareText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000039 /* ScoreBreakdown+ShareText.swift */; };
 		F7A9FEF52F05BDE0000623DA /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = F7A9FEF42F05BDE0000623DA /* GRDB */; };
 		F7D834FF2F05E6C100414B32 /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D834FE2F05E6C100414B32 /* OCRService.swift */; };
@@ -52,6 +51,14 @@
 		F7D8350A2F06C88B00414B32 /* IngredientSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835092F06C88B00414B32 /* IngredientSelectionView.swift */; };
 		F7D8350B2F06C88B00414B32 /* IngredientRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835082F06C88B00414B32 /* IngredientRowView.swift */; };
 		F7D8350D2F06DAED00414B32 /* ReferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8350C2F06DAED00414B32 /* ReferencesView.swift */; };
+		F7D8350F2F06EBD700414B32 /* Pet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8350E2F06EBD700414B32 /* Pet.swift */; };
+		F7D835112F06EBEC00414B32 /* PetMigrationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835102F06EBEC00414B32 /* PetMigrationService.swift */; };
+		F7D835132F06EC0B00414B32 /* PetListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835122F06EC0B00414B32 /* PetListView.swift */; };
+		F7D835152F06EC1400414B32 /* PetRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835142F06EC1400414B32 /* PetRowView.swift */; };
+		F7D835172F06EC2600414B32 /* PetDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835162F06EC2600414B32 /* PetDetailView.swift */; };
+		F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835192F06EC3C00414B32 /* AddPetSheet.swift */; };
+		F7D8351B2F06EC3C00414B32 /* AddAllergenSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */; };
+		F7D8351D2F06EC5400414B32 /* PetSelectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8351C2F06EC5400414B32 /* PetSelectionRow.swift */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
 		F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */; };
@@ -101,7 +108,6 @@
 		A2000035 /* PetFoodAPIServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetFoodAPIServiceProtocol.swift; sourceTree = "<group>"; };
 		A2000036 /* NetworkErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorView.swift; sourceTree = "<group>"; };
 		A2000037 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		A2000038 /* AllergenSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllergenSettingsView.swift; sourceTree = "<group>"; };
 		A2000039 /* ScoreBreakdown+ShareText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScoreBreakdown+ShareText.swift"; sourceTree = "<group>"; };
 		F7D834FE2F05E6C100414B32 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
 		F7D835002F05E6D400414B32 /* OCRServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRServiceProtocol.swift; sourceTree = "<group>"; };
@@ -111,6 +117,14 @@
 		F7D835082F06C88B00414B32 /* IngredientRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientRowView.swift; sourceTree = "<group>"; };
 		F7D835092F06C88B00414B32 /* IngredientSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSelectionView.swift; sourceTree = "<group>"; };
 		F7D8350C2F06DAED00414B32 /* ReferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferencesView.swift; sourceTree = "<group>"; };
+		F7D8350E2F06EBD700414B32 /* Pet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Pet.swift; sourceTree = "<group>"; };
+		F7D835102F06EBEC00414B32 /* PetMigrationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetMigrationService.swift; sourceTree = "<group>"; };
+		F7D835122F06EC0B00414B32 /* PetListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetListView.swift; sourceTree = "<group>"; };
+		F7D835142F06EC1400414B32 /* PetRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetRowView.swift; sourceTree = "<group>"; };
+		F7D835162F06EC2600414B32 /* PetDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetDetailView.swift; sourceTree = "<group>"; };
+		F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAllergenSheet.swift; sourceTree = "<group>"; };
+		F7D835192F06EC3C00414B32 /* AddPetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPetSheet.swift; sourceTree = "<group>"; };
+		F7D8351C2F06EC5400414B32 /* PetSelectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetSelectionRow.swift; sourceTree = "<group>"; };
 		F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningReticleView.swift; sourceTree = "<group>"; };
 		F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Quicksand.ttf; sourceTree = "<group>"; };
 		F7F30C7C2F05B208008389D8 /* ColorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTokens.swift; sourceTree = "<group>"; };
@@ -171,6 +185,7 @@
 		A4000004 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F7D8350E2F06EBD700414B32 /* Pet.swift */,
 				F7F30C8A2F05B9F4008389D8 /* DatabaseProduct.swift */,
 				A2000003 /* Species.swift */,
 				A2000004 /* Category.swift */,
@@ -199,6 +214,7 @@
 		A4000006 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F7D835102F06EBEC00414B32 /* PetMigrationService.swift */,
 				F7D834FE2F05E6C100414B32 /* OCRService.swift */,
 				F7F30C902F05BAA4008389D8 /* ProductCacheManager.swift */,
 				F7F30C892F05B9E8008389D8 /* Database */,
@@ -225,6 +241,7 @@
 		A4000008 /* Scanner */ = {
 			isa = PBXGroup;
 			children = (
+				F7D8351C2F06EC5400414B32 /* PetSelectionRow.swift */,
 				F7D835082F06C88B00414B32 /* IngredientRowView.swift */,
 				F7D835092F06C88B00414B32 /* IngredientSelectionView.swift */,
 				F7D835062F05E70600414B32 /* OCRProcessingView.swift */,
@@ -282,10 +299,14 @@
 		A4000013 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */,
+				F7D835192F06EC3C00414B32 /* AddPetSheet.swift */,
+				F7D835162F06EC2600414B32 /* PetDetailView.swift */,
+				F7D835142F06EC1400414B32 /* PetRowView.swift */,
+				F7D835122F06EC0B00414B32 /* PetListView.swift */,
 				F7D8350C2F06DAED00414B32 /* ReferencesView.swift */,
 				F7F30C922F05BAC5008389D8 /* CacheSettingsView.swift */,
 				A2000037 /* SettingsView.swift */,
-				A2000038 /* AllergenSettingsView.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -392,8 +413,10 @@
 				F7F30C932F05BAC5008389D8 /* CacheSettingsView.swift in Sources */,
 				F7D8350A2F06C88B00414B32 /* IngredientSelectionView.swift in Sources */,
 				F7D8350B2F06C88B00414B32 /* IngredientRowView.swift in Sources */,
+				F7D835132F06EC0B00414B32 /* PetListView.swift in Sources */,
 				A1000006 /* Ingredient.swift in Sources */,
 				A1000007 /* Rule.swift in Sources */,
+				F7D835112F06EBEC00414B32 /* PetMigrationService.swift in Sources */,
 				A1000008 /* MatchedIngredient.swift in Sources */,
 				A1000009 /* ScoreBreakdown.swift in Sources */,
 				F7D8350D2F06DAED00414B32 /* ReferencesView.swift in Sources */,
@@ -403,6 +426,7 @@
 				A1000013 /* IngredientMatcher.swift in Sources */,
 				F7D835072F05E70600414B32 /* OCRProcessingView.swift in Sources */,
 				F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */,
+				F7D835172F06EC2600414B32 /* PetDetailView.swift in Sources */,
 				F7F30C822F05B208008389D8 /* TypographyTokens.swift in Sources */,
 				F7F30C832F05B208008389D8 /* ComponentStyles.swift in Sources */,
 				F7F30C912F05BAA4008389D8 /* ProductCacheManager.swift in Sources */,
@@ -410,6 +434,8 @@
 				A1000014 /* ScoreCalculator.swift in Sources */,
 				A1000015 /* PetFoodAPIService.swift in Sources */,
 				F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */,
+				F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */,
+				F7D8351B2F06EC3C00414B32 /* AddAllergenSheet.swift in Sources */,
 				A1000017 /* ScannerView.swift in Sources */,
 				F7F30C8B2F05B9F4008389D8 /* DatabaseProduct.swift in Sources */,
 				A1000018 /* BarcodeScannerView.swift in Sources */,
@@ -417,8 +443,10 @@
 				A1000020 /* SpeciesCategoryPicker.swift in Sources */,
 				F7D834FF2F05E6C100414B32 /* OCRService.swift in Sources */,
 				A1000021 /* ResultsView.swift in Sources */,
+				F7D835152F06EC1400414B32 /* PetRowView.swift in Sources */,
 				A1000022 /* HistoryView.swift in Sources */,
 				A1000023 /* ScanRowView.swift in Sources */,
+				F7D8350F2F06EBD700414B32 /* Pet.swift in Sources */,
 				A1000024 /* FilterChipsView.swift in Sources */,
 				A1000025 /* ScanDetailView.swift in Sources */,
 				A1000026 /* ScoreCircleView.swift in Sources */,
@@ -432,7 +460,7 @@
 				F7D835032F05E6F000414B32 /* ProductNotFoundView.swift in Sources */,
 				A1000035 /* NetworkErrorView.swift in Sources */,
 				A1000036 /* SettingsView.swift in Sources */,
-				A1000037 /* AllergenSettingsView.swift in Sources */,
+				F7D8351D2F06EC5400414B32 /* PetSelectionRow.swift in Sources */,
 				A1000038 /* ScoreBreakdown+ShareText.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

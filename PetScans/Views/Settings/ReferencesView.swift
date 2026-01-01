@@ -5,7 +5,7 @@ struct ReferencesView: View {
         List {
             Section {
                 Text("PetScans uses data from trusted veterinary and regulatory sources to provide accurate ingredient safety information.")
-                    .font(.subheadline)
+                    .bodySmall()
                     .foregroundColor(ColorTokens.textSecondary)
             }
 
@@ -78,10 +78,10 @@ struct ReferencesView: View {
             Section {
                 VStack(alignment: .leading, spacing: SpacingTokens.sm) {
                     Text("How Safety Scores Work")
-                        .font(.headline)
+                        .heading2()
 
                     Text("Safety scores are calculated based on:")
-                        .font(.subheadline)
+                        .bodySmall()
                         .foregroundColor(ColorTokens.textSecondary)
 
                     VStack(alignment: .leading, spacing: SpacingTokens.xs) {
@@ -95,10 +95,10 @@ struct ReferencesView: View {
 
                 VStack(alignment: .leading, spacing: SpacingTokens.sm) {
                     Text("Evidence Quality")
-                        .font(.headline)
+                        .heading2()
 
                     Text("Each safety rule is rated by evidence strength:")
-                        .font(.subheadline)
+                        .bodySmall()
                         .foregroundColor(ColorTokens.textSecondary)
 
                     VStack(alignment: .leading, spacing: SpacingTokens.xs) {
@@ -117,16 +117,15 @@ struct ReferencesView: View {
             Section {
                 VStack(alignment: .leading, spacing: SpacingTokens.sm) {
                     Text("Important Disclaimer")
-                        .font(.headline)
+                        .heading2()
                         .foregroundColor(ColorTokens.warning)
 
                     Text("PetScans provides educational information only and is not a substitute for professional veterinary advice. Always consult your veterinarian before making dietary changes or if you suspect your pet has ingested something harmful.")
-                        .font(.subheadline)
+                        .bodySmall()
                         .foregroundColor(ColorTokens.textSecondary)
 
                     Text("In case of emergency, contact your veterinarian or the ASPCA Animal Poison Control Center at (888) 426-4435.")
-                        .font(.subheadline)
-                        .fontWeight(.medium)
+                        .captionEmphasis()
                 }
                 .padding(.vertical, SpacingTokens.xs)
             } header: {
@@ -148,18 +147,18 @@ struct ReferenceRow: View {
             VStack(alignment: .leading, spacing: SpacingTokens.xs) {
                 HStack {
                     Text(name)
-                        .font(.body)
+                        .bodyText()
                         .foregroundColor(ColorTokens.brandPrimary)
 
                     Spacer()
 
                     Image(systemName: "arrow.up.right.square")
-                        .font(.caption)
+                        .caption()
                         .foregroundColor(ColorTokens.textSecondary)
                 }
 
                 Text(description)
-                    .font(.caption)
+                    .caption()
                     .foregroundColor(ColorTokens.textSecondary)
             }
             .padding(.vertical, SpacingTokens.xs)
@@ -175,7 +174,7 @@ struct BulletPoint: View {
             Text("•")
                 .foregroundColor(ColorTokens.brandPrimary)
             Text(text)
-                .font(.caption)
+                .caption()
                 .foregroundColor(ColorTokens.textSecondary)
         }
     }
@@ -188,13 +187,12 @@ struct EvidenceRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: SpacingTokens.sm) {
             Text(level)
-                .font(.caption)
-                .fontWeight(.semibold)
+                .captionEmphasis()
                 .foregroundColor(level == "Strong" ? ColorTokens.success : (level == "Medium" ? ColorTokens.warning : ColorTokens.textSecondary))
                 .frame(width: 60, alignment: .leading)
 
             Text(description)
-                .font(.caption)
+                .caption()
                 .foregroundColor(ColorTokens.textSecondary)
         }
     }

@@ -67,12 +67,13 @@ final class ScannerViewModel: ObservableObject {
 
     @Published var step: Step = .scanning
     @Published var barcode: String?
-    @Published var productName: String?
+    @Published var productName: String = ""
     @Published var brand: String?
     @Published var imageUrl: String?
     @Published var ingredientsText: String = ""
     @Published var selectedSpecies: Species = .dog
     @Published var selectedCategory: Category = .food
+    @Published var selectedPet: Pet?
     @Published var matchedIngredients: [MatchedIngredient] = []
     @Published var scoreBreakdown: ScoreBreakdown?
     @Published var currentError: ScanError?
@@ -118,7 +119,7 @@ final class ScannerViewModel: ObservableObject {
             do {
                 let result = try await apiService.lookupProduct(barcode: code)
 
-                productName = result.productName
+                productName = result.productName ?? ""
                 brand = result.brand
                 imageUrl = result.imageUrl
                 scoreSource = .databaseVerified
@@ -158,7 +159,7 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func handleManualEntry(name: String?, brandName: String?, ingredients: String) {
-        productName = name
+        productName = name ?? ""
         brand = brandName
         ingredientsText = ingredients
         scoreSource = .manualEntry
@@ -205,13 +206,19 @@ final class ScannerViewModel: ObservableObject {
         step = .error
     }
 
-    func performAnalysis(petAllergens: [String] = []) {
+    func performAnalysis() {
+        // Get allergens from selected pet, or empty if no pet selected
+        let petAllergens = selectedPet?.allergens ?? []
+
+        // Use pet's species if available, otherwise fall back to selectedSpecies
+        let species = selectedPet?.speciesEnum ?? selectedSpecies
+
         // Match ingredients
         matchedIngredients = ingredientMatcher.match(rawIngredients: ingredientsText)
 
         // Calculate score with allergens and score source
         scoreBreakdown = scoreCalculator.calculate(
-            species: selectedSpecies,
+            species: species,
             category: selectedCategory,
             matched: matchedIngredients,
             petAllergens: petAllergens,
@@ -225,13 +232,15 @@ final class ScannerViewModel: ObservableObject {
     func saveToHistory(using modelContext: ModelContext) {
         guard let breakdown = scoreBreakdown else { return }
 
+        let species = selectedPet?.speciesEnum ?? selectedSpecies
+
         let scan = Scan(
             barcode: barcode,
-            productName: productName,
+            productName: productName.isEmpty ? nil : productName,
             brand: brand,
             imageUrl: imageUrl,
             category: selectedCategory,
-            targetSpecies: selectedSpecies,
+            targetSpecies: species,
             rawIngredientText: ingredientsText,
             matchedIngredients: matchedIngredients,
             scoreBreakdown: breakdown
@@ -252,12 +261,13 @@ final class ScannerViewModel: ObservableObject {
     func reset() {
         step = .scanning
         barcode = nil
-        productName = nil
+        productName = ""
         brand = nil
         imageUrl = nil
         ingredientsText = ""
         selectedSpecies = .dog
         selectedCategory = .food
+        selectedPet = nil
         matchedIngredients = []
         scoreBreakdown = nil
         currentError = nil
@@ -273,7 +283,7 @@ final class ScannerViewModel: ObservableObject {
         guard let breakdown = scoreBreakdown else { return "" }
 
         return breakdown.generateShareText(
-            productName: productName,
+            productName: productName.isEmpty ? nil : productName,
             brand: brand,
             species: selectedSpecies,
             category: selectedCategory
