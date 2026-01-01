@@ -9,6 +9,14 @@ struct Rule: Codable, Identifiable {
     let explain: String
     let evidence: String
 
+    // V2 fields (optional for backward compatibility)
+    let type: String?
+    let action: String?
+    let penalty: Int?
+    let source: String?
+    let createdAt: String?
+    let schemaVersion: String?
+
     struct AppliesTo: Codable {
         let species: [Species]
         let categories: [Category]

@@ -23,6 +23,12 @@ struct WarningFlagView: View {
                 Text(flag.explain)
                     .caption()
                     .foregroundColor(ColorTokens.textSecondary)
+
+                if let source = flag.source {
+                    Text("Source: \(source)")
+                        .font(.caption2)
+                        .foregroundColor(ColorTokens.textTertiary)
+                }
             }
         }
         .cardStyle(
@@ -38,28 +44,32 @@ struct WarningFlagView: View {
             severity: .critical,
             title: "Toxic ingredient",
             explain: "Xylitol is extremely dangerous for dogs and can cause liver failure.",
-            ingredientId: "ing_xylitol"
+            ingredientId: "ing_xylitol",
+            source: "ASPCA Animal Poison Control"
         ))
 
         WarningFlagView(flag: WarningFlag(
             severity: .high,
             title: "Possible allergen",
             explain: "Chicken may conflict with your pet's allergen profile.",
-            ingredientId: "ing_chicken"
+            ingredientId: "ing_chicken",
+            source: nil
         ))
 
         WarningFlagView(flag: WarningFlag(
             severity: .warn,
             title: "Use with caution",
             explain: "Garlic in large quantities may be harmful.",
-            ingredientId: "ing_garlic"
+            ingredientId: "ing_garlic",
+            source: "Merck Veterinary Manual"
         ))
 
         WarningFlagView(flag: WarningFlag(
             severity: .info,
             title: "Note",
             explain: "This ingredient is generally safe but monitor for reactions.",
-            ingredientId: nil
+            ingredientId: nil,
+            source: nil
         ))
     }
     .padding()

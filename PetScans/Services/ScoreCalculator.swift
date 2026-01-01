@@ -159,7 +159,8 @@ struct ScoreCalculator {
                         severity: .high,
                         title: "Possible allergen",
                         explain: "\(ing.commonName) may conflict with your pet's allergen profile.",
-                        ingredientId: ing.id
+                        ingredientId: ing.id,
+                        source: nil
                     ))
                 }
             }
@@ -245,7 +246,8 @@ struct ScoreCalculator {
                     severity: rule.severity,
                     title: "Ingredient rule triggered",
                     explain: rule.explain,
-                    ingredientId: ing.id
+                    ingredientId: ing.id,
+                    source: rule.source
                 ))
 
                 rulePenalty += Double(abs(rule.scoreImpact)) * weight

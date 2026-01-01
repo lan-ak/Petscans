@@ -109,7 +109,7 @@ struct ScanRowView: View {
                     safety: 50,
                     nutrition: 40,
                     suitability: 45,
-                    flags: [WarningFlag(severity: .critical, title: "Issue", explain: "Problem", ingredientId: nil)],
+                    flags: [WarningFlag(severity: .critical, title: "Issue", explain: "Problem", ingredientId: nil, source: nil)],
                     unmatched: [],
                     matchedCount: 5,
                     totalCount: 8,

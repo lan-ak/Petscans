@@ -216,7 +216,7 @@ struct ScanDetailView: View {
                         nutrition: 72,
                         suitability: 80,
                         flags: [
-                            WarningFlag(severity: .info, title: "Good protein source", explain: "Chicken is a quality protein source.", ingredientId: "ing_chicken")
+                            WarningFlag(severity: .info, title: "Good protein source", explain: "Chicken is a quality protein source.", ingredientId: "ing_chicken", source: nil)
                         ],
                         unmatched: ["Carrots"],
                         matchedCount: 4,

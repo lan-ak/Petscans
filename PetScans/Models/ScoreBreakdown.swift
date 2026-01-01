@@ -64,6 +64,7 @@ struct WarningFlag: Codable, Identifiable {
     let title: String
     let explain: String
     let ingredientId: String?
+    let source: String?
 
     var id: String {
         "\(severity.rawValue)-\(ingredientId ?? title)"

@@ -226,7 +226,7 @@ struct ResultsView: View {
             nutrition: 68,
             suitability: 90,
             flags: [
-                WarningFlag(severity: .warn, title: "Use with caution", explain: "Garlic in large quantities may be harmful.", ingredientId: "ing_garlic")
+                WarningFlag(severity: .warn, title: "Use with caution", explain: "Garlic in large quantities may be harmful.", ingredientId: "ing_garlic", source: "Merck Veterinary Manual")
             ],
             unmatched: ["mystery ingredient", "natural flavoring blend"],
             matchedCount: 8,
