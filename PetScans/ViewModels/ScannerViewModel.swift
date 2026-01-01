@@ -79,6 +79,7 @@ final class ScannerViewModel: ObservableObject {
     @Published var ocrImage: UIImage?
     @Published var ocrConfidence: Float?
     @Published var scoreSource: ScoreSource = .databaseVerified
+    @Published var isManualSearch: Bool = false
 
     // MARK: - Dependencies
 
@@ -165,7 +166,11 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func goToManualEntry() {
-        scoreSource = .manualEntry
+        isManualSearch = true
+        step = .productNotFound
+    }
+
+    func goToIngredientSelection() {
         step = .manualEntry
     }
 
@@ -259,6 +264,7 @@ final class ScannerViewModel: ObservableObject {
         ocrImage = nil
         ocrConfidence = nil
         scoreSource = .databaseVerified
+        isManualSearch = false
     }
 
     // MARK: - Share Content

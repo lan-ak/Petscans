@@ -4,32 +4,51 @@ import SwiftUI
 /// Offers options to take a photo of ingredients or enter manually
 struct ProductNotFoundView: View {
     let barcode: String?
+    var isManualSearch: Bool = false
     let onTakePhoto: () -> Void
     let onManualEntry: () -> Void
     let onRetry: () -> Void
+
+    private var title: String {
+        isManualSearch ? "Search by Ingredients" : "Product Not Found"
+    }
+
+    private var subtitle: String {
+        isManualSearch
+            ? "Choose how you'd like to enter ingredients:"
+            : "This product isn't in our database yet. You can:"
+    }
+
+    private var icon: String {
+        isManualSearch ? "magnifyingglass" : "exclamationmark.magnifyingglass"
+    }
+
+    private var iconColor: Color {
+        isManualSearch ? ColorTokens.brandPrimary : ColorTokens.warning.opacity(0.8)
+    }
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
 
             // Icon
-            Image(systemName: "exclamationmark.magnifyingglass")
+            Image(systemName: icon)
                 .font(.system(size: SpacingTokens.iconXLarge))
-                .foregroundColor(ColorTokens.warning.opacity(0.8))
+                .foregroundColor(iconColor)
 
             // Title and message
             VStack(spacing: SpacingTokens.xxs) {
-                Text("Product Not Found")
+                Text(title)
                     .displaySmall()
 
-                if let code = barcode {
+                if !isManualSearch, let code = barcode {
                     Text("Barcode: \(code)")
                         .caption()
                         .foregroundColor(ColorTokens.textSecondary)
                         .padding(.bottom, SpacingTokens.xs)
                 }
 
-                Text("This product isn't in our database yet. You can:")
+                Text(subtitle)
                     .bodySmall()
                     .foregroundColor(ColorTokens.textSecondary)
                     .multilineTextAlignment(.center)
@@ -54,15 +73,17 @@ struct ProductNotFoundView: View {
                 }
                 .secondaryButtonStyle()
 
-                // Tertiary: Retry
-                Button {
-                    onRetry()
-                } label: {
-                    Label("Try Barcode Again", systemImage: "arrow.clockwise")
+                // Tertiary: Retry (only show if not manual search)
+                if !isManualSearch {
+                    Button {
+                        onRetry()
+                    } label: {
+                        Label("Try Barcode Again", systemImage: "arrow.clockwise")
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(ColorTokens.textSecondary)
+                    .padding(.top, SpacingTokens.xs)
                 }
-                .buttonStyle(.plain)
-                .foregroundColor(ColorTokens.textSecondary)
-                .padding(.top, SpacingTokens.xs)
             }
             .padding(.horizontal)
 

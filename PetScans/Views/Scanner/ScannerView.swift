@@ -47,10 +47,11 @@ struct ScannerView: View {
                     )
 
                 case .manualEntry:
-                    ManualEntryView(
-                        initialProductName: viewModel.productName,
-                        initialBrand: viewModel.brand,
-                        onSubmit: viewModel.handleManualEntry,
+                    IngredientSelectionView(
+                        onSubmit: { selectedIngredients in
+                            let ingredientsText = selectedIngredients.map { $0.commonName }.joined(separator: ", ")
+                            viewModel.handleManualEntry(name: nil, brandName: nil, ingredients: ingredientsText)
+                        },
                         onCancel: viewModel.reset
                     )
 
@@ -167,11 +168,12 @@ struct ScannerView: View {
     private var productNotFoundView: some View {
         ProductNotFoundView(
             barcode: viewModel.barcode,
+            isManualSearch: viewModel.isManualSearch,
             onTakePhoto: {
                 viewModel.step = .ocrCapture
             },
             onManualEntry: {
-                viewModel.goToManualEntry()
+                viewModel.goToIngredientSelection()
             },
             onRetry: {
                 viewModel.retryLastScan()
