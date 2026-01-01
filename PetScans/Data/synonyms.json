@@ -109,15 +109,13 @@
   "pork broth": "ing_pork",
   "salmon meal": "ing_salmon",
   "dried salmon": "ing_salmon",
-  "salmon oil": "ing_fish_oil",
+  "salmon oil": "ing_salmon_oil",
   "salmon broth": "ing_salmon",
   "salmon flavor": "ing_natural_flavor",
   "tuna meal": "ing_tuna",
   "dried tuna": "ing_tuna",
   "ocean whitefish": "ing_whitefish",
   "white fish": "ing_whitefish",
-  "cod": "ing_whitefish",
-  "haddock": "ing_whitefish",
   "whole egg": "ing_egg",
   "dried egg": "ing_egg",
   "egg product": "ing_egg",
@@ -130,7 +128,7 @@
   "chicken heart": "ing_heart",
   "beef heart": "ing_heart",
   "dried heart": "ing_heart",
-  "fish meal": "ing_fish_oil",
+  "fish meal": "ing_menhaden",
   "menhaden fish oil": "ing_fish_oil",
   "anchovy oil": "ing_fish_oil",
   "sardine oil": "ing_fish_oil",
@@ -167,7 +165,7 @@
   "yellow corn": "ing_corn",
   "corn flour": "ing_corn",
   "dried peas": "ing_peas",
-  "pea protein": "ing_peas",
+  "pea protein": "ing_pea_protein",
   "pea flour": "ing_peas",
   "split peas": "ing_peas",
   "green peas": "ing_peas",
@@ -204,11 +202,11 @@
   "dried rosemary": "ing_rosemary_extract",
   "natural flavoring": "ing_natural_flavor",
   "flavoring": "ing_natural_flavor",
-  "chicken digest": "ing_natural_flavor",
-  "animal digest": "ing_natural_flavor",
+  "chicken digest": "ing_poultry_digest",
+  "animal digest": "ing_animal_digest",
   "gum": "ing_guar_gum",
   "cassia gum": "ing_guar_gum",
-  "locust bean gum": "ing_guar_gum",
+  "locust bean gum": "ing_locust_bean_gum",
   "sodium benzoate": "ing_potassium_sorbate",
   "butylated hydroxyanisole": "ing_bha",
   "butylated hydroxytoluene": "ing_bht",
@@ -245,5 +243,462 @@
   "methylparaben": "ing_parabens",
   "propylparaben": "ing_parabens",
   "butylparaben": "ing_parabens",
-  "melaleuca alternifolia": "ing_tea_tree_oil"
+  "melaleuca alternifolia": "ing_tea_tree_oil",
+
+  "chocolate": "ing_chocolate",
+  "dark chocolate": "ing_chocolate",
+  "milk chocolate": "ing_chocolate",
+  "baking chocolate": "ing_chocolate",
+  "chocolate chips": "ing_chocolate",
+  "cocoa": "ing_cocoa",
+  "cocoa powder": "ing_cocoa",
+  "cacao": "ing_cocoa",
+  "theobromine": "ing_theobromine",
+
+  "grapes": "ing_grapes",
+  "grape": "ing_grapes",
+  "grape juice": "ing_grapes",
+  "grape extract": "ing_grapes",
+  "raisins": "ing_raisins",
+  "raisin": "ing_raisins",
+  "dried grapes": "ing_raisins",
+  "currants": "ing_currants",
+  "currant": "ing_currants",
+  "zante currants": "ing_currants",
+
+  "onion": "ing_onion",
+  "onions": "ing_onion",
+  "raw onion": "ing_onion",
+  "cooked onion": "ing_onion",
+  "onion powder": "ing_onion_powder",
+  "dehydrated onion": "ing_onion_powder",
+  "dried onion": "ing_onion_powder",
+  "onion flakes": "ing_onion_powder",
+  "chives": "ing_chives",
+  "chive": "ing_chives",
+  "leeks": "ing_leeks",
+  "leek": "ing_leeks",
+  "shallots": "ing_shallots",
+  "shallot": "ing_shallots",
+
+  "macadamia nuts": "ing_macadamia_nuts",
+  "macadamia": "ing_macadamia_nuts",
+  "macadamias": "ing_macadamia_nuts",
+
+  "alcohol": "ing_alcohol",
+  "ethanol": "ing_alcohol",
+  "ethyl alcohol": "ing_alcohol",
+  "beer": "ing_alcohol",
+  "wine": "ing_alcohol",
+
+  "caffeine": "ing_caffeine",
+  "coffee": "ing_coffee",
+  "coffee beans": "ing_coffee",
+  "coffee grounds": "ing_coffee",
+  "espresso": "ing_coffee",
+
+  "avocado": "ing_avocado",
+  "avocados": "ing_avocado",
+  "avocado oil": "ing_avocado",
+  "guacamole": "ing_avocado",
+
+  "nutmeg": "ing_nutmeg",
+  "mace": "ing_nutmeg",
+  "myristicin": "ing_nutmeg",
+
+  "hops": "ing_hops",
+  "hop": "ing_hops",
+  "beer hops": "ing_hops",
+
+  "yeast dough": "ing_yeast_dough",
+  "bread dough": "ing_yeast_dough",
+  "raw dough": "ing_yeast_dough",
+  "unbaked dough": "ing_yeast_dough",
+
+  "erythritol": "ing_erythritol",
+  "sorbitol": "ing_sorbitol",
+  "maltitol": "ing_sorbitol",
+
+  "eucalyptus oil": "ing_eucalyptus_oil",
+  "eucalyptus": "ing_eucalyptus_oil",
+  "peppermint oil": "ing_peppermint_oil",
+  "peppermint": "ing_peppermint_oil",
+  "mentha piperita": "ing_peppermint_oil",
+  "citrus oil": "ing_citrus_oil",
+  "orange oil": "ing_citrus_oil",
+  "lemon oil": "ing_citrus_oil",
+  "lime oil": "ing_citrus_oil",
+  "grapefruit oil": "ing_citrus_oil",
+  "pine oil": "ing_pine_oil",
+  "pine": "ing_pine_oil",
+  "clove oil": "ing_clove_oil",
+  "clove": "ing_clove_oil",
+  "eugenol": "ing_clove_oil",
+  "wintergreen oil": "ing_wintergreen_oil",
+  "wintergreen": "ing_wintergreen_oil",
+  "methyl salicylate": "ing_wintergreen_oil",
+  "pennyroyal": "ing_pennyroyal",
+  "pennyroyal oil": "ing_pennyroyal",
+
+  "zinc oxide": "ing_zinc_oxide",
+
+  "duck": "ing_duck",
+  "duck meal": "ing_duck",
+  "deboned duck": "ing_duck",
+  "dried duck": "ing_duck",
+
+  "venison": "ing_venison",
+  "venison meal": "ing_venison",
+  "deer": "ing_venison",
+  "deer meat": "ing_venison",
+
+  "rabbit": "ing_rabbit",
+  "rabbit meal": "ing_rabbit",
+
+  "bison": "ing_bison",
+  "bison meal": "ing_bison",
+  "buffalo": "ing_bison",
+  "buffalo meat": "ing_bison",
+
+  "kangaroo": "ing_kangaroo",
+  "kangaroo meal": "ing_kangaroo",
+
+  "sardines": "ing_sardines",
+  "sardine": "ing_sardines",
+  "sardine meal": "ing_sardines",
+
+  "mackerel": "ing_mackerel",
+  "mackerel meal": "ing_mackerel",
+
+  "herring": "ing_herring",
+  "herring meal": "ing_herring",
+  "herring oil": "ing_fish_oil",
+
+  "anchovy": "ing_anchovy",
+  "anchovies": "ing_anchovy",
+  "anchovy meal": "ing_anchovy",
+
+  "trout": "ing_trout",
+  "trout meal": "ing_trout",
+  "rainbow trout": "ing_trout",
+
+  "cod": "ing_cod",
+  "cod meal": "ing_cod",
+  "atlantic cod": "ing_cod",
+  "pacific cod": "ing_cod",
+  "haddock": "ing_cod",
+
+  "pollock": "ing_pollock",
+  "pollock meal": "ing_pollock",
+  "alaska pollock": "ing_pollock",
+
+  "menhaden": "ing_menhaden",
+  "menhaden meal": "ing_menhaden",
+  "menhaden fish": "ing_menhaden",
+
+  "shrimp": "ing_shrimp",
+  "shrimp meal": "ing_shrimp",
+  "prawns": "ing_shrimp",
+
+  "crab": "ing_crab",
+  "crab meal": "ing_crab",
+  "crabmeat": "ing_crab",
+
+  "goat": "ing_goat",
+  "goat meal": "ing_goat",
+  "goat meat": "ing_goat",
+
+  "quail": "ing_quail",
+  "quail meat": "ing_quail",
+
+  "pheasant": "ing_pheasant",
+  "pheasant meat": "ing_pheasant",
+
+  "kidney": "ing_kidney",
+  "beef kidney": "ing_kidney",
+  "chicken kidney": "ing_kidney",
+
+  "spleen": "ing_spleen",
+  "beef spleen": "ing_spleen",
+
+  "lung": "ing_lung",
+  "beef lung": "ing_lung",
+
+  "tripe": "ing_tripe",
+  "green tripe": "ing_tripe",
+  "beef tripe": "ing_tripe",
+
+  "bone meal": "ing_bone_meal",
+  "bone": "ing_bone_meal",
+  "ground bone": "ing_bone_meal",
+
+  "blueberries": "ing_blueberries",
+  "blueberry": "ing_blueberries",
+  "dried blueberries": "ing_blueberries",
+
+  "cranberries": "ing_cranberries",
+  "cranberry": "ing_cranberries",
+  "dried cranberries": "ing_cranberries",
+
+  "apples": "ing_apples",
+  "apple": "ing_apples",
+  "dried apples": "ing_apples",
+  "apple pomace": "ing_apples",
+
+  "bananas": "ing_bananas",
+  "banana": "ing_bananas",
+  "dried banana": "ing_bananas",
+
+  "watermelon": "ing_watermelon",
+
+  "strawberries": "ing_strawberries",
+  "strawberry": "ing_strawberries",
+
+  "raspberries": "ing_raspberries",
+  "raspberry": "ing_raspberries",
+
+  "blackberries": "ing_blackberries",
+  "blackberry": "ing_blackberries",
+
+  "mango": "ing_mango",
+  "mangoes": "ing_mango",
+  "dried mango": "ing_mango",
+
+  "papaya": "ing_papaya",
+  "dried papaya": "ing_papaya",
+
+  "pear": "ing_pear",
+  "pears": "ing_pear",
+  "dried pear": "ing_pear",
+
+  "spinach": "ing_spinach",
+  "dried spinach": "ing_spinach",
+
+  "kale": "ing_kale",
+  "dried kale": "ing_kale",
+
+  "broccoli": "ing_broccoli",
+  "dried broccoli": "ing_broccoli",
+
+  "green beans": "ing_green_beans",
+  "string beans": "ing_green_beans",
+
+  "celery": "ing_celery",
+  "dried celery": "ing_celery",
+
+  "cucumber": "ing_cucumber",
+  "cucumbers": "ing_cucumber",
+
+  "zucchini": "ing_zucchini",
+  "courgette": "ing_zucchini",
+
+  "asparagus": "ing_asparagus",
+
+  "brussels sprouts": "ing_brussels_sprouts",
+  "brussels sprout": "ing_brussels_sprouts",
+
+  "cabbage": "ing_cabbage",
+
+  "cauliflower": "ing_cauliflower",
+
+  "squash": "ing_squash",
+  "butternut squash": "ing_butternut_squash",
+  "acorn squash": "ing_squash",
+
+  "parsley": "ing_parsley",
+  "dried parsley": "ing_parsley",
+
+  "coconut": "ing_coconut",
+  "coconut flakes": "ing_coconut",
+  "shredded coconut": "ing_coconut",
+  "coconut oil": "ing_coconut_oil",
+  "coconut meal": "ing_coconut",
+
+  "quinoa": "ing_quinoa",
+  "millet": "ing_millet",
+  "sorghum": "ing_sorghum",
+  "tapioca": "ing_tapioca",
+  "tapioca starch": "ing_tapioca",
+
+  "peanuts": "ing_peanuts",
+  "peanut": "ing_peanuts",
+  "peanut butter": "ing_peanut_butter",
+  "peanut oil": "ing_peanuts",
+
+  "sunflower oil": "ing_sunflower_oil",
+  "sunflower seed oil": "ing_sunflower_oil",
+  "sunflower seeds": "ing_sunflower_oil",
+
+  "canola oil": "ing_canola_oil",
+  "rapeseed oil": "ing_canola_oil",
+
+  "olive oil": "ing_olive_oil",
+  "extra virgin olive oil": "ing_olive_oil",
+
+  "krill oil": "ing_krill_oil",
+  "krill": "ing_krill_oil",
+
+  "vitamin a": "ing_vitamin_a",
+  "vitamin a supplement": "ing_vitamin_a",
+  "retinol": "ing_vitamin_a",
+  "retinyl acetate": "ing_vitamin_a",
+  "retinyl palmitate": "ing_vitamin_a",
+
+  "vitamin d": "ing_vitamin_d",
+  "vitamin d3": "ing_vitamin_d",
+  "vitamin d supplement": "ing_vitamin_d",
+  "cholecalciferol": "ing_vitamin_d",
+
+  "thiamine": "ing_vitamin_b1",
+  "vitamin b1": "ing_vitamin_b1",
+  "thiamine mononitrate": "ing_vitamin_b1",
+
+  "vitamin b12": "ing_vitamin_b12",
+  "cyanocobalamin": "ing_vitamin_b12",
+  "cobalamin": "ing_vitamin_b12",
+
+  "niacin": "ing_niacin",
+  "vitamin b3": "ing_niacin",
+  "nicotinic acid": "ing_niacin",
+
+  "biotin": "ing_biotin",
+  "vitamin b7": "ing_biotin",
+  "vitamin h": "ing_biotin",
+
+  "folic acid": "ing_folic_acid",
+  "folate": "ing_folic_acid",
+  "vitamin b9": "ing_folic_acid",
+
+  "vitamin c": "ing_vitamin_c",
+  "ascorbic acid": "ing_vitamin_c",
+  "l-ascorbic acid": "ing_vitamin_c",
+
+  "choline": "ing_choline",
+  "choline chloride": "ing_choline",
+
+  "calcium": "ing_calcium",
+  "calcium carbonate": "ing_calcium",
+  "calcium phosphate": "ing_calcium",
+
+  "phosphorus": "ing_phosphorus",
+
+  "potassium": "ing_potassium",
+  "potassium chloride": "ing_potassium",
+
+  "magnesium": "ing_magnesium",
+  "magnesium oxide": "ing_magnesium",
+
+  "iron": "ing_iron",
+  "ferrous sulfate": "ing_iron",
+  "iron sulfate": "ing_iron",
+
+  "zinc": "ing_zinc",
+  "zinc sulfate": "ing_zinc",
+  "zinc proteinate": "ing_zinc",
+
+  "copper": "ing_copper",
+  "copper sulfate": "ing_copper",
+  "copper proteinate": "ing_copper",
+
+  "manganese": "ing_manganese",
+  "manganese sulfate": "ing_manganese",
+
+  "selenium": "ing_selenium",
+  "sodium selenite": "ing_selenium",
+
+  "iodine": "ing_iodine",
+  "potassium iodide": "ing_iodine",
+  "calcium iodate": "ing_iodine",
+
+  "l-carnitine": "ing_l_carnitine",
+  "carnitine": "ing_l_carnitine",
+
+  "glucosamine": "ing_glucosamine",
+  "glucosamine hydrochloride": "ing_glucosamine",
+  "glucosamine hcl": "ing_glucosamine",
+
+  "chondroitin": "ing_chondroitin",
+  "chondroitin sulfate": "ing_chondroitin",
+
+  "msm": "ing_msm",
+  "methylsulfonylmethane": "ing_msm",
+
+  "probiotics": "ing_probiotics",
+  "lactobacillus": "ing_probiotics",
+  "bifidobacterium": "ing_probiotics",
+  "enterococcus": "ing_probiotics",
+  "dried fermentation products": "ing_probiotics",
+
+  "inulin": "ing_inulin",
+  "chicory root": "ing_inulin",
+  "chicory": "ing_inulin",
+
+  "fos": "ing_fos",
+  "fructooligosaccharides": "ing_fos",
+
+  "yucca schidigera": "ing_yucca_schidigera",
+  "yucca": "ing_yucca_schidigera",
+  "yucca extract": "ing_yucca_schidigera",
+
+  "kelp": "ing_kelp",
+  "dried kelp": "ing_kelp",
+  "seaweed": "ing_kelp",
+
+  "spirulina": "ing_spirulina",
+  "blue-green algae": "ing_spirulina",
+
+  "turmeric": "ing_turmeric",
+  "curcumin": "ing_turmeric",
+
+  "ginger": "ing_ginger",
+  "ginger root": "ing_ginger",
+
+  "lecithin": "ing_lecithin",
+  "soy lecithin": "ing_lecithin",
+  "sunflower lecithin": "ing_lecithin",
+
+  "citric acid": "ing_citric_acid",
+  "phosphoric acid": "ing_phosphoric_acid",
+
+  "agar agar": "ing_agar_agar",
+  "agar": "ing_agar_agar",
+
+  "cellulose": "ing_cellulose",
+  "powdered cellulose": "ing_cellulose",
+  "cellulose fiber": "ing_cellulose",
+
+  "titanium dioxide": "ing_titanium_dioxide",
+  "caramel color": "ing_caramel_color",
+  "caramel coloring": "ing_caramel_color",
+
+  "sodium nitrite": "ing_sodium_nitrite",
+  "sodium nitrate": "ing_sodium_nitrite",
+
+  "msg": "ing_msg",
+  "monosodium glutamate": "ing_msg",
+
+  "menadione": "ing_menadione",
+  "vitamin k3": "ing_menadione",
+  "menadione sodium bisulfite": "ing_menadione",
+
+  "sodium tripolyphosphate": "ing_sodium_tripolyphosphate",
+  "stpp": "ing_sodium_tripolyphosphate",
+
+  "pea protein isolate": "ing_pea_protein",
+  "pea protein concentrate": "ing_pea_protein",
+
+  "soy protein": "ing_soy_protein",
+  "soy protein isolate": "ing_soy_protein",
+  "soy protein concentrate": "ing_soy_protein",
+  "soybean meal": "ing_soybean_meal",
+  "soya": "ing_soybean_meal",
+
+  "poultry digest": "ing_poultry_digest",
+
+  "blood meal": "ing_blood_meal",
+  "dried blood": "ing_blood_meal",
+
+  "hydrolyzed protein": "ing_hydrolyzed_protein",
+  "hydrolyzed chicken": "ing_hydrolyzed_protein",
+  "hydrolyzed soy": "ing_hydrolyzed_protein"
 }

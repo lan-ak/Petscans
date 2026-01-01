@@ -75,6 +75,18 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    NavigationLink {
+                        ReferencesView()
+                    } label: {
+                        HStack {
+                            Image(systemName: "book.fill")
+                                .foregroundColor(ColorTokens.brandPrimary)
+                                .frame(width: 28)
+
+                            Text("Scientific References")
+                        }
+                    }
+
                     HStack {
                         Image(systemName: "info.circle")
                             .foregroundColor(ColorTokens.info)
@@ -89,6 +101,8 @@ struct SettingsView: View {
                     }
                 } header: {
                     Text("About")
+                } footer: {
+                    Text("View the scientific sources used for ingredient safety data.")
                 }
             }
             .navigationTitle("Settings")

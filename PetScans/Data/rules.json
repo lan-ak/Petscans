@@ -3,13 +3,8 @@
     "id": "rule_xylitol_dog_critical",
     "ingredientId": "ing_xylitol",
     "appliesTo": {
-      "species": [
-        "dog"
-      ],
-      "categories": [
-        "food",
-        "treat"
-      ]
+      "species": ["dog"],
+      "categories": ["food", "treat"]
     },
     "type": "toxicity",
     "severity": "critical",
@@ -18,6 +13,7 @@
     "scoreImpact": -100,
     "explain": "Xylitol can cause dangerous low blood sugar and liver injury in dogs. Treat as an emergency exposure.",
     "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
     "createdAt": "2025-12-30T01:11:13.392714Z",
     "schemaVersion": "rules_v2"
   },
@@ -25,12 +21,8 @@
     "id": "rule_tea_tree_cat_critical",
     "ingredientId": "ing_tea_tree_oil",
     "appliesTo": {
-      "species": [
-        "cat"
-      ],
-      "categories": [
-        "cosmetic"
-      ]
+      "species": ["cat"],
+      "categories": ["cosmetic"]
     },
     "type": "toxicity",
     "severity": "critical",
@@ -39,6 +31,7 @@
     "scoreImpact": -100,
     "explain": "Tea tree oil can be toxic to cats, even at low concentrations, especially if licked off the coat.",
     "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
     "createdAt": "2025-12-30T01:11:13.392714Z",
     "schemaVersion": "rules_v2"
   },
@@ -46,12 +39,8 @@
     "id": "rule_permethrin_cat_critical_exposure",
     "ingredientId": "ing_permethrin",
     "appliesTo": {
-      "species": [
-        "cat"
-      ],
-      "categories": [
-        "cosmetic"
-      ]
+      "species": ["cat"],
+      "categories": ["cosmetic"]
     },
     "type": "toxicity",
     "severity": "critical",
@@ -60,6 +49,7 @@
     "scoreImpact": -100,
     "explain": "Permethrin is extremely toxic to cats. Cats can be poisoned by direct application or close contact with treated dogs.",
     "evidence": "strong",
+    "source": "FDA Veterinary Medicine",
     "createdAt": "2025-12-30T01:11:13.392714Z",
     "schemaVersion": "rules_v2"
   },
@@ -67,14 +57,8 @@
     "id": "rule_garlic_caution",
     "ingredientId": "ing_garlic",
     "appliesTo": {
-      "species": [
-        "dog",
-        "cat"
-      ],
-      "categories": [
-        "food",
-        "treat"
-      ]
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
     },
     "type": "toxicity",
     "severity": "high",
@@ -83,7 +67,674 @@
     "scoreImpact": -30,
     "explain": "Garlic can be harmful in higher amounts. Risk is dose dependent. Prefer avoiding unless clearly formulated safely.",
     "evidence": "medium",
+    "source": "Merck Veterinary Manual",
     "createdAt": "2025-12-30T01:11:13.392714Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_chocolate_dog_critical",
+    "ingredientId": "ing_chocolate",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Chocolate contains theobromine which is highly toxic to dogs. Dark chocolate and baking chocolate are most dangerous. Contact your vet immediately if ingested.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_chocolate_cat_critical",
+    "ingredientId": "ing_chocolate",
+    "appliesTo": {
+      "species": ["cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Chocolate contains theobromine which is toxic to cats. While cats rarely eat chocolate, any ingestion is dangerous.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_theobromine_critical",
+    "ingredientId": "ing_theobromine",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Theobromine is the toxic compound in chocolate. Even small amounts can cause vomiting, diarrhea, rapid breathing, and seizures.",
+    "evidence": "strong",
+    "source": "Merck Veterinary Manual",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_cocoa_critical",
+    "ingredientId": "ing_cocoa",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Cocoa contains theobromine which is toxic to pets. Cocoa powder is extremely concentrated and dangerous.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_grapes_dog_critical",
+    "ingredientId": "ing_grapes",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Grapes can cause acute kidney failure in dogs. The toxic compound is unknown but well-documented. Even small amounts are dangerous.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_raisins_dog_critical",
+    "ingredientId": "ing_raisins",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Raisins are dried grapes and are even more toxic per gram than fresh grapes. Can cause acute kidney failure in dogs.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_currants_dog_critical",
+    "ingredientId": "ing_currants",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Currants have the same toxicity risk as grapes and raisins. Can cause acute kidney failure in dogs.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_onion_critical",
+    "ingredientId": "ing_onion",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Onions contain N-propyl disulfide which damages red blood cells, causing hemolytic anemia. All forms (raw, cooked, powder) are toxic.",
+    "evidence": "strong",
+    "source": "Merck Veterinary Manual",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_onion_powder_critical",
+    "ingredientId": "ing_onion_powder",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Onion powder is a concentrated form of onion - more toxic per gram than fresh onion. Can cause hemolytic anemia.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_chives_critical",
+    "ingredientId": "ing_chives",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "high",
+    "action": "avoid",
+    "penalty": 80,
+    "scoreImpact": -80,
+    "explain": "Chives are in the Allium family like onions and garlic. Can cause gastrointestinal upset and red blood cell damage.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_leeks_critical",
+    "ingredientId": "ing_leeks",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "high",
+    "action": "avoid",
+    "penalty": 80,
+    "scoreImpact": -80,
+    "explain": "Leeks are in the Allium family. Can cause gastrointestinal upset and hemolytic anemia if consumed in quantity.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_shallots_critical",
+    "ingredientId": "ing_shallots",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "high",
+    "action": "avoid",
+    "penalty": 80,
+    "scoreImpact": -80,
+    "explain": "Shallots are in the Allium family and contain the same toxic compounds as onions. Can damage red blood cells.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_macadamia_dog_critical",
+    "ingredientId": "ing_macadamia_nuts",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Macadamia nuts cause weakness, vomiting, tremors, and hyperthermia in dogs. Symptoms usually appear within 12 hours.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_alcohol_critical",
+    "ingredientId": "ing_alcohol",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Alcohol causes vomiting, diarrhea, CNS depression, difficulty breathing, and can be fatal. Pets are much more sensitive than humans.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_caffeine_critical",
+    "ingredientId": "ing_caffeine",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Caffeine causes restlessness, rapid breathing, heart palpitations, muscle tremors, and seizures. There is no antidote.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_coffee_critical",
+    "ingredientId": "ing_coffee",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Coffee contains caffeine which is toxic to pets. Coffee grounds and beans are especially dangerous due to concentrated caffeine.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_nutmeg_critical",
+    "ingredientId": "ing_nutmeg",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "high",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 80,
+    "scoreImpact": -80,
+    "explain": "Nutmeg contains myristicin which causes hallucinations, increased heart rate, disorientation, and seizures in pets.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_hops_dog_critical",
+    "ingredientId": "ing_hops",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Hops cause malignant hyperthermia in dogs, with body temperature rising to potentially fatal levels. Both fresh and spent hops are dangerous.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_yeast_dough_critical",
+    "ingredientId": "ing_yeast_dough",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Raw yeast dough expands in the warm stomach causing bloat and produces alcohol during fermentation. This is a double threat.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_eucalyptus_oil_critical",
+    "ingredientId": "ing_eucalyptus_oil",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Eucalyptus oil is toxic to both dogs and cats. Causes salivation, vomiting, diarrhea, depression, and weakness.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_peppermint_oil_cat_critical",
+    "ingredientId": "ing_peppermint_oil",
+    "appliesTo": {
+      "species": ["cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Peppermint oil is toxic to cats. Can cause liver damage, difficulty breathing, and CNS depression.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_citrus_oil_cat_critical",
+    "ingredientId": "ing_citrus_oil",
+    "appliesTo": {
+      "species": ["cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Citrus oils contain limonene and linalool which cats cannot metabolize. Can cause liver damage and CNS depression.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_pine_oil_critical",
+    "ingredientId": "ing_pine_oil",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Pine oil is toxic to dogs and cats. Causes GI upset, CNS depression, and can damage the kidneys and liver.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_clove_oil_critical",
+    "ingredientId": "ing_clove_oil",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "high",
+    "action": "avoid",
+    "penalty": 80,
+    "scoreImpact": -80,
+    "explain": "Clove oil contains eugenol which can cause liver toxicity in pets. Avoid topical application.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_wintergreen_oil_critical",
+    "ingredientId": "ing_wintergreen_oil",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "avoid_and_contact_vet_if_exposed",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Wintergreen oil contains methyl salicylate (aspirin-like compound) which is highly toxic to pets, especially cats.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_pennyroyal_critical",
+    "ingredientId": "ing_pennyroyal",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "critical",
+    "action": "emergency",
+    "penalty": 100,
+    "scoreImpact": -100,
+    "explain": "Pennyroyal is extremely toxic and causes liver failure. It was historically used in flea products but is highly dangerous.",
+    "evidence": "strong",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_avocado_caution",
+    "ingredientId": "ing_avocado",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 20,
+    "scoreImpact": -20,
+    "explain": "Avocado contains persin which can cause mild GI upset. The pit is a choking hazard. Some pet foods use avocado oil safely.",
+    "evidence": "medium",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_erythritol_caution",
+    "ingredientId": "ing_erythritol",
+    "appliesTo": {
+      "species": ["dog"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 30,
+    "scoreImpact": -30,
+    "explain": "Erythritol is a sugar alcohol. While less toxic than xylitol, it's still best avoided for dogs.",
+    "evidence": "medium",
+    "source": "Veterinary toxicology research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_sorbitol_caution",
+    "ingredientId": "ing_sorbitol",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "toxicity",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 15,
+    "scoreImpact": -15,
+    "explain": "Sorbitol is a sugar alcohol that can cause GI upset and diarrhea. Less dangerous than xylitol but best avoided.",
+    "evidence": "medium",
+    "source": "Veterinary toxicology research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_zinc_oxide_caution",
+    "ingredientId": "ing_zinc_oxide",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["cosmetic"]
+    },
+    "type": "toxicity",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 25,
+    "scoreImpact": -25,
+    "explain": "Zinc oxide is toxic if ingested in large amounts. Avoid applying to areas your pet can lick, such as the nose.",
+    "evidence": "medium",
+    "source": "ASPCA Animal Poison Control",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_bha_caution",
+    "ingredientId": "ing_bha",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 20,
+    "scoreImpact": -20,
+    "explain": "BHA (butylated hydroxyanisole) is a synthetic preservative. Some studies suggest potential carcinogenic effects. Many premium foods avoid it.",
+    "evidence": "medium",
+    "source": "FDA, EFSA research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_bht_caution",
+    "ingredientId": "ing_bht",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 20,
+    "scoreImpact": -20,
+    "explain": "BHT (butylated hydroxytoluene) is a synthetic preservative with some health concerns. Natural alternatives like mixed tocopherols are preferred.",
+    "evidence": "medium",
+    "source": "FDA, EFSA research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_ethoxyquin_caution",
+    "ingredientId": "ing_ethoxyquin",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 25,
+    "scoreImpact": -25,
+    "explain": "Ethoxyquin is a controversial preservative. While FDA approved, many pet owners prefer foods without it due to health concerns.",
+    "evidence": "medium",
+    "source": "FDA, CVM",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_artificial_colors_caution",
+    "ingredientId": "ing_artificial_colors",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 15,
+    "scoreImpact": -15,
+    "explain": "Artificial colors provide no nutritional benefit and are added only for appearance. Some may be linked to behavioral issues.",
+    "evidence": "medium",
+    "source": "FDA research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_menadione_caution",
+    "ingredientId": "ing_menadione",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 15,
+    "scoreImpact": -15,
+    "explain": "Menadione (Vitamin K3) is a synthetic form with some safety concerns. Natural vitamin K1 or K2 are preferred alternatives.",
+    "evidence": "medium",
+    "source": "Veterinary nutrition research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_sodium_nitrite_caution",
+    "ingredientId": "ing_sodium_nitrite",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 20,
+    "scoreImpact": -20,
+    "explain": "Sodium nitrite is a preservative that can form carcinogenic nitrosamines. Generally best avoided in pet food.",
+    "evidence": "medium",
+    "source": "FDA, WHO research",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "schemaVersion": "rules_v2"
+  },
+  {
+    "id": "rule_titanium_dioxide_caution",
+    "ingredientId": "ing_titanium_dioxide",
+    "appliesTo": {
+      "species": ["dog", "cat"],
+      "categories": ["food", "treat"]
+    },
+    "type": "additive_concern",
+    "severity": "warn",
+    "action": "caution",
+    "penalty": 15,
+    "scoreImpact": -15,
+    "explain": "Titanium dioxide is a whitening agent with no nutritional value. It has been banned as a food additive in some countries.",
+    "evidence": "medium",
+    "source": "EFSA",
+    "createdAt": "2026-01-01T00:00:00.000Z",
     "schemaVersion": "rules_v2"
   }
 ]

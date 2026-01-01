@@ -1203,5 +1203,2445 @@
     "allergenOrSensitizationRisk": "Medium",
     "typicalFunction": "Insecticide",
     "notes": "Extremely toxic to cats if exposed"
+  },
+  {
+    "id": "ing_chocolate",
+    "commonName": "Chocolate",
+    "scientificName": "Theobroma cacao",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Contains theobromine - toxic to dogs and cats. Dark chocolate is most dangerous"
+  },
+  {
+    "id": "ing_theobromine",
+    "commonName": "Theobromine",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Stimulant compound",
+    "notes": "Found in chocolate and cocoa - highly toxic to pets"
+  },
+  {
+    "id": "ing_cocoa",
+    "commonName": "Cocoa",
+    "scientificName": "Theobroma cacao",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Contains theobromine - toxic to dogs and cats"
+  },
+  {
+    "id": "ing_grapes",
+    "commonName": "Grapes",
+    "scientificName": "Vitis vinifera",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Fruit",
+    "notes": "Can cause acute kidney failure in dogs. Toxic compound unknown but well documented"
+  },
+  {
+    "id": "ing_raisins",
+    "commonName": "Raisins",
+    "scientificName": "Vitis vinifera (dried)",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Dried fruit",
+    "notes": "Dried grapes - even more concentrated toxicity risk for dogs"
+  },
+  {
+    "id": "ing_currants",
+    "commonName": "Currants",
+    "scientificName": "Vitis spp.",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Dried fruit",
+    "notes": "Same toxicity risk as grapes and raisins for dogs"
+  },
+  {
+    "id": "ing_onion",
+    "commonName": "Onion",
+    "scientificName": "Allium cepa",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Contains N-propyl disulfide which damages red blood cells causing anemia"
+  },
+  {
+    "id": "ing_onion_powder",
+    "commonName": "Onion powder",
+    "scientificName": "Allium cepa (dehydrated)",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Concentrated form of onion - more toxic per gram than fresh"
+  },
+  {
+    "id": "ing_chives",
+    "commonName": "Chives",
+    "scientificName": "Allium schoenoprasum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Herb flavoring",
+    "notes": "Allium family member - toxic to dogs and cats"
+  },
+  {
+    "id": "ing_leeks",
+    "commonName": "Leeks",
+    "scientificName": "Allium ampeloprasum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Vegetable",
+    "notes": "Allium family member - toxic to dogs and cats"
+  },
+  {
+    "id": "ing_shallots",
+    "commonName": "Shallots",
+    "scientificName": "Allium cepa var. aggregatum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Allium family member - toxic to dogs and cats"
+  },
+  {
+    "id": "ing_macadamia_nuts",
+    "commonName": "Macadamia nuts",
+    "scientificName": "Macadamia integrifolia",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Nut ingredient",
+    "notes": "Causes weakness, vomiting, tremors, and hyperthermia in dogs"
+  },
+  {
+    "id": "ing_alcohol",
+    "commonName": "Alcohol",
+    "scientificName": "Ethanol",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Solvent",
+    "notes": "Causes vomiting, diarrhea, CNS depression, and can be fatal"
+  },
+  {
+    "id": "ing_caffeine",
+    "commonName": "Caffeine",
+    "scientificName": "1,3,7-trimethylxanthine",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Stimulant",
+    "notes": "Causes restlessness, rapid breathing, heart palpitations, and seizures"
+  },
+  {
+    "id": "ing_coffee",
+    "commonName": "Coffee",
+    "scientificName": "Coffea spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Contains caffeine - toxic to dogs and cats"
+  },
+  {
+    "id": "ing_avocado",
+    "commonName": "Avocado",
+    "scientificName": "Persea americana",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fruit ingredient",
+    "notes": "Contains persin - mild toxicity. Pit is a choking hazard. Some pet foods use avocado oil safely"
+  },
+  {
+    "id": "ing_nutmeg",
+    "commonName": "Nutmeg",
+    "scientificName": "Myristica fragrans",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Spice",
+    "notes": "Contains myristicin - causes hallucinations, increased heart rate, disorientation"
+  },
+  {
+    "id": "ing_hops",
+    "commonName": "Hops",
+    "scientificName": "Humulus lupulus",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavoring",
+    "notes": "Causes malignant hyperthermia in dogs - can be fatal"
+  },
+  {
+    "id": "ing_yeast_dough",
+    "commonName": "Yeast dough",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Bread ingredient",
+    "notes": "Raw dough expands in stomach and produces alcohol during fermentation"
+  },
+  {
+    "id": "ing_erythritol",
+    "commonName": "Erythritol",
+    "scientificName": null,
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Sweetener",
+    "notes": "Sugar alcohol - less toxic than xylitol but still avoid for dogs"
+  },
+  {
+    "id": "ing_sorbitol",
+    "commonName": "Sorbitol",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Sweetener",
+    "notes": "Sugar alcohol - can cause GI upset. Not as toxic as xylitol"
+  },
+  {
+    "id": "ing_eucalyptus_oil",
+    "commonName": "Eucalyptus oil",
+    "scientificName": "Eucalyptus globulus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Toxic to both dogs and cats - causes salivation, vomiting, weakness"
+  },
+  {
+    "id": "ing_peppermint_oil",
+    "commonName": "Peppermint oil",
+    "scientificName": "Mentha piperita",
+    "species": [
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Toxic to cats - can cause liver damage and breathing difficulties"
+  },
+  {
+    "id": "ing_citrus_oil",
+    "commonName": "Citrus oil",
+    "scientificName": "Citrus spp.",
+    "species": [
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Toxic to cats - contains limonene and linalool"
+  },
+  {
+    "id": "ing_pine_oil",
+    "commonName": "Pine oil",
+    "scientificName": "Pinus spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Toxic to dogs and cats - causes GI upset and CNS depression"
+  },
+  {
+    "id": "ing_clove_oil",
+    "commonName": "Clove oil",
+    "scientificName": "Syzygium aromaticum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Contains eugenol - can cause liver toxicity in pets"
+  },
+  {
+    "id": "ing_wintergreen_oil",
+    "commonName": "Wintergreen oil",
+    "scientificName": "Gaultheria procumbens",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Contains methyl salicylate - highly toxic to pets"
+  },
+  {
+    "id": "ing_pennyroyal",
+    "commonName": "Pennyroyal",
+    "scientificName": "Mentha pulegium",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "toxic",
+    "allergenOrSensitizationRisk": "High",
+    "typicalFunction": "Essential oil",
+    "notes": "Extremely toxic - causes liver failure. Sometimes found in flea products"
+  },
+  {
+    "id": "ing_zinc_oxide",
+    "commonName": "Zinc oxide",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "cosmetic"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Sun protection",
+    "notes": "Toxic if ingested in large amounts. Avoid on areas pet can lick"
+  },
+  {
+    "id": "ing_duck",
+    "commonName": "Duck",
+    "scientificName": "Anas platyrhynchos",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_venison",
+    "commonName": "Venison",
+    "scientificName": "Cervidae spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_rabbit",
+    "commonName": "Rabbit",
+    "scientificName": "Oryctolagus cuniculus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_bison",
+    "commonName": "Bison",
+    "scientificName": "Bison bison",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_kangaroo",
+    "commonName": "Kangaroo",
+    "scientificName": "Macropus spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_sardines",
+    "commonName": "Sardines",
+    "scientificName": "Sardina pilchardus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Protein, omega 3 source",
+    "notes": null
+  },
+  {
+    "id": "ing_mackerel",
+    "commonName": "Mackerel",
+    "scientificName": "Scomber scombrus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Protein, omega 3 source",
+    "notes": null
+  },
+  {
+    "id": "ing_herring",
+    "commonName": "Herring",
+    "scientificName": "Clupea harengus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Protein, omega 3 source",
+    "notes": null
+  },
+  {
+    "id": "ing_anchovy",
+    "commonName": "Anchovy",
+    "scientificName": "Engraulis encrasicolus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Protein, omega 3 source",
+    "notes": null
+  },
+  {
+    "id": "ing_trout",
+    "commonName": "Trout",
+    "scientificName": "Oncorhynchus mykiss",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Protein",
+    "notes": null
+  },
+  {
+    "id": "ing_cod",
+    "commonName": "Cod",
+    "scientificName": "Gadus morhua",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Protein",
+    "notes": null
+  },
+  {
+    "id": "ing_pollock",
+    "commonName": "Pollock",
+    "scientificName": "Pollachius spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Protein",
+    "notes": null
+  },
+  {
+    "id": "ing_menhaden",
+    "commonName": "Menhaden fish",
+    "scientificName": "Brevoortia spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fish meal protein",
+    "notes": null
+  },
+  {
+    "id": "ing_shrimp",
+    "commonName": "Shrimp",
+    "scientificName": "Penaeus spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Protein, flavor",
+    "notes": null
+  },
+  {
+    "id": "ing_crab",
+    "commonName": "Crab",
+    "scientificName": "Brachyura spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Protein",
+    "notes": "Remove shell before feeding"
+  },
+  {
+    "id": "ing_goat",
+    "commonName": "Goat",
+    "scientificName": "Capra aegagrus hircus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_quail",
+    "commonName": "Quail",
+    "scientificName": "Coturnix coturnix",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_pheasant",
+    "commonName": "Pheasant",
+    "scientificName": "Phasianus colchicus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Novel protein",
+    "notes": null
+  },
+  {
+    "id": "ing_kidney",
+    "commonName": "Kidney",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Organ meat, micronutrients",
+    "notes": null
+  },
+  {
+    "id": "ing_spleen",
+    "commonName": "Spleen",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Organ meat, iron source",
+    "notes": null
+  },
+  {
+    "id": "ing_lung",
+    "commonName": "Lung",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Organ meat",
+    "notes": null
+  },
+  {
+    "id": "ing_tripe",
+    "commonName": "Tripe",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Digestive enzymes, probiotics",
+    "notes": "Green tripe especially beneficial"
+  },
+  {
+    "id": "ing_bone_meal",
+    "commonName": "Bone meal",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Calcium and phosphorus source",
+    "notes": null
+  },
+  {
+    "id": "ing_blueberries",
+    "commonName": "Blueberries",
+    "scientificName": "Vaccinium corymbosum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Antioxidants",
+    "notes": null
+  },
+  {
+    "id": "ing_cranberries",
+    "commonName": "Cranberries",
+    "scientificName": "Vaccinium macrocarpon",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Urinary health support",
+    "notes": null
+  },
+  {
+    "id": "ing_apples",
+    "commonName": "Apples",
+    "scientificName": "Malus domestica",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": "Remove seeds - contain amygdalin"
+  },
+  {
+    "id": "ing_bananas",
+    "commonName": "Bananas",
+    "scientificName": "Musa spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Potassium, fiber",
+    "notes": "High in sugar - use sparingly"
+  },
+  {
+    "id": "ing_watermelon",
+    "commonName": "Watermelon",
+    "scientificName": "Citrullus lanatus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Hydration, vitamins",
+    "notes": "Remove seeds and rind"
+  },
+  {
+    "id": "ing_strawberries",
+    "commonName": "Strawberries",
+    "scientificName": "Fragaria ananassa",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Antioxidants, fiber",
+    "notes": "High in sugar - use sparingly"
+  },
+  {
+    "id": "ing_raspberries",
+    "commonName": "Raspberries",
+    "scientificName": "Rubus idaeus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Antioxidants, fiber",
+    "notes": "Contains xylitol naturally in small amounts - safe in moderation"
+  },
+  {
+    "id": "ing_blackberries",
+    "commonName": "Blackberries",
+    "scientificName": "Rubus fruticosus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Antioxidants, fiber",
+    "notes": null
+  },
+  {
+    "id": "ing_mango",
+    "commonName": "Mango",
+    "scientificName": "Mangifera indica",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Vitamins A, C, E",
+    "notes": "Remove pit - choking hazard"
+  },
+  {
+    "id": "ing_papaya",
+    "commonName": "Papaya",
+    "scientificName": "Carica papaya",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Digestive enzymes, fiber",
+    "notes": "Remove seeds"
+  },
+  {
+    "id": "ing_pear",
+    "commonName": "Pear",
+    "scientificName": "Pyrus communis",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": "Remove seeds and core"
+  },
+  {
+    "id": "ing_spinach",
+    "commonName": "Spinach",
+    "scientificName": "Spinacia oleracea",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Iron, vitamins",
+    "notes": "High in oxalates - avoid for pets with kidney issues"
+  },
+  {
+    "id": "ing_kale",
+    "commonName": "Kale",
+    "scientificName": "Brassica oleracea var. sabellica",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Antioxidants, fiber",
+    "notes": "Can cause gas in large amounts"
+  },
+  {
+    "id": "ing_broccoli",
+    "commonName": "Broccoli",
+    "scientificName": "Brassica oleracea var. italica",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": "Can cause gas - keep under 10% of diet"
+  },
+  {
+    "id": "ing_green_beans",
+    "commonName": "Green beans",
+    "scientificName": "Phaseolus vulgaris",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Low calorie fiber",
+    "notes": null
+  },
+  {
+    "id": "ing_celery",
+    "commonName": "Celery",
+    "scientificName": "Apium graveolens",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Low calorie treat",
+    "notes": "Cut into small pieces to prevent choking"
+  },
+  {
+    "id": "ing_cucumber",
+    "commonName": "Cucumber",
+    "scientificName": "Cucumis sativus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Hydration, low calorie",
+    "notes": null
+  },
+  {
+    "id": "ing_zucchini",
+    "commonName": "Zucchini",
+    "scientificName": "Cucurbita pepo",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Low calorie vegetable",
+    "notes": null
+  },
+  {
+    "id": "ing_asparagus",
+    "commonName": "Asparagus",
+    "scientificName": "Asparagus officinalis",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": "Cook before feeding - raw is tough to digest"
+  },
+  {
+    "id": "ing_brussels_sprouts",
+    "commonName": "Brussels sprouts",
+    "scientificName": "Brassica oleracea var. gemmifera",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": "Can cause significant gas"
+  },
+  {
+    "id": "ing_cabbage",
+    "commonName": "Cabbage",
+    "scientificName": "Brassica oleracea var. capitata",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber",
+    "notes": "Can cause gas - feed in moderation"
+  },
+  {
+    "id": "ing_cauliflower",
+    "commonName": "Cauliflower",
+    "scientificName": "Brassica oleracea var. botrytis",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": "Can cause gas"
+  },
+  {
+    "id": "ing_squash",
+    "commonName": "Squash",
+    "scientificName": "Cucurbita spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamins",
+    "notes": null
+  },
+  {
+    "id": "ing_butternut_squash",
+    "commonName": "Butternut squash",
+    "scientificName": "Cucurbita moschata",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fiber, vitamin A",
+    "notes": null
+  },
+  {
+    "id": "ing_parsley",
+    "commonName": "Parsley",
+    "scientificName": "Petroselinum crispum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Breath freshener",
+    "notes": "Avoid large amounts - especially spring parsley for pregnant pets"
+  },
+  {
+    "id": "ing_coconut",
+    "commonName": "Coconut",
+    "scientificName": "Cocos nucifera",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "MCT oil, flavor",
+    "notes": "High in fat - use sparingly"
+  },
+  {
+    "id": "ing_coconut_oil",
+    "commonName": "Coconut oil",
+    "scientificName": "Cocos nucifera",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "cosmetic"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "MCT oil, skin conditioner",
+    "notes": "High in saturated fat - use sparingly internally"
+  },
+  {
+    "id": "ing_quinoa",
+    "commonName": "Quinoa",
+    "scientificName": "Chenopodium quinoa",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Complete protein grain",
+    "notes": "Rinse well before cooking to remove saponins"
+  },
+  {
+    "id": "ing_millet",
+    "commonName": "Millet",
+    "scientificName": "Panicum miliaceum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Gluten-free grain",
+    "notes": null
+  },
+  {
+    "id": "ing_sorghum",
+    "commonName": "Sorghum",
+    "scientificName": "Sorghum bicolor",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Gluten-free grain",
+    "notes": null
+  },
+  {
+    "id": "ing_tapioca",
+    "commonName": "Tapioca",
+    "scientificName": "Manihot esculenta",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Binding starch",
+    "notes": null
+  },
+  {
+    "id": "ing_peanuts",
+    "commonName": "Peanuts",
+    "scientificName": "Arachis hypogaea",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Protein, flavor",
+    "notes": "Only unsalted, no xylitol. Cats rarely interested"
+  },
+  {
+    "id": "ing_peanut_butter",
+    "commonName": "Peanut butter",
+    "scientificName": "Arachis hypogaea",
+    "species": [
+      "dog"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Training treat, flavor",
+    "notes": "MUST be xylitol-free. Check ingredients carefully"
+  },
+  {
+    "id": "ing_sunflower_oil",
+    "commonName": "Sunflower oil",
+    "scientificName": "Helianthus annuus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Omega 6, coat health",
+    "notes": null
+  },
+  {
+    "id": "ing_canola_oil",
+    "commonName": "Canola oil",
+    "scientificName": "Brassica napus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Fat source",
+    "notes": null
+  },
+  {
+    "id": "ing_olive_oil",
+    "commonName": "Olive oil",
+    "scientificName": "Olea europaea",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Healthy fat, coat health",
+    "notes": "Use sparingly - high calorie"
+  },
+  {
+    "id": "ing_salmon_oil",
+    "commonName": "Salmon oil",
+    "scientificName": "Salmo salar",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Omega 3, anti-inflammatory",
+    "notes": null
+  },
+  {
+    "id": "ing_krill_oil",
+    "commonName": "Krill oil",
+    "scientificName": "Euphausia superba",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Omega 3, astaxanthin",
+    "notes": null
+  },
+  {
+    "id": "ing_vitamin_a",
+    "commonName": "Vitamin A",
+    "scientificName": "Retinol",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Vision, immune function",
+    "notes": "Essential nutrient - toxic in excess"
+  },
+  {
+    "id": "ing_vitamin_d",
+    "commonName": "Vitamin D",
+    "scientificName": "Cholecalciferol",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Calcium absorption, bone health",
+    "notes": "Essential but toxic in excess - monitor supplementation"
+  },
+  {
+    "id": "ing_vitamin_b1",
+    "commonName": "Thiamine",
+    "scientificName": "Vitamin B1",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Nerve function, energy metabolism",
+    "notes": "Critical for cats - deficiency causes neurological issues"
+  },
+  {
+    "id": "ing_vitamin_b12",
+    "commonName": "Vitamin B12",
+    "scientificName": "Cyanocobalamin",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Red blood cell formation",
+    "notes": null
+  },
+  {
+    "id": "ing_niacin",
+    "commonName": "Niacin",
+    "scientificName": "Vitamin B3",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Skin health, metabolism",
+    "notes": null
+  },
+  {
+    "id": "ing_biotin",
+    "commonName": "Biotin",
+    "scientificName": "Vitamin B7",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Coat and skin health",
+    "notes": null
+  },
+  {
+    "id": "ing_folic_acid",
+    "commonName": "Folic acid",
+    "scientificName": "Vitamin B9",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Cell division, DNA synthesis",
+    "notes": null
+  },
+  {
+    "id": "ing_vitamin_c",
+    "commonName": "Vitamin C",
+    "scientificName": "Ascorbic acid",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Antioxidant",
+    "notes": "Dogs and cats produce their own - supplementation rarely needed"
+  },
+  {
+    "id": "ing_choline",
+    "commonName": "Choline",
+    "scientificName": "Choline chloride",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Liver function, nerve signaling",
+    "notes": null
+  },
+  {
+    "id": "ing_calcium",
+    "commonName": "Calcium",
+    "scientificName": "Calcium carbonate",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Bone and teeth health",
+    "notes": "Balance with phosphorus important"
+  },
+  {
+    "id": "ing_phosphorus",
+    "commonName": "Phosphorus",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Bone health, energy metabolism",
+    "notes": "Monitor in kidney disease"
+  },
+  {
+    "id": "ing_potassium",
+    "commonName": "Potassium",
+    "scientificName": "Potassium chloride",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Electrolyte balance",
+    "notes": null
+  },
+  {
+    "id": "ing_magnesium",
+    "commonName": "Magnesium",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Muscle and nerve function",
+    "notes": "Monitor in cats with urinary issues"
+  },
+  {
+    "id": "ing_iron",
+    "commonName": "Iron",
+    "scientificName": "Ferrous sulfate",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Oxygen transport",
+    "notes": null
+  },
+  {
+    "id": "ing_zinc",
+    "commonName": "Zinc",
+    "scientificName": "Zinc sulfate",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Immune function, skin health",
+    "notes": "Huskies and Malamutes may need extra zinc"
+  },
+  {
+    "id": "ing_copper",
+    "commonName": "Copper",
+    "scientificName": "Copper sulfate",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Enzyme function, coat color",
+    "notes": "Some breeds (Bedlington Terriers) sensitive to copper"
+  },
+  {
+    "id": "ing_manganese",
+    "commonName": "Manganese",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Bone development, metabolism",
+    "notes": null
+  },
+  {
+    "id": "ing_selenium",
+    "commonName": "Selenium",
+    "scientificName": "Sodium selenite",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Antioxidant, thyroid function",
+    "notes": null
+  },
+  {
+    "id": "ing_iodine",
+    "commonName": "Iodine",
+    "scientificName": "Potassium iodide",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Thyroid function",
+    "notes": "Monitor in cats with hyperthyroidism"
+  },
+  {
+    "id": "ing_l_carnitine",
+    "commonName": "L-Carnitine",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Fat metabolism, heart health",
+    "notes": "May help prevent DCM"
+  },
+  {
+    "id": "ing_glucosamine",
+    "commonName": "Glucosamine",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Joint health",
+    "notes": null
+  },
+  {
+    "id": "ing_chondroitin",
+    "commonName": "Chondroitin",
+    "scientificName": "Chondroitin sulfate",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Joint health",
+    "notes": "Often paired with glucosamine"
+  },
+  {
+    "id": "ing_msm",
+    "commonName": "MSM",
+    "scientificName": "Methylsulfonylmethane",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Joint health, anti-inflammatory",
+    "notes": null
+  },
+  {
+    "id": "ing_probiotics",
+    "commonName": "Probiotics",
+    "scientificName": "Various Lactobacillus/Bifidobacterium spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Gut health, digestion",
+    "notes": null
+  },
+  {
+    "id": "ing_inulin",
+    "commonName": "Inulin",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Prebiotic fiber",
+    "notes": null
+  },
+  {
+    "id": "ing_fos",
+    "commonName": "FOS",
+    "scientificName": "Fructooligosaccharides",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Prebiotic fiber",
+    "notes": null
+  },
+  {
+    "id": "ing_yucca_schidigera",
+    "commonName": "Yucca schidigera",
+    "scientificName": "Yucca schidigera",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Reduces stool odor",
+    "notes": null
+  },
+  {
+    "id": "ing_kelp",
+    "commonName": "Kelp",
+    "scientificName": "Laminaria spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Minerals, iodine source",
+    "notes": "Monitor iodine intake"
+  },
+  {
+    "id": "ing_spirulina",
+    "commonName": "Spirulina",
+    "scientificName": "Arthrospira platensis",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Antioxidant, immune support",
+    "notes": null
+  },
+  {
+    "id": "ing_turmeric",
+    "commonName": "Turmeric",
+    "scientificName": "Curcuma longa",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Anti-inflammatory",
+    "notes": "Low bioavailability without black pepper or fat"
+  },
+  {
+    "id": "ing_ginger",
+    "commonName": "Ginger",
+    "scientificName": "Zingiber officinale",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_in_moderation",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Digestive aid, anti-nausea",
+    "notes": null
+  },
+  {
+    "id": "ing_lecithin",
+    "commonName": "Lecithin",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Emulsifier, brain health",
+    "notes": null
+  },
+  {
+    "id": "ing_citric_acid",
+    "commonName": "Citric acid",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Preservative, flavor enhancer",
+    "notes": null
+  },
+  {
+    "id": "ing_phosphoric_acid",
+    "commonName": "Phosphoric acid",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "pH adjuster",
+    "notes": null
+  },
+  {
+    "id": "ing_agar_agar",
+    "commonName": "Agar agar",
+    "scientificName": "Gelidium spp.",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Gelling agent",
+    "notes": null
+  },
+  {
+    "id": "ing_locust_bean_gum",
+    "commonName": "Locust bean gum",
+    "scientificName": "Ceratonia siliqua",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Thickener",
+    "notes": null
+  },
+  {
+    "id": "ing_cellulose",
+    "commonName": "Cellulose",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Insoluble fiber, bulk",
+    "notes": null
+  },
+  {
+    "id": "ing_titanium_dioxide",
+    "commonName": "Titanium dioxide",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Whitening colorant",
+    "notes": "Banned in some countries - no nutritional value"
+  },
+  {
+    "id": "ing_caramel_color",
+    "commonName": "Caramel color",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Coloring",
+    "notes": "No nutritional benefit - some types may contain 4-MEI"
+  },
+  {
+    "id": "ing_sodium_nitrite",
+    "commonName": "Sodium nitrite",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Preservative, color fixative",
+    "notes": "Can form carcinogenic nitrosamines"
+  },
+  {
+    "id": "ing_msg",
+    "commonName": "MSG",
+    "scientificName": "Monosodium glutamate",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Flavor enhancer",
+    "notes": "Some pets may be sensitive"
+  },
+  {
+    "id": "ing_menadione",
+    "commonName": "Menadione",
+    "scientificName": "Vitamin K3",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "caution",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Vitamin K supplement",
+    "notes": "Synthetic form - some concerns about safety. Natural K1/K2 preferred"
+  },
+  {
+    "id": "ing_sodium_tripolyphosphate",
+    "commonName": "Sodium tripolyphosphate",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Moisture retention, dental health",
+    "notes": null
+  },
+  {
+    "id": "ing_pea_protein",
+    "commonName": "Pea protein",
+    "scientificName": "Pisum sativum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Plant protein concentrate",
+    "notes": null
+  },
+  {
+    "id": "ing_soy_protein",
+    "commonName": "Soy protein",
+    "scientificName": "Glycine max",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Plant protein",
+    "notes": "Common allergen in some pets"
+  },
+  {
+    "id": "ing_soybean_meal",
+    "commonName": "Soybean meal",
+    "scientificName": "Glycine max",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe_for_most",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Plant protein",
+    "notes": "Some pets may be allergic"
+  },
+  {
+    "id": "ing_animal_digest",
+    "commonName": "Animal digest",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Flavor enhancer",
+    "notes": "Made from hydrolyzed animal tissues - source unspecified"
+  },
+  {
+    "id": "ing_poultry_digest",
+    "commonName": "Poultry digest",
+    "scientificName": "Various poultry",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Flavor enhancer",
+    "notes": null
+  },
+  {
+    "id": "ing_blood_meal",
+    "commonName": "Blood meal",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "High protein source",
+    "notes": null
+  },
+  {
+    "id": "ing_hydrolyzed_protein",
+    "commonName": "Hydrolyzed protein",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural_derived",
+    "riskLevel": "safe",
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Hypoallergenic protein",
+    "notes": "Broken down to reduce allergenicity"
   }
 ]
