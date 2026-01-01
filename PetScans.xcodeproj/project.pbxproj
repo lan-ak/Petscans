@@ -59,6 +59,11 @@
 		F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835192F06EC3C00414B32 /* AddPetSheet.swift */; };
 		F7D8351B2F06EC3C00414B32 /* AddAllergenSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */; };
 		F7D8351D2F06EC5400414B32 /* PetSelectionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8351C2F06EC5400414B32 /* PetSelectionRow.swift */; };
+		F7D835252F0720A200414B32 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835222F0720A200414B32 /* OnboardingView.swift */; };
+		F7D835262F0720A200414B32 /* OnboardingPetSetupPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835212F0720A200414B32 /* OnboardingPetSetupPage.swift */; };
+		F7D835272F0720A200414B32 /* OnboardingWelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */; };
+		F7D835282F0720A200414B32 /* OnboardingBenefitsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */; };
+		F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F7D8352B2F0724E300414B32 /* Assets.xcassets */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
 		F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */; };
@@ -125,6 +130,11 @@
 		F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAllergenSheet.swift; sourceTree = "<group>"; };
 		F7D835192F06EC3C00414B32 /* AddPetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPetSheet.swift; sourceTree = "<group>"; };
 		F7D8351C2F06EC5400414B32 /* PetSelectionRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetSelectionRow.swift; sourceTree = "<group>"; };
+		F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingBenefitsPage.swift; sourceTree = "<group>"; };
+		F7D835212F0720A200414B32 /* OnboardingPetSetupPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPetSetupPage.swift; sourceTree = "<group>"; };
+		F7D835222F0720A200414B32 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWelcomePage.swift; sourceTree = "<group>"; };
+		F7D8352B2F0724E300414B32 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningReticleView.swift; sourceTree = "<group>"; };
 		F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Quicksand.ttf; sourceTree = "<group>"; };
 		F7F30C7C2F05B208008389D8 /* ColorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTokens.swift; sourceTree = "<group>"; };
@@ -160,6 +170,7 @@
 		A4000002 /* PetScans */ = {
 			isa = PBXGroup;
 			children = (
+				F7D8352B2F0724E300414B32 /* Assets.xcassets */,
 				F7F30C802F05B208008389D8 /* DesignSystem */,
 				F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */,
 				A2000001 /* PetScansApp.swift */,
@@ -230,6 +241,7 @@
 		A4000007 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				F7D835242F0720A200414B32 /* Onboarding */,
 				A4000008 /* Scanner */,
 				A4000009 /* History */,
 				A4000010 /* Shared */,
@@ -309,6 +321,17 @@
 				A2000037 /* SettingsView.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		F7D835242F0720A200414B32 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */,
+				F7D835212F0720A200414B32 /* OnboardingPetSetupPage.swift */,
+				F7D835222F0720A200414B32 /* OnboardingView.swift */,
+				F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */,
+			);
+			path = Onboarding;
 			sourceTree = "<group>";
 		};
 		F7F30C802F05B208008389D8 /* DesignSystem */ = {
@@ -395,6 +418,7 @@
 				A1000029 /* ingredients.json in Resources */,
 				A1000030 /* rules.json in Resources */,
 				A1000031 /* synonyms.json in Resources */,
+				F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +484,10 @@
 				F7D835032F05E6F000414B32 /* ProductNotFoundView.swift in Sources */,
 				A1000035 /* NetworkErrorView.swift in Sources */,
 				A1000036 /* SettingsView.swift in Sources */,
+				F7D835252F0720A200414B32 /* OnboardingView.swift in Sources */,
+				F7D835262F0720A200414B32 /* OnboardingPetSetupPage.swift in Sources */,
+				F7D835272F0720A200414B32 /* OnboardingWelcomePage.swift in Sources */,
+				F7D835282F0720A200414B32 /* OnboardingBenefitsPage.swift in Sources */,
 				F7D8351D2F06EC5400414B32 /* PetSelectionRow.swift in Sources */,
 				A1000038 /* ScoreBreakdown+ShareText.swift in Sources */,
 			);
