@@ -64,8 +64,8 @@ struct ScoreExplanationCard: View {
 
                         ForEach(explanation.factors) { factor in
                             HStack(alignment: .top, spacing: SpacingTokens.xxs) {
-                                Image(systemName: iconForImpact(factor.impact))
-                                    .foregroundColor(colorForImpact(factor.impact))
+                                Image(systemName: factor.impact.icon)
+                                    .foregroundColor(factor.impact.color)
                                     .font(.caption)
                                     .frame(width: SpacingTokens.iconSmall)
 
@@ -89,22 +89,6 @@ struct ScoreExplanationCard: View {
             }
         }
         .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
-    }
-
-    private func iconForImpact(_ impact: ExplanationFactor.Impact) -> String {
-        switch impact {
-        case .positive: return "plus.circle.fill"
-        case .negative: return "minus.circle.fill"
-        case .neutral: return "circle.fill"
-        }
-    }
-
-    private func colorForImpact(_ impact: ExplanationFactor.Impact) -> Color {
-        switch impact {
-        case .positive: return ColorTokens.success
-        case .negative: return ColorTokens.error
-        case .neutral: return ColorTokens.textSecondary
-        }
     }
 }
 

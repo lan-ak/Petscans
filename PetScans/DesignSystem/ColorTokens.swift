@@ -138,4 +138,20 @@ extension ColorTokens {
     static func backgroundForScore(_ score: Double) -> Color {
         colorForScore(score).opacity(0.15)
     }
+
+    /// Returns the appropriate color for a match rate percentage (0-100)
+    /// Uses 80/50 thresholds for high/medium/low recognition quality
+    ///
+    /// - 80-100: High match rate (success/green)
+    /// - 50-79: Medium match rate (warning/orange)
+    /// - 0-49: Low match rate (error/red)
+    static func colorForMatchRate(_ percentage: Int) -> Color {
+        if percentage >= 80 {
+            return success
+        } else if percentage >= 50 {
+            return warning
+        } else {
+            return error
+        }
+    }
 }

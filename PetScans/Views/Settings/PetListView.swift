@@ -44,28 +44,13 @@ struct PetListView: View {
     }
 
     private var emptyStateView: some View {
-        VStack(spacing: SpacingTokens.sm) {
-            Image(systemName: "pawprint")
-                .font(.system(size: SpacingTokens.iconXLarge))
-                .foregroundColor(ColorTokens.textSecondary)
-
-            Text("No Pets Yet")
-                .displaySmall()
-
-            Text("Add your pets to track their allergens")
-                .bodySmall()
-                .foregroundColor(ColorTokens.textSecondary)
-                .multilineTextAlignment(.center)
-
-            Button {
-                showAddPet = true
-            } label: {
-                Text("Add Your First Pet")
-            }
-            .primaryButtonStyle()
-            .padding(.horizontal, SpacingTokens.xl)
-        }
-        .padding()
+        EmptyStateView(
+            icon: "pawprint",
+            title: "No Pets Yet",
+            subtitle: "Add your pets to track their allergens",
+            actionTitle: "Add Your First Pet",
+            action: { showAddPet = true }
+        )
     }
 
     private func deletePets(at offsets: IndexSet) {

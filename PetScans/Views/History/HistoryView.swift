@@ -66,18 +66,11 @@ struct HistoryView: View {
 
     private var emptyStateView: some View {
         VStack(spacing: SpacingTokens.sm) {
-            Spacer()
-
-            Image(systemName: "clock")
-                .font(.system(size: SpacingTokens.iconXLarge))
-                .foregroundColor(ColorTokens.textSecondary)
-
-            Text("No Scans Yet")
-                .displaySmall()
-
-            Text("Scan a product to see it here")
-                .bodySmall()
-                .foregroundColor(ColorTokens.textSecondary)
+            EmptyStateView(
+                icon: "clock",
+                title: "No Scans Yet",
+                subtitle: "Scan a product to see it here"
+            )
 
             if viewModel.hasActiveFilters {
                 Button("Clear Filters") {
@@ -85,10 +78,7 @@ struct HistoryView: View {
                 }
                 .secondaryButtonStyle()
             }
-
-            Spacer()
         }
-        .padding()
     }
 }
 

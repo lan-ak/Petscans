@@ -76,6 +76,11 @@
 		F7F30C8F2F05BA88008389D8 /* LocalProductDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C8E2F05BA88008389D8 /* LocalProductDatabase.swift */; };
 		F7F30C912F05BAA4008389D8 /* ProductCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C902F05BAA4008389D8 /* ProductCacheManager.swift */; };
 		F7F30C932F05BAC5008389D8 /* CacheSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C922F05BAC5008389D8 /* CacheSettingsView.swift */; };
+		F7NEW0012F08000000000001 /* String+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0002F08000000000001 /* String+Validation.swift */; };
+		F7NEW0032F08000000000002 /* Pet+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0022F08000000000002 /* Pet+Formatting.swift */; };
+		F7NEW0052F08000000000003 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0042F08000000000003 /* EmptyStateView.swift */; };
+		F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0062F08000000000004 /* ProductImageView.swift */; };
+		F7NEW0092F08000000000005 /* PetIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0082F08000000000005 /* PetIconView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -149,6 +154,11 @@
 		F7F30C8E2F05BA88008389D8 /* LocalProductDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalProductDatabase.swift; sourceTree = "<group>"; };
 		F7F30C902F05BAA4008389D8 /* ProductCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCacheManager.swift; sourceTree = "<group>"; };
 		F7F30C922F05BAC5008389D8 /* CacheSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheSettingsView.swift; sourceTree = "<group>"; };
+		F7NEW0002F08000000000001 /* String+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Validation.swift"; sourceTree = "<group>"; };
+		F7NEW0022F08000000000002 /* Pet+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Pet+Formatting.swift"; sourceTree = "<group>"; };
+		F7NEW0042F08000000000003 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
+		F7NEW0062F08000000000004 /* ProductImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImageView.swift; sourceTree = "<group>"; };
+		F7NEW0082F08000000000005 /* PetIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetIconView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,6 +195,7 @@
 				A4000006 /* Services */,
 				A4000011 /* ViewModels */,
 				A4000007 /* Views */,
+				F7NEW00A2F08000000000006 /* Extensions */,
 			);
 			path = PetScans;
 			sourceTree = "<group>";
@@ -292,6 +303,9 @@
 				A2000027 /* ScoreBarView.swift */,
 				A2000028 /* WarningFlagView.swift */,
 				A2000036 /* NetworkErrorView.swift */,
+				F7NEW0042F08000000000003 /* EmptyStateView.swift */,
+				F7NEW0062F08000000000004 /* ProductImageView.swift */,
+				F7NEW0082F08000000000005 /* PetIconView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -357,6 +371,15 @@
 				F7F30C8E2F05BA88008389D8 /* LocalProductDatabase.swift */,
 			);
 			path = Database;
+			sourceTree = "<group>";
+		};
+		F7NEW00A2F08000000000006 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				F7NEW0002F08000000000001 /* String+Validation.swift */,
+				F7NEW0022F08000000000002 /* Pet+Formatting.swift */,
+			);
+			path = Extensions;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -498,6 +521,11 @@
 				A1000038 /* ScoreBreakdown+ShareText.swift in Sources */,
 				F7D835312F07470000414B32 /* ProductScoreView.swift in Sources */,
 				F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */,
+				F7NEW0012F08000000000001 /* String+Validation.swift in Sources */,
+				F7NEW0032F08000000000002 /* Pet+Formatting.swift in Sources */,
+				F7NEW0052F08000000000003 /* EmptyStateView.swift in Sources */,
+				F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */,
+				F7NEW0092F08000000000005 /* PetIconView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -631,7 +659,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
@@ -661,7 +688,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";

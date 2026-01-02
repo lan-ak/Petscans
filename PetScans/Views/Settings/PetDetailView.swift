@@ -12,9 +12,7 @@ struct PetDetailView: View {
         List {
             Section {
                 HStack {
-                    Image(systemName: pet.speciesEnum.icon)
-                        .font(.largeTitle)
-                        .foregroundColor(ColorTokens.brandPrimary)
+                    PetIconView(species: pet.speciesEnum, size: .large)
 
                     VStack(alignment: .leading) {
                         Text(pet.name)
@@ -75,9 +73,8 @@ struct PetDetailView: View {
             TextField("Name", text: $editedName)
             Button("Cancel", role: .cancel) {}
             Button("Save") {
-                let trimmed = editedName.trimmingCharacters(in: .whitespaces)
-                if !trimmed.isEmpty {
-                    pet.name = trimmed
+                if editedName.isNotBlank {
+                    pet.name = editedName.trimmed
                     pet.updatedAt = Date()
                     try? modelContext.save()
                 }

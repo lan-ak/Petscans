@@ -45,7 +45,7 @@ struct AddAllergenSheet: View {
                     Button("Add") {
                         addAllergen(newAllergen)
                     }
-                    .disabled(newAllergen.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(!newAllergen.isNotBlank)
                 }
             }
         }
@@ -81,14 +81,14 @@ struct AddAllergenSheet: View {
     }
 
     private func addAllergen(_ allergen: String) {
-        let trimmed = allergen.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !trimmed.isEmpty, !pet.allergens.contains(trimmed) else {
+        let normalized = allergen.trimmed.lowercased()
+        guard !normalized.isEmpty, !pet.allergens.contains(normalized) else {
             dismiss()
             return
         }
 
         var allergens = pet.allergens
-        allergens.append(trimmed)
+        allergens.append(normalized)
         allergens.sort()
         pet.allergens = allergens
         try? modelContext.save()

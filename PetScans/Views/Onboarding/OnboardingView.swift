@@ -77,7 +77,7 @@ struct OnboardingView: View {
                     createPetAndComplete()
                 }
                 .primaryButtonStyle()
-                .disabled(petName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .disabled(!petName.isNotBlank)
             }
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {
@@ -90,10 +90,9 @@ struct OnboardingView: View {
     }
 
     private func createPetAndComplete() {
-        let trimmedName = petName.trimmingCharacters(in: .whitespaces)
-        guard !trimmedName.isEmpty else { return }
+        guard petName.isNotBlank else { return }
 
-        let pet = Pet(name: trimmedName, species: petSpecies)
+        let pet = Pet(name: petName.trimmed, species: petSpecies)
         modelContext.insert(pet)
         try? modelContext.save()
 

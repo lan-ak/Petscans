@@ -156,5 +156,21 @@ struct ExplanationFactor: Codable, Identifiable {
         case positive
         case negative
         case neutral
+
+        var icon: String {
+            switch self {
+            case .positive: return "plus.circle.fill"
+            case .negative: return "minus.circle.fill"
+            case .neutral: return "circle.fill"
+            }
+        }
+
+        var color: Color {
+            switch self {
+            case .positive: return ColorTokens.success
+            case .negative: return ColorTokens.error
+            case .neutral: return ColorTokens.textSecondary
+            }
+        }
     }
 }

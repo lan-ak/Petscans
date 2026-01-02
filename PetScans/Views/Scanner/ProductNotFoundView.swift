@@ -50,24 +50,13 @@ struct ProductNotFoundView: View {
             Spacer()
 
             // Show product image if available
-            if let urlString = imageUrl, let url = URL(string: urlString) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .empty:
-                        ProgressView()
-                            .frame(width: 100, height: 100)
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(maxWidth: 120, maxHeight: 120)
-                            .cornerRadius(SpacingTokens.radiusMedium)
-                    case .failure:
-                        EmptyView()
-                    @unknown default:
-                        EmptyView()
-                    }
-                }
+            if let urlString = imageUrl {
+                ProductImageView(
+                    url: URL(string: urlString),
+                    size: 100,
+                    maxSize: 120,
+                    showPlaceholder: false
+                )
             }
 
             // Show product info if available

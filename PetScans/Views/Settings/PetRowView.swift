@@ -5,10 +5,7 @@ struct PetRowView: View {
 
     var body: some View {
         HStack(spacing: SpacingTokens.xs) {
-            Image(systemName: pet.speciesEnum.icon)
-                .font(.title2)
-                .foregroundColor(ColorTokens.brandPrimary)
-                .frame(width: 32, height: 32)
+            PetIconView(species: pet.speciesEnum, size: .medium)
 
             VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
                 Text(pet.name)
@@ -24,7 +21,7 @@ struct PetRowView: View {
                             .caption()
                             .foregroundColor(ColorTokens.textSecondary)
 
-                        Text("\(pet.allergens.count) allergen\(pet.allergens.count == 1 ? "" : "s")")
+                        Text(pet.allergenCountText)
                             .caption()
                             .foregroundColor(ColorTokens.warning)
                     }

@@ -45,7 +45,7 @@ struct AddPetSheet: View {
                     Button("Add") {
                         addPet()
                     }
-                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(!name.isNotBlank)
                 }
             }
         }
@@ -53,10 +53,9 @@ struct AddPetSheet: View {
     }
 
     private func addPet() {
-        let trimmedName = name.trimmingCharacters(in: .whitespaces)
-        guard !trimmedName.isEmpty else { return }
+        guard name.isNotBlank else { return }
 
-        let pet = Pet(name: trimmedName, species: species)
+        let pet = Pet(name: name.trimmed, species: species)
         modelContext.insert(pet)
         try? modelContext.save()
         dismiss()

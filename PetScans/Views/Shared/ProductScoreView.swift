@@ -148,24 +148,13 @@ struct ProductScoreView: View {
 
     @ViewBuilder
     private var productImageSection: some View {
-        if let urlString = imageUrl, let url = URL(string: urlString) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .empty:
-                    ProgressView()
-                        .frame(width: 120, height: 120)
-                case .success(let image):
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: 150, maxHeight: 150)
-                        .cornerRadius(SpacingTokens.radiusMedium)
-                case .failure:
-                    productPlaceholder
-                @unknown default:
-                    productPlaceholder
-                }
-            }
+        if let urlString = imageUrl {
+            ProductImageView(
+                url: URL(string: urlString),
+                size: 120,
+                maxSize: 150,
+                showPlaceholder: true
+            )
         }
     }
 
@@ -428,14 +417,7 @@ struct ProductScoreView: View {
     }
 
     private var matchRateColor: Color {
-        let percentage = scoreBreakdown.matchPercentage
-        if percentage >= 80 {
-            return ColorTokens.success
-        } else if percentage >= 50 {
-            return ColorTokens.warning
-        } else {
-            return ColorTokens.error
-        }
+        ColorTokens.colorForMatchRate(actualMatchPercentage)
     }
 }
 
