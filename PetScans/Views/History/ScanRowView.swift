@@ -89,7 +89,9 @@ struct ScanRowView: View {
                     matchedCount: 10,
                     totalCount: 10,
                     scoreSource: .databaseVerified,
-                    ocrConfidence: nil
+                    ocrConfidence: nil,
+                    safetyExplanation: nil,
+                    suitabilityExplanation: nil
                 ),
                 isFavorite: true
             )
@@ -109,12 +111,14 @@ struct ScanRowView: View {
                     safety: 50,
                     nutrition: 40,
                     suitability: 45,
-                    flags: [WarningFlag(severity: .critical, title: "Issue", explain: "Problem", ingredientId: nil, source: nil)],
+                    flags: [WarningFlag(severity: .critical, title: "Issue", explain: "Problem", ingredientId: nil, source: nil, type: .safety)],
                     unmatched: [],
                     matchedCount: 5,
                     totalCount: 8,
                     scoreSource: .databaseVerified,
-                    ocrConfidence: nil
+                    ocrConfidence: nil,
+                    safetyExplanation: nil,
+                    suitabilityExplanation: nil
                 )
             )
             return scan

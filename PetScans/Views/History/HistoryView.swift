@@ -51,7 +51,9 @@ struct HistoryView: View {
             }
             .navigationTitle("History")
             .navigationDestination(for: Scan.self) { scan in
-                ScanDetailView(scan: scan, shareText: viewModel.generateShareText(for: scan))
+                SavedScanDetailView(scan: scan, shareText: viewModel.generateShareText(for: scan)) {
+                    viewModel.delete(scan, using: modelContext)
+                }
             }
             .searchable(text: $viewModel.searchText, prompt: "Search products")
             .alert("Error", isPresented: $viewModel.showDeleteError) {

@@ -222,12 +222,13 @@ final class ScannerViewModel: ObservableObject {
         // Match ingredients
         matchedIngredients = ingredientMatcher.match(rawIngredients: ingredientsText)
 
-        // Calculate score with allergens and score source
+        // Calculate score with allergens, pet name, and score source
         scoreBreakdown = scoreCalculator.calculate(
             species: species,
             category: selectedCategory,
             matched: matchedIngredients,
             petAllergens: petAllergens,
+            petName: selectedPet?.name,
             scoreSource: scoreSource,
             ocrConfidence: ocrConfidence
         )

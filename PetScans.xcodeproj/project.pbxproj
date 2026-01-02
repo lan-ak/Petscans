@@ -25,11 +25,9 @@
 		A1000017 /* ScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000017 /* ScannerView.swift */; };
 		A1000018 /* BarcodeScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000018 /* BarcodeScannerView.swift */; };
 		A1000020 /* SpeciesCategoryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000020 /* SpeciesCategoryPicker.swift */; };
-		A1000021 /* ResultsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000021 /* ResultsView.swift */; };
 		A1000022 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000022 /* HistoryView.swift */; };
 		A1000023 /* ScanRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000023 /* ScanRowView.swift */; };
 		A1000024 /* FilterChipsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000024 /* FilterChipsView.swift */; };
-		A1000025 /* ScanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000025 /* ScanDetailView.swift */; };
 		A1000026 /* ScoreCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000026 /* ScoreCircleView.swift */; };
 		A1000027 /* ScoreBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000027 /* ScoreBarView.swift */; };
 		A1000028 /* WarningFlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000028 /* WarningFlagView.swift */; };
@@ -64,6 +62,10 @@
 		F7D835272F0720A200414B32 /* OnboardingWelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */; };
 		F7D835282F0720A200414B32 /* OnboardingBenefitsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */; };
 		F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F7D8352B2F0724E300414B32 /* Assets.xcassets */; };
+		F7D8352F2F07461100414B32 /* ScoreExplanationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */; };
+		F7D835302F07461100414B32 /* RatingLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8352D2F07461100414B32 /* RatingLabelView.swift */; };
+		F7D835312F07470000414B32 /* ProductScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835322F07470000414B32 /* ProductScoreView.swift */; };
+		F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F07470100414B32 /* SavedScanDetailView.swift */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
 		F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */; };
@@ -96,11 +98,9 @@
 		A2000017 /* ScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerView.swift; sourceTree = "<group>"; };
 		A2000018 /* BarcodeScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeScannerView.swift; sourceTree = "<group>"; };
 		A2000020 /* SpeciesCategoryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeciesCategoryPicker.swift; sourceTree = "<group>"; };
-		A2000021 /* ResultsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultsView.swift; sourceTree = "<group>"; };
 		A2000022 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		A2000023 /* ScanRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanRowView.swift; sourceTree = "<group>"; };
 		A2000024 /* FilterChipsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterChipsView.swift; sourceTree = "<group>"; };
-		A2000025 /* ScanDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanDetailView.swift; sourceTree = "<group>"; };
 		A2000026 /* ScoreCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCircleView.swift; sourceTree = "<group>"; };
 		A2000027 /* ScoreBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreBarView.swift; sourceTree = "<group>"; };
 		A2000028 /* WarningFlagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningFlagView.swift; sourceTree = "<group>"; };
@@ -135,6 +135,10 @@
 		F7D835222F0720A200414B32 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWelcomePage.swift; sourceTree = "<group>"; };
 		F7D8352B2F0724E300414B32 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F7D8352D2F07461100414B32 /* RatingLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingLabelView.swift; sourceTree = "<group>"; };
+		F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreExplanationCard.swift; sourceTree = "<group>"; };
+		F7D835322F07470000414B32 /* ProductScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductScoreView.swift; sourceTree = "<group>"; };
+		F7D835342F07470100414B32 /* SavedScanDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedScanDetailView.swift; sourceTree = "<group>"; };
 		F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningReticleView.swift; sourceTree = "<group>"; };
 		F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Quicksand.ttf; sourceTree = "<group>"; };
 		F7F30C7C2F05B208008389D8 /* ColorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTokens.swift; sourceTree = "<group>"; };
@@ -263,7 +267,6 @@
 				A2000017 /* ScannerView.swift */,
 				A2000018 /* BarcodeScannerView.swift */,
 				A2000020 /* SpeciesCategoryPicker.swift */,
-				A2000021 /* ResultsView.swift */,
 			);
 			path = Scanner;
 			sourceTree = "<group>";
@@ -274,7 +277,7 @@
 				A2000022 /* HistoryView.swift */,
 				A2000023 /* ScanRowView.swift */,
 				A2000024 /* FilterChipsView.swift */,
-				A2000025 /* ScanDetailView.swift */,
+				F7D835342F07470100414B32 /* SavedScanDetailView.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -282,6 +285,9 @@
 		A4000010 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				F7D8352D2F07461100414B32 /* RatingLabelView.swift */,
+				F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */,
+				F7D835322F07470000414B32 /* ProductScoreView.swift */,
 				A2000026 /* ScoreCircleView.swift */,
 				A2000027 /* ScoreBarView.swift */,
 				A2000028 /* WarningFlagView.swift */,
@@ -457,6 +463,8 @@
 				F7F30C842F05B208008389D8 /* ColorTokens.swift in Sources */,
 				A1000014 /* ScoreCalculator.swift in Sources */,
 				A1000015 /* PetFoodAPIService.swift in Sources */,
+				F7D8352F2F07461100414B32 /* ScoreExplanationCard.swift in Sources */,
+				F7D835302F07461100414B32 /* RatingLabelView.swift in Sources */,
 				F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */,
 				F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */,
 				F7D8351B2F06EC3C00414B32 /* AddAllergenSheet.swift in Sources */,
@@ -466,13 +474,11 @@
 				F7F30C8F2F05BA88008389D8 /* LocalProductDatabase.swift in Sources */,
 				A1000020 /* SpeciesCategoryPicker.swift in Sources */,
 				F7D834FF2F05E6C100414B32 /* OCRService.swift in Sources */,
-				A1000021 /* ResultsView.swift in Sources */,
 				F7D835152F06EC1400414B32 /* PetRowView.swift in Sources */,
 				A1000022 /* HistoryView.swift in Sources */,
 				A1000023 /* ScanRowView.swift in Sources */,
 				F7D8350F2F06EBD700414B32 /* Pet.swift in Sources */,
 				A1000024 /* FilterChipsView.swift in Sources */,
-				A1000025 /* ScanDetailView.swift in Sources */,
 				A1000026 /* ScoreCircleView.swift in Sources */,
 				A1000027 /* ScoreBarView.swift in Sources */,
 				A1000028 /* WarningFlagView.swift in Sources */,
@@ -490,6 +496,8 @@
 				F7D835282F0720A200414B32 /* OnboardingBenefitsPage.swift in Sources */,
 				F7D8351D2F06EC5400414B32 /* PetSelectionRow.swift in Sources */,
 				A1000038 /* ScoreBreakdown+ShareText.swift in Sources */,
+				F7D835312F07470000414B32 /* ProductScoreView.swift in Sources */,
+				F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -52,7 +52,7 @@ struct ScannerView: View {
 
                 case .results:
                     if let breakdown = viewModel.scoreBreakdown {
-                        ResultsView(
+                        ProductScoreView(
                             productName: viewModel.productName,
                             brand: viewModel.brand,
                             imageUrl: viewModel.imageUrl,
@@ -61,10 +61,11 @@ struct ScannerView: View {
                             scoreBreakdown: breakdown,
                             matchedIngredients: viewModel.matchedIngredients,
                             shareText: viewModel.generateShareText(),
-                            onSave: {
-                                viewModel.saveToHistory(using: modelContext)
-                            },
-                            onScanAnother: viewModel.reset
+                            petName: viewModel.selectedPet?.name,
+                            mode: .scanResult(
+                                onSave: { viewModel.saveToHistory(using: modelContext) },
+                                onScanAnother: viewModel.reset
+                            )
                         )
                     }
                 }

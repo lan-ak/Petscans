@@ -49,19 +49,21 @@ struct ScoreCalculator {
         category: Category,
         matched: [MatchedIngredient],
         petAllergens: [String] = [],
+        petName: String? = nil,
         scoreSource: ScoreSource = .databaseVerified,
         ocrConfidence: Float? = nil
     ) -> ScoreBreakdown {
         let normalizedAllergens = normalizeAllergens(petAllergens)
 
         // Process each aspect separately
-        let (safetyPenalty, unmatched) = processIngredientSafety(matched: matched)
-        let (suitability, allergenFlags) = checkAllergenSuitability(
+        let (safetyPenalty, unmatched, safetyFactors) = processIngredientSafety(matched: matched, species: species)
+        let (suitability, allergenFlags, suitabilityFactors) = checkAllergenSuitability(
             matched: matched,
-            allergens: normalizedAllergens
+            allergens: normalizedAllergens,
+            petName: petName
         )
         let nutrition = calculateNutritionHeuristics(matched: matched, category: category)
-        let (rulePenalty, ruleFlags, sawCritical) = processRules(
+        let (rulePenalty, ruleFlags, sawCritical, ruleFactors) = processRules(
             matched: matched,
             species: species,
             category: category
@@ -70,6 +72,7 @@ struct ScoreCalculator {
         // Combine results
         let totalSafetyPenalty = safetyPenalty + rulePenalty
         let allFlags = allergenFlags + ruleFlags
+        let allSafetyFactors = safetyFactors + ruleFactors
 
         // Calculate final scores
         let (total, safety, finalNutrition, finalSuitability) = calculateFinalScores(
@@ -83,6 +86,15 @@ struct ScoreCalculator {
         let matchedCount = matched.count - unmatched.count
         let totalCount = matched.count
 
+        // Generate explanations
+        let safetyExplanation = generateSafetyExplanation(
+            factors: allSafetyFactors
+        )
+        let suitabilityExplanation = generateSuitabilityExplanation(
+            factors: suitabilityFactors,
+            petName: petName
+        )
+
         return ScoreBreakdown(
             total: round(total * 10) / 10,
             safety: round(safety * 10) / 10,
@@ -93,7 +105,9 @@ struct ScoreCalculator {
             matchedCount: matchedCount,
             totalCount: totalCount,
             scoreSource: scoreSource,
-            ocrConfidence: ocrConfidence
+            ocrConfidence: ocrConfidence,
+            safetyExplanation: safetyExplanation,
+            suitabilityExplanation: suitabilityExplanation
         )
     }
 
@@ -104,12 +118,14 @@ struct ScoreCalculator {
         allergens.map { $0.lowercased().trimmingCharacters(in: .whitespaces) }
     }
 
-    /// Process ingredient safety and return penalty and unmatched ingredients
+    /// Process ingredient safety and return penalty, unmatched ingredients, and explanation factors
     private func processIngredientSafety(
-        matched: [MatchedIngredient]
-    ) -> (penalty: Double, unmatched: [String]) {
+        matched: [MatchedIngredient],
+        species: Species
+    ) -> (penalty: Double, unmatched: [String], factors: [ExplanationFactor]) {
         var safetyPenalty = 0.0
         var unmatched: [String] = []
+        var factors: [ExplanationFactor] = []
 
         for mi in matched {
             let weight = rankWeight(mi.rank)
@@ -122,23 +138,59 @@ struct ScoreCalculator {
                 let unknownPenalty = mi.rank <= 5 ?
                     Self.unknownPenaltyTop5 : Self.unknownPenaltyOthers
                 safetyPenalty += unknownPenalty * weight
+
+                factors.append(ExplanationFactor(
+                    id: "unknown-\(mi.labelName)",
+                    description: "Unknown ingredient - not in database",
+                    impact: .negative,
+                    ingredientName: mi.labelName
+                ))
                 continue
             }
 
             // Add safety penalty based on ingredient risk level
-            safetyPenalty += basePenalty(for: ing.riskLevel) * weight
+            let penalty = basePenalty(for: ing.riskLevel)
+            safetyPenalty += penalty * weight
+
+            // Add explanation factor for concerning ingredients
+            let riskLevel = ing.riskLevel.lowercased()
+            if riskLevel.contains("toxic") {
+                factors.append(ExplanationFactor(
+                    id: ing.id,
+                    description: "Toxic to \(species.displayName)s",
+                    impact: .negative,
+                    ingredientName: ing.commonName
+                ))
+            } else if riskLevel.contains("caution") {
+                factors.append(ExplanationFactor(
+                    id: ing.id,
+                    description: "Use with caution",
+                    impact: .negative,
+                    ingredientName: ing.commonName
+                ))
+            } else if riskLevel.contains("safe") && mi.rank <= 3 {
+                factors.append(ExplanationFactor(
+                    id: ing.id,
+                    description: "Safe ingredient",
+                    impact: .positive,
+                    ingredientName: ing.commonName
+                ))
+            }
         }
 
-        return (safetyPenalty, unmatched)
+        return (safetyPenalty, unmatched, factors)
     }
 
-    /// Check for allergen conflicts and return suitability score and flags
+    /// Check for allergen conflicts and return suitability score, flags, and explanation factors
     private func checkAllergenSuitability(
         matched: [MatchedIngredient],
-        allergens: [String]
-    ) -> (suitability: Double, flags: [WarningFlag]) {
+        allergens: [String],
+        petName: String?
+    ) -> (suitability: Double, flags: [WarningFlag], factors: [ExplanationFactor]) {
         var suitability = 100.0
         var flags: [WarningFlag] = []
+        var factors: [ExplanationFactor] = []
+        let petDisplayName = petName ?? "your pet"
 
         for mi in matched {
             guard let ingredientId = mi.ingredientId,
@@ -158,15 +210,33 @@ struct ScoreCalculator {
                     flags.append(WarningFlag(
                         severity: .high,
                         title: "Possible allergen",
-                        explain: "\(ing.commonName) may conflict with your pet's allergen profile.",
+                        explain: "\(ing.commonName) may conflict with \(petDisplayName)'s allergen profile.",
                         ingredientId: ing.id,
-                        source: nil
+                        source: nil,
+                        type: .allergen
+                    ))
+
+                    factors.append(ExplanationFactor(
+                        id: "allergen-\(ing.id)",
+                        description: "Matches \(petDisplayName)'s allergen profile",
+                        impact: .negative,
+                        ingredientName: ing.commonName
                     ))
                 }
             }
         }
 
-        return (suitability, flags)
+        // Add positive factor if no allergens found
+        if factors.isEmpty && !allergens.isEmpty {
+            factors.append(ExplanationFactor(
+                id: "no-allergens",
+                description: "No known allergens for \(petDisplayName)",
+                impact: .positive,
+                ingredientName: nil
+            ))
+        }
+
+        return (suitability, flags, factors)
     }
 
     /// Calculate nutrition score based on ingredient heuristics
@@ -211,15 +281,16 @@ struct ScoreCalculator {
         return nutrition
     }
 
-    /// Process safety rules and return penalty, flags, and critical flag indicator
+    /// Process safety rules and return penalty, flags, critical indicator, and explanation factors
     private func processRules(
         matched: [MatchedIngredient],
         species: Species,
         category: Category
-    ) -> (penalty: Double, flags: [WarningFlag], sawCritical: Bool) {
+    ) -> (penalty: Double, flags: [WarningFlag], sawCritical: Bool, factors: [ExplanationFactor]) {
         var rulePenalty = 0.0
         var flags: [WarningFlag] = []
         var sawCritical = false
+        var factors: [ExplanationFactor] = []
 
         for mi in matched {
             guard let ingredientId = mi.ingredientId,
@@ -244,17 +315,25 @@ struct ScoreCalculator {
 
                 flags.append(WarningFlag(
                     severity: rule.severity,
-                    title: "Ingredient rule triggered",
+                    title: rule.severity == .critical ? "Critical warning" : "Ingredient warning",
                     explain: rule.explain,
                     ingredientId: ing.id,
-                    source: rule.source
+                    source: rule.source,
+                    type: .safety
+                ))
+
+                factors.append(ExplanationFactor(
+                    id: "rule-\(rule.id)",
+                    description: rule.explain,
+                    impact: .negative,
+                    ingredientName: ing.commonName
                 ))
 
                 rulePenalty += Double(abs(rule.scoreImpact)) * weight
             }
         }
 
-        return (rulePenalty, flags, sawCritical)
+        return (rulePenalty, flags, sawCritical, factors)
     }
 
     /// Calculate final weighted scores and apply caps
@@ -305,5 +384,48 @@ struct ScoreCalculator {
         if r.contains("moderation") { return 6 }
         if r.contains("safe_for_most") { return 2 }
         return 0
+    }
+
+    // MARK: - Explanation Generation
+
+    /// Generate safety score explanation
+    private func generateSafetyExplanation(
+        factors: [ExplanationFactor]
+    ) -> ScoreExplanation {
+        let negativeCount = factors.filter { $0.impact == .negative }.count
+        let summary: String
+
+        if negativeCount == 0 {
+            summary = "All ingredients appear safe."
+        } else if negativeCount == 1 {
+            summary = "One ingredient requires attention."
+        } else {
+            summary = "\(negativeCount) ingredients require attention."
+        }
+
+        // Limit factors to most important ones (max 5)
+        let limitedFactors = Array(factors.prefix(5))
+
+        return ScoreExplanation(factors: limitedFactors, summary: summary)
+    }
+
+    /// Generate suitability score explanation
+    private func generateSuitabilityExplanation(
+        factors: [ExplanationFactor],
+        petName: String?
+    ) -> ScoreExplanation {
+        let petDisplayName = petName ?? "your pet"
+        let allergenCount = factors.filter { $0.impact == .negative }.count
+        let summary: String
+
+        if allergenCount == 0 {
+            summary = "No known allergens detected for \(petDisplayName)."
+        } else if allergenCount == 1 {
+            summary = "Contains 1 potential allergen for \(petDisplayName)."
+        } else {
+            summary = "Contains \(allergenCount) potential allergens for \(petDisplayName)."
+        }
+
+        return ScoreExplanation(factors: factors, summary: summary)
     }
 }
