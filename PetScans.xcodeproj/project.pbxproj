@@ -66,6 +66,7 @@
 		F7D835302F07461100414B32 /* RatingLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8352D2F07461100414B32 /* RatingLabelView.swift */; };
 		F7D835312F07470000414B32 /* ProductScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835322F07470000414B32 /* ProductScoreView.swift */; };
 		F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F07470100414B32 /* SavedScanDetailView.swift */; };
+		F7D835332F0846B800414B32 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = F7D835322F0846B800414B32 /* SuperwallKit */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
 		F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */; };
@@ -171,6 +172,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F7A9FEF52F05BDE0000623DA /* GRDB in Frameworks */,
+				F7D835332F0846B800414B32 /* SuperwallKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -434,6 +436,7 @@
 			mainGroup = A4000001;
 			packageReferences = (
 				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */,
+				F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
 			);
 			productRefGroup = A4000003 /* Products */;
 			projectDirPath = "";
@@ -753,6 +756,14 @@
 				minimumVersion = 6.0.0;
 			};
 		};
+		F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superwall/Superwall-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -760,6 +771,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */;
 			productName = GRDB;
+		};
+		F7D835322F0846B800414B32 /* SuperwallKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
+			productName = SuperwallKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

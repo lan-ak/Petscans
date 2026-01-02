@@ -81,6 +81,9 @@ struct SpacingTokens {
     /// Extra large icon (empty states)
     static let iconXLarge: CGFloat = 60
 
+    /// Extra extra large icon (onboarding, hero elements)
+    static let iconXXLarge: CGFloat = 80
+
     // MARK: - Minimum Touch Target
 
     /// Minimum touch target size (44x44 per Apple HIG)

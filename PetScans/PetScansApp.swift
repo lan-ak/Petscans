@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import SuperwallKit
 
 @main
 struct PetScansApp: App {
@@ -20,6 +21,11 @@ struct PetScansApp: App {
         Task {
             await ProductCacheManager.shared.initialize()
         }
+
+        // Configure Superwall (non-blocking)
+        Task {
+            Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+        }
     }
 
     var body: some Scene {
@@ -27,6 +33,9 @@ struct PetScansApp: App {
             ContentView()
                 .tint(ColorTokens.brandPrimary)
                 .background(ColorTokens.backgroundPrimary)
+                .onOpenURL { url in
+                    Superwall.handleDeepLink(url)
+                }
         }
         .modelContainer(container)
     }

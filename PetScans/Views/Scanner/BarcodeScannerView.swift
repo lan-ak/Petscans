@@ -46,7 +46,9 @@ struct BarcodeScannerView: UIViewRepresentable {
             // Set up camera input - prefer ultra-wide for close-up focus
             guard let videoCaptureDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
                 ?? AVCaptureDevice.default(for: .video) else {
-                onError("No camera available")
+                DispatchQueue.main.async { [weak self] in
+                    self?.onError("No camera available")
+                }
                 return
             }
 
@@ -54,14 +56,18 @@ struct BarcodeScannerView: UIViewRepresentable {
             do {
                 videoInput = try AVCaptureDeviceInput(device: videoCaptureDevice)
             } catch {
-                onError("Unable to access camera: \(error.localizedDescription)")
+                DispatchQueue.main.async { [weak self] in
+                    self?.onError("Unable to access camera: \(error.localizedDescription)")
+                }
                 return
             }
 
             if session.canAddInput(videoInput) {
                 session.addInput(videoInput)
             } else {
-                onError("Unable to add camera input")
+                DispatchQueue.main.async { [weak self] in
+                    self?.onError("Unable to add camera input")
+                }
                 return
             }
 
@@ -94,7 +100,9 @@ struct BarcodeScannerView: UIViewRepresentable {
                     .interleaved2of5, .itf14, .dataMatrix
                 ]
             } else {
-                onError("Unable to add metadata output")
+                DispatchQueue.main.async { [weak self] in
+                    self?.onError("Unable to add metadata output")
+                }
                 return
             }
 
@@ -126,7 +134,9 @@ struct BarcodeScannerView: UIViewRepresentable {
                 hapticFeedback.impactOccurred()
 
                 // Call the onScan callback
-                onScan(stringValue)
+                DispatchQueue.main.async { [weak self] in
+                    self?.onScan(stringValue)
+                }
             }
         }
 

@@ -83,8 +83,10 @@ struct ScannerView: View {
                 BarcodeScannerView(
                     onScan: viewModel.handleBarcodeScan,
                     onError: { error in
-                        viewModel.currentError = .networkError(underlying: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: error]))
-                        viewModel.step = .error
+                        Task { @MainActor in
+                            viewModel.currentError = .networkError(underlying: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: error]))
+                            viewModel.step = .error
+                        }
                     }
                 )
                 .ignoresSafeArea()

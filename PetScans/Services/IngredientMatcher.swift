@@ -2,14 +2,15 @@ import Foundation
 
 /// Matches raw ingredient text to ingredients in the database
 struct IngredientMatcher {
-    let synonyms: [String: String]
+    private let database = IngredientDatabase.shared
 
-    init(synonyms: [String: String] = IngredientDatabase.shared.synonyms) {
-        self.synonyms = synonyms
-    }
+    init() {}
 
     /// Match raw ingredient text to known ingredients
-    func match(rawIngredients: String) -> [MatchedIngredient] {
+    func match(rawIngredients: String) async -> [MatchedIngredient] {
+        await database.waitForLoad()
+        let synonyms = database.synonyms
+
         let tokens = splitIngredientList(rawIngredients)
         return tokens.enumerated().map { index, labelName in
             let normalized = normalizeToken(labelName)
@@ -17,7 +18,7 @@ struct IngredientMatcher {
 
             // Try without common descriptors if no match
             if ingredientId == nil {
-                ingredientId = tryWithoutDescriptors(normalized)
+                ingredientId = tryWithoutDescriptors(normalized, synonyms: synonyms)
             }
 
             return MatchedIngredient(
@@ -70,7 +71,7 @@ struct IngredientMatcher {
     }
 
     /// Try matching without common descriptors like "dried", "powder", etc.
-    private func tryWithoutDescriptors(_ normalized: String) -> String? {
+    private func tryWithoutDescriptors(_ normalized: String, synonyms: [String: String]) -> String? {
         // Expanded list of common descriptors to strip
         let descriptors = [
             "dried", "dry", "powder", "powdered", "extract", "natural", "artificial",

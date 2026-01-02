@@ -213,27 +213,29 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func performAnalysis() {
-        // Get allergens from selected pet, or empty if no pet selected
-        let petAllergens = selectedPet?.allergens ?? []
+        Task {
+            // Get allergens from selected pet, or empty if no pet selected
+            let petAllergens = selectedPet?.allergens ?? []
 
-        // Use pet's species if available, otherwise fall back to selectedSpecies
-        let species = selectedPet?.speciesEnum ?? selectedSpecies
+            // Use pet's species if available, otherwise fall back to selectedSpecies
+            let species = selectedPet?.speciesEnum ?? selectedSpecies
 
-        // Match ingredients
-        matchedIngredients = ingredientMatcher.match(rawIngredients: ingredientsText)
+            // Match ingredients (async - waits for database if needed)
+            matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText)
 
-        // Calculate score with allergens, pet name, and score source
-        scoreBreakdown = scoreCalculator.calculate(
-            species: species,
-            category: selectedCategory,
-            matched: matchedIngredients,
-            petAllergens: petAllergens,
-            petName: selectedPet?.name,
-            scoreSource: scoreSource,
-            ocrConfidence: ocrConfidence
-        )
+            // Calculate score with allergens, pet name, and score source (async)
+            scoreBreakdown = await scoreCalculator.calculate(
+                species: species,
+                category: selectedCategory,
+                matched: matchedIngredients,
+                petAllergens: petAllergens,
+                petName: selectedPet?.name,
+                scoreSource: scoreSource,
+                ocrConfidence: ocrConfidence
+            )
 
-        step = .results
+            step = .results
+        }
     }
 
     func saveToHistory(using modelContext: ModelContext) {

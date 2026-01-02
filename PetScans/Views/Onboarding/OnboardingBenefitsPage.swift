@@ -8,7 +8,7 @@ struct OnboardingBenefitsPage: View {
     var body: some View {
         VStack(spacing: SpacingTokens.xl) {
             Image(systemName: icon)
-                .font(.system(size: 80, weight: .medium))
+                .font(.system(size: SpacingTokens.iconXXLarge, weight: .medium))
                 .foregroundColor(ColorTokens.brandPrimary)
 
             VStack(spacing: SpacingTokens.sm) {

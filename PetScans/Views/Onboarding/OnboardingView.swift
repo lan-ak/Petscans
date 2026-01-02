@@ -1,11 +1,13 @@
 import SwiftUI
 import SwiftData
+import SuperwallKit
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var currentPage = 0
     @State private var petName = ""
     @State private var petSpecies: Species = .dog
+    @State private var selectedAllergens: Set<String> = []
 
     let onComplete: () -> Void
 
@@ -56,7 +58,8 @@ struct OnboardingView: View {
         case 3:
             OnboardingPetSetupPage(
                 petName: $petName,
-                petSpecies: $petSpecies
+                petSpecies: $petSpecies,
+                selectedAllergens: $selectedAllergens
             )
             .transition(.opacity)
         default:
@@ -92,7 +95,7 @@ struct OnboardingView: View {
     private func createPetAndComplete() {
         guard petName.isNotBlank else { return }
 
-        let pet = Pet(name: petName.trimmed, species: petSpecies)
+        let pet = Pet(name: petName.trimmed, species: petSpecies, allergens: Array(selectedAllergens))
         modelContext.insert(pet)
         try? modelContext.save()
 
@@ -100,7 +103,16 @@ struct OnboardingView: View {
     }
 
     private func completeOnboarding() {
-        onComplete()
+        // Set user attributes for Superwall targeting
+        Superwall.shared.setUserAttributes([
+            "pet_species": petSpecies.rawValue,
+            "pet_count": 1,
+            "onboarding_completed_at": Date()
+        ])
+
+        Superwall.shared.register(placement: "onboarding_complete") {
+            onComplete()
+        }
     }
 }
 
@@ -113,7 +125,7 @@ struct PageIndicator: View {
             ForEach(0..<totalPages, id: \.self) { index in
                 Circle()
                     .fill(index == currentPage ? ColorTokens.brandPrimary : ColorTokens.border)
-                    .frame(width: 8, height: 8)
+                    .frame(width: SpacingTokens.xxs, height: SpacingTokens.xxs)
                     .animation(.easeInOut(duration: 0.2), value: currentPage)
             }
         }

@@ -1,21 +1,40 @@
 import Foundation
 
 /// Singleton that loads and provides access to the bundled ingredient database
+/// Uses background loading to avoid blocking app startup
 final class IngredientDatabase {
     static let shared = IngredientDatabase()
 
-    let ingredients: [String: Ingredient]
-    let rules: [Rule]
-    let synonyms: [String: String]
+    private(set) var ingredients: [String: Ingredient] = [:]
+    private(set) var rules: [Rule] = []
+    private(set) var synonyms: [String: String] = [:]
+
+    private var loadingTask: Task<Void, Never>?
 
     private init() {
-        ingredients = Self.loadIngredients()
-        rules = Self.loadRules()
-        synonyms = Self.loadSynonyms()
+        // Start loading immediately in background - doesn't block main thread
+        loadingTask = Task.detached(priority: .userInitiated) { [weak self] in
+            let ingredients = Self.loadIngredients()
+            let rules = Self.loadRules()
+            let synonyms = Self.loadSynonyms()
 
-        #if DEBUG
-        print("IngredientDatabase loaded: \(ingredients.count) ingredients, \(rules.count) rules, \(synonyms.count) synonyms")
-        #endif
+            #if DEBUG
+            print("IngredientDatabase loaded: \(ingredients.count) ingredients, \(rules.count) rules, \(synonyms.count) synonyms")
+            #endif
+
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                self.ingredients = ingredients
+                self.rules = rules
+                self.synonyms = synonyms
+                self.loadingTask = nil
+            }
+        }
+    }
+
+    /// Wait for database to finish loading (call before accessing data)
+    func waitForLoad() async {
+        await loadingTask?.value
     }
 
     private static func loadIngredients() -> [String: Ingredient] {

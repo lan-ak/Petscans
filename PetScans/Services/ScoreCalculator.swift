@@ -32,16 +32,9 @@ struct ScoreCalculator {
     // Harmful preservatives
     private static let harmfulPreservatives = ["bha", "bht", "ethoxyquin"]
 
-    let ingredients: [String: Ingredient]
-    let rules: [Rule]
+    private let database = IngredientDatabase.shared
 
-    init(
-        ingredients: [String: Ingredient] = IngredientDatabase.shared.ingredients,
-        rules: [Rule] = IngredientDatabase.shared.rules
-    ) {
-        self.ingredients = ingredients
-        self.rules = rules
-    }
+    init() {}
 
     /// Calculate scores for a product
     func calculate(
@@ -52,21 +45,28 @@ struct ScoreCalculator {
         petName: String? = nil,
         scoreSource: ScoreSource = .databaseVerified,
         ocrConfidence: Float? = nil
-    ) -> ScoreBreakdown {
+    ) async -> ScoreBreakdown {
+        await database.waitForLoad()
+        let ingredients = database.ingredients
+        let rules = database.rules
+
         let normalizedAllergens = normalizeAllergens(petAllergens)
 
         // Process each aspect separately
-        let (safetyPenalty, unmatched, safetyFactors) = processIngredientSafety(matched: matched, species: species)
+        let (safetyPenalty, unmatched, safetyFactors) = processIngredientSafety(matched: matched, species: species, ingredients: ingredients)
         let (suitability, allergenFlags, suitabilityFactors) = checkAllergenSuitability(
             matched: matched,
             allergens: normalizedAllergens,
-            petName: petName
+            petName: petName,
+            ingredients: ingredients
         )
-        let nutrition = calculateNutritionHeuristics(matched: matched, category: category)
+        let nutrition = calculateNutritionHeuristics(matched: matched, category: category, ingredients: ingredients)
         let (rulePenalty, ruleFlags, sawCritical, ruleFactors) = processRules(
             matched: matched,
             species: species,
-            category: category
+            category: category,
+            ingredients: ingredients,
+            rules: rules
         )
 
         // Combine results
@@ -121,7 +121,8 @@ struct ScoreCalculator {
     /// Process ingredient safety and return penalty, unmatched ingredients, and explanation factors
     private func processIngredientSafety(
         matched: [MatchedIngredient],
-        species: Species
+        species: Species,
+        ingredients: [String: Ingredient]
     ) -> (penalty: Double, unmatched: [String], factors: [ExplanationFactor]) {
         var safetyPenalty = 0.0
         var unmatched: [String] = []
@@ -185,7 +186,8 @@ struct ScoreCalculator {
     private func checkAllergenSuitability(
         matched: [MatchedIngredient],
         allergens: [String],
-        petName: String?
+        petName: String?,
+        ingredients: [String: Ingredient]
     ) -> (suitability: Double, flags: [WarningFlag], factors: [ExplanationFactor]) {
         var suitability = 100.0
         var flags: [WarningFlag] = []
@@ -242,7 +244,8 @@ struct ScoreCalculator {
     /// Calculate nutrition score based on ingredient heuristics
     private func calculateNutritionHeuristics(
         matched: [MatchedIngredient],
-        category: Category
+        category: Category,
+        ingredients: [String: Ingredient]
     ) -> Double {
         // Only apply nutrition scoring to food and treats
         guard category == .food || category == .treat else {
@@ -285,7 +288,9 @@ struct ScoreCalculator {
     private func processRules(
         matched: [MatchedIngredient],
         species: Species,
-        category: Category
+        category: Category,
+        ingredients: [String: Ingredient],
+        rules: [Rule]
     ) -> (penalty: Double, flags: [WarningFlag], sawCritical: Bool, factors: [ExplanationFactor]) {
         var rulePenalty = 0.0
         var flags: [WarningFlag] = []
