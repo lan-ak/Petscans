@@ -81,6 +81,8 @@
 		F7NEW0052F08000000000003 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0042F08000000000003 /* EmptyStateView.swift */; };
 		F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0062F08000000000004 /* ProductImageView.swift */; };
 		F7NEW0092F08000000000005 /* PetIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0082F08000000000005 /* PetIconView.swift */; };
+		F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7OCR0002F09000000000001 /* OCRCameraView.swift */; };
+		F7OCR0032F09000000000002 /* OCRScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7OCR0022F09000000000002 /* OCRScanningReticleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -159,6 +161,8 @@
 		F7NEW0042F08000000000003 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		F7NEW0062F08000000000004 /* ProductImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImageView.swift; sourceTree = "<group>"; };
 		F7NEW0082F08000000000005 /* PetIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetIconView.swift; sourceTree = "<group>"; };
+		F7OCR0002F09000000000001 /* OCRCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRCameraView.swift; sourceTree = "<group>"; };
+		F7OCR0022F09000000000002 /* OCRScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRScanningReticleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -275,6 +279,8 @@
 				F7D835042F05E6F900414B32 /* IngredientCameraView.swift */,
 				F7D835022F05E6F000414B32 /* ProductNotFoundView.swift */,
 				F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */,
+				F7OCR0002F09000000000001 /* OCRCameraView.swift */,
+				F7OCR0022F09000000000002 /* OCRScanningReticleView.swift */,
 				A2000017 /* ScannerView.swift */,
 				A2000018 /* BarcodeScannerView.swift */,
 				A2000020 /* SpeciesCategoryPicker.swift */,
@@ -526,6 +532,8 @@
 				F7NEW0052F08000000000003 /* EmptyStateView.swift in Sources */,
 				F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */,
 				F7NEW0092F08000000000005 /* PetIconView.swift in Sources */,
+				F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */,
+				F7OCR0032F09000000000002 /* OCRScanningReticleView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

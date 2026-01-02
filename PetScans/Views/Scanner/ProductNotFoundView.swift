@@ -117,17 +117,18 @@ struct ProductNotFoundView: View {
                 }
                 .secondaryButtonStyle()
 
-                // Tertiary: Retry (only show if not manual search)
-                if !isManualSearch {
-                    Button {
-                        onRetry()
-                    } label: {
-                        Label("Try Barcode Again", systemImage: "arrow.clockwise")
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundColor(ColorTokens.textSecondary)
-                    .padding(.top, SpacingTokens.xs)
+                // Tertiary: Switch mode
+                Button {
+                    onRetry()
+                } label: {
+                    Label(
+                        isManualSearch ? "Scan Barcode Instead" : "Try Barcode Again",
+                        systemImage: isManualSearch ? "barcode.viewfinder" : "arrow.clockwise"
+                    )
                 }
+                .buttonStyle(.plain)
+                .foregroundColor(ColorTokens.textSecondary)
+                .padding(.top, SpacingTokens.xs)
             }
             .padding(.horizontal)
 

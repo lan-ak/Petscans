@@ -4,6 +4,14 @@ import SwiftData
 struct SettingsView: View {
     @Query private var pets: [Pet]
 
+    private var appVersion: String {
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0"
+    }
+
+    private var buildNumber: String {
+        Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -63,6 +71,40 @@ struct SettingsView: View {
                         }
                     }
 
+                    Link(destination: URL(string: "https://petscans.app/privacy")!) {
+                        HStack {
+                            Image(systemName: "hand.raised.fill")
+                                .foregroundColor(ColorTokens.brandPrimary)
+                                .frame(width: 28)
+
+                            Text("Privacy Policy")
+
+                            Spacer()
+
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                                .foregroundColor(ColorTokens.textSecondary)
+                        }
+                        .foregroundColor(ColorTokens.textPrimary)
+                    }
+
+                    Link(destination: URL(string: "https://petscans.app/support")!) {
+                        HStack {
+                            Image(systemName: "envelope.fill")
+                                .foregroundColor(ColorTokens.brandPrimary)
+                                .frame(width: 28)
+
+                            Text("Contact Support")
+
+                            Spacer()
+
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                                .foregroundColor(ColorTokens.textSecondary)
+                        }
+                        .foregroundColor(ColorTokens.textPrimary)
+                    }
+
                     HStack {
                         Image(systemName: "info.circle")
                             .foregroundColor(ColorTokens.info)
@@ -72,7 +114,7 @@ struct SettingsView: View {
 
                         Spacer()
 
-                        Text("1.0.0")
+                        Text("\(appVersion) (\(buildNumber))")
                             .foregroundColor(ColorTokens.textSecondary)
                     }
                 } header: {

@@ -2,67 +2,127 @@ import SwiftUI
 import PhotosUI
 
 /// View for capturing or selecting an image of ingredient labels
+/// Features a live camera preview with a guiding box overlay
 struct IngredientCameraView: View {
     let onImageSelected: (UIImage) -> Void
     let onCancel: () -> Void
 
     @State private var showImagePicker = false
-    @State private var showCamera = false
-    @State private var sourceType: UIImagePickerController.SourceType = .camera
+    @State private var shouldCapture = false
+    @State private var showCameraError = false
+    @State private var cameraErrorMessage = ""
 
     var body: some View {
+        ZStack {
+            if OCRCameraView.isSupported {
+                // Live camera preview
+                OCRCameraView(
+                    onCapture: { image in
+                        onImageSelected(image)
+                    },
+                    onError: { error in
+                        cameraErrorMessage = error
+                        showCameraError = true
+                    },
+                    shouldCapture: $shouldCapture
+                )
+                .ignoresSafeArea()
+
+                // Guiding box overlay
+                OCRScanningReticleView()
+
+                // Bottom controls
+                VStack {
+                    Spacer()
+
+                    // Capture button
+                    Button {
+                        shouldCapture = true
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .stroke(Color.white, lineWidth: 4)
+                                .frame(width: 70, height: 70)
+
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 58, height: 58)
+                        }
+                    }
+                    .padding(.bottom, SpacingTokens.md)
+
+                    // Choose from Library button
+                    Button {
+                        showImagePicker = true
+                    } label: {
+                        Label("Choose from Library", systemImage: "photo.on.rectangle")
+                            .labelMedium()
+                            .foregroundColor(.white)
+                            .padding(.horizontal, SpacingTokens.md)
+                            .padding(.vertical, SpacingTokens.xs)
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(SpacingTokens.radiusMedium)
+                    }
+
+                    // Cancel button
+                    Button("Cancel") {
+                        onCancel()
+                    }
+                    .bodySmall()
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.top, SpacingTokens.xs)
+                    .padding(.bottom, SpacingTokens.xl)
+                }
+            } else {
+                // Fallback when camera is not available
+                cameraUnavailableView
+            }
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePickerView(sourceType: .photoLibrary) { image in
+                if let image = image {
+                    onImageSelected(image)
+                }
+                showImagePicker = false
+            }
+        }
+        .alert("Camera Error", isPresented: $showCameraError) {
+            Button("OK") {
+                onCancel()
+            }
+        } message: {
+            Text(cameraErrorMessage)
+        }
+    }
+
+    // MARK: - Camera Unavailable Fallback
+
+    private var cameraUnavailableView: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
 
-            // Icon
             Image(systemName: "camera.viewfinder")
                 .font(.system(size: SpacingTokens.iconXLarge))
                 .foregroundColor(ColorTokens.brandPrimary)
 
-            // Instructions
             VStack(spacing: SpacingTokens.xs) {
-                Text("Scan Ingredient Label")
+                Text("Camera Not Available")
                     .displaySmall()
 
-                Text("Take a clear photo of the ingredient list on the product label")
+                Text("You can still select an image from your photo library")
                     .bodySmall()
                     .foregroundColor(ColorTokens.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
-
-                // Tips
-                VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
-                    TipRow(icon: "sun.max.fill", text: "Ensure good lighting")
-                    TipRow(icon: "rectangle.center.inset.filled", text: "Keep label flat and in focus")
-                    TipRow(icon: "sparkles", text: "Avoid glare and shadows")
-                }
-                .padding()
-                .cardStyle(
-                    backgroundColor: ColorTokens.info.opacity(0.1),
-                    cornerRadius: SpacingTokens.radiusMedium
-                )
-                .padding(.horizontal)
             }
 
-            // Action buttons
             VStack(spacing: SpacingTokens.xs) {
-                if UIImagePickerController.isSourceTypeAvailable(.camera) {
-                    Button {
-                        sourceType = .camera
-                        showCamera = true
-                    } label: {
-                        Label("Take Photo", systemImage: "camera.fill")
-                    }
-                    .primaryButtonStyle()
-                }
-
                 Button {
-                    sourceType = .photoLibrary
                     showImagePicker = true
                 } label: {
                     Label("Choose from Library", systemImage: "photo.on.rectangle")
                 }
-                .secondaryButtonStyle()
+                .primaryButtonStyle()
 
                 Button("Cancel") {
                     onCancel()
@@ -76,41 +136,6 @@ struct IngredientCameraView: View {
             Spacer()
         }
         .padding()
-        .sheet(isPresented: $showCamera) {
-            ImagePickerView(sourceType: .camera) { image in
-                if let image = image {
-                    onImageSelected(image)
-                }
-                showCamera = false
-            }
-        }
-        .sheet(isPresented: $showImagePicker) {
-            ImagePickerView(sourceType: .photoLibrary) { image in
-                if let image = image {
-                    onImageSelected(image)
-                }
-                showImagePicker = false
-            }
-        }
-    }
-}
-
-// MARK: - Tip Row
-
-private struct TipRow: View {
-    let icon: String
-    let text: String
-
-    var body: some View {
-        HStack(spacing: SpacingTokens.xs) {
-            Image(systemName: icon)
-                .foregroundColor(ColorTokens.info)
-                .frame(width: 20)
-
-            Text(text)
-                .caption()
-                .foregroundColor(ColorTokens.textPrimary)
-        }
     }
 }
 

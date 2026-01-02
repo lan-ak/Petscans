@@ -46,11 +46,15 @@ class ProductCacheManager: ObservableObject {
 
             // Auto-sync on first launch if database is empty
             if productCount == 0 {
+                #if DEBUG
                 print("First launch detected - auto-syncing product database...")
+                #endif
                 await fullSync()
             }
         } catch {
+            #if DEBUG
             print("Failed to initialize database: \(error)")
+            #endif
         }
     }
 
@@ -65,7 +69,9 @@ class ProductCacheManager: ObservableObject {
 
             databaseSizeMB = try await database.getDatabaseSize()
         } catch {
+            #if DEBUG
             print("Failed to refresh stats: \(error)")
+            #endif
         }
     }
 
@@ -116,7 +122,9 @@ class ProductCacheManager: ObservableObject {
 
         } catch {
             syncState = .failed(error)
+            #if DEBUG
             print("Sync failed: \(error)")
+            #endif
         }
     }
 
@@ -154,7 +162,9 @@ class ProductCacheManager: ObservableObject {
             try await database.setLastSyncTimestamp(0)
             await refreshStats()
         } catch {
+            #if DEBUG
             print("Failed to clear cache: \(error)")
+            #endif
         }
     }
 }
