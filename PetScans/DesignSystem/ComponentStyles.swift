@@ -75,7 +75,9 @@ struct PrimaryButtonStyle: ButtonStyle {
             .background(isDestructive ? ColorTokens.error : ColorTokens.brandPrimary)
             .foregroundColor(.white)
             .cornerRadius(SpacingTokens.radiusMedium)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(AnimationTokens.buttonTap, value: configuration.isPressed)
     }
 }
 
@@ -89,7 +91,9 @@ struct SecondaryButtonStyle: ButtonStyle {
             .background(ColorTokens.surfaceSecondary)
             .foregroundColor(ColorTokens.textPrimary)
             .cornerRadius(SpacingTokens.radiusMedium)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(AnimationTokens.buttonTap, value: configuration.isPressed)
     }
 }
 
@@ -107,7 +111,9 @@ struct OutlinedButtonStyle: ButtonStyle {
                 RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
                     .stroke(ColorTokens.brandPrimary, lineWidth: 2)
             )
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
+            .opacity(configuration.isPressed ? 0.9 : 1.0)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(AnimationTokens.buttonTap, value: configuration.isPressed)
     }
 }
 

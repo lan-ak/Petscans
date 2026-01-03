@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 293D87520CE50242DDCC5B5B /* AnimationTokens.swift */; };
 		A1000001 /* PetScansApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PetScansApp.swift */; };
 		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* ContentView.swift */; };
 		A1000003 /* Species.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000003 /* Species.swift */; };
@@ -67,6 +68,7 @@
 		F7D835312F07470000414B32 /* ProductScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835322F07470000414B32 /* ProductScoreView.swift */; };
 		F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F07470100414B32 /* SavedScanDetailView.swift */; };
 		F7D835332F0846B800414B32 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = F7D835322F0846B800414B32 /* SuperwallKit */; };
+		F7D835352F089EAB00414B32 /* ScreenshotDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
 		F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */; };
@@ -87,6 +89,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		293D87520CE50242DDCC5B5B /* AnimationTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimationTokens.swift; sourceTree = "<group>"; };
 		A0000001 /* PetScans.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScans.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000001 /* PetScansApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetScansApp.swift; sourceTree = "<group>"; };
 		A2000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -147,6 +150,7 @@
 		F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreExplanationCard.swift; sourceTree = "<group>"; };
 		F7D835322F07470000414B32 /* ProductScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductScoreView.swift; sourceTree = "<group>"; };
 		F7D835342F07470100414B32 /* SavedScanDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedScanDetailView.swift; sourceTree = "<group>"; };
+		F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDataSeeder.swift; sourceTree = "<group>"; };
 		F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningReticleView.swift; sourceTree = "<group>"; };
 		F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Quicksand.ttf; sourceTree = "<group>"; };
 		F7F30C7C2F05B208008389D8 /* ColorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTokens.swift; sourceTree = "<group>"; };
@@ -246,6 +250,7 @@
 		A4000006 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */,
 				F7D835102F06EBEC00414B32 /* PetMigrationService.swift */,
 				F7D834FE2F05E6C100414B32 /* OCRService.swift */,
 				F7F30C902F05BAA4008389D8 /* ProductCacheManager.swift */,
@@ -369,6 +374,7 @@
 				F7F30C7D2F05B208008389D8 /* ComponentStyles.swift */,
 				F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */,
 				F7F30C7F2F05B208008389D8 /* TypographyTokens.swift */,
+				293D87520CE50242DDCC5B5B /* AnimationTokens.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -480,6 +486,7 @@
 				A1000007 /* Rule.swift in Sources */,
 				F7D835112F06EBEC00414B32 /* PetMigrationService.swift in Sources */,
 				A1000008 /* MatchedIngredient.swift in Sources */,
+				F7D835352F089EAB00414B32 /* ScreenshotDataSeeder.swift in Sources */,
 				A1000009 /* ScoreBreakdown.swift in Sources */,
 				F7D8350D2F06DAED00414B32 /* ReferencesView.swift in Sources */,
 				A1000010 /* ProductInfo.swift in Sources */,
@@ -537,6 +544,7 @@
 				F7NEW0092F08000000000005 /* PetIconView.swift in Sources */,
 				F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */,
 				F7OCR0032F09000000000002 /* OCRScanningReticleView.swift in Sources */,
+				9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

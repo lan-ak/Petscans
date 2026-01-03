@@ -105,6 +105,12 @@ struct SpeciesCategoryPicker: View {
 
             // Action buttons
             VStack(spacing: SpacingTokens.xs) {
+                if !pets.isEmpty && selectedPet == nil {
+                    Text("Select a pet above to continue")
+                        .caption()
+                        .foregroundColor(ColorTokens.textSecondary)
+                }
+
                 Button {
                     onAnalyze()
                 } label: {

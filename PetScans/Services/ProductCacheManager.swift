@@ -44,13 +44,6 @@ class ProductCacheManager: ObservableObject {
             try await database.setup()
             await refreshStats()
 
-            // Auto-sync on first launch if database is empty
-            if productCount == 0 {
-                #if DEBUG
-                print("First launch detected - auto-syncing product database...")
-                #endif
-                await fullSync()
-            }
         } catch {
             #if DEBUG
             print("Failed to initialize database: \(error)")
@@ -115,10 +108,6 @@ class ProductCacheManager: ObservableObject {
 
             await refreshStats()
             syncState = .completed
-
-            // Auto-reset to idle after 3 seconds
-            try await Task.sleep(nanoseconds: 3_000_000_000)
-            syncState = .idle
 
         } catch {
             syncState = .failed(error)

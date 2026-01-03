@@ -3,15 +3,26 @@ import SwiftUI
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
 
+    private var shouldShowOnboarding: Bool {
+        // Launch arguments override for UI testing
+        if ProcessInfo.processInfo.arguments.contains("-ShowOnboarding") {
+            return true
+        }
+        if ProcessInfo.processInfo.arguments.contains("-SkipOnboarding") {
+            return false
+        }
+        return !hasCompletedOnboarding
+    }
+
     var body: some View {
-        if hasCompletedOnboarding {
-            MainTabView()
-        } else {
+        if shouldShowOnboarding {
             OnboardingView {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withStandardAnimation {
                     hasCompletedOnboarding = true
                 }
             }
+        } else {
+            MainTabView()
         }
     }
 }

@@ -11,7 +11,7 @@ struct ScoreExplanationCard: View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             // Header with score bar
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) {
+                withSnappyAnimation {
                     isExpanded.toggle()
                 }
             } label: {

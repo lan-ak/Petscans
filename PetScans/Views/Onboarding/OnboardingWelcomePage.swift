@@ -24,6 +24,7 @@ struct OnboardingWelcomePage: View {
             }
         }
         .padding(.horizontal, SpacingTokens.screenPadding)
+        .accessibilityIdentifier("onboarding-welcome")
     }
 }
 

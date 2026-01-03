@@ -2,7 +2,7 @@ import Foundation
 
 /// Matches raw ingredient text to ingredients in the database
 struct IngredientMatcher {
-    private let database = IngredientDatabase.shared
+    private var database: IngredientDatabase { IngredientDatabase.shared }
 
     init() {}
 

@@ -11,12 +11,12 @@ struct ScanningReticleView: View {
     var cornerLength: CGFloat = 40
     var lineWidth: CGFloat = 3
 
-    private var animationDuration: Double {
-        reduceMotion ? 0 : 1.5
+    private var pulseAnimation: Animation? {
+        AnimationTokens.respecting(AnimationTokens.pulse, reduceMotion: reduceMotion)
     }
 
-    private var scanLineAnimationDuration: Double {
-        reduceMotion ? 0 : 2.0
+    private var scanLineAnimation: Animation? {
+        AnimationTokens.respecting(AnimationTokens.scanLine, reduceMotion: reduceMotion)
     }
 
     var body: some View {
@@ -98,19 +98,15 @@ struct ScanningReticleView: View {
 
     private func startAnimations() {
         // Corner pulse animation
-        withAnimation(
-            Animation.easeInOut(duration: animationDuration)
-                .repeatForever(autoreverses: true)
-        ) {
-            isAnimating = true
+        if let animation = pulseAnimation {
+            withAnimation(animation) {
+                isAnimating = true
+            }
         }
 
         // Scanning line animation
-        if !reduceMotion {
-            withAnimation(
-                Animation.linear(duration: scanLineAnimationDuration)
-                    .repeatForever(autoreverses: false)
-            ) {
+        if let animation = scanLineAnimation {
+            withAnimation(animation) {
                 scanLineOffset = frameHeight
             }
         }

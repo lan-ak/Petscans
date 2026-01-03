@@ -185,6 +185,50 @@ struct ScannerUnavailableView: View {
     }
 }
 
-#Preview {
+// Mock scanner view for App Store screenshots
+struct MockScannerPreviewView: View {
+    var body: some View {
+        ZStack {
+            // Simulated camera background (dark gradient)
+            LinearGradient(
+                colors: [Color.black.opacity(0.9), Color.black.opacity(0.7)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            // Simulated product/barcode area
+            VStack {
+                Spacer()
+
+                RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
+                    .fill(Color.white.opacity(0.1))
+                    .frame(width: 200, height: 120)
+                    .overlay(
+                        VStack(spacing: SpacingTokens.xs) {
+                            Image(systemName: "barcode")
+                                .font(.system(size: 40))
+                                .foregroundColor(.white.opacity(0.6))
+                            Text("Position barcode here")
+                                .caption()
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    )
+
+                Spacer()
+                Spacer()
+            }
+        }
+    }
+}
+
+#Preview("Scanner Unavailable") {
     ScannerUnavailableView(onManualEntry: {})
+}
+
+#Preview("Mock Scanner") {
+    ZStack {
+        MockScannerPreviewView()
+        ScanningReticleView()
+    }
 }

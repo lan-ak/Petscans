@@ -61,6 +61,7 @@ struct HistoryView: View {
             } message: {
                 Text(viewModel.deleteErrorMessage ?? "An error occurred")
             }
+            .accessibilityIdentifier("history-view")
         }
     }
 

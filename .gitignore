@@ -72,3 +72,7 @@ playground.xcworkspace
 
 # Swift Playgrounds
 *.playground/
+
+# App Store Screenshots
+Screenshots/
+*.xcresult

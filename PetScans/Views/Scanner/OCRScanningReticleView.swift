@@ -12,8 +12,8 @@ struct OCRScanningReticleView: View {
     var cornerLength: CGFloat = 50
     var lineWidth: CGFloat = 3
 
-    private var animationDuration: Double {
-        reduceMotion ? 0 : 1.5
+    private var pulseAnimation: Animation? {
+        AnimationTokens.respecting(AnimationTokens.pulse, reduceMotion: reduceMotion)
     }
 
     var body: some View {
@@ -87,12 +87,11 @@ struct OCRScanningReticleView: View {
     // MARK: - Animations
 
     private func startAnimations() {
-        // Corner pulse animation (slower than barcode scanner)
-        withAnimation(
-            Animation.easeInOut(duration: animationDuration)
-                .repeatForever(autoreverses: true)
-        ) {
-            isAnimating = true
+        // Corner pulse animation
+        if let animation = pulseAnimation {
+            withAnimation(animation) {
+                isAnimating = true
+            }
         }
     }
 }

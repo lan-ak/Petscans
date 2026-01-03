@@ -32,7 +32,7 @@ struct ScoreCalculator {
     // Harmful preservatives
     private static let harmfulPreservatives = ["bha", "bht", "ethoxyquin"]
 
-    private let database = IngredientDatabase.shared
+    private var database: IngredientDatabase { IngredientDatabase.shared }
 
     init() {}
 

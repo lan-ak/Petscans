@@ -5,6 +5,10 @@ struct ScannerView: View {
     @Environment(\.modelContext) private var modelContext
     @StateObject private var viewModel = ScannerViewModel()
 
+    private var useMockScanner: Bool {
+        ProcessInfo.processInfo.arguments.contains("-MockScanner")
+    }
+
     var body: some View {
         NavigationStack {
             Group {
@@ -79,7 +83,28 @@ struct ScannerView: View {
 
     private var scanningView: some View {
         ZStack {
-            if BarcodeScannerView.isSupported {
+            if useMockScanner {
+                // Mock scanner for App Store screenshots
+                MockScannerPreviewView()
+                    .ignoresSafeArea()
+
+                ScanningReticleView()
+
+                VStack {
+                    Spacer()
+
+                    Button {
+                        viewModel.goToManualEntry()
+                    } label: {
+                        Label("Enter Manually", systemImage: "keyboard")
+                            .labelLarge()
+                            .padding()
+                            .background(.ultraThinMaterial)
+                            .cornerRadius(SpacingTokens.radiusMedium)
+                    }
+                    .padding(.bottom, SpacingTokens.xxl)
+                }
+            } else if BarcodeScannerView.isSupported {
                 BarcodeScannerView(
                     onScan: viewModel.handleBarcodeScan,
                     onError: { error in
@@ -115,6 +140,7 @@ struct ScannerView: View {
                 }
             }
         }
+        .accessibilityIdentifier("scanner-view")
     }
 
     private var loadingView: some View {

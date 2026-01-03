@@ -46,6 +46,7 @@ struct OnboardingPetSetupPage: View {
             }
             .padding(.horizontal, SpacingTokens.screenPadding)
         }
+        .accessibilityIdentifier("onboarding-pet-setup")
     }
 
     private var allergenSection: some View {

@@ -6,9 +6,21 @@ import SuperwallKit
 struct PetScansApp: App {
     let container: ModelContainer
 
+    static var isUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("-UITesting")
+    }
+
     init() {
         let schema = Schema([Scan.self, Pet.self])
-        let config = ModelConfiguration(schema: schema)
+        let config: ModelConfiguration
+
+        // Use in-memory store for UI tests to have clean, predictable state
+        if Self.isUITesting {
+            config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+        } else {
+            config = ModelConfiguration(schema: schema)
+        }
+
         do {
             container = try ModelContainer(for: schema, configurations: config)
         } catch {
@@ -16,15 +28,23 @@ struct PetScansApp: App {
         }
 
         let context = ModelContext(container)
-        PetMigrationService.migrateIfNeeded(modelContext: context)
 
-        Task {
-            await ProductCacheManager.shared.initialize()
-        }
+        if Self.isUITesting {
+            // Seed screenshot data if requested
+            if ProcessInfo.processInfo.arguments.contains("-SeedScreenshotData") {
+                ScreenshotDataSeeder.seed(context: context)
+            }
+        } else {
+            PetMigrationService.migrateIfNeeded(modelContext: context)
 
-        // Configure Superwall (non-blocking)
-        Task {
-            Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+            Task {
+                await ProductCacheManager.shared.initialize()
+            }
+
+            // Configure Superwall (non-blocking)
+            Task {
+                Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+            }
         }
     }
 

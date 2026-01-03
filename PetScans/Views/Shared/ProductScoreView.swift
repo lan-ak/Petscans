@@ -142,6 +142,7 @@ struct ProductScoreView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
+        .accessibilityIdentifier("product-score-view")
     }
 
     // MARK: - Product Image

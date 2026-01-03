@@ -84,7 +84,7 @@ struct OnboardingView: View {
             }
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {
-                withAnimation(.easeInOut(duration: 0.3)) {
+                withStandardAnimation {
                     currentPage += 1
                 }
             }
@@ -126,7 +126,7 @@ struct PageIndicator: View {
                 Circle()
                     .fill(index == currentPage ? ColorTokens.brandPrimary : ColorTokens.border)
                     .frame(width: SpacingTokens.xxs, height: SpacingTokens.xxs)
-                    .animation(.easeInOut(duration: 0.2), value: currentPage)
+                    .animateSnappy(value: currentPage)
             }
         }
     }

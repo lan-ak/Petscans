@@ -124,6 +124,7 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .accessibilityIdentifier("settings-view")
         }
     }
 }
