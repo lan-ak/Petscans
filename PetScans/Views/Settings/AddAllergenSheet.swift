@@ -8,11 +8,6 @@ struct AddAllergenSheet: View {
 
     @State private var newAllergen: String = ""
 
-    private let commonAllergens = [
-        "Chicken", "Beef", "Dairy", "Wheat",
-        "Corn", "Soy", "Egg", "Fish", "Lamb", "Pork"
-    ]
-
     var body: some View {
         NavigationStack {
             Form {
@@ -54,7 +49,7 @@ struct AddAllergenSheet: View {
 
     private var commonAllergensGrid: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: SpacingTokens.xxs) {
-            ForEach(commonAllergens, id: \.self) { allergen in
+            ForEach(CommonAllergens.all, id: \.self) { allergen in
                 Button {
                     addAllergen(allergen)
                 } label: {

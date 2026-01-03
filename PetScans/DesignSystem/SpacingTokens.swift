@@ -90,16 +90,3 @@ struct SpacingTokens {
     static let minTouchTarget: CGFloat = 44
 }
 
-// MARK: - View Extensions
-
-extension View {
-    /// Apply standard screen padding (16pt)
-    func screenPadding() -> some View {
-        self.padding(SpacingTokens.screenPadding)
-    }
-
-    /// Apply standard card padding (16pt)
-    func cardPadding() -> some View {
-        self.padding(SpacingTokens.cardPadding)
-    }
-}

@@ -30,21 +30,9 @@ struct AnimationTokens {
         blendDuration: 0
     )
 
-    /// Gentle continuous animations (pulsing, breathing)
-    /// Response: 0.5s, minimal bounce
-    static let springGentle = Animation.spring(
-        response: 0.5,
-        dampingFraction: 0.9,
-        blendDuration: 0
-    )
-
     // MARK: - Semantic Aliases
 
     static let buttonTap = springSnappy
-    static let cardExpand = springStandard
-    static let pageTransition = springEmphasized
-    static let modalPresent = springEmphasized
-    static let indicatorChange = springSnappy
 
     // MARK: - Continuous Animations
 
@@ -66,13 +54,6 @@ struct AnimationTokens {
         reduceMotion ? nil : animation
     }
 
-    /// Returns a static animation (no movement) when reduce motion is enabled
-    static func withReduceMotionSupport(
-        _ animation: Animation,
-        reduceMotion: Bool
-    ) -> Animation {
-        reduceMotion ? .linear(duration: 0) : animation
-    }
 }
 
 // MARK: - View Extensions
@@ -106,7 +87,3 @@ func withStandardAnimation(_ action: @escaping () -> Void) {
     withAnimation(AnimationTokens.springStandard, action)
 }
 
-/// Perform action with emphasized spring animation
-func withEmphasizedAnimation(_ action: @escaping () -> Void) {
-    withAnimation(AnimationTokens.springEmphasized, action)
-}

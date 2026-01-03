@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */; };
+		7ECD2AA005CFB67C760EB07F /* CommonAllergens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */; };
 		9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 293D87520CE50242DDCC5B5B /* AnimationTokens.swift */; };
 		A1000001 /* PetScansApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PetScansApp.swift */; };
 		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* ContentView.swift */; };
@@ -85,10 +87,10 @@
 		F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0062F08000000000004 /* ProductImageView.swift */; };
 		F7NEW0092F08000000000005 /* PetIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7NEW0082F08000000000005 /* PetIconView.swift */; };
 		F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7OCR0002F09000000000001 /* OCRCameraView.swift */; };
-		F7OCR0032F09000000000002 /* OCRScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7OCR0022F09000000000002 /* OCRScanningReticleView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommonAllergens.swift; sourceTree = "<group>"; };
 		293D87520CE50242DDCC5B5B /* AnimationTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimationTokens.swift; sourceTree = "<group>"; };
 		A0000001 /* PetScans.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScans.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000001 /* PetScansApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetScansApp.swift; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 		A2000036 /* NetworkErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorView.swift; sourceTree = "<group>"; };
 		A2000037 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2000039 /* ScoreBreakdown+ShareText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScoreBreakdown+ShareText.swift"; sourceTree = "<group>"; };
+		CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PetScansLogo.swift; sourceTree = "<group>"; };
 		F7D834FE2F05E6C100414B32 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
 		F7D835002F05E6D400414B32 /* OCRServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRServiceProtocol.swift; sourceTree = "<group>"; };
 		F7D835022F05E6F000414B32 /* ProductNotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductNotFoundView.swift; sourceTree = "<group>"; };
@@ -167,7 +170,6 @@
 		F7NEW0062F08000000000004 /* ProductImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductImageView.swift; sourceTree = "<group>"; };
 		F7NEW0082F08000000000005 /* PetIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetIconView.swift; sourceTree = "<group>"; };
 		F7OCR0002F09000000000001 /* OCRCameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRCameraView.swift; sourceTree = "<group>"; };
-		F7OCR0022F09000000000002 /* OCRScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRScanningReticleView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,7 +289,6 @@
 				F7D835022F05E6F000414B32 /* ProductNotFoundView.swift */,
 				F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */,
 				F7OCR0002F09000000000001 /* OCRCameraView.swift */,
-				F7OCR0022F09000000000002 /* OCRScanningReticleView.swift */,
 				A2000017 /* ScannerView.swift */,
 				A2000018 /* BarcodeScannerView.swift */,
 				A2000020 /* SpeciesCategoryPicker.swift */,
@@ -375,6 +376,8 @@
 				F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */,
 				F7F30C7F2F05B208008389D8 /* TypographyTokens.swift */,
 				293D87520CE50242DDCC5B5B /* AnimationTokens.swift */,
+				27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */,
+				CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */,
 			);
 			path = DesignSystem;
 			sourceTree = "<group>";
@@ -441,7 +444,7 @@
 			);
 			mainGroup = A4000001;
 			packageReferences = (
-				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */,
+				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
 			);
 			productRefGroup = A4000003 /* Products */;
@@ -543,8 +546,9 @@
 				F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */,
 				F7NEW0092F08000000000005 /* PetIconView.swift in Sources */,
 				F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */,
-				F7OCR0032F09000000000002 /* OCRScanningReticleView.swift in Sources */,
 				9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */,
+				7ECD2AA005CFB67C760EB07F /* CommonAllergens.swift in Sources */,
+				3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -756,7 +760,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */ = {
+		F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/GRDB.swift";
 			requirement = {
@@ -777,7 +781,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		F7A9FEF42F05BDE0000623DA /* GRDB */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */;
+			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */;
 			productName = GRDB;
 		};
 		F7D835322F0846B800414B32 /* SuperwallKit */ = {

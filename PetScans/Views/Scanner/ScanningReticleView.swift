@@ -10,6 +10,8 @@ struct ScanningReticleView: View {
     var frameHeight: CGFloat = 180
     var cornerLength: CGFloat = 40
     var lineWidth: CGFloat = 3
+    var showScanningLine: Bool = true
+    var instructionText: String? = nil
 
     private var pulseAnimation: Animation? {
         AnimationTokens.respecting(AnimationTokens.pulse, reduceMotion: reduceMotion)
@@ -19,18 +21,38 @@ struct ScanningReticleView: View {
         AnimationTokens.respecting(AnimationTokens.scanLine, reduceMotion: reduceMotion)
     }
 
+    private var totalHeight: CGFloat {
+        instructionText != nil ? frameHeight + 60 : frameHeight
+    }
+
     var body: some View {
         ZStack {
             // Corner brackets
             cornerBrackets
-                .scaleEffect(isAnimating ? 1.0 : 0.95)
+                .scaleEffect(isAnimating ? 1.0 : (instructionText != nil ? 0.97 : 0.95))
 
             // Scanning line
-            if !reduceMotion {
+            if showScanningLine && !reduceMotion {
                 scanningLine
             }
+
+            // Instructional text (for OCR mode)
+            if let text = instructionText {
+                VStack {
+                    Spacer()
+                        .frame(height: frameHeight / 2 + 30)
+
+                    Text(text)
+                        .caption()
+                        .foregroundColor(.white.opacity(0.8))
+                        .padding(.horizontal, SpacingTokens.sm)
+                        .padding(.vertical, SpacingTokens.xxs)
+                        .background(.ultraThinMaterial.opacity(0.6))
+                        .cornerRadius(SpacingTokens.radiusSmall)
+                }
+            }
         }
-        .frame(width: frameWidth, height: frameHeight)
+        .frame(width: frameWidth, height: totalHeight)
         .allowsHitTesting(false)
         .onAppear {
             startAnimations()
@@ -43,34 +65,39 @@ struct ScanningReticleView: View {
         Canvas { context, size in
             let cornerColor = Color.white.opacity(0.9)
 
+            // Calculate offset to center the frame when instruction text is present
+            let offsetX = (size.width - frameWidth) / 2
+            let offsetY = instructionText != nil ? (size.height - frameHeight - 60) / 2 : 0
+
             // Top Left Corner
             var topLeft = Path()
-            topLeft.move(to: CGPoint(x: 0, y: cornerLength))
-            topLeft.addLine(to: CGPoint(x: 0, y: 0))
-            topLeft.addLine(to: CGPoint(x: cornerLength, y: 0))
+            topLeft.move(to: CGPoint(x: offsetX, y: offsetY + cornerLength))
+            topLeft.addLine(to: CGPoint(x: offsetX, y: offsetY))
+            topLeft.addLine(to: CGPoint(x: offsetX + cornerLength, y: offsetY))
             context.stroke(topLeft, with: .color(cornerColor), lineWidth: lineWidth)
 
             // Top Right Corner
             var topRight = Path()
-            topRight.move(to: CGPoint(x: size.width - cornerLength, y: 0))
-            topRight.addLine(to: CGPoint(x: size.width, y: 0))
-            topRight.addLine(to: CGPoint(x: size.width, y: cornerLength))
+            topRight.move(to: CGPoint(x: offsetX + frameWidth - cornerLength, y: offsetY))
+            topRight.addLine(to: CGPoint(x: offsetX + frameWidth, y: offsetY))
+            topRight.addLine(to: CGPoint(x: offsetX + frameWidth, y: offsetY + cornerLength))
             context.stroke(topRight, with: .color(cornerColor), lineWidth: lineWidth)
 
             // Bottom Left Corner
             var bottomLeft = Path()
-            bottomLeft.move(to: CGPoint(x: 0, y: size.height - cornerLength))
-            bottomLeft.addLine(to: CGPoint(x: 0, y: size.height))
-            bottomLeft.addLine(to: CGPoint(x: cornerLength, y: size.height))
+            bottomLeft.move(to: CGPoint(x: offsetX, y: offsetY + frameHeight - cornerLength))
+            bottomLeft.addLine(to: CGPoint(x: offsetX, y: offsetY + frameHeight))
+            bottomLeft.addLine(to: CGPoint(x: offsetX + cornerLength, y: offsetY + frameHeight))
             context.stroke(bottomLeft, with: .color(cornerColor), lineWidth: lineWidth)
 
             // Bottom Right Corner
             var bottomRight = Path()
-            bottomRight.move(to: CGPoint(x: size.width - cornerLength, y: size.height))
-            bottomRight.addLine(to: CGPoint(x: size.width, y: size.height))
-            bottomRight.addLine(to: CGPoint(x: size.width, y: size.height - cornerLength))
+            bottomRight.move(to: CGPoint(x: offsetX + frameWidth - cornerLength, y: offsetY + frameHeight))
+            bottomRight.addLine(to: CGPoint(x: offsetX + frameWidth, y: offsetY + frameHeight))
+            bottomRight.addLine(to: CGPoint(x: offsetX + frameWidth, y: offsetY + frameHeight - cornerLength))
             context.stroke(bottomRight, with: .color(cornerColor), lineWidth: lineWidth)
         }
+        .frame(width: frameWidth, height: instructionText != nil ? frameHeight + 60 : frameHeight)
     }
 
     // MARK: - Scanning Line

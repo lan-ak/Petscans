@@ -10,11 +10,6 @@ struct AddPetSheet: View {
     @State private var selectedAllergens: Set<String> = []
     @State private var customAllergen: String = ""
 
-    private let commonAllergens = [
-        "Chicken", "Beef", "Dairy", "Wheat",
-        "Corn", "Soy", "Egg", "Fish", "Lamb", "Pork"
-    ]
-
     var body: some View {
         NavigationStack {
             Form {
@@ -74,7 +69,7 @@ struct AddPetSheet: View {
 
     private var allergenGrid: some View {
         LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: SpacingTokens.xxs) {
-            ForEach(commonAllergens, id: \.self) { allergen in
+            ForEach(CommonAllergens.all, id: \.self) { allergen in
                 allergenButton(for: allergen)
             }
         }
@@ -124,7 +119,7 @@ struct AddPetSheet: View {
     }
 
     private var customAllergensSelected: [String] {
-        let commonNormalized = Set(commonAllergens.map { $0.lowercased() })
+        let commonNormalized = Set(CommonAllergens.all.map { $0.lowercased() })
         return selectedAllergens.filter { !commonNormalized.contains($0) }.sorted()
     }
 

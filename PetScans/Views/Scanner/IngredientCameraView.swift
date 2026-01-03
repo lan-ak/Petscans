@@ -29,7 +29,13 @@ struct IngredientCameraView: View {
                 .ignoresSafeArea()
 
                 // Guiding box overlay
-                OCRScanningReticleView()
+                ScanningReticleView(
+                    frameWidth: 320,
+                    frameHeight: 400,
+                    cornerLength: 50,
+                    showScanningLine: false,
+                    instructionText: "Position ingredient label within frame"
+                )
 
                 // Bottom controls
                 VStack {
