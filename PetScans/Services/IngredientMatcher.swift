@@ -4,12 +4,38 @@ import Foundation
 struct IngredientMatcher {
     private var database: IngredientDatabase { IngredientDatabase.shared }
 
+    // Pre-compiled regex patterns (compiled once, reused for all matching)
+    private static let parentheticalRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: "\\(.*?\\)", options: [])
+    }()
+
+    private static let percentageRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: "\\b\\d+%?\\b", options: [])
+    }()
+
+    private static let byproductRegex: NSRegularExpression? = {
+        try? NSRegularExpression(pattern: "\\s*by-?products?\\s*", options: [])
+    }()
+
+    // Pre-compiled descriptor patterns
+    private static let descriptorPatterns: [NSRegularExpression] = {
+        let descriptors = [
+            "dried", "dry", "powder", "powdered", "extract", "natural", "artificial",
+            "fresh", "deboned", "meal", "concentrate", "concentrated", "organic",
+            "raw", "cooked", "ground", "whole", "minced", "shredded", "flaked",
+            "dehydrated", "freeze-dried", "frozen", "canned", "prepared",
+            "hydrolyzed", "isolated", "pure", "refined", "enriched", "fortified"
+        ]
+        return descriptors.compactMap { try? NSRegularExpression(pattern: "\\b\($0)\\b", options: []) }
+    }()
+
     init() {}
 
     /// Match raw ingredient text to known ingredients
     func match(rawIngredients: String) async -> [MatchedIngredient] {
         await database.waitForLoad()
         let synonyms = database.synonyms
+        let ingredients = database.ingredients
 
         let tokens = splitIngredientList(rawIngredients)
         return tokens.enumerated().map { index, labelName in
@@ -21,10 +47,19 @@ struct IngredientMatcher {
                 ingredientId = tryWithoutDescriptors(normalized, synonyms: synonyms)
             }
 
+            // Look up processing level from ingredient database
+            let processingLevel: ProcessingLevel?
+            if let id = ingredientId, let ingredient = ingredients[id] {
+                processingLevel = ingredient.processingLevel
+            } else {
+                processingLevel = nil
+            }
+
             return MatchedIngredient(
                 ingredientId: ingredientId,
                 labelName: labelName,
-                rank: index + 1
+                rank: index + 1,
+                processingLevel: processingLevel
             )
         }
     }
@@ -36,6 +71,13 @@ struct IngredientMatcher {
             .filter { !$0.isEmpty }
     }
 
+    // Cached character set for filtering (avoid recreating on every call)
+    private static let allowedChars: CharacterSet = {
+        CharacterSet.alphanumerics
+            .union(CharacterSet.whitespaces)
+            .union(CharacterSet(charactersIn: "'-/"))
+    }()
+
     /// Normalize ingredient token for matching
     private func normalizeToken(_ s: String) -> String {
         var result = s.lowercased()
@@ -43,8 +85,8 @@ struct IngredientMatcher {
         // Normalize smart quotes
         result = result.replacingOccurrences(of: "'", with: "'")
 
-        // Remove parentheticals
-        if let regex = try? NSRegularExpression(pattern: "\\(.*?\\)", options: []) {
+        // Remove parentheticals (using pre-compiled regex)
+        if let regex = Self.parentheticalRegex {
             result = regex.stringByReplacingMatches(
                 in: result,
                 range: NSRange(result.startIndex..., in: result),
@@ -53,14 +95,7 @@ struct IngredientMatcher {
         }
 
         // Remove special characters except apostrophe, hyphen, slash
-        let allowedChars = CharacterSet.alphanumerics
-            .union(CharacterSet.whitespaces)
-            .union(CharacterSet(charactersIn: "'-/"))
-        result = result.unicodeScalars
-            .filter { allowedChars.contains($0) }
-            .map { Character($0) }
-            .map { String($0) }
-            .joined()
+        result = String(result.unicodeScalars.filter { Self.allowedChars.contains($0) })
 
         // Collapse whitespace
         result = result.components(separatedBy: .whitespaces)
@@ -72,27 +107,34 @@ struct IngredientMatcher {
 
     /// Try matching without common descriptors like "dried", "powder", etc.
     private func tryWithoutDescriptors(_ normalized: String, synonyms: [String: String]) -> String? {
-        // Expanded list of common descriptors to strip
-        let descriptors = [
-            "dried", "dry", "powder", "powdered", "extract", "natural", "artificial",
-            "fresh", "deboned", "meal", "concentrate", "concentrated", "organic",
-            "raw", "cooked", "ground", "whole", "minced", "shredded", "flaked",
-            "dehydrated", "freeze-dried", "frozen", "canned", "prepared",
-            "hydrolyzed", "isolated", "pure", "refined", "enriched", "fortified"
-        ]
-
         var stripped = normalized
 
-        // Remove all descriptors
-        for descriptor in descriptors {
-            stripped = stripped.replacingOccurrences(of: "\\b\(descriptor)\\b", with: "", options: .regularExpression)
+        // Remove all descriptors using pre-compiled patterns
+        for pattern in Self.descriptorPatterns {
+            stripped = pattern.stringByReplacingMatches(
+                in: stripped,
+                range: NSRange(stripped.startIndex..., in: stripped),
+                withTemplate: ""
+            )
         }
 
-        // Remove common weight/percentage indicators
-        stripped = stripped.replacingOccurrences(of: "\\b\\d+%?\\b", with: "", options: .regularExpression)
+        // Remove common weight/percentage indicators (using pre-compiled regex)
+        if let regex = Self.percentageRegex {
+            stripped = regex.stringByReplacingMatches(
+                in: stripped,
+                range: NSRange(stripped.startIndex..., in: stripped),
+                withTemplate: ""
+            )
+        }
 
-        // Remove "by-product", "by product", "byproduct" as a suffix
-        stripped = stripped.replacingOccurrences(of: "\\s*by-?products?\\s*", with: "", options: .regularExpression)
+        // Remove "by-product", "by product", "byproduct" as a suffix (using pre-compiled regex)
+        if let regex = Self.byproductRegex {
+            stripped = regex.stringByReplacingMatches(
+                in: stripped,
+                range: NSRange(stripped.startIndex..., in: stripped),
+                withTemplate: ""
+            )
+        }
 
         // Collapse whitespace
         stripped = stripped.components(separatedBy: .whitespaces)

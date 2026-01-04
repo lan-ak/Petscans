@@ -37,7 +37,7 @@ struct SettingsView: View {
                 } header: {
                     Text("Pet Profiles")
                 } footer: {
-                    Text("Manage your pets and their individual allergen profiles.")
+                    Text("Manage your pets and the ingredients they should avoid.")
                 }
 
                 Section {

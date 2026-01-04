@@ -7,6 +7,10 @@ struct ScoreExplanationCard: View {
     let explanation: ScoreExplanation?
     @State private var isExpanded: Bool = false
 
+    private var ratingLabel: RatingLabel {
+        explanation?.labelOverride ?? RatingLabel.from(score: score)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             // Header with score bar
@@ -24,9 +28,9 @@ struct ScoreExplanationCard: View {
 
                             Spacer()
 
-                            Text(RatingLabel.from(score: score).rawValue)
+                            Text(ratingLabel.rawValue)
                                 .labelSmall()
-                                .foregroundColor(ColorTokens.colorForScore(score))
+                                .foregroundColor(ratingLabel.color)
                         }
 
                         // Score bar
@@ -36,7 +40,7 @@ struct ScoreExplanationCard: View {
                                     .fill(ColorTokens.surfaceSecondary)
 
                                 RoundedRectangle(cornerRadius: SpacingTokens.xxxs)
-                                    .fill(ColorTokens.colorForScore(score))
+                                    .fill(ratingLabel.color)
                                     .frame(width: geometry.size.width * (score / 100))
                             }
                         }

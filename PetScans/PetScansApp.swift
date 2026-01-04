@@ -1,20 +1,22 @@
 import SwiftUI
 import SwiftData
-import SuperwallKit
+// import SuperwallKit // Disabled for now
 
 @main
 struct PetScansApp: App {
     let container: ModelContainer
+    @State private var isReady = false
 
     static var isUITesting: Bool {
         ProcessInfo.processInfo.arguments.contains("-UITesting")
     }
 
     init() {
+        // ModelContainer creation blocks but is unavoidable for SwiftData
+        // The iOS launch screen (from Info.plist) covers this delay
         let schema = Schema([Scan.self, Pet.self])
         let config: ModelConfiguration
 
-        // Use in-memory store for UI tests to have clean, predictable state
         if Self.isUITesting {
             config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         } else {
@@ -27,36 +29,62 @@ struct PetScansApp: App {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
 
-        let context = ModelContext(container)
-
+        // Seed test data if UI testing
         if Self.isUITesting {
-            // Seed screenshot data if requested
+            let context = ModelContext(container)
             if ProcessInfo.processInfo.arguments.contains("-SeedScreenshotData") {
                 ScreenshotDataSeeder.seed(context: context)
-            }
-        } else {
-            PetMigrationService.migrateIfNeeded(modelContext: context)
-
-            Task {
-                await ProductCacheManager.shared.initialize()
-            }
-
-            // Configure Superwall (non-blocking)
-            Task {
-                Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
             }
         }
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .tint(ColorTokens.brandPrimary)
-                .background(ColorTokens.backgroundPrimary)
-                .onOpenURL { url in
-                    Superwall.handleDeepLink(url)
+            Group {
+                if isReady || Self.isUITesting {
+                    // ContentView only created when ready (avoids triggering IngredientDatabase on launch)
+                    ContentView()
+                } else {
+                    // SplashView is lightweight - renders immediately
+                    SplashView()
+                        .onAppear {
+                            Task {
+                                await deferredInit()
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    isReady = true
+                                }
+                            }
+                        }
                 }
+            }
+            .tint(ColorTokens.brandPrimary)
+            .background(ColorTokens.backgroundPrimary)
+            // .onOpenURL { url in
+            //     Superwall.handleDeepLink(url)
+            // }
+            .modelContainer(container)
         }
-        .modelContainer(container)
+    }
+
+    @MainActor
+    private func deferredInit() async {
+        // Pre-load custom fonts (forces font registration before views need them)
+        _ = UIFont(name: "Quicksand-Bold", size: 1)
+        _ = UIFont(name: "Quicksand-Medium", size: 1)
+        _ = UIFont(name: "Quicksand-Regular", size: 1)
+
+        // Pre-warm the ingredient database (starts loading in background on .shared access)
+        // This ensures the database is fully loaded before ContentView appears
+        await IngredientDatabase.shared.waitForLoad()
+
+        // Run pet migration
+        let context = ModelContext(container)
+        PetMigrationService.migrateIfNeeded(modelContext: context)
+
+        // Configure Superwall (disabled for now)
+        // Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+
+        // Initialize product cache
+        await ProductCacheManager.shared.initialize()
     }
 }

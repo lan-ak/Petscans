@@ -36,7 +36,7 @@ struct PetDetailView: View {
 
             Section {
                 if pet.allergens.isEmpty {
-                    Text("No allergens configured")
+                    Text("No ingredients to avoid")
                         .foregroundColor(ColorTokens.textSecondary)
                         .italic()
                 } else {
@@ -51,7 +51,7 @@ struct PetDetailView: View {
                     .onDelete(perform: deleteAllergen)
                 }
             } header: {
-                Text("Allergens")
+                Text("Ingredients to Avoid")
             } footer: {
                 Text("Products containing these ingredients will be flagged when scanning for \(pet.name).")
             }
@@ -60,7 +60,7 @@ struct PetDetailView: View {
                 Button {
                     showAddAllergen = true
                 } label: {
-                    Label("Add Allergen", systemImage: "plus.circle.fill")
+                    Label("Add Ingredient", systemImage: "plus.circle.fill")
                 }
             }
         }

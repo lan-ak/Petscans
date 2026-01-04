@@ -1,15 +1,14 @@
 import SwiftUI
 
-struct IngredientSelectionView: View {
+/// Shared ingredient search sheet used by onboarding and AddPetSheet
+struct IngredientSearchSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var selectedIngredientIds: Set<String>
+
     @State private var searchText: String = ""
     @State private var debouncedSearchText: String = ""
-    @State private var selectedIngredientIds: Set<String> = []
     @State private var searchTask: Task<Void, Never>?
 
-    let onSubmit: ([Ingredient]) -> Void
-    let onCancel: () -> Void
-
-    /// Use pre-sorted list from database (sorted once on load, not every render)
     private var allIngredients: [Ingredient] {
         IngredientDatabase.shared.sortedIngredients
     }
@@ -24,42 +23,35 @@ struct IngredientSelectionView: View {
         }
     }
 
-    private var selectedIngredients: [Ingredient] {
-        selectedIngredientIds.compactMap { id in
-            IngredientDatabase.shared.ingredients[id]
-        }
-    }
-
-    private var canSubmit: Bool {
-        !selectedIngredientIds.isEmpty
-    }
-
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Header
                 headerSection
 
-                // Selected count indicator
                 if !selectedIngredientIds.isEmpty {
                     selectedCountBadge
                 }
 
-                // Ingredient list
                 ingredientList
 
-                // Bottom action bar
                 actionBar
             }
             .background(ColorTokens.backgroundPrimary)
-            .navigationTitle("Select Ingredients")
+            .navigationTitle("Search Ingredients")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .foregroundColor(ColorTokens.textSecondary)
+                    }
+                }
+            }
             .searchable(text: $searchText, prompt: "Search ingredients")
             .onChange(of: searchText) { _, newValue in
-                // Cancel previous search task
                 searchTask?.cancel()
-
-                // Debounce: wait 250ms before filtering
                 searchTask = Task {
                     try? await Task.sleep(nanoseconds: 250_000_000)
                     guard !Task.isCancelled else { return }
@@ -75,14 +67,15 @@ struct IngredientSelectionView: View {
 
     private var headerSection: some View {
         VStack(spacing: SpacingTokens.xxs) {
-            Image(systemName: "list.bullet.clipboard")
+            Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: SpacingTokens.iconXLarge))
                 .foregroundColor(ColorTokens.brandPrimary)
 
-            Text("Select Ingredients")
+            Text("What ingredients are you avoiding?")
                 .displaySmall()
+                .multilineTextAlignment(.center)
 
-            Text("Choose from our database of \(allIngredients.count) ingredients")
+            Text("Search from \(allIngredients.count) ingredients")
                 .bodySmall()
                 .foregroundColor(ColorTokens.textSecondary)
         }
@@ -122,18 +115,10 @@ struct IngredientSelectionView: View {
         VStack(spacing: SpacingTokens.xs) {
             Divider()
 
-            HStack(spacing: SpacingTokens.sm) {
-                Button("Cancel") {
-                    onCancel()
-                }
-                .secondaryButtonStyle()
-
-                Button(canSubmit ? "Analyze (\(selectedIngredientIds.count))" : "Analyze") {
-                    onSubmit(selectedIngredients)
-                }
-                .primaryButtonStyle()
-                .disabled(!canSubmit)
+            Button(selectedIngredientIds.isEmpty ? "Done" : "Done (\(selectedIngredientIds.count) selected)") {
+                dismiss()
             }
+            .primaryButtonStyle()
             .padding(.horizontal, SpacingTokens.screenPadding)
             .padding(.bottom, SpacingTokens.screenPadding)
         }
@@ -152,10 +137,5 @@ struct IngredientSelectionView: View {
 }
 
 #Preview {
-    IngredientSelectionView(
-        onSubmit: { ingredients in
-            print("Selected: \(ingredients.map { $0.commonName })")
-        },
-        onCancel: {}
-    )
+    IngredientSearchSheet(selectedIngredientIds: .constant([]))
 }

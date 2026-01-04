@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D76F13AF42C97C3BE08E0 /* SplashView.swift */; };
+		30252FA513A589765AC98425 /* AppInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */; };
 		3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */; };
+		5513270F12EF77C8F5AE5252 /* ProcessingBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */; };
+		577C264FAA1448E6986DFF9F /* ProcessingSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */; };
+		625089878FA30798B6F88822 /* ProcessingLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2209611D0D07D48930074C0 /* ProcessingLevel.swift */; };
+		6352AA7AD2193845951DF7A2 /* ProcessingInfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */; };
 		7ECD2AA005CFB67C760EB07F /* CommonAllergens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */; };
 		9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 293D87520CE50242DDCC5B5B /* AnimationTokens.swift */; };
 		A1000001 /* PetScansApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PetScansApp.swift */; };
@@ -44,6 +50,7 @@
 		A1000036 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000037 /* SettingsView.swift */; };
 		A1000038 /* ScoreBreakdown+ShareText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000039 /* ScoreBreakdown+ShareText.swift */; };
 		F7A9FEF52F05BDE0000623DA /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = F7A9FEF42F05BDE0000623DA /* GRDB */; };
+		F7AAB0012F0A000000000001 /* AllergenAlertBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AAB0002F0A000000000001 /* AllergenAlertBanner.swift */; };
 		F7D834FF2F05E6C100414B32 /* OCRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D834FE2F05E6C100414B32 /* OCRService.swift */; };
 		F7D835012F05E6D400414B32 /* OCRServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835002F05E6D400414B32 /* OCRServiceProtocol.swift */; };
 		F7D835032F05E6F000414B32 /* ProductNotFoundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835022F05E6F000414B32 /* ProductNotFoundView.swift */; };
@@ -71,6 +78,8 @@
 		F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F07470100414B32 /* SavedScanDetailView.swift */; };
 		F7D835332F0846B800414B32 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = F7D835322F0846B800414B32 /* SuperwallKit */; };
 		F7D835352F089EAB00414B32 /* ScreenshotDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */; };
+		F7D8353A2F0AFE3600414B32 /* PetFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835392F0AFE3600414B32 /* PetFormView.swift */; };
+		F7D8353B2F0AFE3600414B32 /* IngredientSearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
 		F7F30C812F05B208008389D8 /* SpacingTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C7E2F05B208008389D8 /* SpacingTokens.swift */; };
@@ -90,8 +99,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppInitializer.swift; sourceTree = "<group>"; };
 		27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommonAllergens.swift; sourceTree = "<group>"; };
 		293D87520CE50242DDCC5B5B /* AnimationTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimationTokens.swift; sourceTree = "<group>"; };
+		343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingSummaryCard.swift; sourceTree = "<group>"; };
+		472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingBadgeView.swift; sourceTree = "<group>"; };
 		A0000001 /* PetScans.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScans.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2000001 /* PetScansApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetScansApp.swift; sourceTree = "<group>"; };
 		A2000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -127,7 +139,11 @@
 		A2000036 /* NetworkErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorView.swift; sourceTree = "<group>"; };
 		A2000037 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2000039 /* ScoreBreakdown+ShareText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScoreBreakdown+ShareText.swift"; sourceTree = "<group>"; };
+		A2209611D0D07D48930074C0 /* ProcessingLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingLevel.swift; sourceTree = "<group>"; };
+		B04D76F13AF42C97C3BE08E0 /* SplashView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PetScansLogo.swift; sourceTree = "<group>"; };
+		D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingInfoSheet.swift; sourceTree = "<group>"; };
+		F7AAB0002F0A000000000001 /* AllergenAlertBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllergenAlertBanner.swift; sourceTree = "<group>"; };
 		F7D834FE2F05E6C100414B32 /* OCRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRService.swift; sourceTree = "<group>"; };
 		F7D835002F05E6D400414B32 /* OCRServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OCRServiceProtocol.swift; sourceTree = "<group>"; };
 		F7D835022F05E6F000414B32 /* ProductNotFoundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductNotFoundView.swift; sourceTree = "<group>"; };
@@ -154,6 +170,8 @@
 		F7D835322F07470000414B32 /* ProductScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductScoreView.swift; sourceTree = "<group>"; };
 		F7D835342F07470100414B32 /* SavedScanDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedScanDetailView.swift; sourceTree = "<group>"; };
 		F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDataSeeder.swift; sourceTree = "<group>"; };
+		F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSearchSheet.swift; sourceTree = "<group>"; };
+		F7D835392F0AFE3600414B32 /* PetFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetFormView.swift; sourceTree = "<group>"; };
 		F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningReticleView.swift; sourceTree = "<group>"; };
 		F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Quicksand.ttf; sourceTree = "<group>"; };
 		F7F30C7C2F05B208008389D8 /* ColorTokens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTokens.swift; sourceTree = "<group>"; };
@@ -235,6 +253,7 @@
 				A2000039 /* ScoreBreakdown+ShareText.swift */,
 				A2000010 /* ProductInfo.swift */,
 				A2000011 /* Scan.swift */,
+				A2209611D0D07D48930074C0 /* ProcessingLevel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -262,6 +281,7 @@
 				A2000013 /* IngredientMatcher.swift */,
 				A2000014 /* ScoreCalculator.swift */,
 				A2000015 /* PetFoodAPIService.swift */,
+				0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -274,6 +294,7 @@
 				A4000009 /* History */,
 				A4000010 /* Shared */,
 				A4000013 /* Settings */,
+				B04D76F13AF42C97C3BE08E0 /* SplashView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -310,6 +331,9 @@
 		A4000010 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */,
+				F7D835392F0AFE3600414B32 /* PetFormView.swift */,
+				F7AAB0002F0A000000000001 /* AllergenAlertBanner.swift */,
 				F7D8352D2F07461100414B32 /* RatingLabelView.swift */,
 				F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */,
 				F7D835322F07470000414B32 /* ProductScoreView.swift */,
@@ -320,6 +344,9 @@
 				F7NEW0042F08000000000003 /* EmptyStateView.swift */,
 				F7NEW0062F08000000000004 /* ProductImageView.swift */,
 				F7NEW0082F08000000000005 /* PetIconView.swift */,
+				472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */,
+				343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */,
+				D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -444,7 +471,7 @@
 			);
 			mainGroup = A4000001;
 			packageReferences = (
-				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */,
 				F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
 			);
 			productRefGroup = A4000003 /* Products */;
@@ -506,6 +533,8 @@
 				A1000014 /* ScoreCalculator.swift in Sources */,
 				A1000015 /* PetFoodAPIService.swift in Sources */,
 				F7D8352F2F07461100414B32 /* ScoreExplanationCard.swift in Sources */,
+				F7D8353A2F0AFE3600414B32 /* PetFormView.swift in Sources */,
+				F7D8353B2F0AFE3600414B32 /* IngredientSearchSheet.swift in Sources */,
 				F7D835302F07461100414B32 /* RatingLabelView.swift in Sources */,
 				F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */,
 				F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */,
@@ -546,9 +575,16 @@
 				F7NEW0072F08000000000004 /* ProductImageView.swift in Sources */,
 				F7NEW0092F08000000000005 /* PetIconView.swift in Sources */,
 				F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */,
+				F7AAB0012F0A000000000001 /* AllergenAlertBanner.swift in Sources */,
 				9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */,
 				7ECD2AA005CFB67C760EB07F /* CommonAllergens.swift in Sources */,
 				3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */,
+				625089878FA30798B6F88822 /* ProcessingLevel.swift in Sources */,
+				5513270F12EF77C8F5AE5252 /* ProcessingBadgeView.swift in Sources */,
+				577C264FAA1448E6986DFF9F /* ProcessingSummaryCard.swift in Sources */,
+				6352AA7AD2193845951DF7A2 /* ProcessingInfoSheet.swift in Sources */,
+				30252FA513A589765AC98425 /* AppInitializer.swift in Sources */,
+				127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -760,7 +796,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+		F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/GRDB.swift";
 			requirement = {
@@ -781,7 +817,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		F7A9FEF42F05BDE0000623DA /* GRDB */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */;
 			productName = GRDB;
 		};
 		F7D835322F0846B800414B32 /* SuperwallKit */ = {

@@ -53,8 +53,8 @@ struct SavedScanDetailView: View {
                     scoreBreakdown: ScoreBreakdown(
                         total: 78,
                         safety: 85,
-                        nutrition: 72,
                         suitability: 80,
+                        processing: 72,
                         flags: [],
                         unmatched: [],
                         matchedCount: 2,
@@ -62,7 +62,8 @@ struct SavedScanDetailView: View {
                         scoreSource: .databaseVerified,
                         ocrConfidence: nil,
                         safetyExplanation: nil,
-                        suitabilityExplanation: nil
+                        suitabilityExplanation: nil,
+                        processingExplanation: nil
                     ),
                     isFavorite: true
                 )

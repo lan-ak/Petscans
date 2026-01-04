@@ -3,14 +3,19 @@ import SwiftUI
 struct ScanRowView: View {
     let scan: Scan
 
+    // Static formatter to avoid creating a new one on every render
+    private static let dateFormatter: RelativeDateTimeFormatter = {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter
+    }()
+
     private var scoreColor: Color {
         ColorTokens.colorForScore(scan.totalScore)
     }
 
     private var formattedDate: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: scan.scannedAt, relativeTo: Date())
+        Self.dateFormatter.localizedString(for: scan.scannedAt, relativeTo: Date())
     }
 
     var body: some View {
@@ -82,8 +87,8 @@ struct ScanRowView: View {
                 scoreBreakdown: ScoreBreakdown(
                     total: 85,
                     safety: 90,
-                    nutrition: 80,
                     suitability: 85,
+                    processing: 80,
                     flags: [],
                     unmatched: [],
                     matchedCount: 10,
@@ -91,7 +96,8 @@ struct ScanRowView: View {
                     scoreSource: .databaseVerified,
                     ocrConfidence: nil,
                     safetyExplanation: nil,
-                    suitabilityExplanation: nil
+                    suitabilityExplanation: nil,
+                    processingExplanation: nil
                 ),
                 isFavorite: true
             )
@@ -109,8 +115,8 @@ struct ScanRowView: View {
                 scoreBreakdown: ScoreBreakdown(
                     total: 45,
                     safety: 50,
-                    nutrition: 40,
                     suitability: 45,
+                    processing: 40,
                     flags: [WarningFlag(severity: .critical, title: "Issue", explain: "Problem", ingredientId: nil, source: nil, type: .safety)],
                     unmatched: [],
                     matchedCount: 5,
@@ -118,7 +124,8 @@ struct ScanRowView: View {
                     scoreSource: .databaseVerified,
                     ocrConfidence: nil,
                     safetyExplanation: nil,
-                    suitabilityExplanation: nil
+                    suitabilityExplanation: nil,
+                    processingExplanation: nil
                 )
             )
             return scan

@@ -14,6 +14,8 @@ struct SpeciesCategoryPicker: View {
     let onAnalyze: () -> Void
     let onCancel: () -> Void
 
+    @State private var isGeneralScan: Bool = false
+
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
             // Product info header
@@ -70,20 +72,73 @@ struct SpeciesCategoryPicker: View {
                 }
                 .padding(.horizontal)
             } else {
-                // Pet selection
+                // Pet selection with general scan option
                 VStack(alignment: .leading, spacing: SpacingTokens.xs) {
                     Text("Scanning for:")
                         .heading2()
+
+                    // General scan option
+                    Button {
+                        isGeneralScan = true
+                        selectedPet = nil
+                    } label: {
+                        HStack(spacing: SpacingTokens.xs) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.title2)
+                                .foregroundColor(isGeneralScan ? .white : ColorTokens.brandPrimary)
+                                .frame(width: 40, height: 40)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("General scan")
+                                    .heading3()
+                                    .foregroundColor(isGeneralScan ? .white : ColorTokens.textPrimary)
+                                Text("Select species below")
+                                    .caption()
+                                    .foregroundColor(isGeneralScan ? .white.opacity(0.8) : ColorTokens.textSecondary)
+                            }
+
+                            Spacer()
+
+                            if isGeneralScan {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        .padding(SpacingTokens.xs)
+                        .background(isGeneralScan ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)
+                        .cornerRadius(SpacingTokens.radiusMedium)
+                    }
+                    .buttonStyle(.plain)
 
                     ForEach(pets) { pet in
                         PetSelectionRow(
                             pet: pet,
                             isSelected: selectedPet?.id == pet.id,
-                            onSelect: { selectedPet = pet }
+                            onSelect: {
+                                selectedPet = pet
+                                isGeneralScan = false
+                            }
                         )
                     }
                 }
                 .padding(.horizontal)
+
+                // Show species picker when general scan is selected
+                if isGeneralScan {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                        Text("This product is for:")
+                            .heading2()
+
+                        Picker("Species", selection: $species) {
+                            ForEach(Species.allCases) { s in
+                                Label(s.displayName, systemImage: s.icon)
+                                    .tag(s)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                    }
+                    .padding(.horizontal)
+                }
             }
 
             // Category picker
@@ -105,19 +160,12 @@ struct SpeciesCategoryPicker: View {
 
             // Action buttons
             VStack(spacing: SpacingTokens.xs) {
-                if !pets.isEmpty && selectedPet == nil {
-                    Text("Select a pet above to continue")
-                        .caption()
-                        .foregroundColor(ColorTokens.textSecondary)
-                }
-
                 Button {
                     onAnalyze()
                 } label: {
                     Text("Analyze Product")
                 }
                 .primaryButtonStyle()
-                .disabled(!pets.isEmpty && selectedPet == nil)
 
                 Button("Cancel") {
                     onCancel()

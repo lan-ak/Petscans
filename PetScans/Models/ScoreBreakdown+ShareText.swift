@@ -22,13 +22,12 @@ extension ScoreBreakdown {
         text += "Type: \(category.displayName)\n\n"
 
         text += "Overall Score: \(Int(total))/100\n"
+        text += "Suitability: \(Int(suitability))/100\n"
         text += "Safety: \(Int(safety))/100\n"
 
-        if let nutritionScore = nutrition {
-            text += "Nutrition: \(Int(nutritionScore))/100\n"
+        if let processingScore = processing {
+            text += "Processing: \(Int(processingScore))/100\n"
         }
-
-        text += "Suitability: \(Int(suitability))/100\n"
 
         if !flags.isEmpty {
             text += "\nWarnings:\n"

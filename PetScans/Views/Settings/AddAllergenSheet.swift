@@ -16,18 +16,18 @@ struct AddAllergenSheet: View {
                         .textInputAutocapitalization(.words)
                         .autocorrectionDisabled()
                 } header: {
-                    Text("New Allergen")
+                    Text("New Ingredient")
                 } footer: {
-                    Text("Enter the name of an ingredient \(pet.name) is allergic to.")
+                    Text("Enter the name of an ingredient \(pet.name) should avoid.")
                 }
 
                 Section {
                     commonAllergensGrid
                 } header: {
-                    Text("Common Allergens")
+                    Text("Common Ingredients")
                 }
             }
-            .navigationTitle("Add Allergen")
+            .navigationTitle("Add Ingredient")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

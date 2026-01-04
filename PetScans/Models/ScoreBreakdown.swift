@@ -4,8 +4,8 @@ import SwiftUI
 struct ScoreBreakdown: Codable {
     let total: Double
     let safety: Double
-    let nutrition: Double?
     let suitability: Double
+    let processing: Double?
     let flags: [WarningFlag]
     let unmatched: [String]
     let matchedCount: Int
@@ -14,6 +14,81 @@ struct ScoreBreakdown: Codable {
     let ocrConfidence: Float?
     let safetyExplanation: ScoreExplanation?
     let suitabilityExplanation: ScoreExplanation?
+    let processingExplanation: ScoreExplanation?
+
+    // Custom decoder to handle old saved scans missing processing field
+    private enum CodingKeys: String, CodingKey {
+        case total, safety, suitability, processing, flags, unmatched
+        case matchedCount, totalCount, scoreSource, ocrConfidence
+        case safetyExplanation, suitabilityExplanation, processingExplanation
+        // Legacy key for backward compatibility
+        case nutrition
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        total = try container.decode(Double.self, forKey: .total)
+        safety = try container.decode(Double.self, forKey: .safety)
+        suitability = try container.decode(Double.self, forKey: .suitability)
+        processing = try container.decodeIfPresent(Double.self, forKey: .processing)
+        flags = try container.decode([WarningFlag].self, forKey: .flags)
+        unmatched = try container.decode([String].self, forKey: .unmatched)
+        matchedCount = try container.decode(Int.self, forKey: .matchedCount)
+        totalCount = try container.decode(Int.self, forKey: .totalCount)
+        scoreSource = try container.decode(ScoreSource.self, forKey: .scoreSource)
+        ocrConfidence = try container.decodeIfPresent(Float.self, forKey: .ocrConfidence)
+        safetyExplanation = try container.decodeIfPresent(ScoreExplanation.self, forKey: .safetyExplanation)
+        suitabilityExplanation = try container.decodeIfPresent(ScoreExplanation.self, forKey: .suitabilityExplanation)
+        processingExplanation = try container.decodeIfPresent(ScoreExplanation.self, forKey: .processingExplanation)
+        // Note: nutrition is ignored during decode (legacy field)
+    }
+
+    init(
+        total: Double,
+        safety: Double,
+        suitability: Double,
+        processing: Double?,
+        flags: [WarningFlag],
+        unmatched: [String],
+        matchedCount: Int,
+        totalCount: Int,
+        scoreSource: ScoreSource,
+        ocrConfidence: Float?,
+        safetyExplanation: ScoreExplanation?,
+        suitabilityExplanation: ScoreExplanation?,
+        processingExplanation: ScoreExplanation?
+    ) {
+        self.total = total
+        self.safety = safety
+        self.suitability = suitability
+        self.processing = processing
+        self.flags = flags
+        self.unmatched = unmatched
+        self.matchedCount = matchedCount
+        self.totalCount = totalCount
+        self.scoreSource = scoreSource
+        self.ocrConfidence = ocrConfidence
+        self.safetyExplanation = safetyExplanation
+        self.suitabilityExplanation = suitabilityExplanation
+        self.processingExplanation = processingExplanation
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(total, forKey: .total)
+        try container.encode(safety, forKey: .safety)
+        try container.encode(suitability, forKey: .suitability)
+        try container.encodeIfPresent(processing, forKey: .processing)
+        try container.encode(flags, forKey: .flags)
+        try container.encode(unmatched, forKey: .unmatched)
+        try container.encode(matchedCount, forKey: .matchedCount)
+        try container.encode(totalCount, forKey: .totalCount)
+        try container.encode(scoreSource, forKey: .scoreSource)
+        try container.encodeIfPresent(ocrConfidence, forKey: .ocrConfidence)
+        try container.encodeIfPresent(safetyExplanation, forKey: .safetyExplanation)
+        try container.encodeIfPresent(suitabilityExplanation, forKey: .suitabilityExplanation)
+        try container.encodeIfPresent(processingExplanation, forKey: .processingExplanation)
+    }
 
     var hasCriticalFlags: Bool {
         flags.contains { $0.severity == .critical }
@@ -39,6 +114,23 @@ struct ScoreBreakdown: Codable {
     var otherFlags: [WarningFlag] {
         flags.filter { $0.type != .allergen }
     }
+
+    /// Empty breakdown for fallback cases
+    static let empty = ScoreBreakdown(
+        total: 0,
+        safety: 0,
+        suitability: 0,
+        processing: nil,
+        flags: [],
+        unmatched: [],
+        matchedCount: 0,
+        totalCount: 0,
+        scoreSource: .databaseVerified,
+        ocrConfidence: nil,
+        safetyExplanation: nil,
+        suitabilityExplanation: nil,
+        processingExplanation: nil
+    )
 }
 
 // MARK: - Score Source
@@ -144,6 +236,13 @@ enum RatingLabel: String, Codable {
 struct ScoreExplanation: Codable {
     let factors: [ExplanationFactor]
     let summary: String
+    let labelOverride: RatingLabel?
+
+    init(factors: [ExplanationFactor], summary: String, labelOverride: RatingLabel? = nil) {
+        self.factors = factors
+        self.summary = summary
+        self.labelOverride = labelOverride
+    }
 }
 
 struct ExplanationFactor: Codable, Identifiable {

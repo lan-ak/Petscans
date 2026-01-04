@@ -1,8 +1,8 @@
 import Foundation
 
 extension Pet {
-    /// Formatted allergen count with proper pluralization (e.g., "1 allergen", "3 allergens")
+    /// Formatted count of ingredients to avoid with proper pluralization
     var allergenCountText: String {
-        "\(allergens.count) allergen\(allergens.count == 1 ? "" : "s")"
+        "\(allergens.count) ingredient\(allergens.count == 1 ? "" : "s") to avoid"
     }
 }

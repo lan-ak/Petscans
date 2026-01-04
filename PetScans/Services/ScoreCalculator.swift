@@ -1,12 +1,13 @@
 import Foundation
 
-/// Calculates safety, nutrition, and suitability scores for pet products
+/// Calculates safety, suitability, and processing scores for pet products
 struct ScoreCalculator {
     // MARK: - Configuration Constants
 
-    // Scoring weights
-    private let weightsFoodTreat = (safety: 0.45, nutrition: 0.40, suitability: 0.15)
-    private let weightsCosmetic = (safety: 0.70, suitability: 0.30)
+    // Scoring weights (when no allergen match)
+    // If allergen match exists, total score is 0 regardless of weights
+    private let weightsFoodTreat = (safety: 0.50, processing: 0.50)
+    private let weightsCosmetic = (safety: 0.60, processing: 0.40)
     private let rankDecayK = 0.22
     private let criticalCap = 10.0
 
@@ -14,23 +15,17 @@ struct ScoreCalculator {
     private static let unknownPenaltyTop5: Double = 3.0
     private static let unknownPenaltyOthers: Double = 1.5
 
-    // Allergen penalties
+    // Allergen penalties (for suitability score display, but any match = total 0)
     private static let allergenPenaltyTop5: Double = 30.0
     private static let allergenPenaltyOthers: Double = 15.0
 
-    // Nutrition bonuses and penalties
-    private static let proteinBonusTop3: Double = 4.0
-    private static let artificialColorsPenalty: Double = -6.0
-    private static let preservativesPenalty: Double = -5.0
-
-    // Protein sources for nutrition scoring
-    private static let proteinSources = [
-        "chicken", "beef", "turkey", "lamb", "pork", "salmon",
-        "tuna", "whitefish", "egg", "liver", "heart"
+    // Processing level penalties (higher = more processed = lower score)
+    private static let processingPenalties: [ProcessingLevel: Double] = [
+        .unprocessed: 0,
+        .culinaryIngredient: 3,
+        .processed: 8,
+        .ultraProcessed: 15
     ]
-
-    // Harmful preservatives
-    private static let harmfulPreservatives = ["bha", "bht", "ethoxyquin"]
 
     private var database: IngredientDatabase { IngredientDatabase.shared }
 
@@ -53,14 +48,14 @@ struct ScoreCalculator {
         let normalizedAllergens = normalizeAllergens(petAllergens)
 
         // Process each aspect separately
-        let (safetyPenalty, unmatched, safetyFactors) = processIngredientSafety(matched: matched, species: species, ingredients: ingredients)
+        let (safetyPenalty, unmatched, safetyFactors, hasToxic, hasCaution) = processIngredientSafety(matched: matched, species: species, ingredients: ingredients)
         let (suitability, allergenFlags, suitabilityFactors) = checkAllergenSuitability(
             matched: matched,
             allergens: normalizedAllergens,
             petName: petName,
             ingredients: ingredients
         )
-        let nutrition = calculateNutritionHeuristics(matched: matched, category: category, ingredients: ingredients)
+        let (processing, processingFactors) = calculateProcessingScore(matched: matched)
         let (rulePenalty, ruleFlags, sawCritical, ruleFactors) = processRules(
             matched: matched,
             species: species,
@@ -74,13 +69,17 @@ struct ScoreCalculator {
         let allFlags = allergenFlags + ruleFlags
         let allSafetyFactors = safetyFactors + ruleFactors
 
+        // CRITICAL: Any allergen match = score 0, rating "Avoid"
+        let hasAllergenMatch = !allergenFlags.isEmpty
+
         // Calculate final scores
-        let (total, safety, finalNutrition, finalSuitability) = calculateFinalScores(
+        let (total, safety, finalProcessing, finalSuitability) = calculateFinalScores(
             safetyPenalty: totalSafetyPenalty,
-            nutrition: nutrition,
+            processing: processing,
             suitability: suitability,
             category: category,
-            sawCritical: sawCritical
+            sawCritical: sawCritical,
+            hasAllergenMatch: hasAllergenMatch
         )
 
         let matchedCount = matched.count - unmatched.count
@@ -88,18 +87,25 @@ struct ScoreCalculator {
 
         // Generate explanations
         let safetyExplanation = generateSafetyExplanation(
-            factors: allSafetyFactors
+            factors: allSafetyFactors,
+            hasToxic: hasToxic,
+            hasCaution: hasCaution
         )
         let suitabilityExplanation = generateSuitabilityExplanation(
             factors: suitabilityFactors,
-            petName: petName
+            petName: petName,
+            hasAllergenMatch: hasAllergenMatch,
+            hasToxic: hasToxic
+        )
+        let processingExplanation = generateProcessingExplanation(
+            factors: processingFactors
         )
 
         return ScoreBreakdown(
             total: round(total * 10) / 10,
             safety: round(safety * 10) / 10,
-            nutrition: finalNutrition != nil ? round(finalNutrition! * 10) / 10 : nil,
             suitability: round(finalSuitability * 10) / 10,
+            processing: finalProcessing != nil ? round(finalProcessing! * 10) / 10 : nil,
             flags: allFlags,
             unmatched: unmatched,
             matchedCount: matchedCount,
@@ -107,7 +113,8 @@ struct ScoreCalculator {
             scoreSource: scoreSource,
             ocrConfidence: ocrConfidence,
             safetyExplanation: safetyExplanation,
-            suitabilityExplanation: suitabilityExplanation
+            suitabilityExplanation: suitabilityExplanation,
+            processingExplanation: processingExplanation
         )
     }
 
@@ -118,15 +125,17 @@ struct ScoreCalculator {
         allergens.map { $0.lowercased().trimmingCharacters(in: .whitespaces) }
     }
 
-    /// Process ingredient safety and return penalty, unmatched ingredients, and explanation factors
+    /// Process ingredient safety and return penalty, unmatched ingredients, explanation factors, and risk flags
     private func processIngredientSafety(
         matched: [MatchedIngredient],
         species: Species,
         ingredients: [String: Ingredient]
-    ) -> (penalty: Double, unmatched: [String], factors: [ExplanationFactor]) {
+    ) -> (penalty: Double, unmatched: [String], factors: [ExplanationFactor], hasToxic: Bool, hasCaution: Bool) {
         var safetyPenalty = 0.0
         var unmatched: [String] = []
         var factors: [ExplanationFactor] = []
+        var hasToxic = false
+        var hasCaution = false
 
         for mi in matched {
             let weight = rankWeight(mi.rank)
@@ -156,6 +165,7 @@ struct ScoreCalculator {
             // Add explanation factor for concerning ingredients
             let riskLevel = ing.riskLevel.lowercased()
             if riskLevel.contains("toxic") {
+                hasToxic = true
                 factors.append(ExplanationFactor(
                     id: ing.id,
                     description: "Toxic to \(species.displayName)s",
@@ -163,6 +173,7 @@ struct ScoreCalculator {
                     ingredientName: ing.commonName
                 ))
             } else if riskLevel.contains("caution") {
+                hasCaution = true
                 factors.append(ExplanationFactor(
                     id: ing.id,
                     description: "Use with caution",
@@ -179,7 +190,7 @@ struct ScoreCalculator {
             }
         }
 
-        return (safetyPenalty, unmatched, factors)
+        return (safetyPenalty, unmatched, factors, hasToxic, hasCaution)
     }
 
     /// Check for allergen conflicts and return suitability score, flags, and explanation factors
@@ -241,47 +252,61 @@ struct ScoreCalculator {
         return (suitability, flags, factors)
     }
 
-    /// Calculate nutrition score based on ingredient heuristics
-    private func calculateNutritionHeuristics(
-        matched: [MatchedIngredient],
-        category: Category,
-        ingredients: [String: Ingredient]
-    ) -> Double {
-        // Only apply nutrition scoring to food and treats
-        guard category == .food || category == .treat else {
-            return 100.0
-        }
-
-        var nutrition = 100.0
+    /// Calculate processing score based on NOVA-style classification
+    private func calculateProcessingScore(
+        matched: [MatchedIngredient]
+    ) -> (score: Double, factors: [ExplanationFactor]) {
+        var penalty = 0.0
+        var factors: [ExplanationFactor] = []
+        var classifiedCount = 0
 
         for mi in matched {
-            guard let ingredientId = mi.ingredientId,
-                  let ing = ingredients[ingredientId] else {
-                continue
-            }
+            guard let level = mi.processingLevel else { continue }
+            classifiedCount += 1
 
-            let ingNameNorm = ing.commonName.lowercased()
-            let fn = (ing.typicalFunction ?? "").lowercased()
+            let weight = rankWeight(mi.rank)
+            penalty += Self.processingPenalties[level, default: 0] * weight
 
-            // Bonus for protein sources in top 3 positions
-            let isProteinLike = fn.contains("protein") ||
-                Self.proteinSources.contains { ingNameNorm.contains($0) }
-
-            if isProteinLike && mi.rank <= 3 {
-                nutrition += Self.proteinBonusTop3
-            }
-
-            // Penalties for artificial additives
-            if ingNameNorm.contains("artificial colors") {
-                nutrition += Self.artificialColorsPenalty
-            }
-
-            if Self.harmfulPreservatives.contains(where: { ingNameNorm.contains($0) }) {
-                nutrition += Self.preservativesPenalty
+            if level == .ultraProcessed {
+                factors.append(ExplanationFactor(
+                    id: "processing-\(mi.labelName)",
+                    description: "Ultra-processed ingredient",
+                    impact: .negative,
+                    ingredientName: mi.labelName
+                ))
+            } else if level == .processed {
+                factors.append(ExplanationFactor(
+                    id: "processing-\(mi.labelName)",
+                    description: "Processed ingredient",
+                    impact: .negative,
+                    ingredientName: mi.labelName
+                ))
             }
         }
 
-        return nutrition
+        // Add positive factor if mostly minimally processed
+        let unprocessedCount = matched.filter { $0.processingLevel == .unprocessed }.count
+        if unprocessedCount > matched.count / 2 && matched.count > 0 {
+            factors.insert(ExplanationFactor(
+                id: "processing-positive",
+                description: "Majority minimally processed",
+                impact: .positive,
+                ingredientName: nil
+            ), at: 0)
+        }
+
+        // Handle case where processing data is limited
+        let classificationRate = matched.count > 0 ? Double(classifiedCount) / Double(matched.count) : 0
+        if classificationRate < 0.5 && matched.count > 0 {
+            return (80.0, [ExplanationFactor(
+                id: "processing-incomplete",
+                description: "Limited processing data available",
+                impact: .neutral,
+                ingredientName: nil
+            )])
+        }
+
+        return (max(0, min(100, 100 - penalty)), factors)
     }
 
     /// Process safety rules and return penalty, flags, critical indicator, and explanation factors
@@ -344,25 +369,30 @@ struct ScoreCalculator {
     /// Calculate final weighted scores and apply caps
     private func calculateFinalScores(
         safetyPenalty: Double,
-        nutrition: Double,
+        processing: Double,
         suitability: Double,
         category: Category,
-        sawCritical: Bool
-    ) -> (total: Double, safety: Double, nutrition: Double?, suitability: Double) {
+        sawCritical: Bool,
+        hasAllergenMatch: Bool
+    ) -> (total: Double, safety: Double, processing: Double?, suitability: Double) {
         // Clamp individual scores to 0-100 range
         let safety = max(0, min(100, 100 - safetyPenalty))
         let clampedSuitability = max(0, min(100, suitability))
-        let clampedNutrition = max(0, min(100, nutrition))
+        let clampedProcessing = max(0, min(100, processing))
+
+        // CRITICAL: Any allergen match = total score 0, always "Avoid"
+        if hasAllergenMatch {
+            return (0, safety, clampedProcessing, 0)
+        }
 
         // Calculate weighted total based on category
         var total: Double
         if category == .cosmetic {
             total = weightsCosmetic.safety * safety +
-                    weightsCosmetic.suitability * clampedSuitability
+                    weightsCosmetic.processing * clampedProcessing
         } else {
             total = weightsFoodTreat.safety * safety +
-                    weightsFoodTreat.nutrition * clampedNutrition +
-                    weightsFoodTreat.suitability * clampedSuitability
+                    weightsFoodTreat.processing * clampedProcessing
         }
 
         // Cap total score if critical rule was triggered
@@ -370,10 +400,7 @@ struct ScoreCalculator {
             total = min(total, criticalCap)
         }
 
-        // Return nutrition as nil for cosmetics
-        let finalNutrition = category == .cosmetic ? nil : clampedNutrition
-
-        return (total, safety, finalNutrition, clampedSuitability)
+        return (total, safety, clampedProcessing, clampedSuitability)
     }
 
     /// Exponential rank weight decay
@@ -395,12 +422,16 @@ struct ScoreCalculator {
 
     /// Generate safety score explanation
     private func generateSafetyExplanation(
-        factors: [ExplanationFactor]
+        factors: [ExplanationFactor],
+        hasToxic: Bool,
+        hasCaution: Bool
     ) -> ScoreExplanation {
         let negativeCount = factors.filter { $0.impact == .negative }.count
         let summary: String
 
-        if negativeCount == 0 {
+        if hasToxic {
+            summary = "Contains toxic ingredient(s) - not safe for pets."
+        } else if negativeCount == 0 {
             summary = "All ingredients appear safe."
         } else if negativeCount == 1 {
             summary = "One ingredient requires attention."
@@ -411,19 +442,40 @@ struct ScoreCalculator {
         // Limit factors to most important ones (max 5)
         let limitedFactors = Array(factors.prefix(5))
 
-        return ScoreExplanation(factors: limitedFactors, summary: summary)
+        // Determine label override based on risk level
+        let labelOverride: RatingLabel?
+        if hasToxic {
+            labelOverride = .avoid
+        } else if hasCaution {
+            labelOverride = .caution
+        } else {
+            labelOverride = nil
+        }
+
+        return ScoreExplanation(factors: limitedFactors, summary: summary, labelOverride: labelOverride)
     }
 
     /// Generate suitability score explanation
     private func generateSuitabilityExplanation(
         factors: [ExplanationFactor],
-        petName: String?
+        petName: String?,
+        hasAllergenMatch: Bool,
+        hasToxic: Bool
     ) -> ScoreExplanation {
         let petDisplayName = petName ?? "your pet"
         let allergenCount = factors.filter { $0.impact == .negative }.count
         let summary: String
 
-        if allergenCount == 0 {
+        // Toxic ingredients make the product unsuitable regardless of allergens
+        if hasToxic {
+            summary = "Contains toxic ingredient(s) - not suitable for \(petDisplayName)."
+        } else if hasAllergenMatch {
+            if allergenCount == 1 {
+                summary = "Contains an ingredient \(petDisplayName) should avoid. Score set to Avoid."
+            } else {
+                summary = "Contains \(allergenCount) ingredients \(petDisplayName) should avoid. Score set to Avoid."
+            }
+        } else if allergenCount == 0 {
             summary = "No known allergens detected for \(petDisplayName)."
         } else if allergenCount == 1 {
             summary = "Contains 1 potential allergen for \(petDisplayName)."
@@ -431,6 +483,35 @@ struct ScoreCalculator {
             summary = "Contains \(allergenCount) potential allergens for \(petDisplayName)."
         }
 
-        return ScoreExplanation(factors: factors, summary: summary)
+        // If toxic or has allergen match, override label to Avoid
+        let labelOverride: RatingLabel? = (hasToxic || hasAllergenMatch) ? .avoid : nil
+
+        return ScoreExplanation(factors: factors, summary: summary, labelOverride: labelOverride)
+    }
+
+    /// Generate processing score explanation
+    private func generateProcessingExplanation(
+        factors: [ExplanationFactor]
+    ) -> ScoreExplanation {
+        let negativeCount = factors.filter { $0.impact == .negative }.count
+        let hasPositive = factors.contains { $0.impact == .positive }
+        let summary: String
+
+        if factors.first?.id == "processing-incomplete" {
+            summary = "Limited processing data available for analysis."
+        } else if hasPositive && negativeCount == 0 {
+            summary = "Mostly minimally processed ingredients."
+        } else if negativeCount == 0 {
+            summary = "Good processing profile."
+        } else if negativeCount <= 2 {
+            summary = "Some processed ingredients detected."
+        } else {
+            summary = "Several processed or ultra-processed ingredients."
+        }
+
+        // Limit factors to most important ones (max 5)
+        let limitedFactors = Array(factors.prefix(5))
+
+        return ScoreExplanation(factors: limitedFactors, summary: summary)
     }
 }

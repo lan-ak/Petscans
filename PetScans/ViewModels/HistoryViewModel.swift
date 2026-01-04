@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import SwiftData
+import Combine
 
 /// ViewModel for the history view, managing filtering and CRUD operations
 @MainActor
@@ -10,8 +11,21 @@ final class HistoryViewModel: ObservableObject {
     @Published var selectedSpecies: Species?
     @Published var selectedCategory: Category?
     @Published var searchText: String = ""
+    @Published var debouncedSearchText: String = ""
     @Published var showDeleteError: Bool = false
     @Published var deleteErrorMessage: String?
+
+    private var cancellables = Set<AnyCancellable>()
+
+    init() {
+        // Debounce search text by 300ms to avoid filtering on every keystroke
+        $searchText
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
+            .sink { [weak self] value in
+                self?.debouncedSearchText = value
+            }
+            .store(in: &cancellables)
+    }
 
     // MARK: - Computed Properties
 
@@ -28,9 +42,9 @@ final class HistoryViewModel: ObservableObject {
                 return false
             }
 
-            // Search filter
-            if !searchText.isEmpty {
-                let searchLower = searchText.lowercased()
+            // Search filter (uses debounced value)
+            if !debouncedSearchText.isEmpty {
+                let searchLower = debouncedSearchText.lowercased()
                 let nameMatch = scan.productName?.lowercased().contains(searchLower) ?? false
                 let brandMatch = scan.brand?.lowercased().contains(searchLower) ?? false
                 if !nameMatch && !brandMatch {

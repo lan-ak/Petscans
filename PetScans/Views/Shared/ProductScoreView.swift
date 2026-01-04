@@ -23,30 +23,19 @@ struct ProductScoreView: View {
     @State private var notes: String = ""
     @State private var showDeleteConfirmation = false
 
+    // Pre-computed values (calculated once in init, not on every render)
+    private let actualMatchedCount: Int
+    private let actualTotalCount: Int
+    private let actualMatchRate: Double
+    private let actualMatchPercentage: Int
+    private let unmatchedIngredientNames: [String]
+
     // For saved scans - need bindable access
     private var scan: Scan? {
         if case .savedScan(let scan, _) = mode {
             return scan
         }
         return nil
-    }
-
-    // Computed properties for accurate counts (handles legacy scans)
-    private var actualMatchedCount: Int {
-        matchedIngredients.filter { $0.isMatched }.count
-    }
-
-    private var actualTotalCount: Int {
-        matchedIngredients.count
-    }
-
-    private var actualMatchRate: Double {
-        guard actualTotalCount > 0 else { return 0 }
-        return Double(actualMatchedCount) / Double(actualTotalCount)
-    }
-
-    private var actualMatchPercentage: Int {
-        Int(actualMatchRate * 100)
     }
 
     init(
@@ -73,6 +62,13 @@ struct ProductScoreView: View {
         self.petName = petName
         self.mode = mode
         self.scannedAt = scannedAt
+
+        // Pre-compute values once instead of on every render
+        self.actualTotalCount = matchedIngredients.count
+        self.actualMatchedCount = matchedIngredients.filter { $0.isMatched }.count
+        self.actualMatchRate = actualTotalCount > 0 ? Double(actualMatchedCount) / Double(actualTotalCount) : 0
+        self.actualMatchPercentage = Int(actualMatchRate * 100)
+        self.unmatchedIngredientNames = matchedIngredients.filter { !$0.isMatched }.map { $0.labelName }
     }
 
     var body: some View {
@@ -84,22 +80,35 @@ struct ProductScoreView: View {
                 // Product header
                 productHeader
 
+                // Allergen alert banner (only shown when allergens found)
+                allergenAlertBanner
+
                 // Rating label
                 RatingLabelView(label: scoreBreakdown.ratingLabel)
 
                 // Score breakdown with explanations
                 VStack(spacing: SpacingTokens.xs) {
+                    // Suitability first - highest priority (allergen matching)
+                    ScoreExplanationCard(
+                        title: "Suitability",
+                        score: scoreBreakdown.suitability,
+                        explanation: scoreBreakdown.suitabilityExplanation
+                    )
+
                     ScoreExplanationCard(
                         title: "Safety",
                         score: scoreBreakdown.safety,
                         explanation: scoreBreakdown.safetyExplanation
                     )
 
-                    ScoreExplanationCard(
-                        title: "Suitability",
-                        score: scoreBreakdown.suitability,
-                        explanation: scoreBreakdown.suitabilityExplanation
-                    )
+                    // Processing score (only shown for food/treats)
+                    if let processingScore = scoreBreakdown.processing {
+                        ScoreExplanationCard(
+                            title: "Processing",
+                            score: processingScore,
+                            explanation: scoreBreakdown.processingExplanation
+                        )
+                    }
                 }
 
                 // OCR info banner (scan results only)
@@ -113,10 +122,13 @@ struct ProductScoreView: View {
                 // Ingredient recognition section
                 ingredientRecognitionSection
 
-                // Ingredients list (saved scans only)
-                if case .savedScan = mode {
-                    ingredientsListSection
+                // Processing profile section (NOVA-style classification)
+                if matchedIngredients.contains(where: { $0.processingLevel != nil }) {
+                    ProcessingSummaryCard(ingredients: matchedIngredients)
                 }
+
+                // Ingredients list
+                ingredientsListSection
 
                 // Mode-specific sections
                 switch mode {
@@ -143,6 +155,24 @@ struct ProductScoreView: View {
             Button("Cancel", role: .cancel) {}
         }
         .accessibilityIdentifier("product-score-view")
+    }
+
+    // MARK: - Allergen Alert Banner
+
+    @ViewBuilder
+    private var allergenAlertBanner: some View {
+        let allergenFlags = scoreBreakdown.allergenFlags
+        if !allergenFlags.isEmpty, let petDisplayName = petName {
+            let allergenNames = scoreBreakdown.suitabilityExplanation?.factors
+                .filter { $0.impact == .negative }
+                .compactMap { $0.ingredientName } ?? []
+
+            AllergenAlertBanner(
+                petName: petDisplayName,
+                allergenFlags: allergenFlags,
+                allergenNames: allergenNames
+            )
+        }
     }
 
     // MARK: - Product Image
@@ -227,35 +257,14 @@ struct ProductScoreView: View {
 
     @ViewBuilder
     private var warningsSection: some View {
-        if !scoreBreakdown.flags.isEmpty {
-            VStack(alignment: .leading, spacing: SpacingTokens.md) {
-                // Allergen warnings subsection
-                if !scoreBreakdown.allergenFlags.isEmpty {
-                    VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                        HStack(spacing: SpacingTokens.xxs) {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .foregroundColor(ColorTokens.severityHigh)
-                            Text("Allergen Details")
-                                .heading2()
-                                .foregroundColor(ColorTokens.severityHigh)
-                        }
+        // Only show other warnings here - allergen warnings are shown in the hero banner
+        if !scoreBreakdown.otherFlags.isEmpty {
+            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                Text("Other Warnings")
+                    .heading2()
 
-                        ForEach(scoreBreakdown.allergenFlags) { flag in
-                            WarningFlagView(flag: flag)
-                        }
-                    }
-                }
-
-                // Other warnings subsection
-                if !scoreBreakdown.otherFlags.isEmpty {
-                    VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-                        Text("Other Warnings")
-                            .heading2()
-
-                        ForEach(scoreBreakdown.otherFlags) { flag in
-                            WarningFlagView(flag: flag)
-                        }
-                    }
+                ForEach(scoreBreakdown.otherFlags) { flag in
+                    WarningFlagView(flag: flag)
                 }
             }
         }
@@ -297,9 +306,8 @@ struct ProductScoreView: View {
                         Spacer()
                     }
 
-                    let unmatchedIngredients = matchedIngredients.filter { !$0.isMatched }.map { $0.labelName }
-                    if !unmatchedIngredients.isEmpty {
-                        Text("Unrecognized: \(unmatchedIngredients.prefix(3).joined(separator: ", "))\(unmatchedIngredients.count > 3 ? "..." : "")")
+                    if !unmatchedIngredientNames.isEmpty {
+                        Text("Unrecognized: \(unmatchedIngredientNames.prefix(3).joined(separator: ", "))\(unmatchedIngredientNames.count > 3 ? "..." : "")")
                             .caption()
                             .foregroundColor(ColorTokens.textSecondary)
                     } else {
@@ -329,6 +337,11 @@ struct ProductScoreView: View {
                     Text(ingredient.labelName)
 
                     Spacer()
+
+                    // Processing level badge (if available)
+                    if let level = ingredient.processingLevel {
+                        ProcessingBadgeView(level: level, size: .small, showLabel: false)
+                    }
 
                     if ingredient.isMatched {
                         Image(systemName: "checkmark.circle.fill")
@@ -450,10 +463,10 @@ extension ProductScoreView {
         species: .dog,
         category: .food,
         scoreBreakdown: ScoreBreakdown(
-            total: 72.5,
+            total: 0,
             safety: 85,
-            nutrition: 68,
-            suitability: 40,
+            suitability: 0,
+            processing: 75,
             flags: [
                 WarningFlag(severity: .high, title: "Possible allergen", explain: "Chicken may conflict with Max's allergen profile.", ingredientId: "ing_chicken", source: nil, type: .allergen),
                 WarningFlag(severity: .warn, title: "Ingredient warning", explain: "Garlic in large quantities may be harmful.", ingredientId: "ing_garlic", source: "ASPCA", type: .safety)
@@ -474,13 +487,19 @@ extension ProductScoreView {
                 factors: [
                     ExplanationFactor(id: "1", description: "Matches Max's allergen profile", impact: .negative, ingredientName: "Chicken")
                 ],
-                summary: "Contains 1 potential allergen for Max."
+                summary: "Contains an ingredient Max should avoid. Score set to Avoid."
+            ),
+            processingExplanation: ScoreExplanation(
+                factors: [
+                    ExplanationFactor(id: "1", description: "Majority minimally processed", impact: .positive, ingredientName: nil)
+                ],
+                summary: "Mostly minimally processed ingredients."
             )
         ),
         matchedIngredients: [
-            MatchedIngredient(ingredientId: "ing_chicken", labelName: "Chicken", rank: 1),
-            MatchedIngredient(ingredientId: "ing_brown_rice", labelName: "Brown Rice", rank: 2),
-            MatchedIngredient(ingredientId: nil, labelName: "Mystery ingredient", rank: 3)
+            MatchedIngredient(ingredientId: "ing_chicken", labelName: "Chicken", rank: 1, processingLevel: .unprocessed),
+            MatchedIngredient(ingredientId: "ing_brown_rice", labelName: "Brown Rice", rank: 2, processingLevel: .unprocessed),
+            MatchedIngredient(ingredientId: nil, labelName: "Mystery ingredient", rank: 3, processingLevel: nil)
         ],
         shareText: "Test share text",
         petName: "Max",

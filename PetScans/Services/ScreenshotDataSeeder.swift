@@ -42,8 +42,8 @@ enum ScreenshotDataSeeder {
         let scoreBreakdown = ScoreBreakdown(
             total: 92,
             safety: 95,
-            nutrition: 90,
             suitability: 88,
+            processing: 90,
             flags: [],
             unmatched: [],
             matchedCount: 6,
@@ -63,6 +63,12 @@ enum ScreenshotDataSeeder {
                     ExplanationFactor(id: "1", description: "No allergens detected", impact: .positive, ingredientName: nil)
                 ],
                 summary: "No allergen conflicts found for Max."
+            ),
+            processingExplanation: ScoreExplanation(
+                factors: [
+                    ExplanationFactor(id: "1", description: "Majority minimally processed", impact: .positive, ingredientName: nil)
+                ],
+                summary: "Mostly minimally processed ingredients."
             )
         )
 
@@ -91,8 +97,8 @@ enum ScreenshotDataSeeder {
         let scoreBreakdown = ScoreBreakdown(
             total: 68,
             safety: 75,
-            nutrition: 65,
             suitability: 60,
+            processing: 65,
             flags: [
                 WarningFlag(
                     severity: .info,
@@ -120,6 +126,12 @@ enum ScreenshotDataSeeder {
                     ExplanationFactor(id: "1", description: "No allergens detected", impact: .positive, ingredientName: nil)
                 ],
                 summary: "No allergen conflicts found for Max."
+            ),
+            processingExplanation: ScoreExplanation(
+                factors: [
+                    ExplanationFactor(id: "1", description: "Some processed ingredients", impact: .negative, ingredientName: nil)
+                ],
+                summary: "Some processed ingredients detected."
             )
         )
 
@@ -146,10 +158,10 @@ enum ScreenshotDataSeeder {
         ]
 
         let scoreBreakdown = ScoreBreakdown(
-            total: 35,
+            total: 0,
             safety: 50,
-            nutrition: 40,
-            suitability: 15,
+            suitability: 0,
+            processing: 40,
             flags: [
                 WarningFlag(
                     severity: .high,
@@ -193,7 +205,14 @@ enum ScreenshotDataSeeder {
                     ExplanationFactor(id: "1", description: "Contains allergen for Max", impact: .negative, ingredientName: "Chicken"),
                     ExplanationFactor(id: "2", description: "Contains allergen for Max", impact: .negative, ingredientName: "Wheat")
                 ],
-                summary: "Contains 2 allergens in Max's profile."
+                summary: "Contains 2 ingredients Max should avoid. Score set to Avoid."
+            ),
+            processingExplanation: ScoreExplanation(
+                factors: [
+                    ExplanationFactor(id: "1", description: "Processed ingredient", impact: .negative, ingredientName: "Chicken By-Product Meal"),
+                    ExplanationFactor(id: "2", description: "Processed ingredient", impact: .negative, ingredientName: "Soybean Meal")
+                ],
+                summary: "Several processed or ultra-processed ingredients."
             )
         )
 

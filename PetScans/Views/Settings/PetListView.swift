@@ -47,7 +47,7 @@ struct PetListView: View {
         EmptyStateView(
             icon: "pawprint",
             title: "No Pets Yet",
-            subtitle: "Add your pets to track their allergens",
+            subtitle: "Add your pets to track ingredients to avoid",
             actionTitle: "Add Your First Pet",
             action: { showAddPet = true }
         )

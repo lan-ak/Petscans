@@ -12,12 +12,12 @@ struct OnboardingWelcomePage: View {
             }
 
             VStack(spacing: SpacingTokens.sm) {
-                Text("Know what's really in your pet's products")
+                Text("Welcome to PetScans")
                     .font(TypographyTokens.displayMedium)
                     .foregroundColor(ColorTokens.textPrimary)
                     .multilineTextAlignment(.center)
 
-                Text("Every ingredient. Every product. Total peace of mind.")
+                Text("Let's get started")
                     .font(TypographyTokens.bodyLarge)
                     .foregroundColor(ColorTokens.textSecondary)
                     .multilineTextAlignment(.center)

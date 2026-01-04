@@ -38,6 +38,7 @@ struct OCRCameraView: UIViewRepresentable {
         private var captureSession: AVCaptureSession?
         private var photoOutput: AVCapturePhotoOutput?
         private let hapticFeedback = UIImpactFeedbackGenerator(style: .medium)
+        private weak var previewView: OCRCameraPreviewView?
 
         init(onCapture: @escaping (UIImage) -> Void, onError: @escaping (String) -> Void) {
             self.onCapture = onCapture
@@ -105,6 +106,7 @@ struct OCRCameraView: UIViewRepresentable {
             previewView.videoPreviewLayer.videoGravity = .resizeAspectFill
 
             self.captureSession = session
+            self.previewView = previewView
 
             // Start session on background thread
             DispatchQueue.global(qos: .userInitiated).async {
@@ -144,14 +146,72 @@ struct OCRCameraView: UIViewRepresentable {
             // Stop the session after capture
             captureSession?.stopRunning()
 
-            // Return the captured image
+            // Crop to reticle region if we have the view size
+            let finalImage: UIImage
+            if let viewSize = previewView?.bounds.size, viewSize.width > 0, viewSize.height > 0 {
+                finalImage = cropToReticle(image, viewSize: viewSize)
+            } else {
+                finalImage = image
+            }
+
+            // Return the cropped image
             DispatchQueue.main.async {
-                self.onCapture(image)
+                self.onCapture(finalImage)
             }
         }
 
         deinit {
             captureSession?.stopRunning()
+        }
+
+        // MARK: - Image Cropping
+
+        /// Crops the captured image to match the reticle overlay region
+        private func cropToReticle(_ image: UIImage, viewSize: CGSize) -> UIImage {
+            // Reticle dimensions (must match ScanningReticleView in IngredientCameraView)
+            let reticleWidth: CGFloat = 320
+            let reticleHeight: CGFloat = 400
+
+            // Calculate reticle rect centered in view
+            let reticleRect = CGRect(
+                x: (viewSize.width - reticleWidth) / 2,
+                y: (viewSize.height - reticleHeight) / 2,
+                width: reticleWidth,
+                height: reticleHeight
+            )
+
+            // Map view coordinates to image coordinates
+            // Account for .resizeAspectFill scaling used by the preview layer
+            let imageSize = image.size
+            let viewAspect = viewSize.width / viewSize.height
+            let imageAspect = imageSize.width / imageSize.height
+
+            var scale: CGFloat
+            var offsetX: CGFloat = 0
+            var offsetY: CGFloat = 0
+
+            if imageAspect > viewAspect {
+                // Image is wider than view - cropped horizontally in preview
+                scale = imageSize.height / viewSize.height
+                offsetX = (imageSize.width - viewSize.width * scale) / 2
+            } else {
+                // Image is taller than view - cropped vertically in preview
+                scale = imageSize.width / viewSize.width
+                offsetY = (imageSize.height - viewSize.height * scale) / 2
+            }
+
+            let cropRect = CGRect(
+                x: reticleRect.minX * scale + offsetX,
+                y: reticleRect.minY * scale + offsetY,
+                width: reticleRect.width * scale,
+                height: reticleRect.height * scale
+            )
+
+            guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
+                return image // Fallback to full image if cropping fails
+            }
+
+            return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
         }
     }
 }

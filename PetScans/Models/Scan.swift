@@ -26,6 +26,10 @@ final class Scan {
     var createdAt: Date
     var updatedAt: Date
 
+    // Transient cached properties to avoid JSON decoding on every access
+    @Transient private var _cachedMatchedIngredients: [MatchedIngredient]?
+    @Transient private var _cachedScoreBreakdown: ScoreBreakdown?
+
     init(
         barcode: String? = nil,
         productName: String? = nil,
@@ -65,17 +69,27 @@ final class Scan {
         self.updatedAt = Date()
     }
 
-    // Computed properties to decode JSON
+    // Computed properties with caching to avoid JSON decoding on every access
     var matchedIngredients: [MatchedIngredient] {
+        if let cached = _cachedMatchedIngredients {
+            return cached
+        }
         guard let data = matchedIngredientsJSON.data(using: .utf8) else { return [] }
-        return (try? JSONDecoder().decode([MatchedIngredient].self, from: data)) ?? []
+        let decoded = (try? JSONDecoder().decode([MatchedIngredient].self, from: data)) ?? []
+        _cachedMatchedIngredients = decoded
+        return decoded
     }
 
     var scoreBreakdown: ScoreBreakdown {
-        guard let data = scoreBreakdownJSON.data(using: .utf8) else {
-            return ScoreBreakdown(total: 0, safety: 0, nutrition: nil, suitability: 0, flags: [], unmatched: [], matchedCount: 0, totalCount: 0, scoreSource: .databaseVerified, ocrConfidence: nil, safetyExplanation: nil, suitabilityExplanation: nil)
+        if let cached = _cachedScoreBreakdown {
+            return cached
         }
-        return (try? JSONDecoder().decode(ScoreBreakdown.self, from: data)) ?? ScoreBreakdown(total: 0, safety: 0, nutrition: nil, suitability: 0, flags: [], unmatched: [], matchedCount: 0, totalCount: 0, scoreSource: .databaseVerified, ocrConfidence: nil, safetyExplanation: nil, suitabilityExplanation: nil)
+        guard let data = scoreBreakdownJSON.data(using: .utf8) else {
+            return .empty
+        }
+        let decoded = (try? JSONDecoder().decode(ScoreBreakdown.self, from: data)) ?? .empty
+        _cachedScoreBreakdown = decoded
+        return decoded
     }
 
     var speciesEnum: Species {

@@ -9,6 +9,12 @@ final class IngredientDatabase {
     private(set) var rules: [Rule] = []
     private(set) var synonyms: [String: String] = [:]
 
+    /// Pre-sorted ingredient list (sorted once on load, not on every access)
+    private(set) var sortedIngredients: [Ingredient] = []
+
+    /// Rules indexed by ingredient ID for O(1) lookup
+    private(set) var rulesByIngredient: [String: [Rule]] = [:]
+
     private var loadingTask: Task<Void, Never>?
 
     private init() {
@@ -22,11 +28,20 @@ final class IngredientDatabase {
             print("IngredientDatabase loaded: \(ingredients.count) ingredients, \(rules.count) rules, \(synonyms.count) synonyms")
             #endif
 
+            // Pre-sort ingredients once (expensive operation done in background)
+            let sorted = Array(ingredients.values)
+                .sorted { $0.commonName.localizedCaseInsensitiveCompare($1.commonName) == .orderedAscending }
+
+            // Pre-index rules by ingredient ID for O(1) lookup
+            let ruleIndex = Dictionary(grouping: rules) { $0.ingredientId }
+
             await MainActor.run { [weak self] in
                 guard let self else { return }
                 self.ingredients = ingredients
                 self.rules = rules
                 self.synonyms = synonyms
+                self.sortedIngredients = sorted
+                self.rulesByIngredient = ruleIndex
                 self.loadingTask = nil
             }
         }

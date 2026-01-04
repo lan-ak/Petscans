@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftData
-import SuperwallKit
+// import SuperwallKit // Disabled for now
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -8,6 +8,7 @@ struct OnboardingView: View {
     @State private var petName = ""
     @State private var petSpecies: Species = .dog
     @State private var selectedAllergens: Set<String> = []
+    @State private var isSubmitting = false
 
     let onComplete: () -> Void
 
@@ -43,16 +44,16 @@ struct OnboardingView: View {
                 .transition(.opacity)
         case 1:
             OnboardingBenefitsPage(
-                icon: "checkmark.seal.fill",
-                headline: "Make confident choices",
-                subheadline: "Scan any pet food, treat, or cosmetic. Get instant safety insights backed by veterinary science."
+                icon: "magnifyingglass.circle.fill",
+                headline: "Know what's in every product",
+                subheadline: "Every ingredient revealed. Instant alerts for anything your pet should avoid."
             )
             .transition(.opacity)
         case 2:
             OnboardingBenefitsPage(
-                icon: "pawprint.fill",
-                headline: "Protection, tailored to your pet",
-                subheadline: "Set up allergen alerts and species-specific warnings. Because every pet deserves their own guardian."
+                icon: "text.viewfinder",
+                headline: "The world's largest database",
+                subheadline: "Scan any product label or type ingredients manually. We'll analyze them all instantly."
             )
             .transition(.opacity)
         case 3:
@@ -75,12 +76,21 @@ struct OnboardingView: View {
                     completeOnboarding()
                 }
                 .secondaryButtonStyle()
+                .disabled(isSubmitting)
+                .opacity(isSubmitting ? 0.6 : 1)
 
-                Button("Let's go!") {
+                Button {
                     createPetAndComplete()
+                } label: {
+                    if isSubmitting {
+                        ProgressView()
+                            .tint(.white)
+                    } else {
+                        Text("Let's go!")
+                    }
                 }
                 .primaryButtonStyle()
-                .disabled(!petName.isNotBlank)
+                .disabled(!petName.isNotBlank || isSubmitting)
             }
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {
@@ -93,7 +103,8 @@ struct OnboardingView: View {
     }
 
     private func createPetAndComplete() {
-        guard petName.isNotBlank else { return }
+        guard petName.isNotBlank, !isSubmitting else { return }
+        isSubmitting = true
 
         let pet = Pet(name: petName.trimmed, species: petSpecies, allergens: Array(selectedAllergens))
         modelContext.insert(pet)
@@ -103,16 +114,19 @@ struct OnboardingView: View {
     }
 
     private func completeOnboarding() {
-        // Set user attributes for Superwall targeting
-        Superwall.shared.setUserAttributes([
-            "pet_species": petSpecies.rawValue,
-            "pet_count": 1,
-            "onboarding_completed_at": Date()
-        ])
+        isSubmitting = true
 
-        Superwall.shared.register(placement: "onboarding_complete") {
-            onComplete()
-        }
+        // Superwall disabled for now
+        // Superwall.shared.setUserAttributes([
+        //     "pet_species": petSpecies.rawValue,
+        //     "pet_count": 1,
+        //     "onboarding_completed_at": Date()
+        // ])
+        // Superwall.shared.register(placement: "onboarding_complete") {
+        //     onComplete()
+        // }
+
+        onComplete()
     }
 }
 
