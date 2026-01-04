@@ -36,9 +36,8 @@
     const storedTheme = getStoredTheme();
     if (storedTheme) {
       setTheme(storedTheme);
-    } else if (prefersDarkScheme.matches) {
-      setTheme('dark');
     } else {
+      // Default to light mode for trust-building (ignore system preference)
       setTheme('light');
     }
   }
@@ -51,12 +50,7 @@
     });
   }
 
-  // Listen for system theme changes
-  prefersDarkScheme.addEventListener('change', function(e) {
-    if (!getStoredTheme()) {
-      setTheme(e.matches ? 'dark' : 'light');
-    }
-  });
+  // Note: We don't listen for system theme changes since we default to light mode for trust
 
   // Initialize theme
   initTheme();
