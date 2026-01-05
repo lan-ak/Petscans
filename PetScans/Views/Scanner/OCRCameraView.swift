@@ -52,9 +52,22 @@ struct OCRCameraView: UIViewRepresentable {
             session.beginConfiguration()
             session.sessionPreset = .photo
 
-            // Set up camera input - prefer ultra-wide for close-up focus
-            guard let videoCaptureDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
-                ?? AVCaptureDevice.default(for: .video) else {
+            // Smart camera selection for close-up scanning:
+            // - iPhone 13 Pro+: Ultra-wide has autofocus (macro mode) - use it for 2cm focus
+            // - iPhone 12 Pro: Ultra-wide has fixed focus - use wide-angle instead
+            // - Non-Pro models: No ultra-wide - use wide-angle
+            let videoCaptureDevice: AVCaptureDevice
+            if let ultraWide = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back),
+               ultraWide.isFocusModeSupported(.continuousAutoFocus) {
+                // Ultra-wide supports autofocus (iPhone 13 Pro+) - use for macro
+                videoCaptureDevice = ultraWide
+            } else if let wideAngle = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
+                // Fall back to wide-angle camera
+                videoCaptureDevice = wideAngle
+            } else if let defaultCamera = AVCaptureDevice.default(for: .video) {
+                // Last resort: any available camera
+                videoCaptureDevice = defaultCamera
+            } else {
                 onError("No camera available")
                 return
             }

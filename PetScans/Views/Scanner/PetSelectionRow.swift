@@ -28,10 +28,9 @@ struct PetSelectionRow: View {
 
                 Spacer()
 
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white)
-                }
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundColor(isSelected ? .white : ColorTokens.textSecondary)
             }
             .padding(SpacingTokens.xs)
             .background(isSelected ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)

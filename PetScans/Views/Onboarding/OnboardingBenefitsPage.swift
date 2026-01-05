@@ -31,7 +31,7 @@ struct OnboardingBenefitsPage: View {
     OnboardingBenefitsPage(
         icon: "checkmark.seal.fill",
         headline: "Make confident choices",
-        subheadline: "Scan any pet food, treat, or cosmetic. Get instant safety insights backed by veterinary science."
+        subheadline: "Scan any pet food or treat. Get instant safety insights backed by veterinary science."
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(ColorTokens.backgroundPrimary)

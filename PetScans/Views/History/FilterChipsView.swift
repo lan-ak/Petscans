@@ -3,45 +3,71 @@ import SwiftUI
 struct FilterChipsView: View {
     @Binding var selectedSpecies: Species?
     @Binding var selectedCategory: Category?
+    @State private var isExpanded: Bool = false
 
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: SpacingTokens.xxs) {
-                // Species filters
-                ForEach(Species.allCases) { species in
-                    FilterChip(
-                        label: species.displayName,
-                        icon: species.icon,
-                        isSelected: selectedSpecies == species
-                    ) {
-                        if selectedSpecies == species {
-                            selectedSpecies = nil
-                        } else {
-                            selectedSpecies = species
-                        }
-                    }
+        VStack(alignment: .leading, spacing: 0) {
+            // Header button - always visible
+            Button {
+                withSnappyAnimation {
+                    isExpanded.toggle()
                 }
+            } label: {
+                HStack {
+                    Image(systemName: "line.3.horizontal.decrease.circle")
+                    Text("Filter")
+                        .labelMedium()
+                    Spacer()
+                    Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
+                        .font(.caption)
+                }
+                .foregroundColor(ColorTokens.textPrimary)
+                .padding(.horizontal)
+                .padding(.vertical, SpacingTokens.xs)
+            }
+            .buttonStyle(.plain)
 
-                Divider()
-                    .frame(height: 24)
+            // Expandable filter chips
+            if isExpanded {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: SpacingTokens.xxs) {
+                        // Species filters
+                        ForEach(Species.allCases) { species in
+                            FilterChip(
+                                label: species.displayName,
+                                icon: species.icon,
+                                isSelected: selectedSpecies == species
+                            ) {
+                                if selectedSpecies == species {
+                                    selectedSpecies = nil
+                                } else {
+                                    selectedSpecies = species
+                                }
+                            }
+                        }
 
-                // Category filters
-                ForEach(Category.allCases) { category in
-                    FilterChip(
-                        label: category.displayName,
-                        icon: category.icon,
-                        isSelected: selectedCategory == category
-                    ) {
-                        if selectedCategory == category {
-                            selectedCategory = nil
-                        } else {
-                            selectedCategory = category
+                        Divider()
+                            .frame(height: 24)
+
+                        // Category filters
+                        ForEach(Category.allCases.filter { $0 != .cosmetic }) { category in
+                            FilterChip(
+                                label: category.displayName,
+                                icon: category.icon,
+                                isSelected: selectedCategory == category
+                            ) {
+                                if selectedCategory == category {
+                                    selectedCategory = nil
+                                } else {
+                                    selectedCategory = category
+                                }
+                            }
                         }
                     }
+                    .padding(.horizontal)
+                    .padding(.vertical, SpacingTokens.xxs)
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, SpacingTokens.xxs)
         }
         .background(ColorTokens.surfacePrimary)
     }

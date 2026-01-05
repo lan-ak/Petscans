@@ -3,13 +3,11 @@ import SwiftUI
 struct OnboardingWelcomePage: View {
     var body: some View {
         VStack(spacing: SpacingTokens.xl) {
-            if let appIcon = UIImage(named: "AppIcon") {
-                Image(uiImage: appIcon)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 120, height: 120)
-                    .cornerRadius(SpacingTokens.radiusXLarge)
-            }
+            Image("AppIconImage")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
+                .cornerRadius(SpacingTokens.radiusXLarge)
 
             VStack(spacing: SpacingTokens.sm) {
                 Text("Welcome to PetScans")

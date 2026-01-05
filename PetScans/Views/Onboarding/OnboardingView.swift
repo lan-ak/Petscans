@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftData
-// import SuperwallKit // Disabled for now
+import SuperwallKit
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -116,17 +116,16 @@ struct OnboardingView: View {
     private func completeOnboarding() {
         isSubmitting = true
 
-        // Superwall disabled for now
-        // Superwall.shared.setUserAttributes([
-        //     "pet_species": petSpecies.rawValue,
-        //     "pet_count": 1,
-        //     "onboarding_completed_at": Date()
-        // ])
-        // Superwall.shared.register(placement: "onboarding_complete") {
-        //     onComplete()
-        // }
+        // Set user attributes for Superwall targeting
+        Superwall.shared.setUserAttributes([
+            "pet_species": petSpecies.rawValue,
+            "pet_count": 1,
+            "onboarding_completed_at": Date()
+        ])
 
-        onComplete()
+        Superwall.shared.register(placement: "onboarding_complete") {
+            onComplete()
+        }
     }
 }
 

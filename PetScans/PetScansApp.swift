@@ -1,6 +1,6 @@
 import SwiftUI
 import SwiftData
-// import SuperwallKit // Disabled for now
+import SuperwallKit
 
 @main
 struct PetScansApp: App {
@@ -59,9 +59,9 @@ struct PetScansApp: App {
             }
             .tint(ColorTokens.brandPrimary)
             .background(ColorTokens.backgroundPrimary)
-            // .onOpenURL { url in
-            //     Superwall.handleDeepLink(url)
-            // }
+            .onOpenURL { url in
+                Superwall.handleDeepLink(url)
+            }
             .modelContainer(container)
         }
     }
@@ -81,8 +81,8 @@ struct PetScansApp: App {
         let context = ModelContext(container)
         PetMigrationService.migrateIfNeeded(modelContext: context)
 
-        // Configure Superwall (disabled for now)
-        // Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+        // Configure Superwall
+        Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
 
         // Initialize product cache
         await ProductCacheManager.shared.initialize()
