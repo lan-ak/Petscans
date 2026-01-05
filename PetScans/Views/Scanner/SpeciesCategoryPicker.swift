@@ -99,10 +99,9 @@ struct SpeciesCategoryPicker: View {
 
                             Spacer()
 
-                            if isGeneralScan {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .foregroundColor(.white)
-                            }
+                            Image(systemName: isGeneralScan ? "checkmark.circle.fill" : "circle")
+                                .font(.title3)
+                                .foregroundColor(isGeneralScan ? .white : ColorTokens.textSecondary)
                         }
                         .padding(SpacingTokens.xs)
                         .background(isGeneralScan ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)
@@ -147,7 +146,7 @@ struct SpeciesCategoryPicker: View {
                     .heading2()
 
                 Picker("Category", selection: $category) {
-                    ForEach(Category.allCases) { c in
+                    ForEach(Category.allCases.filter { $0 != .cosmetic }) { c in
                         Label(c.displayName, systemImage: c.icon)
                             .tag(c)
                     }
@@ -174,6 +173,7 @@ struct SpeciesCategoryPicker: View {
             }
             .padding()
         }
+        .dismissKeyboardOnTap()
     }
 }
 

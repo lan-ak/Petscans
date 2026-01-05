@@ -21,8 +21,11 @@ struct ContentView: View {
                     hasCompletedOnboarding = true
                 }
             }
+            .dismissKeyboardOnTap()
+            .keyboardToolbar()
         } else {
             MainTabView()
+                .keyboardToolbar()
         }
     }
 }
