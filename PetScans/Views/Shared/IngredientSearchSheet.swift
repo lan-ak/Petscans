@@ -3,7 +3,7 @@ import SwiftUI
 /// Shared ingredient search sheet used by onboarding and AddPetSheet
 struct IngredientSearchSheet: View {
     @Environment(\.dismiss) private var dismiss
-    @Binding var selectedIngredientIds: Set<String>
+    @Binding var selectedAllergens: Set<String>
 
     @State private var searchText: String = ""
     @State private var debouncedSearchText: String = ""
@@ -28,7 +28,7 @@ struct IngredientSearchSheet: View {
             VStack(spacing: 0) {
                 headerSection
 
-                if !selectedIngredientIds.isEmpty {
+                if !selectedAllergens.isEmpty {
                     selectedCountBadge
                 }
 
@@ -87,7 +87,7 @@ struct IngredientSearchSheet: View {
             Image(systemName: "checkmark.circle.fill")
                 .foregroundColor(ColorTokens.brandPrimary)
 
-            Text("\(selectedIngredientIds.count) ingredient\(selectedIngredientIds.count == 1 ? "" : "s") selected")
+            Text("\(selectedAllergens.count) ingredient\(selectedAllergens.count == 1 ? "" : "s") selected")
                 .labelMedium()
         }
         .padding(.horizontal, SpacingTokens.xs)
@@ -103,7 +103,7 @@ struct IngredientSearchSheet: View {
             ForEach(filteredIngredients) { ingredient in
                 IngredientRowView(
                     ingredient: ingredient,
-                    isSelected: selectedIngredientIds.contains(ingredient.id),
+                    isSelected: selectedAllergens.contains(ingredient.commonName.lowercased()),
                     onToggle: { toggleSelection(ingredient) }
                 )
             }
@@ -115,7 +115,7 @@ struct IngredientSearchSheet: View {
         VStack(spacing: SpacingTokens.xs) {
             Divider()
 
-            Button(selectedIngredientIds.isEmpty ? "Done" : "Done (\(selectedIngredientIds.count) selected)") {
+            Button(selectedAllergens.isEmpty ? "Done" : "Done (\(selectedAllergens.count) selected)") {
                 dismiss()
             }
             .primaryButtonStyle()
@@ -128,14 +128,15 @@ struct IngredientSearchSheet: View {
     // MARK: - Actions
 
     private func toggleSelection(_ ingredient: Ingredient) {
-        if selectedIngredientIds.contains(ingredient.id) {
-            selectedIngredientIds.remove(ingredient.id)
+        let allergenName = ingredient.commonName.lowercased()
+        if selectedAllergens.contains(allergenName) {
+            selectedAllergens.remove(allergenName)
         } else {
-            selectedIngredientIds.insert(ingredient.id)
+            selectedAllergens.insert(allergenName)
         }
     }
 }
 
 #Preview {
-    IngredientSearchSheet(selectedIngredientIds: .constant([]))
+    IngredientSearchSheet(selectedAllergens: .constant([]))
 }

@@ -9,6 +9,7 @@ struct OnboardingView: View {
     @State private var petSpecies: Species = .dog
     @State private var selectedAllergens: Set<String> = []
     @State private var isSubmitting = false
+    @State private var showNameValidation = false
 
     let onComplete: () -> Void
 
@@ -33,6 +34,9 @@ struct OnboardingView: View {
                     .padding(.horizontal, SpacingTokens.screenPadding)
                     .padding(.bottom, SpacingTokens.xxl)
             }
+        }
+        .onChange(of: petName) { _, _ in
+            showNameValidation = false
         }
     }
 
@@ -80,7 +84,11 @@ struct OnboardingView: View {
                 .opacity(isSubmitting ? 0.6 : 1)
 
                 Button {
-                    createPetAndComplete()
+                    if petName.isNotBlank {
+                        createPetAndComplete()
+                    } else {
+                        showNameValidation = true
+                    }
                 } label: {
                     if isSubmitting {
                         ProgressView()
@@ -90,7 +98,14 @@ struct OnboardingView: View {
                     }
                 }
                 .primaryButtonStyle()
-                .disabled(!petName.isNotBlank || isSubmitting)
+                .disabled(isSubmitting)
+            }
+
+            if showNameValidation && !petName.isNotBlank {
+                Text("Please enter your pet's name")
+                    .font(TypographyTokens.caption)
+                    .foregroundColor(ColorTokens.error)
+                    .padding(.top, SpacingTokens.xs)
             }
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {

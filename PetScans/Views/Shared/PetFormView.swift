@@ -8,15 +8,23 @@ struct PetFormView: View {
 
     @State private var showingIngredientSearch = false
 
-    /// Common allergens for quick selection (maps to ingredient IDs)
+    /// Common allergens for quick selection (stores lowercased names to match AddAllergenSheet)
     private let commonAllergens: [(id: String, name: String)] = [
-        ("ing_chicken", "Chicken"),
-        ("ing_beef", "Beef"),
-        ("ing_wheat", "Wheat"),
-        ("ing_corn", "Corn"),
-        ("ing_egg", "Egg"),
-        ("ing_lamb", "Lamb")
+        ("chicken", "Chicken"),
+        ("beef", "Beef"),
+        ("wheat", "Wheat"),
+        ("corn", "Corn"),
+        ("egg", "Egg"),
+        ("lamb", "Lamb")
     ]
+
+    /// Selected allergens that aren't in the common list
+    private var otherSelectedAllergens: [String] {
+        let commonIds = Set(commonAllergens.map { $0.id })
+        return selectedAllergens
+            .filter { !commonIds.contains($0) }
+            .sorted()
+    }
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
@@ -50,12 +58,13 @@ struct PetFormView: View {
             }
 
             Divider()
+                .padding(.vertical, SpacingTokens.xxs)
 
             // Ingredients to avoid section
             ingredientSection
         }
         .sheet(isPresented: $showingIngredientSearch) {
-            IngredientSearchSheet(selectedIngredientIds: $selectedAllergens)
+            IngredientSearchSheet(selectedAllergens: $selectedAllergens)
         }
     }
 
@@ -81,24 +90,16 @@ struct PetFormView: View {
             } label: {
                 HStack {
                     Image(systemName: "magnifyingglass")
-                        .foregroundColor(ColorTokens.textTertiary)
-
                     Text("Search for more...")
-                        .font(TypographyTokens.body)
-                        .foregroundColor(ColorTokens.textTertiary)
-
                     Spacer()
                 }
-                .padding()
-                .background(ColorTokens.surfacePrimary)
-                .cornerRadius(SpacingTokens.radiusMedium)
             }
-            .buttonStyle(.plain)
+            .secondaryButtonStyle()
         }
     }
 
     private var commonAllergenChips: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: SpacingTokens.xxs) {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: SpacingTokens.xxs) {
             ForEach(commonAllergens, id: \.id) { allergen in
                 let isSelected = selectedAllergens.contains(allergen.id)
                 Button {
@@ -109,12 +110,21 @@ struct PetFormView: View {
                     }
                 } label: {
                     Text(allergen.name)
-                        .labelSmall()
-                        .padding(.horizontal, SpacingTokens.xs)
-                        .padding(.vertical, SpacingTokens.xxs)
-                        .background(isSelected ? ColorTokens.brandPrimary : ColorTokens.brandPrimary.opacity(0.1))
-                        .foregroundColor(isSelected ? .white : ColorTokens.brandPrimary)
-                        .cornerRadius(SpacingTokens.radiusSmall)
+                        .lineLimit(1)
+                        .chipStyle(isSelected: isSelected)
+                }
+                .buttonStyle(.plain)
+            }
+
+            // Other selected allergens (not in common list)
+            ForEach(otherSelectedAllergens, id: \.self) { allergen in
+                Button {
+                    selectedAllergens.remove(allergen)
+                } label: {
+                    Text(allergen.capitalized)
+                        .lineLimit(1)
+                        .truncationMode(.tail)
+                        .chipStyle(isSelected: true)
                 }
                 .buttonStyle(.plain)
             }

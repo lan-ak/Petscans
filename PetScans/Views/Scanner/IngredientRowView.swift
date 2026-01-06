@@ -8,11 +8,6 @@ struct IngredientRowView: View {
     var body: some View {
         Button(action: onToggle) {
             HStack(spacing: SpacingTokens.sm) {
-                // Checkbox
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.system(size: SpacingTokens.iconMedium))
-                    .foregroundColor(isSelected ? ColorTokens.brandPrimary : ColorTokens.textSecondary)
-
                 // Ingredient info
                 VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
                     Text(ingredient.commonName)
@@ -30,6 +25,11 @@ struct IngredientRowView: View {
 
                 // Risk level indicator
                 riskIndicator
+
+                // Checkbox
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: SpacingTokens.iconMedium))
+                    .foregroundColor(isSelected ? ColorTokens.brandPrimary : ColorTokens.textSecondary)
             }
             .padding(.vertical, SpacingTokens.xxs)
             .contentShape(Rectangle())
