@@ -22,6 +22,7 @@ struct ProductScoreView: View {
 
     @State private var notes: String = ""
     @State private var showDeleteConfirmation = false
+    @State private var selectedIngredient: Ingredient?
 
     // Pre-computed values (calculated once in init, not on every render)
     private let actualMatchedCount: Int
@@ -155,6 +156,9 @@ struct ProductScoreView: View {
             Button("Cancel", role: .cancel) {}
         }
         .accessibilityIdentifier("product-score-view")
+        .sheet(item: $selectedIngredient) { ingredient in
+            IngredientDetailSheet(ingredient: ingredient, species: species)
+        }
     }
 
     // MARK: - Allergen Alert Banner
@@ -325,33 +329,17 @@ struct ProductScoreView: View {
 
     private var ingredientsListSection: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            Text("Ingredients")
-                .heading2()
+            HStack {
+                Text("Ingredients")
+                    .heading2()
+                Spacer()
+                Text("Tap for details")
+                    .caption()
+                    .foregroundColor(ColorTokens.textTertiary)
+            }
 
-            ForEach(matchedIngredients) { ingredient in
-                HStack {
-                    Text("\(ingredient.rank).")
-                        .foregroundColor(ColorTokens.textSecondary)
-                        .frame(width: 24, alignment: .trailing)
-
-                    Text(ingredient.labelName)
-
-                    Spacer()
-
-                    // Processing level badge (if available)
-                    if let level = ingredient.processingLevel {
-                        ProcessingBadgeView(level: level, size: .small, showLabel: false)
-                    }
-
-                    if ingredient.isMatched {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(ColorTokens.success)
-                    } else {
-                        Image(systemName: "questionmark.circle")
-                            .foregroundColor(ColorTokens.warning)
-                    }
-                }
-                .bodySmall()
+            ForEach(matchedIngredients) { matchedIngredient in
+                ingredientRow(matchedIngredient)
             }
 
             if !scoreBreakdown.unmatched.isEmpty {
@@ -361,6 +349,51 @@ struct ProductScoreView: View {
             }
         }
         .cardStyle(backgroundColor: ColorTokens.surfaceSecondary)
+    }
+
+    private func ingredientRow(_ matchedIngredient: MatchedIngredient) -> some View {
+        let fullIngredient = matchedIngredient.ingredientId.flatMap { IngredientDatabase.shared.ingredients[$0] }
+
+        return Button {
+            if let ingredient = fullIngredient {
+                selectedIngredient = ingredient
+            }
+        } label: {
+            HStack {
+                Text("\(matchedIngredient.rank).")
+                    .foregroundColor(ColorTokens.textSecondary)
+                    .frame(width: 24, alignment: .trailing)
+
+                Text(matchedIngredient.labelName)
+                    .foregroundColor(ColorTokens.textPrimary)
+
+                Spacer()
+
+                // Processing level badge (if available)
+                if let level = matchedIngredient.processingLevel {
+                    ProcessingBadgeView(level: level, size: .small, showLabel: false)
+                }
+
+                if matchedIngredient.isMatched {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(ColorTokens.success)
+                } else {
+                    Image(systemName: "questionmark.circle")
+                        .foregroundColor(ColorTokens.warning)
+                }
+
+                // Show chevron for tappable ingredients
+                if fullIngredient != nil {
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(ColorTokens.textTertiary)
+                }
+            }
+            .bodySmall()
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(fullIngredient == nil)
     }
 
     // MARK: - Scan Result Actions

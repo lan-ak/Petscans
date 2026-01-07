@@ -158,12 +158,13 @@ struct ScoreCalculator {
                 continue
             }
 
-            // Add safety penalty based on ingredient risk level
-            let penalty = basePenalty(for: ing.riskLevel)
+            // Add safety penalty based on species-specific risk level
+            let riskLevelForSpecies = ing.riskLevel(for: species)
+            let penalty = basePenalty(for: riskLevelForSpecies)
             safetyPenalty += penalty * weight
 
             // Add explanation factor for concerning ingredients
-            let riskLevel = ing.riskLevel.lowercased()
+            let riskLevel = riskLevelForSpecies.lowercased()
             if riskLevel.contains("toxic") {
                 hasToxic = true
                 factors.append(ExplanationFactor(

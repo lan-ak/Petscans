@@ -2,8 +2,22 @@ import SwiftUI
 
 struct IngredientRowView: View {
     let ingredient: Ingredient
+    let species: Species
     let isSelected: Bool
     let onToggle: () -> Void
+
+    /// Convenience initializer that defaults to dog
+    init(ingredient: Ingredient, species: Species = .dog, isSelected: Bool, onToggle: @escaping () -> Void) {
+        self.ingredient = ingredient
+        self.species = species
+        self.isSelected = isSelected
+        self.onToggle = onToggle
+    }
+
+    /// The risk level for the current species
+    private var currentRiskLevel: String {
+        ingredient.riskLevel(for: species)
+    }
 
     var body: some View {
         Button(action: onToggle) {
@@ -39,16 +53,16 @@ struct IngredientRowView: View {
 
     @ViewBuilder
     private var riskIndicator: some View {
-        switch ingredient.riskLevel {
-        case "caution":
+        let risk = currentRiskLevel.lowercased()
+        if risk.contains("caution") || risk.contains("moderation") {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(TypographyTokens.caption)
                 .foregroundColor(ColorTokens.warning)
-        case "toxic":
+        } else if risk.contains("toxic") || risk.contains("avoid") {
             Image(systemName: "xmark.circle.fill")
                 .font(TypographyTokens.caption)
                 .foregroundColor(ColorTokens.error)
-        default:
+        } else {
             EmptyView()
         }
     }
@@ -69,6 +83,7 @@ struct IngredientRowView: View {
                 typicalFunction: "Primary protein source",
                 notes: nil
             ),
+            species: .dog,
             isSelected: true,
             onToggle: {}
         )
@@ -86,6 +101,7 @@ struct IngredientRowView: View {
                 typicalFunction: "Flavoring",
                 notes: nil
             ),
+            species: .dog,
             isSelected: false,
             onToggle: {}
         )
