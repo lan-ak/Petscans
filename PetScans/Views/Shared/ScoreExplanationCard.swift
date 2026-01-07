@@ -11,6 +11,19 @@ struct ScoreExplanationCard: View {
         explanation?.labelOverride ?? RatingLabel.from(score: score)
     }
 
+    /// When a label override exists, use a score that visually matches the label
+    private var effectiveScore: Double {
+        if let override = explanation?.labelOverride {
+            switch override {
+            case .avoid: return 0
+            case .caution: return 35
+            case .good: return 60
+            case .excellent: return score
+            }
+        }
+        return score
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: SpacingTokens.xs) {
             // Header with score bar
@@ -41,7 +54,7 @@ struct ScoreExplanationCard: View {
 
                                 RoundedRectangle(cornerRadius: SpacingTokens.xxxs)
                                     .fill(ratingLabel.color)
-                                    .frame(width: geometry.size.width * (score / 100))
+                                    .frame(width: geometry.size.width * (effectiveScore / 100))
                             }
                         }
                         .frame(height: 8)
@@ -119,6 +132,19 @@ struct ScoreExplanationCard: View {
                     ExplanationFactor(id: "2", description: "Matches Max's allergen profile", impact: .negative, ingredientName: "Dairy")
                 ],
                 summary: "Contains 2 potential allergens for Max."
+            )
+        )
+
+        // Label override to "Avoid" - bar should be empty
+        ScoreExplanationCard(
+            title: "Suitability",
+            score: 100, // High score but overridden to Avoid
+            explanation: ScoreExplanation(
+                factors: [
+                    ExplanationFactor(id: "1", description: "Contains known allergen", impact: .negative, ingredientName: "Chicken")
+                ],
+                summary: "Contains an ingredient Max should avoid. Score set to Avoid.",
+                labelOverride: .avoid
             )
         )
     }

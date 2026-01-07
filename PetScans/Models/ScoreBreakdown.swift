@@ -104,7 +104,22 @@ struct ScoreBreakdown: Codable {
     }
 
     var ratingLabel: RatingLabel {
-        RatingLabel.from(score: total)
+        // Get the score-based label
+        let scoreLabel = RatingLabel.from(score: total)
+
+        // Collect all label overrides from sub-categories
+        let overrides = [
+            safetyExplanation?.labelOverride,
+            suitabilityExplanation?.labelOverride,
+            processingExplanation?.labelOverride
+        ].compactMap { $0 }
+
+        // If no overrides, use score-based label
+        guard !overrides.isEmpty else { return scoreLabel }
+
+        // Return the worst label (avoid > caution > good > excellent)
+        let allLabels = overrides + [scoreLabel]
+        return allLabels.min(by: { $0.severity > $1.severity }) ?? scoreLabel
     }
 
     var allergenFlags: [WarningFlag] {
@@ -202,6 +217,16 @@ enum RatingLabel: String, Codable {
     case good = "Good"
     case caution = "Caution"
     case avoid = "Avoid"
+
+    /// Lower number = worse rating (for comparison)
+    var severity: Int {
+        switch self {
+        case .avoid: return 0
+        case .caution: return 1
+        case .good: return 2
+        case .excellent: return 3
+        }
+    }
 
     static func from(score: Double) -> RatingLabel {
         switch score {
