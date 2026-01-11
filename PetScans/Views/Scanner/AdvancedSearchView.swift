@@ -26,27 +26,34 @@ struct AdvancedSearchView: View {
     // MARK: - Body
 
     var body: some View {
-        VStack(spacing: SpacingTokens.lg) {
-            Spacer()
+        ZStack {
+            // Floating paw prints background
+            FloatingElementsView.paws(opacity: 0.45)
+                .ignoresSafeArea()
 
-            // Progress indicator
-            AdvancedSearchProgressView(
-                currentStep: viewModel.currentStep,
-                completedSteps: viewModel.completedSteps
-            )
+            // Main content
+            VStack(spacing: SpacingTokens.lg) {
+                Spacer()
 
-            // Product info (appears when found)
-            if let name = viewModel.productName {
-                productInfoSection(name: name, brand: viewModel.brand)
-                    .transition(.opacity.combined(with: .move(edge: .top)))
+                // Progress indicator
+                AdvancedSearchProgressView(
+                    currentStep: viewModel.currentStep,
+                    completedSteps: viewModel.completedSteps
+                )
+
+                // Product info (appears when found)
+                if let name = viewModel.productName {
+                    productInfoSection(name: name, brand: viewModel.brand)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
+                }
+
+                Spacer()
+
+                // Action buttons based on state
+                actionSection
             }
-
-            Spacer()
-
-            // Action buttons based on state
-            actionSection
+            .padding()
         }
-        .padding()
         .animateEmphasized(value: viewModel.currentStep)
         .task {
             await viewModel.startSearch(barcode: barcode)

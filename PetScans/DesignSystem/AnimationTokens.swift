@@ -44,6 +44,33 @@ struct AnimationTokens {
     static let scanLine = Animation.linear(duration: 2.0)
         .repeatForever(autoreverses: false)
 
+    /// Gentle floating animation for background elements (8-15s)
+    static let floatSlow = Animation.linear(duration: 12.0)
+        .repeatForever(autoreverses: false)
+
+    /// Drift animation with slight horizontal sway
+    static let driftGentle = Animation.easeInOut(duration: 3.0)
+        .repeatForever(autoreverses: true)
+
+    /// Sparkle/twinkle effect for highlights
+    static let sparkle = Animation.easeInOut(duration: 0.6)
+        .repeatForever(autoreverses: true)
+
+    /// Celebration bounce for success states (more pronounced)
+    static let celebrationBounce = Animation.spring(
+        response: 0.4,
+        dampingFraction: 0.5,
+        blendDuration: 0
+    )
+
+    // MARK: - Duration Helpers
+
+    /// Create a float animation with custom duration
+    static func float(duration: Double) -> Animation {
+        Animation.linear(duration: duration)
+            .repeatForever(autoreverses: false)
+    }
+
     // MARK: - Accessibility
 
     /// Returns the animation only if reduce motion is disabled

@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import UIKit
 
 /// ViewModel managing the multi-step advanced search workflow
 /// Orchestrates barcode lookup -> Serper search -> Firecrawl scraping -> ingredient matching
@@ -23,17 +24,17 @@ final class AdvancedSearchViewModel: ObservableObject {
         var displayTitle: String {
             switch self {
             case .lookingUpBarcode:
-                return "Looking up barcode..."
+                return "Found it!"
             case .searchingProduct:
-                return "Searching for product..."
+                return "Verifying ingredients..."
             case .extractingIngredients:
-                return "Finding ingredients..."
+                return "Checking another source..."
             case .analyzingIngredients:
-                return "Analyzing ingredients..."
+                return "Almost there!"
             case .complete:
-                return "Complete!"
+                return "All done!"
             case .failed:
-                return "Search failed"
+                return "Hmm, that didn't work"
             }
         }
 
@@ -59,17 +60,17 @@ final class AdvancedSearchViewModel: ObservableObject {
         var activeDescription: String {
             switch self {
             case .lookingUpBarcode:
-                return "Identifying product from barcode"
+                return "We found your product"
             case .searchingProduct:
-                return "Searching pet food databases"
+                return "Making sure we get it right"
             case .extractingIngredients:
-                return "Extracting ingredient information"
+                return "We want the freshest info for you"
             case .analyzingIngredients:
-                return "Matching against known ingredients"
+                return "Getting the most up-to-date info"
             case .complete:
-                return "Analysis complete"
+                return "Ready for you to review"
             case .failed:
-                return "Unable to find ingredients"
+                return "Let's try another way"
             }
         }
 
@@ -88,12 +89,10 @@ final class AdvancedSearchViewModel: ObservableObject {
 
         var errorDescription: String? {
             switch self {
-            case .barcodeNotFound:
-                return "Barcode not recognized"
-            case .productNotFound:
-                return "Product not found online"
+            case .barcodeNotFound, .productNotFound:
+                return "We couldn't find this product"
             case .ingredientsNotFound:
-                return "Couldn't find ingredients"
+                return "We couldn't find the ingredients"
             case .networkError:
                 return "Network error"
             }
@@ -101,12 +100,8 @@ final class AdvancedSearchViewModel: ObservableObject {
 
         var recoverySuggestion: String? {
             switch self {
-            case .barcodeNotFound:
-                return "This barcode isn't in our product database. Try taking a photo of the ingredients instead."
-            case .productNotFound:
-                return "We couldn't find this product on pet food websites. Try taking a photo of the ingredients."
-            case .ingredientsNotFound:
-                return "We found the product but couldn't extract ingredients. Try taking a photo instead."
+            case .barcodeNotFound, .productNotFound, .ingredientsNotFound:
+                return "Take a photo of the ingredients and we'll analyze it."
             case .networkError:
                 return "Please check your internet connection and try again."
             }
@@ -134,6 +129,7 @@ final class AdvancedSearchViewModel: ObservableObject {
     private let serperService: SerperServiceProtocol
     private let firecrawlService: FirecrawlServiceProtocol
     private let ingredientMatcher: IngredientMatcher
+    private let successFeedback = UINotificationFeedbackGenerator()
 
     // MARK: - Init
 
@@ -147,6 +143,7 @@ final class AdvancedSearchViewModel: ObservableObject {
         self.serperService = serperService
         self.firecrawlService = firecrawlService
         self.ingredientMatcher = ingredientMatcher
+        successFeedback.prepare()
     }
 
     // MARK: - Actions
@@ -196,6 +193,7 @@ final class AdvancedSearchViewModel: ObservableObject {
             // Complete!
             currentStep = .complete
             completedSteps.insert(.complete)
+            successFeedback.notificationOccurred(.success)
 
         } catch let upcError as UPCitemdbError {
             print("DEBUG: UPC Error: \(upcError)")

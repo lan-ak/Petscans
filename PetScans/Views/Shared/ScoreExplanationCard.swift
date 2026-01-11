@@ -25,13 +25,13 @@ struct ScoreExplanationCard: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
-            // Header with score bar
-            Button {
-                withSnappyAnimation {
-                    isExpanded.toggle()
-                }
-            } label: {
+        Button {
+            withSnappyAnimation {
+                isExpanded.toggle()
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                // Header with score bar
                 HStack {
                     VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
                         HStack {
@@ -65,47 +65,47 @@ struct ScoreExplanationCard: View {
                         .font(.caption)
                         .padding(.leading, SpacingTokens.xs)
                 }
-            }
-            .buttonStyle(.plain)
 
-            // Expandable explanation
-            if isExpanded, let explanation = explanation {
-                VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
-                    Text(explanation.summary)
-                        .caption()
-                        .foregroundColor(ColorTokens.textSecondary)
+                // Expandable explanation
+                if isExpanded, let explanation = explanation {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
+                        Text(explanation.summary)
+                            .caption()
+                            .foregroundColor(ColorTokens.textSecondary)
 
-                    if !explanation.factors.isEmpty {
-                        Divider()
-                            .padding(.vertical, SpacingTokens.xxxs)
+                        if !explanation.factors.isEmpty {
+                            Divider()
+                                .padding(.vertical, SpacingTokens.xxxs)
 
-                        ForEach(explanation.factors) { factor in
-                            HStack(alignment: .top, spacing: SpacingTokens.xxs) {
-                                Image(systemName: factor.impact.icon)
-                                    .foregroundColor(factor.impact.color)
-                                    .font(.caption)
-                                    .frame(width: SpacingTokens.iconSmall)
+                            ForEach(explanation.factors) { factor in
+                                HStack(alignment: .top, spacing: SpacingTokens.xxs) {
+                                    Image(systemName: factor.impact.icon)
+                                        .foregroundColor(factor.impact.color)
+                                        .font(.caption)
+                                        .frame(width: SpacingTokens.iconSmall)
 
-                                VStack(alignment: .leading, spacing: 2) {
-                                    if let ingredientName = factor.ingredientName {
-                                        Text(ingredientName)
-                                            .labelSmall()
-                                            .foregroundColor(ColorTokens.textPrimary)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        if let ingredientName = factor.ingredientName {
+                                            Text(ingredientName)
+                                                .labelSmall()
+                                                .foregroundColor(ColorTokens.textPrimary)
+                                        }
+                                        Text(factor.description)
+                                            .caption()
+                                            .foregroundColor(ColorTokens.textSecondary)
                                     }
-                                    Text(factor.description)
-                                        .caption()
-                                        .foregroundColor(ColorTokens.textSecondary)
-                                }
 
-                                Spacer()
+                                    Spacer()
+                                }
                             }
                         }
                     }
+                    .padding(.top, SpacingTokens.xxs)
                 }
-                .padding(.top, SpacingTokens.xxs)
             }
+            .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
         }
-        .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
+        .buttonStyle(.plain)
     }
 }
 

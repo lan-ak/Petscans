@@ -34,8 +34,8 @@ struct AdvancedSearchProgressView: View {
                 statusTextSection
             }
 
-            // Step dots
-            stepDotsSection
+            // Progress bar with trailing paw icon
+            progressBarSection
         }
         .onAppear {
             startPulseAnimation()
@@ -90,18 +90,28 @@ struct AdvancedSearchProgressView: View {
         .animateStandard(value: currentStep)
     }
 
-    // MARK: - Step Dots Section
+    // MARK: - Progress Bar Section
 
-    private var stepDotsSection: some View {
-        HStack(spacing: SpacingTokens.sm) {
-            ForEach(displaySteps) { step in
-                StepDot(
-                    step: step,
-                    currentStep: currentStep,
-                    isCompleted: completedSteps.contains(step)
-                )
-            }
-        }
+    private var progressBarSection: some View {
+        StepProgressBar(
+            progress: progressValue,
+            activeColor: progressColor,
+            inactiveColor: ColorTokens.surfaceSecondary,
+            height: 6,
+            showTrailingIcon: true,
+            trailingIcon: "pawprint.fill"
+        )
+        .padding(.horizontal, SpacingTokens.xl)
+    }
+
+    private var progressValue: Double {
+        guard currentStep != .failed else { return 0 }
+        if currentStep == .complete { return 1.0 }
+        return Double(completedSteps.intersection(Set(displaySteps)).count) / Double(displaySteps.count)
+    }
+
+    private var progressColor: Color {
+        currentStep == .complete ? ColorTokens.success : ColorTokens.brandPrimary
     }
 
     // MARK: - Computed Properties
@@ -154,54 +164,6 @@ struct AdvancedSearchProgressView: View {
             withAnimation(AnimationTokens.springStandard) {
                 iconScale = 1.0
             }
-        }
-    }
-}
-
-// MARK: - Step Dot
-
-/// Individual step indicator dot
-private struct StepDot: View {
-    let step: AdvancedSearchViewModel.SearchStep
-    let currentStep: AdvancedSearchViewModel.SearchStep
-    let isCompleted: Bool
-
-    private var isActive: Bool {
-        step.rawValue == currentStep.rawValue
-    }
-
-    private var isPending: Bool {
-        step.rawValue > currentStep.rawValue
-    }
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(dotColor)
-                .frame(width: dotSize, height: dotSize)
-
-            if isCompleted {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 6, weight: .bold))
-                    .foregroundColor(.white)
-            }
-        }
-        .animation(AnimationTokens.springSnappy, value: isActive)
-        .animation(AnimationTokens.springSnappy, value: isCompleted)
-        .accessibilityHidden(true)
-    }
-
-    private var dotSize: CGFloat {
-        isActive ? 12 : 8
-    }
-
-    private var dotColor: Color {
-        if isCompleted {
-            return ColorTokens.success
-        } else if isActive {
-            return ColorTokens.brandPrimary
-        } else {
-            return ColorTokens.surfaceSecondary
         }
     }
 }
