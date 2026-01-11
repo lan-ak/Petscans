@@ -23,6 +23,7 @@ struct ProductScoreView: View {
     @State private var notes: String = ""
     @State private var showDeleteConfirmation = false
     @State private var selectedIngredient: Ingredient?
+    @State private var showAllIngredients = false
 
     // Pre-computed values (calculated once in init, not on every render)
     private let actualMatchedCount: Int
@@ -338,8 +339,30 @@ struct ProductScoreView: View {
                     .foregroundColor(ColorTokens.textTertiary)
             }
 
-            ForEach(matchedIngredients) { matchedIngredient in
+            let displayedIngredients = showAllIngredients
+                ? matchedIngredients
+                : Array(matchedIngredients.prefix(10))
+
+            ForEach(displayedIngredients) { matchedIngredient in
                 ingredientRow(matchedIngredient)
+            }
+
+            if matchedIngredients.count > 10 {
+                Button {
+                    withAnimation {
+                        showAllIngredients.toggle()
+                    }
+                } label: {
+                    HStack {
+                        Text(showAllIngredients
+                            ? "Show less"
+                            : "Show \(matchedIngredients.count - 10) more ingredients")
+                        Image(systemName: showAllIngredients ? "chevron.up" : "chevron.down")
+                    }
+                    .bodySmall()
+                    .foregroundColor(ColorTokens.brandPrimary)
+                }
+                .padding(.top, SpacingTokens.xxs)
             }
 
             if !scoreBreakdown.unmatched.isEmpty {

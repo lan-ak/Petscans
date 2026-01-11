@@ -154,12 +154,14 @@ enum ScoreSource: String, Codable {
     case databaseVerified   // Product from API/database
     case ocrEstimated       // OCR-extracted ingredients
     case manualEntry        // User-typed ingredients
+    case webScraped         // Ingredients from web scraping
 
     var badge: String {
         switch self {
         case .databaseVerified: return "Verified"
         case .ocrEstimated: return "Estimated"
         case .manualEntry: return "Custom"
+        case .webScraped: return "PetScans AI"
         }
     }
 
@@ -168,6 +170,7 @@ enum ScoreSource: String, Codable {
         case .databaseVerified: return "checkmark.seal.fill"
         case .ocrEstimated: return "camera.fill"
         case .manualEntry: return "keyboard.fill"
+        case .webScraped: return "sparkles"
         }
     }
 
@@ -176,6 +179,7 @@ enum ScoreSource: String, Codable {
         case .databaseVerified: return ColorTokens.success
         case .ocrEstimated: return ColorTokens.info
         case .manualEntry: return ColorTokens.textSecondary
+        case .webScraped: return ColorTokens.info
         }
     }
 }

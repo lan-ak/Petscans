@@ -20,7 +20,7 @@ struct SettingsView: View {
                         PetListView()
                     } label: {
                         HStack {
-                            Image(systemName: "pawprint.fill")
+                            Image(systemName: "pawprint")
                                 .foregroundColor(ColorTokens.brandPrimary)
                                 .frame(width: 28)
 

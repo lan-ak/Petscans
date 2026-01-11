@@ -76,3 +76,4 @@ playground.xcworkspace
 # App Store Screenshots
 Screenshots/
 *.xcresult
+PetScans/Services/APIKeys.swift

@@ -39,7 +39,7 @@ struct OnboardingBenefitsPage: View {
 
 #Preview("Personalized Protection") {
     OnboardingBenefitsPage(
-        icon: "pawprint.fill",
+        icon: "pawprint",
         headline: "Protection, tailored to your pet",
         subheadline: "Set up allergen alerts and species-specific warnings. Because every pet deserves their own guardian."
     )

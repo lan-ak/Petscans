@@ -167,10 +167,8 @@ struct IngredientDetailSheet: View {
 
     private func speciesRiskBadge(species: Species, riskLevel: String) -> some View {
         HStack(spacing: SpacingTokens.xxxs) {
-            Image(species.icon)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 14, height: 14)
+            Image(systemName: species.icon)
+                .font(.system(size: 12))
             Text(riskLevel.capitalized)
                 .caption()
         }
@@ -327,10 +325,8 @@ struct IngredientDetailSheet: View {
             HStack(spacing: SpacingTokens.xs) {
                 ForEach(ingredient.species) { species in
                     HStack(spacing: SpacingTokens.xxxs) {
-                        Image(species.icon)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 14, height: 14)
+                        Image(systemName: species.icon)
+                            .font(.system(size: 12))
                         Text(species.displayName)
                             .bodySmall()
                     }

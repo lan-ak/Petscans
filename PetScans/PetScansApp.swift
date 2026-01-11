@@ -82,7 +82,7 @@ struct PetScansApp: App {
         PetMigrationService.migrateIfNeeded(modelContext: context)
 
         // Configure Superwall
-        Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+        Superwall.configure(apiKey: APIKeys.superwall)
 
         // Initialize product cache
         await ProductCacheManager.shared.initialize()

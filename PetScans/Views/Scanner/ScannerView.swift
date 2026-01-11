@@ -25,6 +25,9 @@ struct ScannerView: View {
                 case .productNotFound:
                     productNotFoundView
 
+                case .advancedSearch:
+                    advancedSearchView
+
                 case .ocrCapture:
                     ocrCaptureView
 
@@ -196,6 +199,9 @@ struct ScannerView: View {
             brand: viewModel.brand,
             imageUrl: viewModel.imageUrl,
             isManualSearch: viewModel.isManualSearch,
+            onAdvancedSearch: {
+                viewModel.startAdvancedSearch()
+            },
             onTakePhoto: {
                 viewModel.step = .ocrCapture
             },
@@ -204,6 +210,27 @@ struct ScannerView: View {
             },
             onRetry: {
                 viewModel.restartScanning()
+            }
+        )
+    }
+
+    private var advancedSearchView: some View {
+        AdvancedSearchView(
+            barcode: viewModel.barcode ?? "",
+            onComplete: { ingredientsText, productName, brand, matched, imageUrl in
+                viewModel.handleAdvancedSearchComplete(
+                    ingredientsText: ingredientsText,
+                    productName: productName,
+                    brand: brand,
+                    matched: matched,
+                    imageUrl: imageUrl
+                )
+            },
+            onFallbackToPhoto: {
+                viewModel.step = .ocrCapture
+            },
+            onCancel: {
+                viewModel.step = .productNotFound
             }
         )
     }

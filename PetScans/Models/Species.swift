@@ -15,8 +15,8 @@ enum Species: String, Codable, CaseIterable, Identifiable {
 
     var icon: String {
         switch self {
-        case .dog: return "pawprint.fill"
-        case .cat: return "pawprint.fill"
+        case .dog: return "pawprint"
+        case .cat: return "pawprint"
         }
     }
 }

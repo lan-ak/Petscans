@@ -14,6 +14,7 @@ final class ScannerViewModel: ObservableObject {
         case loading
         case error
         case productNotFound
+        case advancedSearch
         case ocrCapture
         case ocrProcessing
         case selectOptions
@@ -179,6 +180,27 @@ final class ScannerViewModel: ObservableObject {
 
     func goToIngredientSelection() {
         step = .manualEntry
+    }
+
+    func startAdvancedSearch() {
+        guard barcode != nil else { return }
+        step = .advancedSearch
+    }
+
+    func handleAdvancedSearchComplete(ingredientsText: String, productName: String?, brand: String?, matched: [MatchedIngredient], imageUrl: URL?) {
+        self.ingredientsText = ingredientsText
+        if let productName = productName, !productName.isEmpty {
+            self.productName = productName
+        }
+        if let brand = brand, !brand.isEmpty {
+            self.brand = brand
+        }
+        if let imageUrl = imageUrl {
+            self.imageUrl = imageUrl.absoluteString
+        }
+        self.matchedIngredients = matched
+        self.scoreSource = .webScraped
+        step = .selectOptions
     }
 
     func handleOCRCapture(_ image: UIImage) {

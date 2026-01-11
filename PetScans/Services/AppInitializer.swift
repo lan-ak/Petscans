@@ -19,6 +19,6 @@ enum AppInitializer {
     }
 
     private static func configureSuperwall() async {
-        Superwall.configure(apiKey: "pk_Dk2TvC85dqlZYwhyajUTT")
+        Superwall.configure(apiKey: APIKeys.superwall)
     }
 }
