@@ -1,18 +1,20 @@
 import Foundation
 
 /// Actor-based service for UPCitemdb API lookups
-/// Uses the trial endpoint (100 requests/day limit, no API key required)
+/// Uses the paid v1 endpoint with API key authentication
 actor UPCitemdbService: UPCitemdbServiceProtocol {
 
     // MARK: - Properties
 
-    /// Trial API endpoint (free tier, 100 requests/day)
-    private let baseURL = "https://api.upcitemdb.com/prod/trial/lookup"
+    /// Paid API endpoint (v1)
+    private let baseURL = "https://api.upcitemdb.com/prod/v1/lookup"
+    private let apiKey: String
     private let session: URLSession
 
     // MARK: - Init
 
-    init(session: URLSession = .shared) {
+    init(apiKey: String = APIKeys.upcitemdb, session: URLSession = .shared) {
+        self.apiKey = apiKey
         self.session = session
     }
 
@@ -46,6 +48,8 @@ actor UPCitemdbService: UPCitemdbServiceProtocol {
         request.httpMethod = "GET"
         request.setValue("PetScans/1.0 (iOS Swift App)", forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.setValue(apiKey, forHTTPHeaderField: "user_key")
+        request.setValue("3scale", forHTTPHeaderField: "key_type")
         request.timeoutInterval = 15
 
         // Execute request
@@ -67,7 +71,7 @@ actor UPCitemdbService: UPCitemdbServiceProtocol {
         case 200:
             break
         case 429:
-            // Rate limited - trial has 100 requests/day
+            // Rate limited
             throw UPCitemdbError.rateLimited
         case 404:
             throw UPCitemdbError.productNotFound
