@@ -11,14 +11,7 @@ enum AppInitializer {
         // Run pet migration if needed
         PetMigrationService.migrateIfNeeded(modelContext: modelContext)
 
-        // Initialize services concurrently
-        async let cacheInit: () = ProductCacheManager.shared.initialize()
-        async let superwallInit: () = configureSuperwall()
-
-        _ = await (cacheInit, superwallInit)
-    }
-
-    private static func configureSuperwall() async {
+        // Configure Superwall
         Superwall.configure(apiKey: APIKeys.superwall)
     }
 }

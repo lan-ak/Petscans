@@ -42,24 +42,6 @@ struct SettingsView: View {
 
                 Section {
                     NavigationLink {
-                        CacheSettingsView()
-                    } label: {
-                        HStack {
-                            Image(systemName: "internaldrive")
-                                .foregroundColor(ColorTokens.brandPrimary)
-                                .frame(width: 28)
-
-                            Text("Product Database")
-                        }
-                    }
-                } header: {
-                    Text("Offline Access")
-                } footer: {
-                    Text("Download the complete pet food database for offline scanning and faster lookups.")
-                }
-
-                Section {
-                    NavigationLink {
                         ReferencesView()
                     } label: {
                         HStack {

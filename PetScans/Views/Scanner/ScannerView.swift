@@ -16,9 +16,6 @@ struct ScannerView: View {
                 case .scanning:
                     scanningView
 
-                case .loading:
-                    loadingView
-
                 case .error:
                     errorView
 
@@ -146,29 +143,6 @@ struct ScannerView: View {
         .accessibilityIdentifier("scanner-view")
     }
 
-    private var loadingView: some View {
-        VStack(spacing: SpacingTokens.md) {
-            ProgressView()
-                .scaleEffect(1.5)
-
-            Text("Looking up product...")
-                .heading2()
-                .foregroundColor(ColorTokens.textSecondary)
-
-            if let code = viewModel.barcode {
-                Text("Barcode: \(code)")
-                    .caption()
-                    .foregroundColor(ColorTokens.textSecondary)
-            }
-
-            Button("Cancel") {
-                viewModel.reset()
-            }
-            .padding(.top, SpacingTokens.md)
-            .foregroundColor(ColorTokens.textSecondary)
-        }
-    }
-
     @ViewBuilder
     private var errorView: some View {
         if let error = viewModel.currentError {
@@ -199,9 +173,6 @@ struct ScannerView: View {
             brand: viewModel.brand,
             imageUrl: viewModel.imageUrl,
             isManualSearch: viewModel.isManualSearch,
-            onAdvancedSearch: {
-                viewModel.startAdvancedSearch()
-            },
             onTakePhoto: {
                 viewModel.step = .ocrCapture
             },

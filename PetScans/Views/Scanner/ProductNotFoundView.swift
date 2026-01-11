@@ -8,7 +8,6 @@ struct ProductNotFoundView: View {
     let brand: String?
     let imageUrl: String?
     var isManualSearch: Bool = false
-    let onAdvancedSearch: (() -> Void)?
     let onTakePhoto: () -> Void
     let onManualEntry: () -> Void
     let onRetry: () -> Void
@@ -102,31 +101,15 @@ struct ProductNotFoundView: View {
 
             // Action buttons
             VStack(spacing: SpacingTokens.xs) {
-                // Primary: Advanced Search (only if barcode exists and not manual search)
-                if let advancedSearch = onAdvancedSearch, barcode != nil, !isManualSearch {
-                    Button {
-                        advancedSearch()
-                    } label: {
-                        HStack(spacing: SpacingTokens.xxs) {
-                            Image(systemName: "sparkles")
-                            Text("Use PetScans AI")
-                            Image(systemName: "sparkles")
-                        }
-                    }
-                    .primaryButtonStyle()
-                }
-
-                // Take Photo (primary if no advanced search, secondary otherwise)
+                // Primary: Take Photo
                 Button {
                     onTakePhoto()
                 } label: {
                     Label("Take Photo of Ingredients", systemImage: "camera.fill")
                 }
-                .modifier(ConditionalButtonStyle(
-                    isPrimary: onAdvancedSearch == nil || barcode == nil || isManualSearch
-                ))
+                .primaryButtonStyle()
 
-                // Tertiary: Manual Entry
+                // Secondary: Manual Entry
                 Button {
                     onManualEntry()
                 } label: {
@@ -155,21 +138,6 @@ struct ProductNotFoundView: View {
     }
 }
 
-// MARK: - Conditional Button Style
-
-/// Helper to apply primary or secondary button style conditionally
-private struct ConditionalButtonStyle: ViewModifier {
-    let isPrimary: Bool
-
-    func body(content: Content) -> some View {
-        if isPrimary {
-            content.primaryButtonStyle()
-        } else {
-            content.secondaryButtonStyle()
-        }
-    }
-}
-
 // MARK: - Previews
 
 #Preview("With Barcode") {
@@ -178,7 +146,6 @@ private struct ConditionalButtonStyle: ViewModifier {
         productName: nil,
         brand: nil,
         imageUrl: nil,
-        onAdvancedSearch: { print("Advanced search") },
         onTakePhoto: {},
         onManualEntry: {},
         onRetry: {}
@@ -191,7 +158,6 @@ private struct ConditionalButtonStyle: ViewModifier {
         productName: "Whiskas Temptation",
         brand: "Whiskas",
         imageUrl: "https://images.openfoodfacts.org/images/products/599/874/913/8199/front_en.3.400.jpg",
-        onAdvancedSearch: { print("Advanced search") },
         onTakePhoto: {},
         onManualEntry: {},
         onRetry: {}
@@ -204,7 +170,6 @@ private struct ConditionalButtonStyle: ViewModifier {
         productName: nil,
         brand: nil,
         imageUrl: nil,
-        onAdvancedSearch: nil,
         onTakePhoto: {},
         onManualEntry: {},
         onRetry: {}

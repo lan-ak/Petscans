@@ -11,7 +11,6 @@ final class ScannerViewModel: ObservableObject {
 
     enum Step {
         case scanning
-        case loading
         case error
         case productNotFound
         case advancedSearch
@@ -85,7 +84,6 @@ final class ScannerViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
-    private let apiService: PetFoodAPIServiceProtocol
     private let ingredientMatcher: IngredientMatcher
     private let scoreCalculator: ScoreCalculator
     private let ocrService: OCRServiceProtocol
@@ -97,12 +95,10 @@ final class ScannerViewModel: ObservableObject {
     // MARK: - Init
 
     init(
-        apiService: PetFoodAPIServiceProtocol = PetFoodAPIService(),
         ingredientMatcher: IngredientMatcher = IngredientMatcher(),
         scoreCalculator: ScoreCalculator = ScoreCalculator(),
         ocrService: OCRServiceProtocol = OCRService()
     ) {
-        self.apiService = apiService
         self.ingredientMatcher = ingredientMatcher
         self.scoreCalculator = scoreCalculator
         self.ocrService = ocrService
@@ -113,42 +109,8 @@ final class ScannerViewModel: ObservableObject {
 
     func handleBarcodeScan(_ code: String) {
         barcode = code
-        step = .loading
         currentError = nil
-
-        Task {
-            do {
-                let result = try await apiService.lookupProduct(barcode: code)
-
-                productName = result.productName ?? ""
-                brand = result.brand
-                imageUrl = result.imageUrl
-                scoreSource = .databaseVerified
-
-                if let ingredients = result.ingredientsText, !ingredients.isEmpty {
-                    ingredientsText = ingredients
-                    step = .selectOptions
-                } else {
-                    // Product found but no ingredients
-                    step = .productNotFound
-                }
-            } catch let error as APIError {
-                switch error {
-                case .productNotFound:
-                    // Not an error - show options for OCR or manual entry
-                    step = .productNotFound
-                case .networkError(let underlying):
-                    currentError = .networkError(underlying: underlying)
-                    step = .error
-                case .decodingError, .invalidResponse:
-                    currentError = .networkError(underlying: error)
-                    step = .error
-                }
-            } catch {
-                currentError = .networkError(underlying: error)
-                step = .error
-            }
-        }
+        step = .advancedSearch
     }
 
     func retryLastScan() {

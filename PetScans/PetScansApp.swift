@@ -83,8 +83,5 @@ struct PetScansApp: App {
 
         // Configure Superwall
         Superwall.configure(apiKey: APIKeys.superwall)
-
-        // Initialize product cache
-        await ProductCacheManager.shared.initialize()
     }
 }
