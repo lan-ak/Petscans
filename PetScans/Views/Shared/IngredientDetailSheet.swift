@@ -1,16 +1,26 @@
 import SwiftUI
+import SwiftData
 
 /// Detail sheet showing full ingredient information
 /// Especially important for displaying notes explaining caution/toxic ratings
 struct IngredientDetailSheet: View {
     let ingredient: Ingredient
     let species: Species
+    let pet: Pet?
+
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @State private var isInAvoidList: Bool
 
     /// Convenience initializer that defaults to dog if no species provided
-    init(ingredient: Ingredient, species: Species = .dog) {
+    init(ingredient: Ingredient, species: Species = .dog, pet: Pet? = nil) {
         self.ingredient = ingredient
         self.species = species
+        self.pet = pet
+
+        // Check if ingredient is already in pet's avoid list
+        let normalized = ingredient.commonName.lowercased()
+        _isInAvoidList = State(initialValue: pet?.allergens.contains(normalized) ?? false)
     }
 
     /// The risk level for the current species
@@ -44,6 +54,10 @@ struct IngredientDetailSheet: View {
 
                     if !ingredient.allSources.isEmpty {
                         sourcesSection
+                    }
+
+                    if let pet = pet {
+                        avoidListSection(pet: pet)
                     }
                 }
                 .padding(SpacingTokens.screenPadding)
@@ -351,6 +365,54 @@ struct IngredientDetailSheet: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    // MARK: - Avoid List Section
+
+    private func avoidListSection(pet: Pet) -> some View {
+        VStack(spacing: SpacingTokens.xs) {
+            if isInAvoidList {
+                Button {
+                    removeFromAvoidList(pet: pet)
+                } label: {
+                    Label("Remove from \(pet.name)'s Avoid List", systemImage: "minus.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(ColorTokens.error)
+            } else {
+                Button {
+                    addToAvoidList(pet: pet)
+                } label: {
+                    Label("Add to \(pet.name)'s Avoid List", systemImage: "plus.circle")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .tint(ColorTokens.brandPrimary)
+            }
+        }
+        .padding(.top, SpacingTokens.sm)
+    }
+
+    private func addToAvoidList(pet: Pet) {
+        let normalized = ingredient.commonName.lowercased()
+        guard !pet.allergens.contains(normalized) else { return }
+
+        var allergens = pet.allergens
+        allergens.append(normalized)
+        allergens.sort()
+        pet.allergens = allergens
+        try? modelContext.save()
+        isInAvoidList = true
+    }
+
+    private func removeFromAvoidList(pet: Pet) {
+        let normalized = ingredient.commonName.lowercased()
+        var allergens = pet.allergens
+        allergens.removeAll { $0 == normalized }
+        pet.allergens = allergens
+        try? modelContext.save()
+        isInAvoidList = false
     }
 }
 

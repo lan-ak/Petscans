@@ -66,6 +66,7 @@ struct ScannerView: View {
                             matchedIngredients: viewModel.matchedIngredients,
                             shareText: viewModel.generateShareText(),
                             petName: viewModel.selectedPet?.name,
+                            selectedPet: viewModel.selectedPet,
                             mode: .scanResult(
                                 onSave: { viewModel.saveToHistory(using: modelContext) },
                                 onScanAnother: viewModel.reset

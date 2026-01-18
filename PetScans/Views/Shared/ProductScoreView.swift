@@ -17,6 +17,7 @@ struct ProductScoreView: View {
     let matchedIngredients: [MatchedIngredient]
     let shareText: String
     let petName: String?
+    let selectedPet: Pet?
     let mode: Mode
     let scannedAt: Date?
 
@@ -50,6 +51,7 @@ struct ProductScoreView: View {
         matchedIngredients: [MatchedIngredient],
         shareText: String,
         petName: String?,
+        selectedPet: Pet? = nil,
         mode: Mode,
         scannedAt: Date? = nil
     ) {
@@ -62,6 +64,7 @@ struct ProductScoreView: View {
         self.matchedIngredients = matchedIngredients
         self.shareText = shareText
         self.petName = petName
+        self.selectedPet = selectedPet
         self.mode = mode
         self.scannedAt = scannedAt
 
@@ -158,7 +161,7 @@ struct ProductScoreView: View {
         }
         .accessibilityIdentifier("product-score-view")
         .sheet(item: $selectedIngredient) { ingredient in
-            IngredientDetailSheet(ingredient: ingredient, species: species)
+            IngredientDetailSheet(ingredient: ingredient, species: species, pet: selectedPet)
         }
     }
 
@@ -505,6 +508,7 @@ extension ProductScoreView {
             matchedIngredients: scan.matchedIngredients,
             shareText: shareText,
             petName: nil,
+            selectedPet: nil,
             mode: .savedScan(scan: scan, onDelete: onDelete),
             scannedAt: scan.scannedAt
         )

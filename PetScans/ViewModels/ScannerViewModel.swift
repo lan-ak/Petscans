@@ -3,6 +3,7 @@ import SwiftUI
 import SwiftData
 import Combine
 import UIKit
+import SuperwallKit
 
 /// ViewModel for the scanner workflow, managing state and business logic
 @MainActor
@@ -244,6 +245,17 @@ final class ScannerViewModel: ObservableObject {
         do {
             try modelContext.save()
             successFeedback.notificationOccurred(.success)
+
+            // Update scan count for Superwall targeting
+            let scanCount = UserDefaults.standard.integer(forKey: "totalScanCount") + 1
+            UserDefaults.standard.set(scanCount, forKey: "totalScanCount")
+
+            Superwall.shared.setUserAttributes([
+                "scan_count": scanCount
+            ])
+
+            Superwall.shared.register(placement: "scan_complete")
+
             reset()
         } catch {
             currentError = .saveFailed(underlying: error)
