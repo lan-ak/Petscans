@@ -11,6 +11,42 @@ struct FirecrawlProduct {
     let imageURL: URL?
 }
 
+// MARK: - Agent API Models
+
+/// Configuration for Agent API requests
+struct AgentSearchConfig {
+    let productName: String
+    let brand: String?
+    let maxCredits: Int
+    let model: AgentModel
+
+    enum AgentModel: String {
+        case sparkMini = "spark-1-mini"  // Default, 60% cheaper
+        case sparkPro = "spark-1-pro"    // Higher accuracy
+    }
+
+    init(productName: String, brand: String? = nil, maxCredits: Int = 50, model: AgentModel = .sparkMini) {
+        self.productName = productName
+        self.brand = brand
+        self.maxCredits = maxCredits
+        self.model = model
+    }
+}
+
+/// Result from Agent API search
+struct AgentSearchResult {
+    let product: FirecrawlProduct
+    let creditsUsed: Int
+    let source: String?
+}
+
+/// Status of an Agent API job
+enum AgentJobStatus: String, Decodable {
+    case processing
+    case completed
+    case failed
+}
+
 // MARK: - Firecrawl Errors
 
 enum FirecrawlError: LocalizedError {
@@ -20,6 +56,9 @@ enum FirecrawlError: LocalizedError {
     case scrapeFailed(message: String)
     case extractionFailed
     case decodingError(underlying: Error)
+    case agentJobTimeout
+    case agentJobFailed(message: String)
+    case insufficientCredits
 
     var errorDescription: String? {
         switch self {
@@ -35,6 +74,12 @@ enum FirecrawlError: LocalizedError {
             return "Could not extract product data"
         case .decodingError:
             return "Failed to parse response"
+        case .agentJobTimeout:
+            return "Search took too long"
+        case .agentJobFailed(let message):
+            return "Search failed: \(message)"
+        case .insufficientCredits:
+            return "Insufficient API credits"
         }
     }
 }
@@ -47,4 +92,9 @@ protocol FirecrawlServiceProtocol: Sendable {
     /// - Parameter url: The product page URL to scrape
     /// - Returns: Extracted product data including ingredients
     func scrapeProduct(url: URL) async throws -> FirecrawlProduct
+
+    /// Search for and extract pet food product data using Agent API
+    /// - Parameter config: Search configuration with product details
+    /// - Returns: Extracted product data including ingredients
+    func searchAndExtractProduct(config: AgentSearchConfig) async throws -> AgentSearchResult
 }

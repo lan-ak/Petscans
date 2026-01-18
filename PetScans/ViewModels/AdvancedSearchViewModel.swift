@@ -3,7 +3,7 @@ import SwiftUI
 import UIKit
 
 /// ViewModel managing the multi-step advanced search workflow
-/// Orchestrates barcode lookup -> Serper search -> Firecrawl scraping -> ingredient matching
+/// Orchestrates barcode lookup -> Agent API search/extraction -> ingredient matching
 @MainActor
 final class AdvancedSearchViewModel: ObservableObject {
 
@@ -12,11 +12,10 @@ final class AdvancedSearchViewModel: ObservableObject {
     /// Steps in the advanced search process
     enum SearchStep: Int, CaseIterable, Identifiable {
         case lookingUpBarcode = 0
-        case searchingProduct = 1
-        case extractingIngredients = 2
-        case analyzingIngredients = 3
-        case complete = 4
-        case failed = 5
+        case searchingIngredients = 1
+        case analyzingIngredients = 2
+        case complete = 3
+        case failed = 4
 
         var id: Int { rawValue }
 
@@ -25,10 +24,8 @@ final class AdvancedSearchViewModel: ObservableObject {
             switch self {
             case .lookingUpBarcode:
                 return "Found it!"
-            case .searchingProduct:
-                return "Verifying ingredients..."
-            case .extractingIngredients:
-                return "Checking another source..."
+            case .searchingIngredients:
+                return "Getting ingredients..."
             case .analyzingIngredients:
                 return "Almost there!"
             case .complete:
@@ -43,10 +40,8 @@ final class AdvancedSearchViewModel: ObservableObject {
             switch self {
             case .lookingUpBarcode:
                 return "barcode"
-            case .searchingProduct:
+            case .searchingIngredients:
                 return "magnifyingglass"
-            case .extractingIngredients:
-                return "doc.text.magnifyingglass"
             case .analyzingIngredients:
                 return "waveform.path.ecg"
             case .complete:
@@ -61,10 +56,8 @@ final class AdvancedSearchViewModel: ObservableObject {
             switch self {
             case .lookingUpBarcode:
                 return "We found your product"
-            case .searchingProduct:
-                return "Making sure we get it right"
-            case .extractingIngredients:
-                return "We want the freshest info for you"
+            case .searchingIngredients:
+                return "Searching for the freshest ingredient data"
             case .analyzingIngredients:
                 return "Getting the most up-to-date info"
             case .complete:
@@ -126,7 +119,6 @@ final class AdvancedSearchViewModel: ObservableObject {
     // MARK: - Dependencies
 
     private let upcService: UPCitemdbServiceProtocol
-    private let serperService: SerperServiceProtocol
     private let firecrawlService: FirecrawlServiceProtocol
     private let ingredientMatcher: IngredientMatcher
     private let successFeedback = UINotificationFeedbackGenerator()
@@ -135,12 +127,10 @@ final class AdvancedSearchViewModel: ObservableObject {
 
     init(
         upcService: UPCitemdbServiceProtocol = UPCitemdbService(),
-        serperService: SerperServiceProtocol,
         firecrawlService: FirecrawlServiceProtocol,
         ingredientMatcher: IngredientMatcher = IngredientMatcher()
     ) {
         self.upcService = upcService
-        self.serperService = serperService
         self.firecrawlService = firecrawlService
         self.ingredientMatcher = ingredientMatcher
         successFeedback.prepare()
@@ -167,25 +157,37 @@ final class AdvancedSearchViewModel: ObservableObject {
                 throw AdvancedSearchError.barcodeNotFound
             }
 
-            // Step 2: Search across retailers (Chewy -> Petco -> PetSmart)
-            currentStep = .searchingProduct
-            try await Task.sleep(nanoseconds: 300_000_000)
-
-            let searchResult = try await serperService.searchProduct(
-                query: searchQuery,
-                retailers: [.chewy, .petco, .petsmart]
-            )
-            print("DEBUG: Found product on \(searchResult.retailer.displayName): \(searchResult.url.absoluteString)")
-            completedSteps.insert(.searchingProduct)
-
-            // Step 3: Extract ingredients (method depends on retailer)
-            currentStep = .extractingIngredients
+            // Step 2: Search and extract ingredients using Agent API
+            currentStep = .searchingIngredients
             try await Task.sleep(nanoseconds: 200_000_000)
 
-            try await extractIngredients(from: searchResult)
-            completedSteps.insert(.extractingIngredients)
+            let config = AgentSearchConfig(
+                productName: searchQuery,
+                brand: upcResult.brand,
+                maxCredits: 100,  // Increased from 50 to allow complex searches to complete
+                model: .sparkMini
+            )
 
-            // Step 4: Match ingredients against database
+            let agentResult = try await firecrawlService.searchAndExtractProduct(config: config)
+            print("DEBUG: Agent API got product: \(agentResult.product.name), ingredients count: \(agentResult.product.ingredients.count)")
+
+            // Update product data from agent result
+            ingredientsText = agentResult.product.ingredients.joined(separator: ", ")
+            dataSource = "AI Search"
+
+            if !agentResult.product.name.isEmpty {
+                productName = agentResult.product.name
+            }
+            if let agentBrand = agentResult.product.brand {
+                brand = agentBrand
+            }
+            if let imageURL = agentResult.product.imageURL {
+                productImageURL = imageURL
+            }
+
+            completedSteps.insert(.searchingIngredients)
+
+            // Step 3: Match ingredients against database
             currentStep = .analyzingIngredients
             matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText ?? "")
             completedSteps.insert(.analyzingIngredients)
@@ -198,9 +200,6 @@ final class AdvancedSearchViewModel: ObservableObject {
         } catch let upcError as UPCitemdbError {
             print("DEBUG: UPC Error: \(upcError)")
             handleUPCError(upcError)
-        } catch let serperError as SerperError {
-            print("DEBUG: Serper Error: \(serperError)")
-            handleSerperError(serperError)
         } catch let firecrawlError as FirecrawlError {
             print("DEBUG: Firecrawl Error: \(firecrawlError)")
             handleFirecrawlError(firecrawlError)
@@ -215,28 +214,6 @@ final class AdvancedSearchViewModel: ObservableObject {
         }
 
         isSearching = false
-    }
-
-    /// Extract ingredients from the found product URL using Firecrawl
-    /// Works for all retailers (Chewy, Petco, PetSmart) with AI-powered extraction
-    private func extractIngredients(from searchResult: SerperSearchResult) async throws {
-        print("DEBUG: Using Firecrawl for \(searchResult.retailer.displayName) URL: \(searchResult.url.absoluteString)")
-
-        let product = try await firecrawlService.scrapeProduct(url: searchResult.url)
-        print("DEBUG: Firecrawl got product: \(product.name), ingredients count: \(product.ingredients.count)")
-
-        ingredientsText = product.ingredients.joined(separator: ", ")
-        dataSource = searchResult.retailer.displayName
-
-        if !product.name.isEmpty {
-            productName = product.name
-        }
-        if let productBrand = product.brand {
-            brand = productBrand
-        }
-        if let imageURL = product.imageURL {
-            productImageURL = imageURL
-        }
     }
 
     /// Reset the view model state
@@ -265,23 +242,13 @@ final class AdvancedSearchViewModel: ObservableObject {
         currentStep = .failed
     }
 
-    private func handleSerperError(_ error: SerperError) {
-        switch error {
-        case .noResultsFound:
-            self.error = .productNotFound
-        case .invalidAPIKey, .rateLimited:
-            self.error = .networkError(underlying: error)
-        case .networkError, .decodingError:
-            self.error = .networkError(underlying: error)
-        }
-        currentStep = .failed
-    }
-
     private func handleFirecrawlError(_ error: FirecrawlError) {
         switch error {
         case .extractionFailed, .scrapeFailed:
             self.error = .ingredientsNotFound
-        case .invalidAPIKey, .rateLimited:
+        case .agentJobTimeout, .agentJobFailed, .insufficientCredits, .rateLimited:
+            self.error = .productNotFound
+        case .invalidAPIKey:
             self.error = .networkError(underlying: error)
         case .networkError, .decodingError:
             self.error = .networkError(underlying: error)
@@ -295,7 +262,7 @@ final class AdvancedSearchViewModel: ObservableObject {
 extension AdvancedSearchViewModel {
     /// Steps to display in the progress indicator (excludes terminal states)
     var displaySteps: [SearchStep] {
-        [.lookingUpBarcode, .searchingProduct, .extractingIngredients, .analyzingIngredients]
+        [.lookingUpBarcode, .searchingIngredients, .analyzingIngredients]
     }
 
     /// Current step index for progress calculation

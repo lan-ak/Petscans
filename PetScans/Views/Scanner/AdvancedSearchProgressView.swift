@@ -19,7 +19,7 @@ struct AdvancedSearchProgressView: View {
     private let pulseRingSize: CGFloat = 100
 
     private var displaySteps: [AdvancedSearchViewModel.SearchStep] {
-        [.lookingUpBarcode, .searchingProduct, .extractingIngredients, .analyzingIngredients]
+        [.lookingUpBarcode, .searchingIngredients, .analyzingIngredients]
     }
 
     // MARK: - Body
@@ -173,7 +173,7 @@ struct AdvancedSearchProgressView: View {
 #Preview("In Progress") {
     VStack {
         AdvancedSearchProgressView(
-            currentStep: .searchingProduct,
+            currentStep: .searchingIngredients,
             completedSteps: [.lookingUpBarcode]
         )
     }
@@ -184,7 +184,7 @@ struct AdvancedSearchProgressView: View {
     VStack {
         AdvancedSearchProgressView(
             currentStep: .complete,
-            completedSteps: [.lookingUpBarcode, .searchingProduct, .extractingIngredients, .analyzingIngredients, .complete]
+            completedSteps: [.lookingUpBarcode, .searchingIngredients, .analyzingIngredients, .complete]
         )
     }
     .padding()

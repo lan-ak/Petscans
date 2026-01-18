@@ -19,7 +19,6 @@ struct AdvancedSearchView: View {
     // MARK: - State
 
     @StateObject private var viewModel = AdvancedSearchViewModel(
-        serperService: SerperService(apiKey: APIKeys.serper),
         firecrawlService: FirecrawlService(apiKey: APIKeys.firecrawl)
     )
 
