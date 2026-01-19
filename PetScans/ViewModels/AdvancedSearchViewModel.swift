@@ -3,7 +3,7 @@ import SwiftUI
 import UIKit
 
 /// ViewModel managing the multi-step advanced search workflow
-/// Orchestrates barcode lookup -> Agent API search/extraction -> ingredient matching
+/// Orchestrates barcode lookup -> Serper search -> Firecrawl scrape -> ingredient matching
 @MainActor
 final class AdvancedSearchViewModel: ObservableObject {
 
@@ -120,6 +120,7 @@ final class AdvancedSearchViewModel: ObservableObject {
 
     private let upcService: UPCitemdbServiceProtocol
     private let firecrawlService: FirecrawlServiceProtocol
+    private let serperService: SerperServiceProtocol
     private let ingredientMatcher: IngredientMatcher
     private let successFeedback = UINotificationFeedbackGenerator()
 
@@ -128,10 +129,12 @@ final class AdvancedSearchViewModel: ObservableObject {
     init(
         upcService: UPCitemdbServiceProtocol = UPCitemdbService(),
         firecrawlService: FirecrawlServiceProtocol,
+        serperService: SerperServiceProtocol = SerperService(apiKey: APIKeys.serper),
         ingredientMatcher: IngredientMatcher = IngredientMatcher()
     ) {
         self.upcService = upcService
         self.firecrawlService = firecrawlService
+        self.serperService = serperService
         self.ingredientMatcher = ingredientMatcher
         successFeedback.prepare()
     }
@@ -157,31 +160,41 @@ final class AdvancedSearchViewModel: ObservableObject {
                 throw AdvancedSearchError.barcodeNotFound
             }
 
-            // Step 2: Search and extract ingredients using Agent API
+            // Step 2: Search and extract ingredients via Serper + parallel Scrape
             currentStep = .searchingIngredients
             try await Task.sleep(nanoseconds: 200_000_000)
 
-            let config = AgentSearchConfig(
-                productName: searchQuery,
-                brand: upcResult.brand,
-                maxCredits: 100,  // Increased from 50 to allow complex searches to complete
-                model: .sparkMini
+            // Search across pet retailers (get all matching URLs)
+            let searchResults = try await serperService.searchProductURLs(
+                query: searchQuery,
+                retailers: [.petco, .chewy, .petsmart]
             )
+            print("DEBUG: Found \(searchResults.count) URLs via Serper")
 
-            let agentResult = try await firecrawlService.searchAndExtractProduct(config: config)
-            print("DEBUG: Agent API got product: \(agentResult.product.name), ingredients count: \(agentResult.product.ingredients.count)")
+            // Scrape all URLs in parallel, return first success
+            let (product, winningRetailer) = try await firecrawlService.scrapeFirstSuccessful(
+                searchResults: searchResults
+            )
+            print("DEBUG: First success from \(winningRetailer.displayName), ingredients: \(product.ingredients.count)")
 
-            // Update product data from agent result
-            ingredientsText = agentResult.product.ingredients.joined(separator: ", ")
-            dataSource = "AI Search"
-
-            if !agentResult.product.name.isEmpty {
-                productName = agentResult.product.name
+            // Validate ingredients
+            guard !product.ingredients.isEmpty else {
+                throw AdvancedSearchError.ingredientsNotFound
             }
-            if let agentBrand = agentResult.product.brand {
-                brand = agentBrand
+
+            // Set data source to winning retailer
+            dataSource = winningRetailer.displayName
+
+            // Update product data from result
+            ingredientsText = product.ingredients.joined(separator: ", ")
+
+            if !product.name.isEmpty {
+                productName = product.name
             }
-            if let imageURL = agentResult.product.imageURL {
+            if let productBrand = product.brand {
+                brand = productBrand
+            }
+            if let imageURL = product.imageURL {
                 productImageURL = imageURL
             }
 
@@ -200,6 +213,9 @@ final class AdvancedSearchViewModel: ObservableObject {
         } catch let upcError as UPCitemdbError {
             print("DEBUG: UPC Error: \(upcError)")
             handleUPCError(upcError)
+        } catch let serperError as SerperError {
+            print("DEBUG: Serper Error: \(serperError)")
+            handleSerperError(serperError)
         } catch let firecrawlError as FirecrawlError {
             print("DEBUG: Firecrawl Error: \(firecrawlError)")
             handleFirecrawlError(firecrawlError)
@@ -251,6 +267,16 @@ final class AdvancedSearchViewModel: ObservableObject {
         case .invalidAPIKey:
             self.error = .networkError(underlying: error)
         case .networkError, .decodingError:
+            self.error = .networkError(underlying: error)
+        }
+        currentStep = .failed
+    }
+
+    private func handleSerperError(_ error: SerperError) {
+        switch error {
+        case .noResultsFound:
+            self.error = .productNotFound
+        case .invalidAPIKey, .rateLimited, .networkError, .decodingError:
             self.error = .networkError(underlying: error)
         }
         currentStep = .failed

@@ -80,6 +80,14 @@ protocol SerperServiceProtocol: Sendable {
     /// - Throws: SerperError on failure
     func searchProduct(query: String, retailers: [PetRetailer]) async throws -> SerperSearchResult
 
+    /// Search for a pet food product across all retailers, returning all matches
+    /// - Parameters:
+    ///   - query: Product name and brand to search for
+    ///   - retailers: List of retailers to search
+    /// - Returns: Array of product URLs (one per retailer that has a match)
+    /// - Throws: SerperError on failure (only if no results found at all)
+    func searchProductURLs(query: String, retailers: [PetRetailer]) async throws -> [SerperSearchResult]
+
     /// Search for a pet food product on Chewy.com via Google (legacy method)
     /// - Parameter query: Product name and brand to search for
     /// - Returns: The Chewy product URL if found

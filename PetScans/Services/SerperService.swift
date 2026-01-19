@@ -29,27 +29,49 @@ actor SerperService: SerperServiceProtocol {
     ///   - retailers: Ordered list of retailers to search (first match wins)
     /// - Returns: The product URL and retailer if found
     func searchProduct(query: String, retailers: [PetRetailer]) async throws -> SerperSearchResult {
+        let results = try await searchProductURLs(query: query, retailers: retailers)
+        guard let first = results.first else {
+            throw SerperError.noResultsFound
+        }
+        return first
+    }
+
+    /// Search for a pet food product across all retailers, returning all matches
+    /// - Parameters:
+    ///   - query: Product name and brand to search for
+    ///   - retailers: List of retailers to search
+    /// - Returns: Array of product URLs (one per retailer that has a match)
+    func searchProductURLs(query: String, retailers: [PetRetailer]) async throws -> [SerperSearchResult] {
         print("DEBUG: Starting multi-retailer search for: \(query)")
+
+        var results: [SerperSearchResult] = []
 
         for retailer in retailers {
             // Try primary (targeted) search
             if let result = try await searchRetailer(query: query, retailer: retailer, useFallback: false) {
                 print("DEBUG: Found product on \(retailer.displayName): \(result.url)")
-                return result
+                results.append(result)
+                continue  // Move to next retailer
             }
 
             // Try fallback (broader) search if available
             if retailer.fallbackSiteQuery != nil {
                 if let result = try await searchRetailer(query: query, retailer: retailer, useFallback: true) {
                     print("DEBUG: Found product on \(retailer.displayName) (fallback): \(result.url)")
-                    return result
+                    results.append(result)
+                    continue
                 }
             }
 
             print("DEBUG: No results found on \(retailer.displayName)")
         }
 
-        throw SerperError.noResultsFound
+        guard !results.isEmpty else {
+            throw SerperError.noResultsFound
+        }
+
+        print("DEBUG: Found \(results.count) retailer URLs total")
+        return results
     }
 
     /// Search for a pet food product on Chewy.com via Google (legacy method)
@@ -101,7 +123,7 @@ actor SerperService: SerperServiceProtocol {
         return variations
     }
 
-    /// Extract key identifying words from the product query (brand name)
+    /// Extract key identifying words from the product query (brand + distinctive product words)
     /// Used to validate that search results match the target product
     private func extractProductKeywords(_ query: String) -> [String] {
         let baseQuery = removeSizeSpecs(query)
@@ -115,21 +137,65 @@ actor SerperService: SerperServiceProtocol {
             }
         }
 
-        // Get first 2 words as key identifiers (e.g., "Pet Botanics")
         let words = cleanedQuery.split(separator: " ").map(String.init)
-        return Array(words.prefix(2))
+
+        // Get brand (first 2 words)
+        var keywords = Array(words.prefix(2))
+
+        // Skip common/generic words to find distinctive product identifiers
+        let skipWords: Set<String> = [
+            // Brand-related
+            "pet", "pets", "treatery",
+            // Animal types
+            "dog", "dogs", "cat", "cats", "puppy", "puppies", "kitten", "kittens", "adult", "senior",
+            // Food types
+            "food", "foods", "treat", "treats", "kibble", "dry", "wet", "canned", "freeze-dried",
+            // Common descriptors
+            "natural", "organic", "premium", "grain-free", "holistic",
+            // Generic product words
+            "recipe", "formula", "blend", "bites", "chunks", "mix", "nutrition",
+            // Marketing words
+            "breed", "health", "complete", "balanced", "high-protein",
+            // Connectors
+            "for", "and", "the", "with", "in", "of", "&"
+        ]
+
+        // Look through remaining words for distinctive ones
+        for word in words.dropFirst(2) {
+            let lower = word.lowercased()
+            if !skipWords.contains(lower) && word.count > 2 {
+                keywords.append(word)
+                if keywords.count >= 4 { break }  // Max 4 keywords total
+            }
+        }
+
+        return keywords
     }
 
     /// Check if a search result likely matches our target product
     private func resultMatchesProduct(_ result: OrganicResult, keywords: [String]) -> Bool {
-        guard let brandKeyword = keywords.first else { return true }
+        guard keywords.count >= 2 else { return true }
 
         let titleLower = result.title.lowercased()
         let linkLower = result.link.lowercased()
-        let brandLower = brandKeyword.lowercased()
+        let combined = titleLower + " " + linkLower
 
-        // Brand name must appear in title or URL
-        return titleLower.contains(brandLower) || linkLower.contains(brandLower)
+        // Brand (first keyword) must appear
+        guard combined.contains(keywords[0].lowercased()) else {
+            return false
+        }
+
+        // If we have product keywords (3rd+), at least one must appear
+        let productKeywords = Array(keywords.dropFirst(2))
+        if !productKeywords.isEmpty {
+            let hasMatch = productKeywords.contains { combined.contains($0.lowercased()) }
+            if !hasMatch {
+                print("DEBUG: Rejected - missing product keywords \(productKeywords) in '\(result.title)'")
+                return false
+            }
+        }
+
+        return true
     }
 
     /// Search a specific retailer for the product

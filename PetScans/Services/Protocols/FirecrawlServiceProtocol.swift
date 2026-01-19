@@ -9,42 +9,7 @@ struct FirecrawlProduct {
     let ingredients: [String]
     let price: Double?
     let imageURL: URL?
-}
-
-// MARK: - Agent API Models
-
-/// Configuration for Agent API requests
-struct AgentSearchConfig {
-    let productName: String
-    let brand: String?
-    let maxCredits: Int
-    let model: AgentModel
-
-    enum AgentModel: String {
-        case sparkMini = "spark-1-mini"  // Default, 60% cheaper
-        case sparkPro = "spark-1-pro"    // Higher accuracy
-    }
-
-    init(productName: String, brand: String? = nil, maxCredits: Int = 50, model: AgentModel = .sparkMini) {
-        self.productName = productName
-        self.brand = brand
-        self.maxCredits = maxCredits
-        self.model = model
-    }
-}
-
-/// Result from Agent API search
-struct AgentSearchResult {
-    let product: FirecrawlProduct
-    let creditsUsed: Int
-    let source: String?
-}
-
-/// Status of an Agent API job
-enum AgentJobStatus: String, Decodable {
-    case processing
-    case completed
-    case failed
+    let ingredientsImageURL: URL?
 }
 
 // MARK: - Firecrawl Errors
@@ -56,6 +21,7 @@ enum FirecrawlError: LocalizedError {
     case scrapeFailed(message: String)
     case extractionFailed
     case decodingError(underlying: Error)
+    // Legacy Agent API errors (kept for backwards compatibility with error handling)
     case agentJobTimeout
     case agentJobFailed(message: String)
     case insufficientCredits
@@ -93,8 +59,9 @@ protocol FirecrawlServiceProtocol: Sendable {
     /// - Returns: Extracted product data including ingredients
     func scrapeProduct(url: URL) async throws -> FirecrawlProduct
 
-    /// Search for and extract pet food product data using Agent API
-    /// - Parameter config: Search configuration with product details
-    /// - Returns: Extracted product data including ingredients
-    func searchAndExtractProduct(config: AgentSearchConfig) async throws -> AgentSearchResult
+    /// Scrape multiple URLs in parallel, returning the first successful result
+    /// - Parameter searchResults: Array of search results with URLs to scrape
+    /// - Returns: Tuple of (product data, retailer that succeeded)
+    /// - Note: Cancels remaining scrapes once one succeeds
+    func scrapeFirstSuccessful(searchResults: [SerperSearchResult]) async throws -> (FirecrawlProduct, PetRetailer)
 }
