@@ -20,8 +20,11 @@ xcuserdata/
 # Swift Package Manager
 .build/
 Packages/
-Package.resolved
-*.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+# Track Package.resolved for reproducible builds
+!PetScans.xcodeproj/project.xcworkspace/
+!PetScans.xcodeproj/project.xcworkspace/xcshareddata/
+!PetScans.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/
+!PetScans.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved
 
 # CocoaPods
 Pods/

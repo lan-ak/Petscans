@@ -219,6 +219,16 @@ final class ScannerViewModel: ObservableObject {
                 ocrConfidence: ocrConfidence
             )
 
+            // Update analysis count for Superwall targeting
+            let analysisCount = UserDefaults.standard.integer(forKey: "totalAnalysisCount") + 1
+            UserDefaults.standard.set(analysisCount, forKey: "totalAnalysisCount")
+
+            Superwall.shared.setUserAttributes([
+                "analysis_count": analysisCount
+            ])
+
+            Superwall.shared.register(placement: "analysis_complete")
+
             step = .results
         }
     }
@@ -253,8 +263,6 @@ final class ScannerViewModel: ObservableObject {
             Superwall.shared.setUserAttributes([
                 "scan_count": scanCount
             ])
-
-            Superwall.shared.register(placement: "scan_complete")
 
             reset()
         } catch {
