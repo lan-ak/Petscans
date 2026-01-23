@@ -18,6 +18,7 @@ struct UPCitemdbItem: Codable {
     let brand: String?
     let model: String?
     let description: String?
+    let category: String?
     let images: [String]?
 
     /// Best available product name from available fields

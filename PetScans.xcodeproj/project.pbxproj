@@ -14,6 +14,7 @@
 		3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */; };
 		5513270F12EF77C8F5AE5252 /* ProcessingBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */; };
 		577C264FAA1448E6986DFF9F /* ProcessingSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */; };
+		5AE9ABEEB630F5754EFF115D /* IngredientTextParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EEABDA11677F60384CF67B /* IngredientTextParser.swift */; };
 		602C8D20121221F8B4A8A614 /* IngredientScraperServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B6314475AA1631DFEE9D9F /* IngredientScraperServiceProtocol.swift */; };
 		625089878FA30798B6F88822 /* ProcessingLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2209611D0D07D48930074C0 /* ProcessingLevel.swift */; };
 		6352AA7AD2193845951DF7A2 /* ProcessingInfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */; };
@@ -117,6 +118,7 @@
 		300738C9929108D43A916B95 /* UPCitemdbService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UPCitemdbService.swift; sourceTree = "<group>"; };
 		343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingSummaryCard.swift; sourceTree = "<group>"; };
 		472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingBadgeView.swift; sourceTree = "<group>"; };
+		47EEABDA11677F60384CF67B /* IngredientTextParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IngredientTextParser.swift; sourceTree = "<group>"; };
 		68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IngredientScraperService.swift; sourceTree = "<group>"; };
 		9184FDAA2F6D13E0D5BE3854 /* AdvancedSearchProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedSearchProgressView.swift; sourceTree = "<group>"; };
 		A0000001 /* PetScans.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScans.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -310,6 +312,7 @@
 				0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */,
 				300738C9929108D43A916B95 /* UPCitemdbService.swift */,
 				68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */,
+				47EEABDA11677F60384CF67B /* IngredientTextParser.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -516,7 +519,7 @@
 			);
 			mainGroup = A4000001;
 			packageReferences = (
-				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */,
+				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
 			);
 			productRefGroup = A4000003 /* Products */;
@@ -641,6 +644,7 @@
 				03881CE4D87C557C1EB9E014 /* AdvancedSearchViewModel.swift in Sources */,
 				A236BB49FA9CD3337048CA45 /* AdvancedSearchView.swift in Sources */,
 				E5FBC824066D6BB9AE571E70 /* AdvancedSearchProgressView.swift in Sources */,
+				5AE9ABEEB630F5754EFF115D /* IngredientTextParser.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -852,7 +856,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */ = {
+		F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/groue/GRDB.swift";
 			requirement = {
@@ -873,7 +877,7 @@
 /* Begin XCSwiftPackageProductDependency section */
 		F7A9FEF42F05BDE0000623DA /* GRDB */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB" */;
+			package = F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */;
 			productName = GRDB;
 		};
 		F7D835322F0846B800414B32 /* SuperwallKit */ = {

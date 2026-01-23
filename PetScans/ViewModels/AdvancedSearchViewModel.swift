@@ -19,11 +19,11 @@ final class AdvancedSearchViewModel: ObservableObject {
 
         var id: Int { rawValue }
 
-        /// Display title for the current step
+        /// Display title for the current step (shown while in progress)
         var displayTitle: String {
             switch self {
             case .lookingUpBarcode:
-                return "Found it!"
+                return "Looking up product..."
             case .searchingIngredients:
                 return "Getting ingredients..."
             case .analyzingIngredients:
@@ -165,8 +165,10 @@ final class AdvancedSearchViewModel: ObservableObject {
             try await Task.sleep(nanoseconds: 200_000_000)
 
             // Search across pet retailers (get all matching URLs)
+            // Pass brand explicitly for better search matching
             let searchResults = try await serperService.searchProductURLs(
                 query: searchQuery,
+                brand: upcResult.brand,
                 retailers: [.petco, .chewy, .petsmart]
             )
             print("DEBUG: Found \(searchResults.count) URLs via Serper")

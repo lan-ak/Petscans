@@ -4,6 +4,10 @@ import Vision
 /// Service for extracting text from images using Apple's Vision framework
 actor OCRService: OCRServiceProtocol {
 
+    // MARK: - Dependencies
+
+    private let ingredientParser = IngredientTextParser()
+
     // MARK: - Error Types
 
     enum OCRError: LocalizedError {
@@ -139,9 +143,8 @@ actor OCRService: OCRServiceProtocol {
         // "l" vs "I" in context
         processed = processed.replacingOccurrences(of: " l ", with: " I ")
 
-        // Ensure comma separation (Vision might miss some commas)
-        // This is a heuristic - if we have long text without commas, it might be wrong
-        // But we'll let the ingredient matcher handle it
+        // Parse into comma-separated ingredient format for IngredientMatcher
+        processed = ingredientParser.parse(processed)
 
         return processed.trimmingCharacters(in: .whitespacesAndNewlines)
     }

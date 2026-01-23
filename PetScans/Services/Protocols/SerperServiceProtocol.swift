@@ -80,6 +80,15 @@ protocol SerperServiceProtocol: Sendable {
     /// - Throws: SerperError on failure
     func searchProduct(query: String, retailers: [PetRetailer]) async throws -> SerperSearchResult
 
+    /// Search for a pet food product across multiple retailers with explicit brand
+    /// - Parameters:
+    ///   - query: Product name and brand to search for
+    ///   - brand: Optional explicit brand name for better matching
+    ///   - retailers: Ordered list of retailers to search (first match wins)
+    /// - Returns: The product URL and retailer if found
+    /// - Throws: SerperError on failure
+    func searchProduct(query: String, brand: String?, retailers: [PetRetailer]) async throws -> SerperSearchResult
+
     /// Search for a pet food product across all retailers, returning all matches
     /// - Parameters:
     ///   - query: Product name and brand to search for
@@ -87,6 +96,15 @@ protocol SerperServiceProtocol: Sendable {
     /// - Returns: Array of product URLs (one per retailer that has a match)
     /// - Throws: SerperError on failure (only if no results found at all)
     func searchProductURLs(query: String, retailers: [PetRetailer]) async throws -> [SerperSearchResult]
+
+    /// Search for a pet food product across all retailers with explicit brand
+    /// - Parameters:
+    ///   - query: Product name and brand to search for
+    ///   - brand: Optional explicit brand name for better matching
+    ///   - retailers: List of retailers to search
+    /// - Returns: Array of product URLs (one per retailer that has a match)
+    /// - Throws: SerperError on failure (only if no results found at all)
+    func searchProductURLs(query: String, brand: String?, retailers: [PetRetailer]) async throws -> [SerperSearchResult]
 
     /// Search for a pet food product on Chewy.com via Google (legacy method)
     /// - Parameter query: Product name and brand to search for
