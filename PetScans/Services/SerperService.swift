@@ -1,7 +1,7 @@
 import Foundation
 
 /// Actor-based service for Google search via Serper.dev API
-/// Used to find pet food product URLs on Chewy, Petco, and PetSmart
+/// Used to find pet food product URLs on retailers and manufacturer sites
 actor SerperService: SerperServiceProtocol {
 
     // MARK: - Properties
@@ -46,6 +46,151 @@ actor SerperService: SerperServiceProtocol {
         "fromm": ["fromm family"],
     ]
 
+    /// Brand to manufacturer mapping for known brands
+    private let brandToManufacturer: [String: ProductSource] = [
+        // Purina brands
+        "purina": .purina,
+        "pro plan": .purina,
+        "purina pro plan": .purina,
+        "friskies": .purina,
+        "fancy feast": .purina,
+        "beneful": .purina,
+        "purina one": .purina,
+        "one": .purina,
+        "beyond": .purina,
+        "dog chow": .purina,
+        "cat chow": .purina,
+        "alpo": .purina,
+        "moist & meaty": .purina,
+
+        // Hill's brands
+        "hill's": .hillspet,
+        "hills": .hillspet,
+        "science diet": .hillspet,
+        "hill's science diet": .hillspet,
+        "hills science diet": .hillspet,
+        "prescription diet": .hillspet,
+        "healthy advantage": .hillspet,
+
+        // Royal Canin
+        "royal canin": .royalcanin,
+        "royalcanin": .royalcanin,
+
+        // Blue Buffalo
+        "blue buffalo": .bluebuffalo,
+        "blue": .bluebuffalo,
+        "blue wilderness": .bluebuffalo,
+        "blue basics": .bluebuffalo,
+        "blue freedom": .bluebuffalo,
+        "blue life protection": .bluebuffalo,
+
+        // Iams
+        "iams": .iams,
+        "iams proactive": .iams,
+
+        // Nutro
+        "nutro": .nutro,
+        "nutro ultra": .nutro,
+        "nutro wholesome": .nutro,
+        "wholesome essentials": .nutro,
+
+        // Merrick
+        "merrick": .merrick,
+        "merrick grain free": .merrick,
+        "merrick backcountry": .merrick,
+
+        // Wellness
+        "wellness": .wellness,
+        "wellness core": .wellness,
+        "wellness complete": .wellness,
+        "wellness simple": .wellness,
+
+        // Champion Petfoods
+        "orijen": .orijen,
+        "acana": .acana,
+
+        // Canidae
+        "canidae": .canidae,
+        "canidae pure": .canidae,
+        "canidae all life stages": .canidae,
+
+        // Fromm
+        "fromm": .fromm,
+        "fromm family": .fromm,
+        "fromm gold": .fromm,
+        "fromm four star": .fromm,
+
+        // Taste of the Wild
+        "taste of the wild": .tasteOfTheWild,
+        "totw": .tasteOfTheWild,
+
+        // Zignature
+        "zignature": .zignature,
+
+        // Nulo
+        "nulo": .nulo,
+        "nulo freestyle": .nulo,
+        "nulo medal series": .nulo,
+
+        // Solid Gold
+        "solid gold": .solidGold,
+
+        // Victor
+        "victor": .victorDog,
+        "victor dog food": .victorDog,
+
+        // Stella & Chewy's
+        "stella & chewy's": .stellaChewy,
+        "stella chewy": .stellaChewy,
+        "stella and chewy": .stellaChewy,
+
+        // Open Farm
+        "open farm": .openFarm,
+
+        // The Honest Kitchen
+        "honest kitchen": .honestKitchen,
+        "the honest kitchen": .honestKitchen,
+
+        // Instinct
+        "instinct": .instinct,
+        "instinct raw": .instinct,
+        "nature's variety": .instinct,
+
+        // Natural Balance
+        "natural balance": .naturalBalance,
+        "naturalbalance": .naturalBalance,
+
+        // Rachael Ray
+        "rachael ray": .rachealRay,
+        "nutrish": .rachealRay,
+        "rachael ray nutrish": .rachealRay,
+
+        // Earthborn
+        "earthborn": .earthborn,
+        "earthborn holistic": .earthborn,
+
+        // Diamond
+        "diamond": .diamondPet,
+        "diamond naturals": .diamondPet,
+        "diamond pro": .diamondPet,
+    ]
+
+    /// Known retailer domains to filter out during dynamic discovery
+    private let retailerDomains: Set<String> = [
+        "chewy.com", "petco.com", "petsmart.com", "petsmart.ca",
+        "amazon.com", "walmart.com", "target.com", "costco.com",
+        "petflow.com", "petfooddirect.com", "1800petmeds.com",
+        "entirelypets.com", "petmountain.com", "pets.com",
+        "rover.com", "wag.com", "bark.com"
+    ]
+
+    /// Known blog/review sites to filter out during dynamic discovery
+    private let blogDomains: Set<String> = [
+        "dogfoodadvisor.com", "catfooddb.com", "petfoodreviewer.com",
+        "allaboutpetfood.com", "pawdiet.com", "petmd.com",
+        "akc.org", "aspca.org", "wikipedia.org"
+    ]
+
     // MARK: - Init
 
     init(apiKey: String, session: URLSession = .shared) {
@@ -55,22 +200,13 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: - Public Methods
 
-    /// Search for a pet food product across multiple retailers
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - retailers: Ordered list of retailers to search (first match wins)
-    /// - Returns: The product URL and retailer if found
-    func searchProduct(query: String, retailers: [PetRetailer]) async throws -> SerperSearchResult {
+    /// Search for a pet food product across multiple sources
+    func searchProduct(query: String, retailers: [ProductSource]) async throws -> SerperSearchResult {
         try await searchProduct(query: query, brand: nil, retailers: retailers)
     }
 
-    /// Search for a pet food product across multiple retailers with explicit brand
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - brand: Optional explicit brand name for better matching
-    ///   - retailers: Ordered list of retailers to search (first match wins)
-    /// - Returns: The product URL and retailer if found
-    func searchProduct(query: String, brand: String?, retailers: [PetRetailer]) async throws -> SerperSearchResult {
+    /// Search for a pet food product across multiple sources with explicit brand
+    func searchProduct(query: String, brand: String?, retailers: [ProductSource]) async throws -> SerperSearchResult {
         let results = try await searchProductURLs(query: query, brand: brand, retailers: retailers)
         guard let first = results.first else {
             throw SerperError.noResultsFound
@@ -78,54 +214,66 @@ actor SerperService: SerperServiceProtocol {
         return first
     }
 
-    /// Search for a pet food product across all retailers, returning all matches
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - retailers: List of retailers to search
-    /// - Returns: Array of product URLs (one per retailer that has a match)
-    func searchProductURLs(query: String, retailers: [PetRetailer]) async throws -> [SerperSearchResult] {
+    /// Search for a pet food product across all sources, returning all matches
+    func searchProductURLs(query: String, retailers: [ProductSource]) async throws -> [SerperSearchResult] {
         try await searchProductURLs(query: query, brand: nil, retailers: retailers)
     }
 
-    /// Search for a pet food product across all retailers in parallel with explicit brand
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - brand: Optional explicit brand name for better matching
-    ///   - retailers: List of retailers to search
-    /// - Returns: Array of product URLs (one per retailer that has a match)
-    func searchProductURLs(query: String, brand: String?, retailers: [PetRetailer]) async throws -> [SerperSearchResult] {
-        print("DEBUG: Starting parallel retailer search for: \(query)" + (brand.map { " (brand: \($0))" } ?? ""))
+    /// Search for a pet food product across all sources in parallel with explicit brand
+    /// Automatically includes manufacturer site if brand is detected
+    func searchProductURLs(query: String, brand: String?, retailers: [ProductSource]) async throws -> [SerperSearchResult] {
+        print("DEBUG: Starting parallel search for: \(query)" + (brand.map { " (brand: \($0))" } ?? ""))
 
-        // Search all retailers in parallel
+        // Get manufacturer source for brand (if any)
+        let manufacturerSource = getManufacturerSource(for: brand)
+        let discoveredSiteQuery: String? = await {
+            // If we have a brand but no known manufacturer, try dynamic discovery
+            if let brand = brand, manufacturerSource == nil {
+                return await discoverBrandWebsite(brand: brand)
+            }
+            return nil
+        }()
+
+        if let manufacturer = manufacturerSource {
+            print("DEBUG: Found manufacturer source: \(manufacturer.displayName)")
+        } else if let discovered = discoveredSiteQuery {
+            print("DEBUG: Discovered brand website: \(discovered)")
+        }
+
+        // Search all sources in parallel
         let results = try await withThrowingTaskGroup(of: SerperSearchResult?.self) { group in
-            for retailer in retailers {
+            // Add retailer search tasks
+            for source in retailers {
                 group.addTask {
-                    // Try primary (targeted) search first
-                    if let result = try await self.searchRetailer(
+                    try await self.searchSource(
                         query: query,
-                        retailer: retailer,
+                        source: source,
                         useFallback: false,
                         brand: brand
-                    ) {
-                        print("DEBUG: Found product on \(retailer.displayName): \(result.url)")
-                        return result
-                    }
+                    )
+                }
+            }
 
-                    // Try fallback (broader) search if primary fails
-                    if retailer.fallbackSiteQuery != nil {
-                        if let result = try await self.searchRetailer(
-                            query: query,
-                            retailer: retailer,
-                            useFallback: true,
-                            brand: brand
-                        ) {
-                            print("DEBUG: Found product on \(retailer.displayName) (fallback): \(result.url)")
-                            return result
-                        }
-                    }
+            // Add manufacturer search task (if found)
+            if let manufacturer = manufacturerSource {
+                group.addTask {
+                    try await self.searchSource(
+                        query: query,
+                        source: manufacturer,
+                        useFallback: false,
+                        brand: brand
+                    )
+                }
+            }
 
-                    print("DEBUG: No results found on \(retailer.displayName)")
-                    return nil
+            // Add dynamically discovered site search task (if found)
+            if let discoveredQuery = discoveredSiteQuery {
+                group.addTask {
+                    try await self.searchDynamicSource(
+                        query: query,
+                        siteQuery: discoveredQuery,
+                        brand: brand
+                    )
                 }
             }
 
@@ -143,16 +291,164 @@ actor SerperService: SerperServiceProtocol {
             throw SerperError.noResultsFound
         }
 
-        print("DEBUG: Found \(results.count) retailer URLs total")
+        print("DEBUG: Found \(results.count) URLs total")
         return results
     }
 
     /// Search for a pet food product on Chewy.com via Google (legacy method)
-    /// - Parameter query: Product name and brand to search for
-    /// - Returns: The Chewy product URL if found
     func searchChewyProduct(query: String) async throws -> URL {
         let result = try await searchProduct(query: query, retailers: [.chewy])
         return result.url
+    }
+
+    // MARK: - Brand to Manufacturer Mapping
+
+    /// Get the manufacturer ProductSource for a given brand
+    private func getManufacturerSource(for brand: String?) -> ProductSource? {
+        guard let brand = brand?.lowercased().trimmingCharacters(in: .whitespaces) else {
+            return nil
+        }
+
+        // Direct lookup
+        if let source = brandToManufacturer[brand] {
+            return source
+        }
+
+        // Try partial matches (e.g., "purina pro plan sport" should match "purina pro plan")
+        for (key, source) in brandToManufacturer {
+            if brand.hasPrefix(key + " ") || brand.contains(key) {
+                return source
+            }
+        }
+
+        return nil
+    }
+
+    // MARK: - Dynamic Website Discovery
+
+    /// Discover a brand's official website via Google search
+    private func discoverBrandWebsite(brand: String) async -> String? {
+        let searchQuery = "\(brand) pet food official site"
+        print("DEBUG: Attempting to discover website for brand: \(brand)")
+
+        do {
+            let response = try await performSearch(query: searchQuery)
+
+            for result in response.organic {
+                guard let url = URL(string: result.link),
+                      let host = url.host?.lowercased() else {
+                    continue
+                }
+
+                // Extract domain (remove www. prefix)
+                let domain = host.hasPrefix("www.") ? String(host.dropFirst(4)) : host
+
+                // Skip retailer domains
+                if retailerDomains.contains(where: { domain.contains($0) }) {
+                    print("DEBUG: Skipping retailer domain: \(domain)")
+                    continue
+                }
+
+                // Skip blog/review domains
+                if blogDomains.contains(where: { domain.contains($0) }) {
+                    print("DEBUG: Skipping blog domain: \(domain)")
+                    continue
+                }
+
+                // Found a valid manufacturer site
+                let siteQuery = "site:\(domain)"
+                print("DEBUG: Discovered brand website: \(siteQuery)")
+                return siteQuery
+            }
+        } catch {
+            print("DEBUG: Website discovery failed: \(error)")
+        }
+
+        return nil
+    }
+
+    // MARK: - Source Search
+
+    /// Search a specific source for the product
+    private func searchSource(
+        query: String,
+        source: ProductSource,
+        useFallback: Bool,
+        brand: String? = nil
+    ) async throws -> SerperSearchResult? {
+        let siteQuery = useFallback ? (source.fallbackSiteQuery ?? source.siteQuery) : source.siteQuery
+        let queryVariations = generateQueryVariations(query, brand: brand)
+        let productKeywords = extractProductKeywords(query, brand: brand)
+
+        print("DEBUG: Searching \(source.displayName) - keywords: brand=\(productKeywords.brand), product=\(productKeywords.product)")
+
+        for (index, queryVariation) in queryVariations.enumerated() {
+            let searchQuery = "\(queryVariation) \(siteQuery)"
+            print("DEBUG: [\(source.displayName)] Trying variation \(index + 1)/\(queryVariations.count): \(searchQuery)")
+
+            let response = try await performSearch(query: searchQuery)
+
+            print("DEBUG: [\(source.displayName)] Got \(response.organic.count) results")
+
+            if let url = findProductURL(in: response, for: source, keywords: productKeywords) {
+                print("DEBUG: [\(source.displayName)] Found valid product URL: \(url)")
+                return SerperSearchResult(url: url, source: source)
+            }
+
+            // Early exit: if we got zero organic results on a broad query, skip remaining variations
+            if response.organic.isEmpty && index >= 2 {
+                print("DEBUG: [\(source.displayName)] No results on variation \(index + 1), skipping remaining")
+                break
+            }
+        }
+
+        // Try fallback for retailers if available
+        if source.isRetailer && !useFallback && source.fallbackSiteQuery != nil {
+            print("DEBUG: [\(source.displayName)] Trying fallback search")
+            return try await searchSource(query: query, source: source, useFallback: true, brand: brand)
+        }
+
+        print("DEBUG: [\(source.displayName)] No results found")
+        return nil
+    }
+
+    /// Search a dynamically discovered site
+    private func searchDynamicSource(
+        query: String,
+        siteQuery: String,
+        brand: String?
+    ) async throws -> SerperSearchResult? {
+        let queryVariations = generateQueryVariations(query, brand: brand)
+        let productKeywords = extractProductKeywords(query, brand: brand)
+
+        print("DEBUG: Searching dynamic source \(siteQuery)")
+
+        for (index, queryVariation) in queryVariations.enumerated() {
+            let searchQuery = "\(queryVariation) \(siteQuery)"
+
+            let response = try await performSearch(query: searchQuery)
+
+            for result in response.organic {
+                guard let url = URL(string: result.link) else { continue }
+
+                // Validate the result matches our product
+                guard resultMatchesProduct(result, keywords: productKeywords) else {
+                    continue
+                }
+
+                // For dynamic sources, we accept any result from the discovered domain
+                print("DEBUG: [Dynamic] Found URL: \(url)")
+                // Return as the first matched retailer source for compatibility
+                // The data source display will show based on URL domain
+                return SerperSearchResult(url: url, source: .chewy)  // Will be corrected by Firecrawl extraction
+            }
+
+            if response.organic.isEmpty && index >= 2 {
+                break
+            }
+        }
+
+        return nil
     }
 
     // MARK: - Private Methods
@@ -211,13 +507,11 @@ actor SerperService: SerperServiceProtocol {
     }
 
     /// Remove size/quantity specs from query (oz, lb, ct, count, pack, etc.)
-    /// Always applied before search - these specs rarely match retailer naming
     private func removeSizeSpecs(_ query: String) -> String {
-        // More comprehensive pattern that also catches mid-query sizes
         let patterns = [
             #"\s+\d+(\.\d+)?\s*-?\s*(oz|ounce|ounces|lb|lbs|pound|pounds|kg|g|gram|grams|ct|count|pk|pack|can|cans|pouch|pouches)\.?\s*"#,
-            #"\s*\(\s*\d+[^)]*\)\s*"#,  // Anything in parentheses with numbers
-            #"\s+x\d+\s*"#,  // "x12" style multipliers
+            #"\s*\(\s*\d+[^)]*\)\s*"#,
+            #"\s+x\d+\s*"#,
         ]
 
         var result = query
@@ -241,12 +535,10 @@ actor SerperService: SerperServiceProtocol {
         let normalized = brand.lowercased().trimmingCharacters(in: .whitespaces)
         var variations = [brand]
 
-        // Check if this brand has known aliases
         if let aliases = brandAliases[normalized] {
             variations.append(contentsOf: aliases)
         }
 
-        // Also check if this brand IS an alias of another brand
         for (key, aliases) in brandAliases {
             if aliases.map({ $0.lowercased() }).contains(normalized) {
                 variations.append(key)
@@ -274,15 +566,12 @@ actor SerperService: SerperServiceProtocol {
 
     /// Generate query variations from most specific to least specific
     private func generateQueryVariations(_ query: String, brand: String? = nil) -> [String] {
-        // Normalize and remove size specs
         let normalizedQuery = normalizeProductName(query)
         let baseQuery = removeSizeSpecs(normalizedQuery)
         var variations: [String] = []
 
-        // Tier 1: Full normalized query
         variations.append(baseQuery)
 
-        // Tier 1b: Query with quoted multi-word brand for exact matching
         let words = baseQuery.split(separator: " ").map(String.init)
         if let detectedBrand = brand ?? detectBrand(from: words) {
             if detectedBrand.contains(" ") {
@@ -295,7 +584,6 @@ actor SerperService: SerperServiceProtocol {
             }
         }
 
-        // Tier 2: Remove manufacturer prefix
         var noManufacturer = baseQuery
         for prefix in manufacturerPrefixes {
             if noManufacturer.lowercased().hasPrefix(prefix.lowercased() + " ") {
@@ -307,13 +595,11 @@ actor SerperService: SerperServiceProtocol {
             variations.append(noManufacturer)
         }
 
-        // Tier 3: Core product terms (brand + distinctive keywords only)
         let coreTerms = extractCoreProductTerms(noManufacturer)
         if !coreTerms.isEmpty && !variations.contains(coreTerms) {
             variations.append(coreTerms)
         }
 
-        // Tier 4: First 6 words of cleaned query
         let cleanedWords = noManufacturer.split(separator: " ")
         if cleanedWords.count > 6 {
             let shortQuery = cleanedWords.prefix(6).joined(separator: " ")
@@ -322,7 +608,6 @@ actor SerperService: SerperServiceProtocol {
             }
         }
 
-        // Tier 5: Try brand aliases (only add first alias to limit API calls)
         if let brand = brand ?? detectBrand(from: words) {
             let aliases = getBrandVariations(brand)
             if let firstAlias = aliases.first(where: { $0.lowercased() != brand.lowercased() }) {
@@ -337,7 +622,6 @@ actor SerperService: SerperServiceProtocol {
             }
         }
 
-        print("DEBUG: Generated \(variations.count) query variations")
         return variations
     }
 
@@ -345,7 +629,6 @@ actor SerperService: SerperServiceProtocol {
     private func extractCoreProductTerms(_ query: String) -> String {
         let words = query.split(separator: " ").map(String.init)
 
-        // Generic terms to skip
         let genericTerms: Set<String> = [
             "food", "foods", "dog", "cat", "puppy", "kitten", "adult", "senior",
             "dry", "wet", "canned", "recipe", "formula", "complete", "balanced",
@@ -361,15 +644,12 @@ actor SerperService: SerperServiceProtocol {
         for (index, word) in words.enumerated() {
             let lower = word.lowercased()
 
-            // Always keep first 2 words (usually brand)
             if index < 2 {
                 kept.append(word)
             } else if !genericTerms.contains(lower) && word.count > 2 {
-                // Keep distinctive terms (protein sources, specific product lines)
                 kept.append(word)
             }
 
-            // Limit to 5 significant terms
             if kept.count >= 5 { break }
         }
 
@@ -378,26 +658,20 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: Keyword Extraction
 
-    /// Product keywords structure for validation
     private struct ProductKeywords {
         let brand: [String]
         let product: [String]
         let original: String
 
         var isEmpty: Bool { brand.isEmpty && product.isEmpty }
-
-        /// All keywords combined for legacy compatibility
         var all: [String] { brand + product }
     }
 
-    /// Extract key identifying words from the product query (brand + distinctive product words)
-    /// Used to validate that search results match the target product
     private func extractProductKeywords(_ query: String, brand: String? = nil) -> ProductKeywords {
         let normalizedQuery = normalizeProductName(query)
         let baseQuery = removeSizeSpecs(normalizedQuery)
         var cleanedQuery = baseQuery
 
-        // Remove manufacturer prefix to get actual brand
         for prefix in manufacturerPrefixes {
             if cleanedQuery.lowercased().hasPrefix(prefix.lowercased() + " ") {
                 cleanedQuery = String(cleanedQuery.dropFirst(prefix.count + 1))
@@ -407,46 +681,34 @@ actor SerperService: SerperServiceProtocol {
 
         let words = cleanedQuery.split(separator: " ").map(String.init)
 
-        // Detect multi-word brand or use provided brand
         let detectedBrand = brand ?? detectBrand(from: words)
         let brandWordCount: Int
         if let detected = detectedBrand {
             brandWordCount = detected.split(separator: " ").count
         } else {
-            brandWordCount = min(2, words.count)  // Default: first 2 words
+            brandWordCount = min(2, words.count)
         }
 
-        // Extract brand keywords
         let brandKeywords = Array(words.prefix(brandWordCount))
 
-        // Skip common/generic words to find distinctive product identifiers
         let skipWords: Set<String> = [
-            // Brand-related
             "pet", "pets", "treatery",
-            // Animal types
             "dog", "dogs", "cat", "cats", "puppy", "puppies", "kitten", "kittens", "adult", "senior",
-            // Food types
             "food", "foods", "treat", "treats", "kibble", "dry", "wet", "canned", "freeze-dried",
             "raw", "frozen", "dehydrated",
-            // Common descriptors
             "natural", "organic", "premium", "grain-free", "holistic", "limited", "ingredient",
-            // Generic product words
             "recipe", "formula", "blend", "bites", "chunks", "mix", "nutrition", "diet",
-            // Marketing words
             "breed", "health", "complete", "balanced", "high-protein", "real", "made",
-            // Size/age descriptors
             "small", "medium", "large", "mini", "giant", "toy",
-            // Connectors
             "for", "and", "the", "with", "in", "of", "&", "a", "an"
         ]
 
-        // Extract product keywords (distinctive terms after brand)
         var productKeywords: [String] = []
         for word in words.dropFirst(brandWordCount) {
             let lower = word.lowercased()
             if !skipWords.contains(lower) && word.count > 2 {
                 productKeywords.append(word)
-                if productKeywords.count >= 3 { break }  // Max 3 product keywords
+                if productKeywords.count >= 3 { break }
             }
         }
 
@@ -459,7 +721,6 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: Result Matching
 
-    /// Check if a search result likely matches our target product (uses ProductKeywords)
     private func resultMatchesProduct(_ result: OrganicResult, keywords: ProductKeywords) -> Bool {
         guard !keywords.isEmpty else { return true }
 
@@ -467,7 +728,6 @@ actor SerperService: SerperServiceProtocol {
         let linkLower = result.link.lowercased()
         let combined = titleLower + " " + linkLower
 
-        // Brand validation: at least one brand keyword must match (with fuzzy fallback)
         let brandMatched = keywords.brand.contains { keyword in
             let keywordLower = keyword.lowercased()
             return combined.contains(keywordLower) ||
@@ -475,11 +735,9 @@ actor SerperService: SerperServiceProtocol {
         }
 
         guard brandMatched else {
-            print("DEBUG: Rejected - no brand match for \(keywords.brand) in '\(result.title)'")
             return false
         }
 
-        // Product keyword validation: if we have them, at least one must match
         if !keywords.product.isEmpty {
             let productMatched = keywords.product.contains { keyword in
                 let keywordLower = keyword.lowercased()
@@ -488,7 +746,6 @@ actor SerperService: SerperServiceProtocol {
             }
 
             if !productMatched {
-                print("DEBUG: Rejected - no product keyword match for \(keywords.product) in '\(result.title)'")
                 return false
             }
         }
@@ -498,13 +755,11 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: Fuzzy Matching
 
-    /// Check if text contains a keyword with fuzzy matching (Levenshtein-based)
     private func fuzzyContains(_ text: String, keyword: String, threshold: Double) -> Bool {
         let words = text.components(separatedBy: CharacterSet.alphanumerics.inverted)
             .filter { !$0.isEmpty }
 
         for word in words {
-            // Only compare words of similar length to avoid false positives
             if word.count >= keyword.count - 2 && word.count <= keyword.count + 2 {
                 let similarity = stringSimilarity(word, keyword)
                 if similarity >= threshold {
@@ -516,7 +771,6 @@ actor SerperService: SerperServiceProtocol {
         return false
     }
 
-    /// Calculate string similarity (0.0 to 1.0) using Levenshtein distance
     private func stringSimilarity(_ s1: String, _ s2: String) -> Double {
         let s1Lower = s1.lowercased()
         let s2Lower = s2.lowercased()
@@ -530,7 +784,6 @@ actor SerperService: SerperServiceProtocol {
         return 1.0 - (Double(distance) / Double(maxLength))
     }
 
-    /// Calculate Levenshtein edit distance between two strings
     private func levenshteinDistance(_ s1: String, _ s2: String) -> Int {
         let a = Array(s1)
         let b = Array(s2)
@@ -547,9 +800,9 @@ actor SerperService: SerperServiceProtocol {
             for j in 1...b.count {
                 let cost = a[i-1] == b[j-1] ? 0 : 1
                 matrix[i][j] = min(
-                    matrix[i-1][j] + 1,      // deletion
-                    matrix[i][j-1] + 1,      // insertion
-                    matrix[i-1][j-1] + cost  // substitution
+                    matrix[i-1][j] + 1,
+                    matrix[i][j-1] + 1,
+                    matrix[i-1][j-1] + cost
                 )
             }
         }
@@ -557,48 +810,27 @@ actor SerperService: SerperServiceProtocol {
         return matrix[a.count][b.count]
     }
 
-    // MARK: Retailer Search
+    // MARK: URL Finding
 
-    /// Search a specific retailer for the product
-    private func searchRetailer(
-        query: String,
-        retailer: PetRetailer,
-        useFallback: Bool,
-        brand: String? = nil
-    ) async throws -> SerperSearchResult? {
-        let siteQuery = useFallback ? (retailer.fallbackSiteQuery ?? retailer.siteQuery) : retailer.siteQuery
-        let queryVariations = generateQueryVariations(query, brand: brand)
-        let productKeywords = extractProductKeywords(query, brand: brand)
+    private func findProductURL(in response: SerperResponse, for source: ProductSource, keywords: ProductKeywords) -> URL? {
+        for result in response.organic {
+            guard let url = URL(string: result.link) else { continue }
 
-        print("DEBUG: Product keywords for validation - brand: \(productKeywords.brand), product: \(productKeywords.product)")
-
-        for (index, queryVariation) in queryVariations.enumerated() {
-            let searchQuery = "\(queryVariation) \(siteQuery)"
-            print("DEBUG: Trying query variation \(index + 1)/\(queryVariations.count): \(searchQuery)")
-
-            let response = try await performSearch(query: searchQuery)
-
-            print("DEBUG: Got \(response.organic.count) results")
-            for result in response.organic {
-                print("DEBUG:   - \(result.link)")
+            guard source.isValidProductURL(url) else {
+                continue
             }
 
-            if let url = findProductURL(in: response, for: retailer, keywords: productKeywords) {
-                print("DEBUG: Found valid product URL on variation \(index + 1)")
-                return SerperSearchResult(url: url, retailer: retailer)
+            guard resultMatchesProduct(result, keywords: keywords) else {
+                continue
             }
 
-            // Early exit: if we got zero organic results on a broad query, skip remaining variations
-            if response.organic.isEmpty && index >= 2 {
-                print("DEBUG: No organic results on variation \(index + 1), skipping remaining for \(retailer.displayName)")
-                break
-            }
+            return url
         }
-
         return nil
     }
 
-    /// Perform the actual Serper API search
+    // MARK: API
+
     private func performSearch(query: String) async throws -> SerperResponse {
         guard let url = URL(string: baseURL) else {
             throw SerperError.networkError(underlying: URLError(.badURL))
@@ -642,28 +874,6 @@ actor SerperService: SerperServiceProtocol {
         } catch {
             throw SerperError.decodingError(underlying: error)
         }
-    }
-
-    /// Find the first valid product URL for a specific retailer that matches the target product
-    private func findProductURL(in response: SerperResponse, for retailer: PetRetailer, keywords: ProductKeywords) -> URL? {
-        for result in response.organic {
-            guard let url = URL(string: result.link) else { continue }
-
-            // Must be a valid retailer product URL structure
-            guard retailer.isValidProductURL(url) else {
-                print("DEBUG: Filtered out \(result.link) - not a valid \(retailer.displayName) product URL")
-                continue
-            }
-
-            // Must match our target product keywords
-            guard resultMatchesProduct(result, keywords: keywords) else {
-                print("DEBUG: Filtered out \(result.link) - doesn't match product keywords")
-                continue
-            }
-
-            return url
-        }
-        return nil
     }
 }
 

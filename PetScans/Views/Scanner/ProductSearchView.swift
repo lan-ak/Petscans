@@ -196,7 +196,7 @@ private struct ProductSearchProgressView: View {
             ZStack {
                 Circle()
                     .fill(stepBackgroundColor)
-                    .frame(width: 80, height: 80)
+                    .frame(width: SpacingTokens.iconXXLarge, height: SpacingTokens.iconXXLarge)
 
                 if currentStep == .complete {
                     Image(systemName: "checkmark")

@@ -177,11 +177,26 @@ struct OCRCameraView: UIViewRepresentable {
             captureSession?.stopRunning()
         }
 
-        // MARK: - Image Cropping
+        // MARK: - Image Processing
+
+        /// Normalizes image orientation to .up for consistent cropping
+        private func normalizeOrientation(_ image: UIImage) -> UIImage {
+            guard image.imageOrientation != .up else { return image }
+
+            UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+            image.draw(in: CGRect(origin: .zero, size: image.size))
+            let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
+
+            return normalizedImage ?? image
+        }
 
         /// Crops the captured image to match the reticle overlay region
         private func cropToReticle(_ image: UIImage, viewSize: CGSize) -> UIImage {
-            // Reticle dimensions (must match ScanningReticleView in IngredientCameraView)
+            // Normalize orientation first so pixel data matches displayed dimensions
+            let normalizedImage = normalizeOrientation(image)
+
+            // Reticle dimensions (must match ScanningReticleView in ProductPhotoCaptureView)
             let reticleWidth: CGFloat = 320
             let reticleHeight: CGFloat = 400
 
@@ -195,7 +210,7 @@ struct OCRCameraView: UIViewRepresentable {
 
             // Map view coordinates to image coordinates
             // Account for .resizeAspectFill scaling used by the preview layer
-            let imageSize = image.size
+            let imageSize = normalizedImage.size
             let viewAspect = viewSize.width / viewSize.height
             let imageAspect = imageSize.width / imageSize.height
 
@@ -220,11 +235,11 @@ struct OCRCameraView: UIViewRepresentable {
                 height: reticleRect.height * scale
             )
 
-            guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
-                return image // Fallback to full image if cropping fails
+            guard let cgImage = normalizedImage.cgImage?.cropping(to: cropRect) else {
+                return normalizedImage // Fallback to full image if cropping fails
             }
 
-            return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
+            return UIImage(cgImage: cgImage, scale: normalizedImage.scale, orientation: .up)
         }
     }
 }

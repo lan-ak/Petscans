@@ -61,7 +61,7 @@ protocol FirecrawlServiceProtocol: Sendable {
 
     /// Scrape multiple URLs in parallel, returning the first successful result
     /// - Parameter searchResults: Array of search results with URLs to scrape
-    /// - Returns: Tuple of (product data, retailer that succeeded)
+    /// - Returns: Tuple of (product data, source that succeeded)
     /// - Note: Cancels remaining scrapes once one succeeds
-    func scrapeFirstSuccessful(searchResults: [SerperSearchResult]) async throws -> (FirecrawlProduct, PetRetailer)
+    func scrapeFirstSuccessful(searchResults: [SerperSearchResult]) async throws -> (FirecrawlProduct, ProductSource)
 }

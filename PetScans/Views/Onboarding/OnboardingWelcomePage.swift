@@ -6,7 +6,7 @@ struct OnboardingWelcomePage: View {
             Image("AppIconImage")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 120, height: 120)
+                .frame(width: SpacingTokens.iconOnboarding, height: SpacingTokens.iconOnboarding)
                 .cornerRadius(SpacingTokens.radiusXLarge)
 
             VStack(spacing: SpacingTokens.sm) {

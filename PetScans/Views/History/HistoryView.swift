@@ -12,38 +12,43 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                FilterChipsView(
-                    selectedSpecies: $viewModel.selectedSpecies,
-                    selectedCategory: $viewModel.selectedCategory
-                )
-
+            Group {
                 if filteredScans.isEmpty {
                     emptyStateView
                 } else {
                     List {
-                        ForEach(filteredScans) { scan in
-                            NavigationLink(value: scan) {
-                                ScanRowView(scan: scan)
-                            }
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    viewModel.delete(scan, using: modelContext)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
+                        Section {
+                            ForEach(filteredScans) { scan in
+                                NavigationLink(value: scan) {
+                                    ScanRowView(scan: scan)
+                                }
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        viewModel.delete(scan, using: modelContext)
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                }
+                                .swipeActions(edge: .leading) {
+                                    Button {
+                                        viewModel.toggleFavorite(scan, using: modelContext)
+                                    } label: {
+                                        Label(
+                                            scan.isFavorite ? "Unfavorite" : "Favorite",
+                                            systemImage: scan.isFavorite ? "star.slash" : "star"
+                                        )
+                                    }
+                                    .tint(.yellow)
                                 }
                             }
-                            .swipeActions(edge: .leading) {
-                                Button {
-                                    viewModel.toggleFavorite(scan, using: modelContext)
-                                } label: {
-                                    Label(
-                                        scan.isFavorite ? "Unfavorite" : "Favorite",
-                                        systemImage: scan.isFavorite ? "star.slash" : "star"
-                                    )
-                                }
-                                .tint(.yellow)
-                            }
+                        } header: {
+                            FilterChipsView(
+                                selectedSpecies: $viewModel.selectedSpecies,
+                                selectedCategory: $viewModel.selectedCategory,
+                                showFavoritesOnly: $viewModel.showFavoritesOnly
+                            )
+                            .textCase(nil)
+                            .listRowInsets(EdgeInsets())
                         }
                     }
                     .listStyle(.plain)

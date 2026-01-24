@@ -295,12 +295,12 @@ struct ProductScoreView: View {
                 ZStack {
                     Circle()
                         .stroke(ColorTokens.surfaceSecondary, lineWidth: 8)
-                        .frame(width: 60, height: 60)
+                        .frame(width: SpacingTokens.iconXLarge, height: SpacingTokens.iconXLarge)
 
                     Circle()
                         .trim(from: 0, to: actualMatchRate)
                         .stroke(matchRateColor, lineWidth: 8)
-                        .frame(width: 60, height: 60)
+                        .frame(width: SpacingTokens.iconXLarge, height: SpacingTokens.iconXLarge)
                         .rotationEffect(.degrees(-90))
 
                     Text("\(actualMatchPercentage)%")
@@ -484,7 +484,7 @@ struct ProductScoreView: View {
         Image(systemName: "photo")
             .font(.system(size: SpacingTokens.iconXLarge * 0.67))
             .foregroundColor(ColorTokens.textSecondary)
-            .frame(width: 120, height: 120)
+            .frame(width: SpacingTokens.iconOnboarding, height: SpacingTokens.iconOnboarding)
             .background(ColorTokens.surfacePrimary)
             .cornerRadius(SpacingTokens.radiusMedium)
     }

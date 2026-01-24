@@ -3,6 +3,7 @@ import SwiftUI
 struct FilterChipsView: View {
     @Binding var selectedSpecies: Species?
     @Binding var selectedCategory: Category?
+    @Binding var showFavoritesOnly: Bool
     @State private var isExpanded: Bool = false
 
     var body: some View {
@@ -19,11 +20,12 @@ struct FilterChipsView: View {
                         .labelMedium()
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.caption)
+                        .font(TypographyTokens.caption)
                 }
                 .foregroundColor(ColorTokens.textPrimary)
-                .padding(.horizontal)
+                .padding(.horizontal, SpacingTokens.sm)
                 .padding(.vertical, SpacingTokens.xs)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
 
@@ -31,6 +33,19 @@ struct FilterChipsView: View {
             if isExpanded {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: SpacingTokens.xxs) {
+                        // Favorites filter
+                        FilterChip(
+                            label: "Favorites",
+                            icon: "star.fill",
+                            isSelected: showFavoritesOnly,
+                            selectedColor: ColorTokens.favorite
+                        ) {
+                            showFavoritesOnly.toggle()
+                        }
+
+                        Divider()
+                            .frame(height: SpacingTokens.iconMedium)
+
                         // Species filters
                         ForEach(Species.allCases) { species in
                             FilterChip(
@@ -47,7 +62,7 @@ struct FilterChipsView: View {
                         }
 
                         Divider()
-                            .frame(height: 24)
+                            .frame(height: SpacingTokens.iconMedium)
 
                         // Category filters
                         ForEach(Category.allCases.filter { $0 != .cosmetic }) { category in
@@ -64,7 +79,7 @@ struct FilterChipsView: View {
                             }
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, SpacingTokens.sm)
                     .padding(.vertical, SpacingTokens.xxs)
                 }
             }
@@ -77,6 +92,7 @@ struct FilterChip: View {
     let label: String
     let icon: String
     let isSelected: Bool
+    var selectedColor: Color = ColorTokens.brandPrimary
     let action: () -> Void
 
     var body: some View {
@@ -89,7 +105,7 @@ struct FilterChip: View {
             }
             .padding(.horizontal, SpacingTokens.xs)
             .padding(.vertical, SpacingTokens.xxs)
-            .background(isSelected ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)
+            .background(isSelected ? selectedColor : ColorTokens.surfaceSecondary)
             .foregroundColor(isSelected ? .white : ColorTokens.textPrimary)
             .cornerRadius(SpacingTokens.radiusLarge)
         }
@@ -99,6 +115,7 @@ struct FilterChip: View {
 #Preview {
     FilterChipsView(
         selectedSpecies: .constant(.dog),
-        selectedCategory: .constant(nil)
+        selectedCategory: .constant(nil),
+        showFavoritesOnly: .constant(false)
     )
 }

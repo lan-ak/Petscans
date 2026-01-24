@@ -41,15 +41,15 @@ struct TypographyTokens {
 
     /// Body Large - Emphasized body text
     /// 17pt, Regular
-    static let bodyLarge = Font.system(size: 17, weight: .regular, design: .default)
+    static let bodyLarge: Font = Font.custom(quicksandFont, size: 17).weight(.regular)
 
     /// Body - Standard body text
     /// 15pt, Regular
-    static let body = Font.system(size: 15, weight: .regular, design: .default)
+    static let body: Font = Font.custom(quicksandFont, size: 15).weight(.regular)
 
     /// Body Small - De-emphasized body text
     /// 13pt, Regular
-    static let bodySmall = Font.system(size: 13, weight: .regular, design: .default)
+    static let bodySmall: Font = Font.custom(quicksandFont, size: 13).weight(.regular)
 
     // MARK: - Label Styles
 
@@ -69,7 +69,7 @@ struct TypographyTokens {
 
     /// Caption - Metadata, timestamps
     /// 12pt, Regular
-    static let caption = Font.system(size: 12, weight: .regular, design: .default)
+    static let caption: Font = Font.custom(quicksandFont, size: 12).weight(.regular)
 
     /// Caption Emphasized - Important metadata
     /// 12pt, Medium

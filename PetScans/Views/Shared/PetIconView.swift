@@ -39,13 +39,13 @@ struct PetIconView: View {
 }
 
 #Preview("All Sizes") {
-    VStack(spacing: 20) {
-        HStack(spacing: 20) {
+    VStack(spacing: SpacingTokens.md) {
+        HStack(spacing: SpacingTokens.md) {
             PetIconView(species: .dog, size: .small)
             PetIconView(species: .dog, size: .medium)
             PetIconView(species: .dog, size: .large)
         }
-        HStack(spacing: 20) {
+        HStack(spacing: SpacingTokens.md) {
             PetIconView(species: .cat, size: .small)
             PetIconView(species: .cat, size: .medium)
             PetIconView(species: .cat, size: .large)

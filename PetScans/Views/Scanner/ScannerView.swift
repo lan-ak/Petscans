@@ -84,7 +84,7 @@ struct ScannerView: View {
                     productSearchingView
                 }
             }
-            .navigationTitle("Scan Product")
+            .navigationTitle("Identify Product")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
@@ -240,10 +240,6 @@ struct ScannerView: View {
         ProductPhotoCaptureView(
             onImageSelected: { image in
                 viewModel.handleProductPhotoCapture(image)
-            },
-            onCancel: {
-                // Product photo cancelled → go to OCR as backup
-                viewModel.step = .ocrCapture
             }
         )
     }

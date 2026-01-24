@@ -24,7 +24,7 @@ struct ScanRowView: View {
             ZStack {
                 Circle()
                     .fill(ColorTokens.backgroundForScore(scan.totalScore))
-                    .frame(width: 50, height: 50)
+                    .frame(width: SpacingTokens.iconScoreSmall, height: SpacingTokens.iconScoreSmall)
 
                 Text("\(Int(scan.totalScore))")
                     .heading2()

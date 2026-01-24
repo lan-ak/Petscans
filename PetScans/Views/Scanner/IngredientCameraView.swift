@@ -48,11 +48,11 @@ struct IngredientCameraView: View {
                         ZStack {
                             Circle()
                                 .stroke(Color.white, lineWidth: 4)
-                                .frame(width: 70, height: 70)
+                                .frame(width: SpacingTokens.captureButtonOuter, height: SpacingTokens.captureButtonOuter)
 
                             Circle()
                                 .fill(Color.white)
-                                .frame(width: 58, height: 58)
+                                .frame(width: SpacingTokens.captureButtonInner, height: SpacingTokens.captureButtonInner)
                         }
                     }
                     .padding(.bottom, SpacingTokens.md)

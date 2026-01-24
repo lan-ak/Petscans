@@ -17,7 +17,7 @@ struct SavedScanDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 16) {
+                HStack(spacing: SpacingTokens.sm) {
                     ShareLink(item: shareText) {
                         Image(systemName: "square.and.arrow.up")
                     }

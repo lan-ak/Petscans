@@ -12,11 +12,18 @@ struct ProductIdentification: Codable, Sendable {
     let primaryProtein: String?  // e.g., "Chicken", "Salmon", "Beef"
     let primaryCarb: String?     // e.g., "Rice", "Sweet Potato", "Grain-Free"
 
-    /// Combined search query for Serper (brand + product name)
+    /// Combined search query for Serper (brand + product name + protein + carb)
     var searchQuery: String? {
         guard let brand = brand, let name = productName,
               !brand.isEmpty, !name.isEmpty else { return nil }
-        return "\(brand) \(name)"
+        var query = "\(brand) \(name)"
+        if let protein = primaryProtein, !protein.isEmpty {
+            query += " \(protein)"
+        }
+        if let carb = primaryCarb, !carb.isEmpty {
+            query += " \(carb)"
+        }
+        return query
     }
 
     /// Whether identification has enough confidence to proceed

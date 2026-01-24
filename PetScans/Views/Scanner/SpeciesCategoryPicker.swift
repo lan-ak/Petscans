@@ -84,9 +84,9 @@ struct SpeciesCategoryPicker: View {
                     } label: {
                         HStack(spacing: SpacingTokens.xs) {
                             Image(systemName: "magnifyingglass")
-                                .font(.title2)
+                                .font(TypographyTokens.heading1)
                                 .foregroundColor(isGeneralScan ? .white : ColorTokens.brandPrimary)
-                                .frame(width: 40, height: 40)
+                                .frame(width: SpacingTokens.xxl, height: SpacingTokens.xxl)
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("General scan")
@@ -100,7 +100,7 @@ struct SpeciesCategoryPicker: View {
                             Spacer()
 
                             Image(systemName: isGeneralScan ? "checkmark.circle.fill" : "circle")
-                                .font(.title3)
+                                .font(TypographyTokens.heading1)
                                 .foregroundColor(isGeneralScan ? .white : ColorTokens.textSecondary)
                         }
                         .padding(SpacingTokens.xs)

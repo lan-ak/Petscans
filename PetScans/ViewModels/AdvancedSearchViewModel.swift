@@ -175,19 +175,46 @@ final class AdvancedSearchViewModel: ObservableObject {
             )
             print("DEBUG: Found \(searchResults.count) URLs via Serper (from image)")
 
+            // Prioritize URLs that contain the identified protein/carb
+            var sortedResults = searchResults
+            let protein = identification.primaryProtein?.lowercased() ?? ""
+            let carb = identification.primaryCarb?.lowercased().replacingOccurrences(of: " ", with: "-") ?? ""
+
+            if !protein.isEmpty || !carb.isEmpty {
+                sortedResults.sort { result1, result2 in
+                    let url1 = result1.url.absoluteString.lowercased()
+                    let url2 = result2.url.absoluteString.lowercased()
+
+                    // Score based on protein and carb matches
+                    var score1 = 0
+                    var score2 = 0
+                    if !protein.isEmpty {
+                        if url1.contains(protein) { score1 += 2 }
+                        if url2.contains(protein) { score2 += 2 }
+                    }
+                    if !carb.isEmpty {
+                        if url1.contains(carb) { score1 += 1 }
+                        if url2.contains(carb) { score2 += 1 }
+                    }
+
+                    return score1 > score2
+                }
+                print("DEBUG: Prioritized URLs by protein='\(protein)' carb='\(carb)'")
+            }
+
             // Scrape all URLs in parallel, return first success
-            let (product, winningRetailer) = try await firecrawlService.scrapeFirstSuccessful(
-                searchResults: searchResults
+            let (product, winningSource) = try await firecrawlService.scrapeFirstSuccessful(
+                searchResults: sortedResults
             )
-            print("DEBUG: First success from \(winningRetailer.displayName), ingredients: \(product.ingredients.count)")
+            print("DEBUG: First success from \(winningSource.displayName), ingredients: \(product.ingredients.count)")
 
             // Validate ingredients
             guard !product.ingredients.isEmpty else {
                 throw AdvancedSearchError.ingredientsNotFound
             }
 
-            // Set data source to winning retailer
-            dataSource = winningRetailer.displayName
+            // Set data source to winning source (could be retailer or manufacturer)
+            dataSource = winningSource.displayName
 
             // Update product data from result
             ingredientsText = product.ingredients.joined(separator: ", ")
@@ -266,18 +293,18 @@ final class AdvancedSearchViewModel: ObservableObject {
             print("DEBUG: Found \(searchResults.count) URLs via Serper")
 
             // Scrape all URLs in parallel, return first success
-            let (product, winningRetailer) = try await firecrawlService.scrapeFirstSuccessful(
+            let (product, winningSource) = try await firecrawlService.scrapeFirstSuccessful(
                 searchResults: searchResults
             )
-            print("DEBUG: First success from \(winningRetailer.displayName), ingredients: \(product.ingredients.count)")
+            print("DEBUG: First success from \(winningSource.displayName), ingredients: \(product.ingredients.count)")
 
             // Validate ingredients
             guard !product.ingredients.isEmpty else {
                 throw AdvancedSearchError.ingredientsNotFound
             }
 
-            // Set data source to winning retailer
-            dataSource = winningRetailer.displayName
+            // Set data source to winning source (could be retailer or manufacturer)
+            dataSource = winningSource.displayName
 
             // Update product data from result
             ingredientsText = product.ingredients.joined(separator: ", ")

@@ -121,10 +121,7 @@ struct ProductNotFoundView: View {
                 Button {
                     onRetry()
                 } label: {
-                    Label(
-                        isManualSearch ? "Scan Barcode Instead" : "Start Over",
-                        systemImage: isManualSearch ? "barcode.viewfinder" : "arrow.clockwise"
-                    )
+                    Label("Start Over", systemImage: "camera.fill")
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(ColorTokens.textSecondary)

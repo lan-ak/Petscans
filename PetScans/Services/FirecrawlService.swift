@@ -38,7 +38,7 @@ actor FirecrawlService: FirecrawlServiceProtocol {
                 Extract the pet food product details from this page.
                 - name: The full product name
                 - brand: The brand name (e.g., Friskies, Blue Buffalo, Royal Canin)
-                - ingredients: The complete ingredients list, split into individual items
+                - ingredients: Extract EVERY ingredient from the complete ingredients list. Pet food typically has 25-50+ ingredients. Include vitamins and minerals as separate items (e.g., "Vitamin E Supplement", "Zinc Proteinate"). Do not stop early or truncate.
                 - price: The current price as a number
                 - imageURL: The main product image URL
                 """,
@@ -109,8 +109,9 @@ actor FirecrawlService: FirecrawlServiceProtocol {
             throw FirecrawlError.extractionFailed
         }
 
-        // Validate we got ingredients
-        guard !extractedData.ingredients.isEmpty else {
+        // Validate we got a reasonable number of ingredients (pet food typically has 20+)
+        guard extractedData.ingredients.count >= 5 else {
+            print("DEBUG: Firecrawl extraction failed - only \(extractedData.ingredients.count) ingredients found (minimum 5 required)")
             throw FirecrawlError.extractionFailed
         }
 
@@ -128,19 +129,19 @@ actor FirecrawlService: FirecrawlServiceProtocol {
 
     /// Scrape multiple URLs in parallel, returning the first successful result
     /// Uses TaskGroup race pattern - first success cancels remaining tasks
-    func scrapeFirstSuccessful(searchResults: [SerperSearchResult]) async throws -> (FirecrawlProduct, PetRetailer) {
+    func scrapeFirstSuccessful(searchResults: [SerperSearchResult]) async throws -> (FirecrawlProduct, ProductSource) {
         guard !searchResults.isEmpty else {
             throw FirecrawlError.extractionFailed
         }
 
         print("DEBUG: Starting parallel scrape of \(searchResults.count) URLs")
 
-        return try await withThrowingTaskGroup(of: (FirecrawlProduct, PetRetailer).self) { group in
+        return try await withThrowingTaskGroup(of: (FirecrawlProduct, ProductSource).self) { group in
             for result in searchResults {
                 group.addTask {
-                    print("DEBUG: Scraping \(result.retailer.displayName): \(result.url)")
+                    print("DEBUG: Scraping \(result.source.displayName): \(result.url)")
                     let product = try await self.scrapeProduct(url: result.url)
-                    return (product, result.retailer)
+                    return (product, result.source)
                 }
             }
 
@@ -168,7 +169,7 @@ actor FirecrawlService: FirecrawlServiceProtocol {
                 "ingredients": [
                     "type": "array",
                     "items": ["type": "string"],
-                    "description": "List of ingredients, each as a separate string"
+                    "description": "Complete list of ALL ingredients. Each ingredient should be a separate string. Flatten any nested lists (vitamins, minerals) into individual items. Expect 25-50+ items for pet food."
                 ],
                 "price": ["type": "number", "description": "Current price"],
                 "imageURL": ["type": "string", "description": "Main product image URL"]

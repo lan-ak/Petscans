@@ -26,7 +26,7 @@ struct WarningFlagView: View {
 
                 if let source = flag.source {
                     Text("Source: \(source)")
-                        .font(.caption2)
+                        .font(TypographyTokens.caption)
                         .foregroundColor(ColorTokens.textTertiary)
                 }
             }

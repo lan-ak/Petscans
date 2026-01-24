@@ -6,27 +6,22 @@ struct AddAllergenSheet: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
-    @State private var newAllergen: String = ""
+    @State private var selectedAllergens: Set<String>
+
+    init(pet: Pet) {
+        self.pet = pet
+        // Initialize with current allergens
+        _selectedAllergens = State(initialValue: Set(pet.allergens))
+    }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Ingredient name", text: $newAllergen)
-                        .textInputAutocapitalization(.words)
-                        .autocorrectionDisabled()
-                } header: {
-                    Text("New Ingredient")
-                } footer: {
-                    Text("Enter the name of an ingredient \(pet.name) should avoid.")
-                }
-
-                Section {
-                    commonAllergensGrid
-                } header: {
-                    Text("Common Ingredients")
-                }
+            ScrollView {
+                AllergenSelectionView(selectedAllergens: $selectedAllergens, showHeader: false)
+                    .padding(.horizontal, SpacingTokens.screenPadding)
+                    .padding(.top, SpacingTokens.md)
             }
+            .background(ColorTokens.backgroundPrimary)
             .navigationTitle("Add Ingredient")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -37,55 +32,17 @@ struct AddAllergenSheet: View {
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        addAllergen(newAllergen)
+                    Button("Done") {
+                        saveAllergens()
                     }
-                    .disabled(!newAllergen.isNotBlank)
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 
-    private var commonAllergensGrid: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 80))], spacing: SpacingTokens.xxs) {
-            ForEach(CommonAllergens.all, id: \.self) { allergen in
-                Button {
-                    addAllergen(allergen)
-                } label: {
-                    Text(allergen)
-                        .labelSmall()
-                        .padding(.horizontal, SpacingTokens.xs)
-                        .padding(.vertical, SpacingTokens.xxs)
-                        .background(
-                            pet.allergens.contains(allergen.lowercased())
-                            ? ColorTokens.surfaceSecondary
-                            : ColorTokens.brandPrimary.opacity(0.1)
-                        )
-                        .foregroundColor(
-                            pet.allergens.contains(allergen.lowercased())
-                            ? ColorTokens.textSecondary
-                            : ColorTokens.brandPrimary
-                        )
-                        .cornerRadius(SpacingTokens.radiusSmall)
-                }
-                .buttonStyle(.plain)
-                .disabled(pet.allergens.contains(allergen.lowercased()))
-            }
-        }
-    }
-
-    private func addAllergen(_ allergen: String) {
-        let normalized = allergen.trimmed.lowercased()
-        guard !normalized.isEmpty, !pet.allergens.contains(normalized) else {
-            dismiss()
-            return
-        }
-
-        var allergens = pet.allergens
-        allergens.append(normalized)
-        allergens.sort()
-        pet.allergens = allergens
+    private func saveAllergens() {
+        pet.allergens = Array(selectedAllergens).sorted()
         try? modelContext.save()
         dismiss()
     }

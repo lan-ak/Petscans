@@ -75,14 +75,32 @@ struct SpacingTokens {
     /// Standard icon
     static let iconMedium: CGFloat = 24
 
+    /// Settings row icon alignment
+    static let iconSettingsRow: CGFloat = 28
+
     /// Large icon
     static let iconLarge: CGFloat = 32
+
+    /// Small score circles (history list)
+    static let iconScoreSmall: CGFloat = 50
+
+    /// Camera capture button inner
+    static let captureButtonInner: CGFloat = 58
 
     /// Extra large icon (empty states)
     static let iconXLarge: CGFloat = 60
 
+    /// Camera capture button outer
+    static let captureButtonOuter: CGFloat = 70
+
     /// Extra extra large icon (onboarding, hero elements)
     static let iconXXLarge: CGFloat = 80
+
+    /// Hero icon (splash screen)
+    static let iconHero: CGFloat = 100
+
+    /// Onboarding/product images
+    static let iconOnboarding: CGFloat = 120
 
     // MARK: - Minimum Touch Target
 

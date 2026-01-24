@@ -242,7 +242,7 @@ private struct StepDotView: View {
 // MARK: - Previews
 
 #Preview("Progress Bar - 25%") {
-    VStack(spacing: 20) {
+    VStack(spacing: SpacingTokens.md) {
         StepProgressBar(progress: 0.25)
         StepProgressBar(progress: 0.5)
         StepProgressBar(progress: 0.75)

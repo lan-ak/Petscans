@@ -101,6 +101,7 @@
 		F7D835352F089EAB00414B32 /* ScreenshotDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */; };
 		F7D8353A2F0AFE3600414B32 /* PetFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835392F0AFE3600414B32 /* PetFormView.swift */; };
 		F7D8353B2F0AFE3600414B32 /* IngredientSearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */; };
+		F7D8353F2F0B000000000001 /* AllergenSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8353E2F0B000000000001 /* AllergenSelectionView.swift */; };
 		F7D8353D2F0B394200414B32 /* View+Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8353C2F0B394200414B32 /* View+Keyboard.swift */; };
 		F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */; };
 		F7F30C7B2F05B1D9008389D8 /* Quicksand.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */; };
@@ -211,6 +212,7 @@
 		F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotDataSeeder.swift; sourceTree = "<group>"; };
 		F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientSearchSheet.swift; sourceTree = "<group>"; };
 		F7D835392F0AFE3600414B32 /* PetFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetFormView.swift; sourceTree = "<group>"; };
+		F7D8353E2F0B000000000001 /* AllergenSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllergenSelectionView.swift; sourceTree = "<group>"; };
 		F7D8353C2F0B394200414B32 /* View+Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Keyboard.swift"; sourceTree = "<group>"; };
 		F7F30C782F05AD71008389D8 /* ScanningReticleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanningReticleView.swift; sourceTree = "<group>"; };
 		F7F30C7A2F05B1D9008389D8 /* Quicksand.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Quicksand.ttf; sourceTree = "<group>"; };
@@ -378,6 +380,7 @@
 		A4000010 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				F7D8353E2F0B000000000001 /* AllergenSelectionView.swift */,
 				F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */,
 				F7D835392F0AFE3600414B32 /* PetFormView.swift */,
 				F7AAB0002F0A000000000001 /* AllergenAlertBanner.swift */,
@@ -598,6 +601,7 @@
 				F7D8352F2F07461100414B32 /* ScoreExplanationCard.swift in Sources */,
 				F7D8353A2F0AFE3600414B32 /* PetFormView.swift in Sources */,
 				F7D8353B2F0AFE3600414B32 /* IngredientSearchSheet.swift in Sources */,
+				F7D8353F2F0B000000000001 /* AllergenSelectionView.swift in Sources */,
 				F7D835302F07461100414B32 /* RatingLabelView.swift in Sources */,
 				F7F30C792F05AD71008389D8 /* ScanningReticleView.swift in Sources */,
 				F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */,

@@ -5,7 +5,6 @@ import PhotosUI
 /// Uses camera to photograph the front of pet food packaging
 struct ProductPhotoCaptureView: View {
     let onImageSelected: (UIImage) -> Void
-    let onCancel: () -> Void
 
     @State private var showImagePicker = false
     @State private var shouldCapture = false
@@ -48,35 +47,21 @@ struct ProductPhotoCaptureView: View {
                         ZStack {
                             Circle()
                                 .stroke(Color.white, lineWidth: 4)
-                                .frame(width: 70, height: 70)
+                                .frame(width: SpacingTokens.captureButtonOuter, height: SpacingTokens.captureButtonOuter)
 
                             Circle()
                                 .fill(Color.white)
-                                .frame(width: 58, height: 58)
+                                .frame(width: SpacingTokens.captureButtonInner, height: SpacingTokens.captureButtonInner)
                         }
                     }
                     .padding(.bottom, SpacingTokens.md)
 
-                    // Choose from Library button
-                    Button {
+                    // Choose from Library - text only
+                    Button("Choose from Library") {
                         showImagePicker = true
-                    } label: {
-                        Label("Choose from Library", systemImage: "photo.on.rectangle")
-                            .labelMedium()
-                            .foregroundColor(.white)
-                            .padding(.horizontal, SpacingTokens.md)
-                            .padding(.vertical, SpacingTokens.xs)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(SpacingTokens.radiusMedium)
-                    }
-
-                    // Cancel button
-                    Button("Cancel") {
-                        onCancel()
                     }
                     .bodySmall()
                     .foregroundColor(.white.opacity(0.8))
-                    .padding(.top, SpacingTokens.xs)
                     .padding(.bottom, SpacingTokens.xl)
                 }
             } else {
@@ -93,9 +78,7 @@ struct ProductPhotoCaptureView: View {
             }
         }
         .alert("Camera Error", isPresented: $showCameraError) {
-            Button("OK") {
-                onCancel()
-            }
+            Button("OK") { }
         } message: {
             Text(cameraErrorMessage)
         }
@@ -122,21 +105,12 @@ struct ProductPhotoCaptureView: View {
                     .padding(.horizontal)
             }
 
-            VStack(spacing: SpacingTokens.xs) {
-                Button {
-                    showImagePicker = true
-                } label: {
-                    Label("Choose from Library", systemImage: "photo.on.rectangle")
-                }
-                .primaryButtonStyle()
-
-                Button("Cancel") {
-                    onCancel()
-                }
-                .buttonStyle(.plain)
-                .foregroundColor(ColorTokens.textSecondary)
-                .padding(.top, SpacingTokens.xs)
+            Button {
+                showImagePicker = true
+            } label: {
+                Label("Choose from Library", systemImage: "photo.on.rectangle")
             }
+            .primaryButtonStyle()
             .padding(.horizontal)
 
             Spacer()
@@ -184,7 +158,6 @@ private struct ProductImagePickerView: UIViewControllerRepresentable {
 
 #Preview {
     ProductPhotoCaptureView(
-        onImageSelected: { _ in },
-        onCancel: {}
+        onImageSelected: { _ in }
     )
 }

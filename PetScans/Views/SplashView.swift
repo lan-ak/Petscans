@@ -12,12 +12,12 @@ struct SplashView: View {
                 Image("AppIconImage")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: 100, height: 100)
+                    .frame(width: SpacingTokens.iconHero, height: SpacingTokens.iconHero)
                     .clipShape(RoundedRectangle(cornerRadius: 22))
                     .shadow(color: .black.opacity(0.1), radius: 10, y: 5)
 
                 Text("PetScans")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.custom("Quicksand", size: 28).weight(.bold))
                     .foregroundStyle(ColorTokens.textPrimary)
 
                 Spacer()

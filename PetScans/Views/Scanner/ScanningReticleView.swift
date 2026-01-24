@@ -12,6 +12,7 @@ struct ScanningReticleView: View {
     var lineWidth: CGFloat = 3
     var showScanningLine: Bool = true
     var instructionText: String? = nil
+    var showDarkOverlay: Bool = true
 
     private var pulseAnimation: Animation? {
         AnimationTokens.respecting(AnimationTokens.pulse, reduceMotion: reduceMotion)
@@ -26,37 +27,67 @@ struct ScanningReticleView: View {
     }
 
     var body: some View {
-        ZStack {
-            // Corner brackets
-            cornerBrackets
-                .scaleEffect(isAnimating ? 1.0 : (instructionText != nil ? 0.97 : 0.95))
+        GeometryReader { geometry in
+            ZStack {
+                // Dark overlay with cutout for reticle area
+                if showDarkOverlay {
+                    darkOverlay(in: geometry.size)
+                }
 
-            // Scanning line
-            if showScanningLine && !reduceMotion {
-                scanningLine
-            }
+                // Corner brackets
+                cornerBrackets
+                    .scaleEffect(isAnimating ? 1.0 : (instructionText != nil ? 0.97 : 0.95))
 
-            // Instructional text (for OCR mode)
-            if let text = instructionText {
-                VStack {
-                    Spacer()
-                        .frame(height: frameHeight / 2 + 30)
+                // Scanning line
+                if showScanningLine && !reduceMotion {
+                    scanningLine
+                }
 
-                    Text(text)
-                        .caption()
-                        .foregroundColor(.white.opacity(0.8))
-                        .padding(.horizontal, SpacingTokens.sm)
-                        .padding(.vertical, SpacingTokens.xxs)
-                        .background(.ultraThinMaterial.opacity(0.6))
-                        .cornerRadius(SpacingTokens.radiusSmall)
+                // Instructional text (for OCR mode)
+                if let text = instructionText {
+                    VStack {
+                        Spacer()
+                            .frame(height: frameHeight / 2 + 30)
+
+                        Text(text)
+                            .caption()
+                            .foregroundColor(.white.opacity(0.8))
+                            .padding(.horizontal, SpacingTokens.sm)
+                            .padding(.vertical, SpacingTokens.xxs)
+                            .background(.ultraThinMaterial.opacity(0.6))
+                            .cornerRadius(SpacingTokens.radiusSmall)
+                    }
+                    .frame(width: frameWidth, height: totalHeight)
                 }
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
-        .frame(width: frameWidth, height: totalHeight)
+        .ignoresSafeArea()
         .allowsHitTesting(false)
         .onAppear {
             startAnimations()
         }
+    }
+
+    // MARK: - Dark Overlay
+
+    private func darkOverlay(in size: CGSize) -> some View {
+        // Center the cutout to match where corner brackets are positioned
+        // When instruction text is present, the canvas is taller (totalHeight)
+        // and brackets start at the top of that centered canvas
+        let reticleRect = CGRect(
+            x: (size.width - frameWidth) / 2,
+            y: (size.height - totalHeight) / 2,
+            width: frameWidth,
+            height: frameHeight
+        )
+
+        return Path { path in
+            path.addRect(CGRect(origin: .zero, size: size))
+            path.addRoundedRect(in: reticleRect, cornerSize: CGSize(width: 8, height: 8))
+        }
+        .fill(style: FillStyle(eoFill: true))
+        .foregroundColor(Color.black.opacity(0.5))
     }
 
     // MARK: - Corner Brackets
@@ -144,9 +175,20 @@ struct ScanningReticleView: View {
 
 #Preview {
     ZStack {
-        Color.black
-            .ignoresSafeArea()
+        // Simulate camera preview
+        LinearGradient(
+            colors: [.blue, .purple],
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+        .ignoresSafeArea()
 
-        ScanningReticleView()
+        ScanningReticleView(
+            frameWidth: 320,
+            frameHeight: 400,
+            cornerLength: 50,
+            showScanningLine: false,
+            instructionText: "Position product in frame"
+        )
     }
 }

@@ -70,7 +70,7 @@ final class ScannerViewModel: ObservableObject {
 
     // MARK: - Published Properties
 
-    @Published var step: Step = .scanning
+    @Published var step: Step = .productPhotoCapture
     @Published var barcode: String?
     @Published var productName: String = ""
     @Published var brand: String?
@@ -125,7 +125,7 @@ final class ScannerViewModel: ObservableObject {
 
     func retryLastScan() {
         guard let code = barcode else {
-            step = .scanning
+            step = .productPhotoCapture
             return
         }
         handleBarcodeScan(code)
@@ -133,7 +133,7 @@ final class ScannerViewModel: ObservableObject {
 
     func restartScanning() {
         barcode = nil
-        step = .scanning
+        step = .productPhotoCapture
         currentError = nil
     }
 
@@ -344,7 +344,7 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func reset() {
-        step = .scanning
+        step = .productPhotoCapture
         barcode = nil
         productName = ""
         brand = nil

@@ -10,6 +10,7 @@ final class HistoryViewModel: ObservableObject {
 
     @Published var selectedSpecies: Species?
     @Published var selectedCategory: Category?
+    @Published var showFavoritesOnly: Bool = false
     @Published var searchText: String = ""
     @Published var debouncedSearchText: String = ""
     @Published var showDeleteError: Bool = false
@@ -32,6 +33,11 @@ final class HistoryViewModel: ObservableObject {
     /// Filter scans based on current filter state
     func filteredScans(from scans: [Scan]) -> [Scan] {
         scans.filter { scan in
+            // Favorites filter
+            if showFavoritesOnly && !scan.isFavorite {
+                return false
+            }
+
             // Species filter
             if let species = selectedSpecies, scan.targetSpecies != species.rawValue {
                 return false
@@ -57,7 +63,7 @@ final class HistoryViewModel: ObservableObject {
     }
 
     var hasActiveFilters: Bool {
-        selectedSpecies != nil || selectedCategory != nil
+        selectedSpecies != nil || selectedCategory != nil || showFavoritesOnly
     }
 
     // MARK: - Actions
@@ -65,6 +71,7 @@ final class HistoryViewModel: ObservableObject {
     func clearFilters() {
         selectedSpecies = nil
         selectedCategory = nil
+        showFavoritesOnly = false
     }
 
     func delete(_ scan: Scan, using modelContext: ModelContext) {

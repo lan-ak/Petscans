@@ -35,7 +35,7 @@ struct MainTabView: View {
         TabView {
             ScannerView()
                 .tabItem {
-                    Label("Scan", systemImage: "barcode.viewfinder")
+                    Label("Search", systemImage: "camera.fill")
                 }
 
             HistoryView()

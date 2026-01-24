@@ -29,7 +29,7 @@ struct PetSelectionRow: View {
                 Spacer()
 
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.title3)
+                    .font(TypographyTokens.heading1)
                     .foregroundColor(isSelected ? .white : ColorTokens.textSecondary)
             }
             .padding(SpacingTokens.xs)

@@ -51,7 +51,7 @@ struct PetScansLogo: View {
 }
 
 #Preview {
-    VStack(spacing: 32) {
+    VStack(spacing: SpacingTokens.xl) {
         PetScansLogo(size: .small)
         PetScansLogo(size: .medium)
         PetScansLogo(size: .large)

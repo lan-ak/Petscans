@@ -22,7 +22,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "pawprint")
                                 .foregroundColor(ColorTokens.brandPrimary)
-                                .frame(width: 28)
+                                .frame(width: SpacingTokens.iconSettingsRow)
 
                             Text("My Pets")
 
@@ -47,7 +47,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "book.fill")
                                 .foregroundColor(ColorTokens.brandPrimary)
-                                .frame(width: 28)
+                                .frame(width: SpacingTokens.iconSettingsRow)
 
                             Text("Scientific References")
                         }
@@ -57,7 +57,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "hand.raised.fill")
                                 .foregroundColor(ColorTokens.brandPrimary)
-                                .frame(width: 28)
+                                .frame(width: SpacingTokens.iconSettingsRow)
 
                             Text("Privacy Policy")
 
@@ -74,7 +74,7 @@ struct SettingsView: View {
                         HStack {
                             Image(systemName: "envelope.fill")
                                 .foregroundColor(ColorTokens.brandPrimary)
-                                .frame(width: 28)
+                                .frame(width: SpacingTokens.iconSettingsRow)
 
                             Text("Contact Support")
 
@@ -90,7 +90,7 @@ struct SettingsView: View {
                     HStack {
                         Image(systemName: "info.circle")
                             .foregroundColor(ColorTokens.info)
-                            .frame(width: 28)
+                            .frame(width: SpacingTokens.iconSettingsRow)
 
                         Text("Version")
 
