@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// View displayed when a product is not found in the database
-/// Offers options to take a photo of ingredients or enter manually
+/// View displayed when all automatic methods have failed
+/// Offers OCR photo or manual entry as final fallbacks
 struct ProductNotFoundView: View {
     let barcode: String?
     let productName: String?
@@ -101,11 +101,11 @@ struct ProductNotFoundView: View {
 
             // Action buttons
             VStack(spacing: SpacingTokens.xs) {
-                // Primary: Take Photo
+                // Primary: Take Photo of Ingredients (OCR)
                 Button {
                     onTakePhoto()
                 } label: {
-                    Label("Take Photo of Ingredients", systemImage: "camera.fill")
+                    Label("Photo of Ingredients", systemImage: "camera.fill")
                 }
                 .primaryButtonStyle()
 
@@ -117,12 +117,12 @@ struct ProductNotFoundView: View {
                 }
                 .secondaryButtonStyle()
 
-                // Tertiary: Switch mode
+                // Tertiary: Try again
                 Button {
                     onRetry()
                 } label: {
                     Label(
-                        isManualSearch ? "Scan Barcode Instead" : "Try Barcode Again",
+                        isManualSearch ? "Scan Barcode Instead" : "Start Over",
                         systemImage: isManualSearch ? "barcode.viewfinder" : "arrow.clockwise"
                     )
                 }

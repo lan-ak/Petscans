@@ -73,6 +73,15 @@ struct ScannerView: View {
                             )
                         )
                     }
+
+                case .productPhotoCapture:
+                    productPhotoCaptureView
+
+                case .productIdentification:
+                    productIdentificationView
+
+                case .productSearching:
+                    productSearchingView
                 }
             }
             .navigationTitle("Scan Product")
@@ -199,10 +208,12 @@ struct ScannerView: View {
                 )
             },
             onFallbackToPhoto: {
-                viewModel.step = .ocrCapture
+                // Barcode lookup failed → go to product photo capture
+                viewModel.step = .productPhotoCapture
             },
             onCancel: {
-                viewModel.step = .productNotFound
+                // Barcode lookup failed → go to product photo capture
+                viewModel.step = .productPhotoCapture
             }
         )
     }
@@ -213,6 +224,7 @@ struct ScannerView: View {
                 viewModel.handleOCRCapture(image)
             },
             onCancel: {
+                // OCR cancelled → show final fallback options (manual entry)
                 viewModel.step = .productNotFound
             }
         )
@@ -220,6 +232,51 @@ struct ScannerView: View {
 
     private var ocrProcessingView: some View {
         OCRProcessingView()
+    }
+
+    // MARK: - Product Photo Identification Views
+
+    private var productPhotoCaptureView: some View {
+        ProductPhotoCaptureView(
+            onImageSelected: { image in
+                viewModel.handleProductPhotoCapture(image)
+            },
+            onCancel: {
+                // Product photo cancelled → go to OCR as backup
+                viewModel.step = .ocrCapture
+            }
+        )
+    }
+
+    private var productIdentificationView: some View {
+        ProductIdentificationProgressView(
+            image: viewModel.productImage,
+            identification: viewModel.productIdentification,
+            isProcessing: true
+        )
+    }
+
+    private var productSearchingView: some View {
+        ProductSearchView(
+            identification: viewModel.productIdentification,
+            onComplete: { ingredientsText, productName, brand, matched, imageUrl in
+                viewModel.handleProductSearchComplete(
+                    ingredientsText: ingredientsText,
+                    productName: productName,
+                    brand: brand,
+                    matched: matched,
+                    imageUrl: imageUrl
+                )
+            },
+            onFallbackToPhoto: {
+                // Product search failed → go to OCR as backup
+                viewModel.step = .ocrCapture
+            },
+            onCancel: {
+                // Product search cancelled → go to OCR as backup
+                viewModel.step = .ocrCapture
+            }
+        )
     }
 }
 

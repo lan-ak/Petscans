@@ -1,10 +1,10 @@
 import SwiftUI
 
-/// Main view for the Advanced Search feature
-/// Orchestrates the multi-step barcode lookup and web scraping process
-struct AdvancedSearchView: View {
-    /// The barcode to search for
-    let barcode: String
+/// View for searching product after identification from photo
+/// Similar to AdvancedSearchView but uses product identification instead of barcode
+struct ProductSearchView: View {
+    /// The product identification from vision API
+    let identification: ProductIdentification?
 
     /// Called when search completes successfully
     /// Parameters: ingredientsText, productName, brand, matchedIngredients, imageUrl
@@ -34,15 +34,15 @@ struct AdvancedSearchView: View {
             VStack(spacing: SpacingTokens.lg) {
                 Spacer()
 
-                // Progress indicator
-                AdvancedSearchProgressView(
+                // Progress indicator (skip barcode step visually since we start from image)
+                ProductSearchProgressView(
                     currentStep: viewModel.currentStep,
                     completedSteps: viewModel.completedSteps
                 )
 
-                // Product info (appears when found)
-                if let name = viewModel.productName {
-                    productInfoSection(name: name, brand: viewModel.brand)
+                // Product info from identification
+                if let name = viewModel.productName ?? identification?.productName {
+                    productInfoSection(name: name, brand: viewModel.brand ?? identification?.brand)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
@@ -55,7 +55,11 @@ struct AdvancedSearchView: View {
         }
         .animateEmphasized(value: viewModel.currentStep)
         .task {
-            await viewModel.startSearch(barcode: barcode)
+            guard let identification = identification else {
+                onCancel()
+                return
+            }
+            await viewModel.startSearchFromImage(identification: identification)
         }
     }
 
@@ -98,23 +102,25 @@ struct AdvancedSearchView: View {
 
     private var errorSection: some View {
         VStack(spacing: SpacingTokens.md) {
-            VStack(spacing: SpacingTokens.xs) {
-                Text("We couldn't find this product")
-                    .heading2()
-                    .foregroundColor(ColorTokens.textPrimary)
+            if let error = viewModel.error {
+                VStack(spacing: SpacingTokens.xs) {
+                    Text(error.errorDescription ?? "Search failed")
+                        .heading2()
+                        .foregroundColor(ColorTokens.error)
 
-                Text("Take a photo and we'll find it for you")
-                    .bodySmall()
-                    .foregroundColor(ColorTokens.textSecondary)
-                    .multilineTextAlignment(.center)
+                    Text(error.recoverySuggestion ?? "Please try another method.")
+                        .bodySmall()
+                        .foregroundColor(ColorTokens.textSecondary)
+                        .multilineTextAlignment(.center)
+                }
+                .padding(.bottom, SpacingTokens.sm)
             }
-            .padding(.bottom, SpacingTokens.sm)
 
-            // Primary action: Take photo of product
+            // Primary action: Take photo of ingredients
             Button {
                 onFallbackToPhoto()
             } label: {
-                Label("Take Photo", systemImage: "camera.fill")
+                Label("Take Photo of Ingredients", systemImage: "camera.fill")
             }
             .primaryButtonStyle()
 
@@ -177,11 +183,104 @@ struct AdvancedSearchView: View {
     }
 }
 
+// MARK: - Product Search Progress View
+
+/// Progress view that shows search steps (skipping barcode lookup)
+private struct ProductSearchProgressView: View {
+    let currentStep: AdvancedSearchViewModel.SearchStep
+    let completedSteps: Set<AdvancedSearchViewModel.SearchStep>
+
+    var body: some View {
+        VStack(spacing: SpacingTokens.lg) {
+            // Current step indicator
+            ZStack {
+                Circle()
+                    .fill(stepBackgroundColor)
+                    .frame(width: 80, height: 80)
+
+                if currentStep == .complete {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.white)
+                } else if currentStep == .failed {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 32, weight: .bold))
+                        .foregroundColor(.white)
+                } else {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+                }
+            }
+
+            // Status text
+            VStack(spacing: SpacingTokens.xxs) {
+                Text(statusTitle)
+                    .heading2()
+                    .multilineTextAlignment(.center)
+
+                Text(statusSubtitle)
+                    .bodySmall()
+                    .foregroundColor(ColorTokens.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+        }
+    }
+
+    private var stepBackgroundColor: Color {
+        switch currentStep {
+        case .complete:
+            return ColorTokens.success
+        case .failed:
+            return ColorTokens.error
+        default:
+            return ColorTokens.brandPrimary
+        }
+    }
+
+    private var statusTitle: String {
+        switch currentStep {
+        case .lookingUpBarcode:
+            return "Identified!"
+        case .searchingIngredients:
+            return "Getting ingredients..."
+        case .analyzingIngredients:
+            return "Almost there!"
+        case .complete:
+            return "All done!"
+        case .failed:
+            return "Couldn't find ingredients"
+        }
+    }
+
+    private var statusSubtitle: String {
+        switch currentStep {
+        case .lookingUpBarcode:
+            return "Product recognized from photo"
+        case .searchingIngredients:
+            return "Searching for the freshest data"
+        case .analyzingIngredients:
+            return "Getting the most up-to-date info"
+        case .complete:
+            return "Ready for you to review"
+        case .failed:
+            return "Let's try another way"
+        }
+    }
+}
+
 // MARK: - Preview
 
 #Preview("Searching") {
-    AdvancedSearchView(
-        barcode: "123456789012",
+    ProductSearchView(
+        identification: ProductIdentification(
+            brand: "Blue Buffalo",
+            productName: "Wilderness Chicken Recipe",
+            species: "dog",
+            confidence: 0.85,
+            primaryProtein: "Chicken",
+            primaryCarb: "Rice"
+        ),
         onComplete: { _, _, _, _, _ in },
         onFallbackToPhoto: {},
         onCancel: {}

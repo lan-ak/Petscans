@@ -141,6 +141,98 @@ final class AdvancedSearchViewModel: ObservableObject {
 
     // MARK: - Actions
 
+    /// Start search from product identification (bypasses barcode lookup)
+    /// - Parameter identification: Product identification from vision API
+    func startSearchFromImage(identification: ProductIdentification) async {
+        isSearching = true
+        error = nil
+        completedSteps = []
+
+        // Use identification data as our starting point (skip barcode lookup)
+        productName = identification.productName
+        brand = identification.brand
+
+        // Mark barcode lookup as complete since we already have product info
+        completedSteps.insert(.lookingUpBarcode)
+        currentStep = .searchingIngredients
+
+        guard let searchQuery = identification.searchQuery else {
+            error = .productNotFound
+            currentStep = .failed
+            isSearching = false
+            return
+        }
+
+        do {
+            // Step 2: Search and extract ingredients via Serper + parallel Scrape
+            try await Task.sleep(nanoseconds: 200_000_000)
+
+            // Search across pet retailers
+            let searchResults = try await serperService.searchProductURLs(
+                query: searchQuery,
+                brand: identification.brand,
+                retailers: [.petco, .chewy, .petsmart]
+            )
+            print("DEBUG: Found \(searchResults.count) URLs via Serper (from image)")
+
+            // Scrape all URLs in parallel, return first success
+            let (product, winningRetailer) = try await firecrawlService.scrapeFirstSuccessful(
+                searchResults: searchResults
+            )
+            print("DEBUG: First success from \(winningRetailer.displayName), ingredients: \(product.ingredients.count)")
+
+            // Validate ingredients
+            guard !product.ingredients.isEmpty else {
+                throw AdvancedSearchError.ingredientsNotFound
+            }
+
+            // Set data source to winning retailer
+            dataSource = winningRetailer.displayName
+
+            // Update product data from result
+            ingredientsText = product.ingredients.joined(separator: ", ")
+
+            if !product.name.isEmpty {
+                productName = product.name
+            }
+            if let productBrand = product.brand {
+                brand = productBrand
+            }
+            if let imageURL = product.imageURL {
+                productImageURL = imageURL
+            }
+
+            completedSteps.insert(.searchingIngredients)
+
+            // Step 3: Match ingredients against database
+            currentStep = .analyzingIngredients
+            matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText ?? "")
+            completedSteps.insert(.analyzingIngredients)
+
+            // Complete!
+            currentStep = .complete
+            completedSteps.insert(.complete)
+            successFeedback.notificationOccurred(.success)
+
+        } catch let serperError as SerperError {
+            print("DEBUG: Serper Error: \(serperError)")
+            handleSerperError(serperError)
+        } catch let firecrawlError as FirecrawlError {
+            print("DEBUG: Firecrawl Error: \(firecrawlError)")
+            handleFirecrawlError(firecrawlError)
+        } catch let advancedError as AdvancedSearchError {
+            print("DEBUG: Advanced Search Error: \(advancedError)")
+            error = advancedError
+            currentStep = .failed
+        } catch {
+            print("DEBUG: Unknown Error: \(error)")
+            self.error = .networkError(underlying: error)
+            currentStep = .failed
+        }
+
+        isSearching = false
+    }
+
     /// Start the advanced search process with a barcode
     /// - Parameter barcode: The barcode scanned by the user
     func startSearch(barcode: String) async {

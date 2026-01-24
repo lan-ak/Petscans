@@ -20,6 +20,10 @@ final class ScannerViewModel: ObservableObject {
         case selectOptions
         case manualEntry
         case results
+        // Product photo identification flow
+        case productPhotoCapture
+        case productIdentification
+        case productSearching
     }
 
     enum ScanError: LocalizedError {
@@ -82,12 +86,15 @@ final class ScannerViewModel: ObservableObject {
     @Published var ocrConfidence: Float?
     @Published var scoreSource: ScoreSource = .databaseVerified
     @Published var isManualSearch: Bool = false
+    @Published var productImage: UIImage?
+    @Published var productIdentification: ProductIdentification?
 
     // MARK: - Dependencies
 
     private let ingredientMatcher: IngredientMatcher
     private let scoreCalculator: ScoreCalculator
     private let ocrService: OCRServiceProtocol
+    private let productVisionService: ProductVisionServiceProtocol
 
     // MARK: - Haptic Feedback
 
@@ -98,11 +105,13 @@ final class ScannerViewModel: ObservableObject {
     init(
         ingredientMatcher: IngredientMatcher = IngredientMatcher(),
         scoreCalculator: ScoreCalculator = ScoreCalculator(),
-        ocrService: OCRServiceProtocol = OCRService()
+        ocrService: OCRServiceProtocol = OCRService(),
+        productVisionService: ProductVisionServiceProtocol = ProductVisionService(apiKey: APIKeys.openai)
     ) {
         self.ingredientMatcher = ingredientMatcher
         self.scoreCalculator = scoreCalculator
         self.ocrService = ocrService
+        self.productVisionService = productVisionService
         successFeedback.prepare()
     }
 
@@ -197,6 +206,69 @@ final class ScannerViewModel: ObservableObject {
         step = .error
     }
 
+    // MARK: - Product Photo Identification
+
+    func goToProductPhotoCapture() {
+        step = .productPhotoCapture
+    }
+
+    func handleProductPhotoCapture(_ image: UIImage) {
+        productImage = image
+        step = .productIdentification
+
+        Task {
+            do {
+                let identification = try await productVisionService.identifyProduct(from: image)
+                productIdentification = identification
+
+                guard identification.searchQuery != nil else {
+                    throw ProductVisionError.noProductFound
+                }
+
+                // Transition to searching with the identified product
+                step = .productSearching
+            } catch {
+                handleProductIdentificationError(error)
+            }
+        }
+    }
+
+    private func handleProductIdentificationError(_ error: Error) {
+        if let visionError = error as? ProductVisionError {
+            switch visionError {
+            case .noProductFound, .lowConfidence:
+                // Allow fallback to ingredient photo or retry
+                currentError = .productNotFound
+                step = .productNotFound
+            case .networkError, .rateLimited:
+                currentError = .networkError(underlying: error)
+                step = .error
+            default:
+                currentError = .productNotFound
+                step = .productNotFound
+            }
+        } else {
+            currentError = .networkError(underlying: error)
+            step = .error
+        }
+    }
+
+    func handleProductSearchComplete(ingredientsText: String, productName: String?, brand: String?, matched: [MatchedIngredient], imageUrl: URL?) {
+        self.ingredientsText = ingredientsText
+        if let productName = productName, !productName.isEmpty {
+            self.productName = productName
+        }
+        if let brand = brand, !brand.isEmpty {
+            self.brand = brand
+        }
+        if let imageUrl = imageUrl {
+            self.imageUrl = imageUrl.absoluteString
+        }
+        self.matchedIngredients = matched
+        self.scoreSource = .webScraped
+        step = .selectOptions
+    }
+
     func performAnalysis() {
         Task {
             // Get allergens from selected pet, or empty if no pet selected
@@ -288,6 +360,8 @@ final class ScannerViewModel: ObservableObject {
         ocrConfidence = nil
         scoreSource = .databaseVerified
         isManualSearch = false
+        productImage = nil
+        productIdentification = nil
     }
 
     // MARK: - Share Content

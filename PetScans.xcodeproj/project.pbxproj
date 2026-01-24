@@ -14,13 +14,16 @@
 		3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */; };
 		5513270F12EF77C8F5AE5252 /* ProcessingBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */; };
 		577C264FAA1448E6986DFF9F /* ProcessingSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */; };
+		58F2AC7D894822CD06287FEC /* ProductIdentificationProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A25032668CE6CFDB3FA3B1F /* ProductIdentificationProgressView.swift */; };
 		5AE9ABEEB630F5754EFF115D /* IngredientTextParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EEABDA11677F60384CF67B /* IngredientTextParser.swift */; };
 		602C8D20121221F8B4A8A614 /* IngredientScraperServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1B6314475AA1631DFEE9D9F /* IngredientScraperServiceProtocol.swift */; };
 		625089878FA30798B6F88822 /* ProcessingLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2209611D0D07D48930074C0 /* ProcessingLevel.swift */; };
 		6352AA7AD2193845951DF7A2 /* ProcessingInfoSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */; };
 		6352AA7AD2193845951DF7A3 /* IngredientDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D28D8AF851F5F7D681F2FE82 /* IngredientDetailSheet.swift */; };
+		6D2BE4497D225F4388400DB5 /* ProductVisionServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46A46C6B334E5DC617A7DE7 /* ProductVisionServiceProtocol.swift */; };
 		77485F1DFC27DCA0754D0928 /* UPCitemdbService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 300738C9929108D43A916B95 /* UPCitemdbService.swift */; };
 		7ECD2AA005CFB67C760EB07F /* CommonAllergens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */; };
+		84BCA1800ED26350B05ED017 /* ProductPhotoCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C71F30B90EBC251BDC995AA6 /* ProductPhotoCaptureView.swift */; };
 		9BE771BD76178F15D9DB6474 /* AnimationTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 293D87520CE50242DDCC5B5B /* AnimationTokens.swift */; };
 		A1000001 /* PetScansApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* PetScansApp.swift */; };
 		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* ContentView.swift */; };
@@ -54,6 +57,8 @@
 		A1000038 /* ScoreBreakdown+ShareText.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000039 /* ScoreBreakdown+ShareText.swift */; };
 		A236BB49FA9CD3337048CA45 /* AdvancedSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D45279D1D5F96EB18B555E /* AdvancedSearchView.swift */; };
 		C1B8BBE32C4CBB75D4652D99 /* UPCitemdbServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21C06A6EE95EB77A457E3AB /* UPCitemdbServiceProtocol.swift */; };
+		D2A71D937C423553343FDB69 /* ProductSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56E4209081EE9A4907B88B0 /* ProductSearchView.swift */; };
+		D5CC373BB3CEDC37E1EC6709 /* ProductVisionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04398EE51EF5AE73D2E45069 /* ProductVisionService.swift */; };
 		E5FBC824066D6BB9AE571E70 /* AdvancedSearchProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9184FDAA2F6D13E0D5BE3854 /* AdvancedSearchProgressView.swift */; };
 		F79CB17B2F12E9B9007B2E84 /* UnwrangleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB17A2F12E9B9007B2E84 /* UnwrangleService.swift */; };
 		F79CB17C2F12E9B9007B2E84 /* SerperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB1792F12E9B9007B2E84 /* SerperService.swift */; };
@@ -112,6 +117,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		04398EE51EF5AE73D2E45069 /* ProductVisionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductVisionService.swift; sourceTree = "<group>"; };
 		0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppInitializer.swift; sourceTree = "<group>"; };
 		27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommonAllergens.swift; sourceTree = "<group>"; };
 		293D87520CE50242DDCC5B5B /* AnimationTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimationTokens.swift; sourceTree = "<group>"; };
@@ -119,6 +125,7 @@
 		343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingSummaryCard.swift; sourceTree = "<group>"; };
 		472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingBadgeView.swift; sourceTree = "<group>"; };
 		47EEABDA11677F60384CF67B /* IngredientTextParser.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IngredientTextParser.swift; sourceTree = "<group>"; };
+		4A25032668CE6CFDB3FA3B1F /* ProductIdentificationProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductIdentificationProgressView.swift; sourceTree = "<group>"; };
 		68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IngredientScraperService.swift; sourceTree = "<group>"; };
 		9184FDAA2F6D13E0D5BE3854 /* AdvancedSearchProgressView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedSearchProgressView.swift; sourceTree = "<group>"; };
 		A0000001 /* PetScans.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScans.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -156,10 +163,13 @@
 		A2209611D0D07D48930074C0 /* ProcessingLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingLevel.swift; sourceTree = "<group>"; };
 		A9D45279D1D5F96EB18B555E /* AdvancedSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedSearchView.swift; sourceTree = "<group>"; };
 		B04D76F13AF42C97C3BE08E0 /* SplashView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
+		C56E4209081EE9A4907B88B0 /* ProductSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductSearchView.swift; sourceTree = "<group>"; };
+		C71F30B90EBC251BDC995AA6 /* ProductPhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductPhotoCaptureView.swift; sourceTree = "<group>"; };
 		CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PetScansLogo.swift; sourceTree = "<group>"; };
 		D1B6314475AA1631DFEE9D9F /* IngredientScraperServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IngredientScraperServiceProtocol.swift; sourceTree = "<group>"; };
 		D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingInfoSheet.swift; sourceTree = "<group>"; };
 		D28D8AF851F5F7D681F2FE82 /* IngredientDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientDetailSheet.swift; sourceTree = "<group>"; };
+		D46A46C6B334E5DC617A7DE7 /* ProductVisionServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductVisionServiceProtocol.swift; sourceTree = "<group>"; };
 		E21C06A6EE95EB77A457E3AB /* UPCitemdbServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UPCitemdbServiceProtocol.swift; sourceTree = "<group>"; };
 		F39C818B4245DD52B539CDB9 /* AdvancedSearchViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedSearchViewModel.swift; sourceTree = "<group>"; };
 		F79CB1782F12E9B9007B2E84 /* APIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeys.swift; sourceTree = "<group>"; };
@@ -313,6 +323,7 @@
 				300738C9929108D43A916B95 /* UPCitemdbService.swift */,
 				68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */,
 				47EEABDA11677F60384CF67B /* IngredientTextParser.swift */,
+				04398EE51EF5AE73D2E45069 /* ProductVisionService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -346,6 +357,9 @@
 				A2000020 /* SpeciesCategoryPicker.swift */,
 				A9D45279D1D5F96EB18B555E /* AdvancedSearchView.swift */,
 				9184FDAA2F6D13E0D5BE3854 /* AdvancedSearchProgressView.swift */,
+				C71F30B90EBC251BDC995AA6 /* ProductPhotoCaptureView.swift */,
+				4A25032668CE6CFDB3FA3B1F /* ProductIdentificationProgressView.swift */,
+				C56E4209081EE9A4907B88B0 /* ProductSearchView.swift */,
 			);
 			path = Scanner;
 			sourceTree = "<group>";
@@ -404,6 +418,7 @@
 				F7D835002F05E6D400414B32 /* OCRServiceProtocol.swift */,
 				E21C06A6EE95EB77A457E3AB /* UPCitemdbServiceProtocol.swift */,
 				D1B6314475AA1631DFEE9D9F /* IngredientScraperServiceProtocol.swift */,
+				D46A46C6B334E5DC617A7DE7 /* ProductVisionServiceProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -645,6 +660,11 @@
 				A236BB49FA9CD3337048CA45 /* AdvancedSearchView.swift in Sources */,
 				E5FBC824066D6BB9AE571E70 /* AdvancedSearchProgressView.swift in Sources */,
 				5AE9ABEEB630F5754EFF115D /* IngredientTextParser.swift in Sources */,
+				D5CC373BB3CEDC37E1EC6709 /* ProductVisionService.swift in Sources */,
+				84BCA1800ED26350B05ED017 /* ProductPhotoCaptureView.swift in Sources */,
+				58F2AC7D894822CD06287FEC /* ProductIdentificationProgressView.swift in Sources */,
+				D2A71D937C423553343FDB69 /* ProductSearchView.swift in Sources */,
+				6D2BE4497D225F4388400DB5 /* ProductVisionServiceProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
