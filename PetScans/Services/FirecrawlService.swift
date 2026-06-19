@@ -6,14 +6,13 @@ actor FirecrawlService: FirecrawlServiceProtocol {
 
     // MARK: - Properties
 
-    private let apiKey: String
-    private let baseURL = "https://api.firecrawl.dev"
+    private let client: PetScansAPIClient
     private let session: URLSession
 
     // MARK: - Init
 
-    init(apiKey: String, session: URLSession = .shared) {
-        self.apiKey = apiKey
+    init(client: PetScansAPIClient = .shared, session: URLSession = .shared) {
+        self.client = client
         self.session = session
     }
 
@@ -21,13 +20,9 @@ actor FirecrawlService: FirecrawlServiceProtocol {
 
     /// Scrape product details from any pet food retailer URL
     func scrapeProduct(url: URL) async throws -> FirecrawlProduct {
-        let requestURL = URL(string: "\(baseURL)/v1/scrape")!
-
-        var request = URLRequest(url: requestURL)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 120 // Firecrawl extraction can take time for JS-heavy pages
+        // Routed through the PetScans proxy, which injects the Firecrawl key.
+        // Firecrawl extraction can take time for JS-heavy pages.
+        var request = try await client.authorizedRequest(path: "/v1/firecrawl/scrape", method: "POST", timeout: 120)
 
         // Build request body with extraction schema
         let requestBody = ScrapeRequest(

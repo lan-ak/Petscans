@@ -19,7 +19,7 @@ struct ProductSearchView: View {
     // MARK: - State
 
     @StateObject private var viewModel = AdvancedSearchViewModel(
-        firecrawlService: FirecrawlService(apiKey: APIKeys.firecrawl)
+        firecrawlService: FirecrawlService()
     )
 
     // MARK: - Body

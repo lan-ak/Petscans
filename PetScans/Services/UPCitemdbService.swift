@@ -6,9 +6,7 @@ actor UPCitemdbService: UPCitemdbServiceProtocol {
 
     // MARK: - Properties
 
-    /// Paid API endpoint (v1)
-    private let baseURL = "https://api.upcitemdb.com/prod/v1/lookup"
-    private let apiKey: String
+    private let client: PetScansAPIClient
     private let session: URLSession
 
     /// Known pet food manufacturers to match against brand field
@@ -29,8 +27,8 @@ actor UPCitemdbService: UPCitemdbServiceProtocol {
 
     // MARK: - Init
 
-    init(apiKey: String = APIKeys.upcitemdb, session: URLSession = .shared) {
-        self.apiKey = apiKey
+    init(client: PetScansAPIClient = .shared, session: URLSession = .shared) {
+        self.client = client
         self.session = session
     }
 
@@ -49,24 +47,13 @@ actor UPCitemdbService: UPCitemdbServiceProtocol {
             throw UPCitemdbError.invalidBarcode
         }
 
-        // Build URL with query parameter
-        guard var components = URLComponents(string: baseURL) else {
-            throw UPCitemdbError.networkError(underlying: URLError(.badURL))
-        }
-        components.queryItems = [URLQueryItem(name: "upc", value: cleanedBarcode)]
-
-        guard let url = components.url else {
-            throw UPCitemdbError.networkError(underlying: URLError(.badURL))
-        }
-
-        // Create request with headers
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("PetScans/1.0 (iOS Swift App)", forHTTPHeaderField: "User-Agent")
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.setValue(apiKey, forHTTPHeaderField: "user_key")
-        request.setValue("3scale", forHTTPHeaderField: "key_type")
-        request.timeoutInterval = 15
+        // Routed through the PetScans proxy, which injects the UPCitemdb key + headers.
+        // cleanedBarcode is validated to be digits only, so it is safe in the query string.
+        let request = try await client.authorizedRequest(
+            path: "/v1/upcitemdb/lookup?upc=\(cleanedBarcode)",
+            method: "GET",
+            timeout: 15
+        )
 
         // Execute request
         let data: Data

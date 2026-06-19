@@ -6,6 +6,8 @@
 	<string>PetScans needs camera access to scan product barcodes and ingredient labels on pet food products.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>PetScans can analyze ingredient labels from your photo library.</string>
+	<key>PetScansAPIBaseURL</key>
+	<string>https://REPLACE-WITH-YOUR-WORKER.workers.dev</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>

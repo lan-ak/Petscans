@@ -6,14 +6,13 @@ actor UnwrangleService: UnwrangleServiceProtocol {
 
     // MARK: - Properties
 
-    private let apiKey: String
-    private let baseURL = "https://data.unwrangle.com/api/getter/"
+    private let client: PetScansAPIClient
     private let session: URLSession
 
     // MARK: - Init
 
-    init(apiKey: String, session: URLSession = .shared) {
-        self.apiKey = apiKey
+    init(client: PetScansAPIClient = .shared, session: URLSession = .shared) {
+        self.client = client
         self.session = session
     }
 
@@ -32,19 +31,12 @@ actor UnwrangleService: UnwrangleServiceProtocol {
             throw UnwrangleError.networkError(underlying: URLError(.badURL))
         }
 
-        // Build request URL manually to match the curl example format exactly
-        let requestURLString = "\(baseURL)?platform=chewy_detail&url=\(encodedURL)&api_key=\(apiKey)"
-        guard let requestURL = URL(string: requestURLString) else {
-            print("DEBUG: Failed to create request URL from: \(requestURLString)")
-            throw UnwrangleError.networkError(underlying: URLError(.badURL))
-        }
-        print("DEBUG: Unwrangle request URL: \(requestURL.absoluteString)")
-
-        // Build request
-        var request = URLRequest(url: requestURL)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        request.timeoutInterval = 30
+        // Routed through the PetScans proxy, which injects the Unwrangle api_key.
+        let request = try await client.authorizedRequest(
+            path: "/v1/unwrangle/getter?platform=chewy_detail&url=\(encodedURL)",
+            method: "GET",
+            timeout: 30
+        )
 
         // Execute request
         let data: Data

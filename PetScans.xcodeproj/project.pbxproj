@@ -63,6 +63,7 @@
 		F79CB17B2F12E9B9007B2E84 /* UnwrangleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB17A2F12E9B9007B2E84 /* UnwrangleService.swift */; };
 		F79CB17C2F12E9B9007B2E84 /* SerperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB1792F12E9B9007B2E84 /* SerperService.swift */; };
 		F79CB17D2F12E9B9007B2E84 /* APIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB1782F12E9B9007B2E84 /* APIKeys.swift */; };
+		F7AA000000000000000000C2 /* PetScansAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7AA000000000000000000C1 /* PetScansAPIClient.swift */; };
 		F79CB1802F12E9CA007B2E84 /* UnwrangleServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB17F2F12E9CA007B2E84 /* UnwrangleServiceProtocol.swift */; };
 		F79CB1812F12E9CA007B2E84 /* SerperServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB17E2F12E9CA007B2E84 /* SerperServiceProtocol.swift */; };
 		F79CB1842F13000000000001 /* FirecrawlService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB1822F13000000000001 /* FirecrawlService.swift */; };
@@ -174,6 +175,7 @@
 		E21C06A6EE95EB77A457E3AB /* UPCitemdbServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UPCitemdbServiceProtocol.swift; sourceTree = "<group>"; };
 		F39C818B4245DD52B539CDB9 /* AdvancedSearchViewModel.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedSearchViewModel.swift; sourceTree = "<group>"; };
 		F79CB1782F12E9B9007B2E84 /* APIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeys.swift; sourceTree = "<group>"; };
+		F7AA000000000000000000C1 /* PetScansAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetScansAPIClient.swift; sourceTree = "<group>"; };
 		F79CB1792F12E9B9007B2E84 /* SerperService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerperService.swift; sourceTree = "<group>"; };
 		F79CB17A2F12E9B9007B2E84 /* UnwrangleService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnwrangleService.swift; sourceTree = "<group>"; };
 		F79CB17E2F12E9CA007B2E84 /* SerperServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SerperServiceProtocol.swift; sourceTree = "<group>"; };
@@ -310,6 +312,7 @@
 			isa = PBXGroup;
 			children = (
 				F79CB1782F12E9B9007B2E84 /* APIKeys.swift */,
+				F7AA000000000000000000C1 /* PetScansAPIClient.swift */,
 				F79CB1822F13000000000001 /* FirecrawlService.swift */,
 				F79CB1792F12E9B9007B2E84 /* SerperService.swift */,
 				F79CB17A2F12E9B9007B2E84 /* UnwrangleService.swift */,
@@ -593,6 +596,7 @@
 				F79CB17B2F12E9B9007B2E84 /* UnwrangleService.swift in Sources */,
 				F79CB17C2F12E9B9007B2E84 /* SerperService.swift in Sources */,
 				F79CB17D2F12E9B9007B2E84 /* APIKeys.swift in Sources */,
+				F7AA000000000000000000C2 /* PetScansAPIClient.swift in Sources */,
 				F7D835172F06EC2600414B32 /* PetDetailView.swift in Sources */,
 				F7F30C822F05B208008389D8 /* TypographyTokens.swift in Sources */,
 				F7F30C832F05B208008389D8 /* ComponentStyles.swift in Sources */,

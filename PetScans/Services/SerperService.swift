@@ -6,8 +6,7 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: - Properties
 
-    private let apiKey: String
-    private let baseURL = "https://google.serper.dev/search"
+    private let client: PetScansAPIClient
     private let session: URLSession
 
     /// Known manufacturer/parent company names that should be stripped from queries
@@ -193,8 +192,8 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: - Init
 
-    init(apiKey: String, session: URLSession = .shared) {
-        self.apiKey = apiKey
+    init(client: PetScansAPIClient = .shared, session: URLSession = .shared) {
+        self.client = client
         self.session = session
     }
 
@@ -832,15 +831,8 @@ actor SerperService: SerperServiceProtocol {
     // MARK: API
 
     private func performSearch(query: String) async throws -> SerperResponse {
-        guard let url = URL(string: baseURL) else {
-            throw SerperError.networkError(underlying: URLError(.badURL))
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "X-API-KEY")
-        request.timeoutInterval = 15
+        // Routed through the PetScans proxy, which injects the Serper key.
+        var request = try await client.authorizedRequest(path: "/v1/serper/search", method: "POST", timeout: 15)
 
         let body = SerperRequest(q: query, num: 5)
         request.httpBody = try JSONEncoder().encode(body)

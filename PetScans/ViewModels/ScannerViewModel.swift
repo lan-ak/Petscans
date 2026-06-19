@@ -106,7 +106,7 @@ final class ScannerViewModel: ObservableObject {
         ingredientMatcher: IngredientMatcher = IngredientMatcher(),
         scoreCalculator: ScoreCalculator = ScoreCalculator(),
         ocrService: OCRServiceProtocol = OCRService(),
-        productVisionService: ProductVisionServiceProtocol = ProductVisionService(apiKey: APIKeys.openai)
+        productVisionService: ProductVisionServiceProtocol = ProductVisionService()
     ) {
         self.ingredientMatcher = ingredientMatcher
         self.scoreCalculator = scoreCalculator

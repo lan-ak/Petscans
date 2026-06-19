@@ -7,14 +7,13 @@ actor ProductVisionService: ProductVisionServiceProtocol {
 
     // MARK: - Properties
 
-    private let apiKey: String
-    private let baseURL = "https://api.openai.com/v1/chat/completions"
+    private let client: PetScansAPIClient
     private let session: URLSession
 
     // MARK: - Init
 
-    init(apiKey: String, session: URLSession = .shared) {
-        self.apiKey = apiKey
+    init(client: PetScansAPIClient = .shared, session: URLSession = .shared) {
+        self.client = client
         self.session = session
     }
 
@@ -30,12 +29,8 @@ actor ProductVisionService: ProductVisionServiceProtocol {
 
         print("DEBUG: ProductVision - Image encoded, size: \(imageData.count) bytes")
 
-        // Build request
-        var request = URLRequest(url: URL(string: baseURL)!)
-        request.httpMethod = "POST"
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 30
+        // Build request — routed through the PetScans proxy, which injects the OpenAI key.
+        var request = try await client.authorizedRequest(path: "/v1/openai/identify", method: "POST", timeout: 30)
 
         let requestBody = ChatCompletionRequest(
             model: "gpt-4o",

@@ -129,7 +129,7 @@ final class AdvancedSearchViewModel: ObservableObject {
     init(
         upcService: UPCitemdbServiceProtocol = UPCitemdbService(),
         firecrawlService: FirecrawlServiceProtocol,
-        serperService: SerperServiceProtocol = SerperService(apiKey: APIKeys.serper),
+        serperService: SerperServiceProtocol = SerperService(),
         ingredientMatcher: IngredientMatcher = IngredientMatcher()
     ) {
         self.upcService = upcService
