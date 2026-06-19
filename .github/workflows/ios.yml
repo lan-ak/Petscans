@@ -1,0 +1,46 @@
+name: iOS CI
+
+on:
+  push:
+    branches: ["**"]
+    paths:
+      - "PetScans/**"
+      - "PetScans.xcodeproj/**"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "PetScans/**"
+      - "PetScans.xcodeproj/**"
+      - ".github/workflows/ios.yml"
+
+jobs:
+  build:
+    name: Build (iOS Simulator)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      # The real APIKeys.swift is gitignored (it holds the Superwall publishable
+      # key). Generate a stub so the project compiles in CI. All provider keys
+      # now live in the backend proxy, so only `superwall` is referenced.
+      - name: Generate APIKeys stub
+        run: |
+          cat > PetScans/Services/APIKeys.swift <<'SWIFT'
+          // Auto-generated for CI builds; the real file is gitignored.
+          enum APIKeys {
+              static let superwall = "ci-placeholder"
+          }
+          SWIFT
+
+      - name: Build
+        run: |
+          set -o pipefail
+          xcodebuild build \
+            -project PetScans.xcodeproj \
+            -scheme PetScans \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
