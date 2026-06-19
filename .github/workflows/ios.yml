@@ -16,7 +16,7 @@ on:
 jobs:
   build:
     name: Build (iOS Simulator)
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
@@ -35,17 +35,26 @@ jobs:
           }
           SWIFT
 
+      # Pick any available iPhone simulator so we don't depend on a specific
+      # device name across Xcode versions.
+      - name: Select simulator
+        id: sim
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; c=[dev for rt,devs in d.items() if 'iOS' in rt for dev in devs if dev.get('isAvailable') and dev['name'].startswith('iPhone')]; print(c[0]['udid'] if c else '')")
+          echo "Using simulator UDID: $UDID"
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
       - name: Build
         run: |
           set -o pipefail
-          # Build for a single arm64 simulator slice (ONLY_ACTIVE_ARCH=YES) rather
-          # than the generic x86_64+arm64 destination — building both slices of the
-          # large SuperwallKit dependency in parallel exhausts the runner's memory
-          # and gets the compiler killed before our code is even reached.
+          # arm64-only (ONLY_ACTIVE_ARCH=YES) plus serialized compile jobs keep the
+          # heavy SuperwallKit dependency from exhausting the runner's memory and
+          # getting the compiler killed before our code is reached.
           xcodebuild build \
             -project PetScans.xcodeproj \
             -scheme PetScans \
             -configuration Debug \
-            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -destination "id=${{ steps.sim.outputs.udid }}" \
+            -jobs 1 \
             ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO
