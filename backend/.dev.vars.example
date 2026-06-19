@@ -1,0 +1,12 @@
+# Copy to `.dev.vars` for local `wrangler dev`, and set the same values in
+# production with `wrangler secret put <NAME>`. NEVER commit real keys.
+
+# Signs/verifies anonymous device tokens. Generate with: openssl rand -hex 32
+AUTH_SECRET=
+
+# Upstream provider keys (moved off the iOS client)
+OPENAI_API_KEY=
+FIRECRAWL_API_KEY=
+SERPER_API_KEY=
+UPCITEMDB_API_KEY=
+UNWRANGLE_API_KEY=
