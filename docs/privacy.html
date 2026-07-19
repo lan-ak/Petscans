@@ -51,7 +51,7 @@
   <!-- Legal Content -->
   <main class="legal-content container">
     <h1>Privacy Policy</h1>
-    <p class="last-updated">Last updated: January 1, 2025</p>
+    <p class="last-updated">Last updated: July 12, 2026</p>
 
     <p>PetScans ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our mobile application.</p>
 
@@ -73,7 +73,7 @@
       <li><strong>Camera:</strong> To scan product barcodes and capture images of ingredient labels</li>
       <li><strong>Photo Library:</strong> To analyze ingredient labels from photos you have already taken</li>
     </ul>
-    <p>Images captured or selected are processed locally on your device. We do not upload, store, or transmit your photos to external servers.</p>
+    <p>Barcode scanning happens entirely on your device. To read an ingredient label, however, the image is sent over an encrypted connection to our processing service, which passes it to a third-party vision provider (OpenAI) that extracts the ingredient text. The image is used only to fulfil that request and is not retained by us or used to build a profile of you. We do not attach your name, email, or pet profiles to it.</p>
 
     <h2>Information We Do Not Collect</h2>
     <p>PetScans is designed with privacy in mind. We do not:</p>
@@ -81,11 +81,20 @@
       <li>Collect personal identifying information (name, email, phone number)</li>
       <li>Require account creation or login</li>
       <li>Track your location</li>
-      <li>Use analytics or tracking services</li>
-      <li>Collect usage data or behavioral information</li>
-      <li>Share any data with third parties</li>
-      <li>Display advertisements</li>
+      <li>Display advertisements inside the app</li>
+      <li>Sell your personal information</li>
     </ul>
+
+    <h2 id="advertising">Advertising and Attribution</h2>
+    <p>We advertise PetScans on Meta platforms (Facebook and Instagram). To understand which of those ads actually lead people to install the app — and to avoid paying for ads that do not — the app includes the Meta SDK, which shares a limited set of measurement data with Meta.</p>
+    <p>Where you have granted permission, this includes:</p>
+    <ul>
+      <li><strong>Advertising identifier (IDFA):</strong> a resettable device identifier Apple provides, used to match your install to the ad you saw</li>
+      <li><strong>App events:</strong> that the app was installed, opened, and whether a subscription or trial was started</li>
+      <li><strong>Device and app information:</strong> such as device model, operating system version, and app version</li>
+    </ul>
+    <p>Under Apple's rules this is classed as <strong>tracking</strong>, and iOS will ask for your permission before it happens. <strong>If you decline, we do not collect or share your advertising identifier</strong>, and Meta receives only Apple's own privacy-preserving, aggregated measurement (SKAdNetwork), which cannot identify you individually. You can change your choice at any time in <em>Settings &rsaquo; Privacy &amp; Security &rsaquo; Tracking</em>.</p>
+    <p>This data is used for advertising measurement. It is not used to determine your pet's safety scores, and your pet profiles, scan history, and photos are never shared with Meta. Meta's handling of data it receives is governed by its own <a href="https://www.facebook.com/privacy/policy/" rel="noopener" target="_blank">Privacy Policy</a>.</p>
 
     <h2>Data Storage and Security</h2>
     <p>All data created within PetScans is stored locally on your device using iOS secure storage mechanisms. We do not maintain servers that store your personal data.</p>
@@ -97,7 +106,14 @@
     </ul>
 
     <h2>Third-Party Services</h2>
-    <p>PetScans may reference external databases for ingredient information and product lookups. These lookups are performed anonymously and do not include any personal or identifying information from your device.</p>
+    <p>PetScans relies on the following third parties. Product and ingredient lookups are performed without your name, email, or pet profiles attached.</p>
+    <ul>
+      <li><strong>Ingredient and product databases:</strong> queried to identify a scanned product and its ingredients. These lookups carry the barcode or product text only.</li>
+      <li><strong>Vision and text processing (OpenAI):</strong> receives ingredient-label images you scan, in order to extract the ingredient text.</li>
+      <li><strong>Meta:</strong> receives advertising measurement data as described in <a href="#advertising">Advertising and Attribution</a> above, and only where you have granted tracking permission.</li>
+      <li><strong>Superwall:</strong> manages subscription offers and receives subscription status.</li>
+    </ul>
+    <p>These requests are routed through our own processing service so that provider credentials are never shipped inside the app. That service does not store your scans or build a profile of you.</p>
 
     <h2>Children's Privacy</h2>
     <p>PetScans does not knowingly collect information from children under 13 years of age. The app does not require any personal information to function.</p>

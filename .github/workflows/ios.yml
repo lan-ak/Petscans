@@ -35,6 +35,13 @@ jobs:
           }
           SWIFT
 
+      # The app target's base configuration is Secrets.xcconfig (gitignored; holds
+      # the Meta App ID/client token + Worker URL). Stub it from the committed
+      # template so the build resolves the base config. Empty values keep the Meta
+      # SDK inert and the API client on its fallback URL — the correct CI behaviour.
+      - name: Generate Secrets.xcconfig stub
+        run: cp PetScans/Config/Secrets.example.xcconfig PetScans/Config/Secrets.xcconfig
+
       # Pick any available iPhone simulator so we don't depend on a specific
       # device name across Xcode versions.
       - name: Select simulator

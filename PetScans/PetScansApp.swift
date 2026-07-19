@@ -1,9 +1,25 @@
 import SwiftUI
 import SwiftData
 import SuperwallKit
+import UIKit
+
+/// Meta's SDK has to initialize inside `didFinishLaunchingWithOptions` to attribute
+/// an install to the ad click that caused it, and SwiftUI's `App.init` runs too early
+/// to see `launchOptions`. This adaptor is the only reason the app has a delegate.
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
+    ) -> Bool {
+        AttributionService.start(launchOptions: launchOptions)
+        return true
+    }
+}
 
 @main
 struct PetScansApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
     let container: ModelContainer
     @State private var isReady = false
 
@@ -60,9 +76,19 @@ struct PetScansApp: App {
             .tint(ColorTokens.brandPrimary)
             .background(ColorTokens.backgroundPrimary)
             .onOpenURL { url in
+                // Meta only claims its own fb<app-id> callbacks; everything else
+                // falls through to Superwall.
+                guard !AttributionService.handleDeepLink(url) else { return }
                 Superwall.handleDeepLink(url)
             }
             .modelContainer(container)
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            // The app delegate's applicationDidBecomeActive never fires in a
+            // scene-based app, so activation has to be observed here.
+            if newPhase == .active {
+                AttributionService.logAppActivation()
+            }
         }
     }
 
@@ -81,7 +107,9 @@ struct PetScansApp: App {
         let context = ModelContext(container)
         PetMigrationService.migrateIfNeeded(modelContext: context)
 
-        // Configure Superwall
+        // Configure Superwall. The delegate forwards purchase/trial events to Meta
+        // for ad attribution; Superwall holds it weakly, hence the static instance.
         Superwall.configure(apiKey: APIKeys.superwall)
+        Superwall.shared.delegate = SuperwallAttributionDelegate.shared
     }
 }

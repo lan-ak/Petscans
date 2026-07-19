@@ -301,6 +301,10 @@ final class ScannerViewModel: ObservableObject {
 
             Superwall.shared.register(placement: "analysis_complete")
 
+            // Meta ad-campaign signal: the app's core activation moment. No-ops
+            // unless Meta credentials are configured (see AttributionService).
+            AttributionService.logScanCompleted()
+
             step = .results
         }
     }

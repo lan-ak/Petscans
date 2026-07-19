@@ -26,6 +26,17 @@ struct ContentView: View {
         } else {
             MainTabView()
                 .keyboardToolbar()
+                .task {
+                    // Reached both by finishing onboarding and by launching as an
+                    // existing user, so the prompt lands once the app has shown its
+                    // value rather than on a cold splash screen — asking there costs
+                    // a large share of opt-ins, and opt-in rate is what decides
+                    // whether Meta attribution has an IDFA to work with at all.
+                    // iOS shows the prompt only once per install; later calls return
+                    // the cached status without any UI.
+                    try? await Task.sleep(for: .milliseconds(500))
+                    await AttributionService.requestTrackingAuthorization()
+                }
         }
     }
 }

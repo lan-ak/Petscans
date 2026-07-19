@@ -11,6 +11,8 @@
 		127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D76F13AF42C97C3BE08E0 /* SplashView.swift */; };
 		135E1ACBD3D41B016EEB73D0 /* IngredientScraperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */; };
 		30252FA513A589765AC98425 /* AppInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */; };
+		FBDA00042F0846B800414B32 /* AttributionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA00052F0846B800414B32 /* AttributionService.swift */; };
+		FBDA00122F0846B800414B32 /* SuperwallAttributionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA00112F0846B800414B32 /* SuperwallAttributionDelegate.swift */; };
 		3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */; };
 		5513270F12EF77C8F5AE5252 /* ProcessingBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */; };
 		577C264FAA1448E6986DFF9F /* ProcessingSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */; };
@@ -94,11 +96,13 @@
 		F7D835272F0720A200414B32 /* OnboardingWelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */; };
 		F7D835282F0720A200414B32 /* OnboardingBenefitsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */; };
 		F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F7D8352B2F0724E300414B32 /* Assets.xcassets */; };
+		FBDA00062F0846B800414B32 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = FBDA00072F0846B800414B32 /* PrivacyInfo.xcprivacy */; };
 		F7D8352F2F07461100414B32 /* ScoreExplanationCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */; };
 		F7D835302F07461100414B32 /* RatingLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8352D2F07461100414B32 /* RatingLabelView.swift */; };
 		F7D835312F07470000414B32 /* ProductScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835322F07470000414B32 /* ProductScoreView.swift */; };
 		F7D835332F07470100414B32 /* SavedScanDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F07470100414B32 /* SavedScanDetailView.swift */; };
 		F7D835332F0846B800414B32 /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = F7D835322F0846B800414B32 /* SuperwallKit */; };
+		FBDA00012F0846B800414B32 /* FacebookCore in Frameworks */ = {isa = PBXBuildFile; productRef = FBDA00022F0846B800414B32 /* FacebookCore */; };
 		F7D835352F089EAB00414B32 /* ScreenshotDataSeeder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835342F089EAB00414B32 /* ScreenshotDataSeeder.swift */; };
 		F7D8353A2F0AFE3600414B32 /* PetFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835392F0AFE3600414B32 /* PetFormView.swift */; };
 		F7D8353B2F0AFE3600414B32 /* IngredientSearchSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835382F0AFE3600414B32 /* IngredientSearchSheet.swift */; };
@@ -121,6 +125,9 @@
 /* Begin PBXFileReference section */
 		04398EE51EF5AE73D2E45069 /* ProductVisionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductVisionService.swift; sourceTree = "<group>"; };
 		0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppInitializer.swift; sourceTree = "<group>"; };
+		FBDA00052F0846B800414B32 /* AttributionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AttributionService.swift; sourceTree = "<group>"; };
+		FBDA00112F0846B800414B32 /* SuperwallAttributionDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SuperwallAttributionDelegate.swift; sourceTree = "<group>"; };
+		FBDA00102F0846B800414B32 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Secrets.xcconfig; sourceTree = "<group>"; };
 		27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommonAllergens.swift; sourceTree = "<group>"; };
 		293D87520CE50242DDCC5B5B /* AnimationTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimationTokens.swift; sourceTree = "<group>"; };
 		300738C9929108D43A916B95 /* UPCitemdbService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UPCitemdbService.swift; sourceTree = "<group>"; };
@@ -157,6 +164,7 @@
 		A2000030 /* rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rules.json; sourceTree = "<group>"; };
 		A2000031 /* synonyms.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = synonyms.json; sourceTree = "<group>"; };
 		A2000032 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FBDA00072F0846B800414B32 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A2000033 /* ScannerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannerViewModel.swift; sourceTree = "<group>"; };
 		A2000034 /* HistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewModel.swift; sourceTree = "<group>"; };
 		A2000036 /* NetworkErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkErrorView.swift; sourceTree = "<group>"; };
@@ -238,6 +246,7 @@
 				F79CB1882F1BD76E007B2E84 /* StoreKit.framework in Frameworks */,
 				F7A9FEF52F05BDE0000623DA /* GRDB in Frameworks */,
 				F7D835332F0846B800414B32 /* SuperwallKit in Frameworks */,
+				FBDA00012F0846B800414B32 /* FacebookCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -262,6 +271,8 @@
 				A2000001 /* PetScansApp.swift */,
 				A2000002 /* ContentView.swift */,
 				A2000032 /* Info.plist */,
+				FBDA00072F0846B800414B32 /* PrivacyInfo.xcprivacy */,
+				FBDA00102F0846B800414B32 /* Secrets.xcconfig */,
 				A4000004 /* Models */,
 				A4000005 /* Data */,
 				A4000006 /* Services */,
@@ -325,6 +336,8 @@
 				A2000013 /* IngredientMatcher.swift */,
 				A2000014 /* ScoreCalculator.swift */,
 				0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */,
+				FBDA00052F0846B800414B32 /* AttributionService.swift */,
+				FBDA00112F0846B800414B32 /* SuperwallAttributionDelegate.swift */,
 				300738C9929108D43A916B95 /* UPCitemdbService.swift */,
 				68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */,
 				47EEABDA11677F60384CF67B /* IngredientTextParser.swift */,
@@ -542,6 +555,7 @@
 			packageReferences = (
 				F7A9FEF32F05BDE0000623DA /* XCRemoteSwiftPackageReference "GRDB.swift" */,
 				F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				FBDA00032F0846B800414B32 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
 			);
 			productRefGroup = A4000003 /* Products */;
 			projectDirPath = "";
@@ -562,6 +576,7 @@
 				A1000030 /* rules.json in Resources */,
 				A1000031 /* synonyms.json in Resources */,
 				F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */,
+				FBDA00062F0846B800414B32 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,6 +674,8 @@
 				6352AA7AD2193845951DF7A2 /* ProcessingInfoSheet.swift in Sources */,
 				6352AA7AD2193845951DF7A3 /* IngredientDetailSheet.swift in Sources */,
 				30252FA513A589765AC98425 /* AppInitializer.swift in Sources */,
+				FBDA00042F0846B800414B32 /* AttributionService.swift in Sources */,
+				FBDA00122F0846B800414B32 /* SuperwallAttributionDelegate.swift in Sources */,
 				127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */,
 				77485F1DFC27DCA0754D0928 /* UPCitemdbService.swift in Sources */,
 				135E1ACBD3D41B016EEB73D0 /* IngredientScraperService.swift in Sources */,
@@ -804,6 +821,7 @@
 		};
 		A6000006 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FBDA00102F0846B800414B32 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -833,6 +851,7 @@
 		};
 		A6000007 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = FBDA00102F0846B800414B32 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -900,6 +919,14 @@
 				minimumVersion = 4.0.0;
 			};
 		};
+		FBDA00032F0846B800414B32 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 18.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -912,6 +939,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F7D835312F0846B800414B32 /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
 			productName = SuperwallKit;
+		};
+		FBDA00022F0846B800414B32 /* FacebookCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBDA00032F0846B800414B32 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
