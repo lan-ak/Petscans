@@ -84,3 +84,6 @@ PetScans/Services/APIKeys.swift
 # Local build secrets (Meta credentials + Worker URL). Template committed as
 # Secrets.example.xcconfig; CI stubs a copy from it.
 PetScans/Config/Secrets.xcconfig
+
+# asc CLI local release checkpoints/state
+.asc/
