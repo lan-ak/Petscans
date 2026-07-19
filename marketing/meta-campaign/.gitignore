@@ -1,0 +1,4 @@
+# Playwright + npm install artifacts — regenerate with `npm install`
+node_modules/
+
+# Rendered PNGs ARE committed (they are the deliverable) — do not ignore output/

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetScans — Vet Science</title>
+<link rel="stylesheet" href="../styles/creative.css">
+<script src="../styles/common.js"></script>
+<style>
+  .evtitle { font-weight:600; font-size:28px; color:var(--ink-2); margin-bottom:20px; text-align:center; }
+  .evwrap { width:100%; }
+  .mid .trust { display:grid; grid-template-columns:1fr 1fr; gap:24px; max-width:720px; }
+  .mid .trust .b { min-width:0; }
+</style>
+</head>
+<body>
+<div class="creative" data-paws>
+  <div class="top">
+    <div class="brand sm"><img src="../assets/icon.png" alt=""><span class="name">PetScans</span></div>
+    <span class="chip ghost">Food &amp; treats</span>
+  </div>
+
+  <div class="mid center">
+    <span class="eyebrow"><span class="dot"></span>Backed by science</span>
+    <h1 class="h">Pet food safety,<br>backed by <span class="grad">science.</span></h1>
+
+    <div class="trust">
+      <div class="b"><div class="k">AAFCO</div><div class="v">Ingredient standards</div></div>
+      <div class="b"><div class="k">FDA</div><div class="v">Pet food safety</div></div>
+      <div class="b"><div class="k">ASPCA</div><div class="v">Poison control</div></div>
+      <div class="b"><div class="k">Merck</div><div class="v">Veterinary manual</div></div>
+    </div>
+
+    <div class="evwrap">
+      <div class="evtitle">Every safety rule rated by evidence strength</div>
+      <div class="evidence">
+        <span class="lvl"><span class="pip strong">STRONG</span>Regulatory consensus</span>
+        <span class="lvl"><span class="pip med">MEDIUM</span>Limited studies</span>
+        <span class="lvl"><span class="pip weak">WEAK</span>Early research</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span class="tagline">Trusted by pet parents.</span>
+    <span id="cta"></span>
+  </div>
+</div>
+<script>document.getElementById('cta').innerHTML = window.appStore();</script>
+</body>
+</html>

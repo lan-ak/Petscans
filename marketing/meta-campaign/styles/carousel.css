@@ -1,0 +1,19 @@
+/* Carousel-specific layout (all cards 1:1, 1080×1080). Pairs with creative.css. */
+.chead { display:flex; align-items:center; justify-content:space-between; gap:20px; }
+.stepchip { display:inline-flex; align-items:center; gap:14px; background:var(--grad); color:#fff;
+  font-weight:700; font-size:28px; padding:14px 28px; border-radius:999px; box-shadow:var(--sh-sm); }
+.stepchip.ghost { background:rgba(52,199,89,.12); color:var(--green); }
+
+.cmid { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        text-align:center; gap:38px; }
+.ctitle { font-weight:700; letter-spacing:-1px; line-height:1.05; font-size:82px; color:var(--ink); }
+.ctitle .grad { background:var(--grad); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+.csub { font-weight:500; font-size:36px; color:var(--ink-2); line-height:1.3; max-width:760px; }
+
+.cfoot { display:flex; align-items:center; justify-content:space-between; }
+.dots { display:flex; gap:14px; }
+.dots i { width:20px; height:20px; border-radius:999px; background:var(--border); }
+.dots i.on { background:var(--green); width:52px; }
+.swipe { font-weight:700; font-size:30px; color:var(--green); display:flex; align-items:center; gap:12px; }
+
+.hero-icon { width:300px; height:300px; border-radius:64px; box-shadow:var(--sh-lg); }

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PetScans — Meta creatives contact sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap');
+  :root { --green:#34C759; --bg:#F0F9F4; --ink:#1A1A1A; --ink2:#666; }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:Quicksand,-apple-system,sans-serif; background:var(--bg); color:var(--ink); padding:48px; }
+  h1 { font-size:34px; letter-spacing:-.5px; }
+  .lead { color:var(--ink2); font-weight:500; margin:8px 0 8px; font-size:17px; }
+  a.brief { color:var(--green); font-weight:700; text-decoration:none; }
+  h2 { font-size:22px; margin:44px 0 4px; }
+  .note { color:var(--ink2); font-size:14px; margin-bottom:18px; font-weight:500; }
+  .grid { display:grid; gap:22px; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); }
+  figure { background:#fff; border:1px solid #E0E0E0; border-radius:16px; overflow:hidden; box-shadow:0 4px 14px rgba(0,0,0,.06); }
+  figure img { width:100%; display:block; background:#fff; }
+  figcaption { padding:12px 14px; font-size:13px; font-weight:600; color:var(--ink2); }
+  .ratios { display:grid; gap:22px; grid-template-columns:repeat(3, 1fr); max-width:900px; margin-bottom:12px; }
+  .ratios .tag { font-size:12px; font-weight:700; color:var(--green); letter-spacing:1px; text-transform:uppercase; }
+</style>
+</head>
+<body>
+  <h1>PetScans — Meta creative test kit</h1>
+  <p class="lead">5 angles + a 5-card carousel · design/UI-driven · 1:1, 4:5, 9:16 &nbsp;·&nbsp; <a class="brief" href="BRIEF.md">Read the brief →</a></p>
+
+  <h2>5 static angles</h2>
+  <p class="note">Each angle shown in all three ratios (square 1:1 · portrait 4:5 · story 9:16).</p>
+
+  <div id="statics"></div>
+
+  <h2>Carousel — "Do you know what's in your pet's bowl?"</h2>
+  <p class="note">Swipe sequence: hook → scan → score → alerts → download.</p>
+  <div class="grid" id="carousel"></div>
+
+<script>
+  var ANGLES = [
+    ['01-toxic-reveal','1 · Toxic Reveal'],
+    ['02-instant-demo','2 · Instant Demo'],
+    ['03-vet-science','3 · Vet-Science Authority'],
+    ['04-allergen','4 · Allergen Personalization'],
+    ['05-ultra-processed','5 · Ultra-Processed']
+  ];
+  var RATIOS = [['1x1','1:1'],['4x5','4:5'],['9x16','9:16']];
+  var s = document.getElementById('statics');
+  ANGLES.forEach(function(a){
+    var h = document.createElement('h3');
+    h.style.cssText='font-size:16px;margin:26px 0 10px;font-weight:700;';
+    h.textContent = a[1];
+    s.appendChild(h);
+    var row = document.createElement('div'); row.className='ratios';
+    RATIOS.forEach(function(r){
+      var f = document.createElement('figure');
+      f.innerHTML = '<img loading="lazy" src="output/'+r[0]+'/'+a[0]+'.png" alt="">' +
+                    '<figcaption><span class="tag">'+r[1]+'</span></figcaption>';
+      row.appendChild(f);
+    });
+    s.appendChild(row);
+  });
+  var c = document.getElementById('carousel');
+  for (var i=1;i<=5;i++){
+    var f = document.createElement('figure');
+    f.innerHTML = '<img loading="lazy" src="output/carousel/card-'+i+'.png" alt="">' +
+                  '<figcaption>Card '+i+'</figcaption>';
+    c.appendChild(f);
+  }
+</script>
+</body>
+</html>

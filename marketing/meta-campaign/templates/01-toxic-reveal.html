@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetScans — Toxic Reveal</title>
+<link rel="stylesheet" href="../styles/creative.css">
+<script src="../styles/common.js"></script>
+<style>
+  .reveal { display:flex; align-items:center; gap:44px; width:100%; }
+  .sheet { background:#fff; border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--sh-md); padding:36px 40px; flex:1; }
+  .sheet .cap { font-weight:700; font-size:24px; letter-spacing:2px; text-transform:uppercase; color:var(--ink-3); margin-bottom:10px; }
+  .sheet .prod { font-weight:700; font-size:40px; color:var(--ink); margin-bottom:12px; }
+  [data-r="9x16"] .reveal { flex-direction:column; }
+</style>
+</head>
+<body>
+<div class="creative" data-paws>
+  <div class="top">
+    <div class="brand sm"><img src="../assets/icon.png" alt=""><span class="name">PetScans</span></div>
+    <span class="chip ghost">Food &amp; treats</span>
+  </div>
+
+  <div class="mid">
+    <span class="eyebrow warn"><span class="dot"></span>Ingredient alert</span>
+    <h1 class="h">Is your pet's food<br>hiding <span class="grad">something?</span></h1>
+    <div class="reveal">
+      <div class="score poor"><div class="n">15</div><div class="l">POOR</div><div class="max">/ 100</div></div>
+      <div class="sheet">
+        <div class="cap">Scanned · Bacon Strip Treats</div>
+        <div class="ing"><span class="name">BHA / BHT</span><span class="flag bad">AVOID</span></div>
+        <div class="ing"><span class="name">Artificial Red 40</span><span class="flag warn">CAUTION</span></div>
+        <div class="ing"><span class="name">Animal by-product meal</span><span class="flag warn">CAUTION</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span class="tagline">Every ingredient revealed.</span>
+    <span id="cta"></span>
+  </div>
+</div>
+<script>document.getElementById('cta').innerHTML = window.appStore();</script>
+</body>
+</html>

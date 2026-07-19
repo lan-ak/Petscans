@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetScans — Ultra-Processed</title>
+<link rel="stylesheet" href="../styles/creative.css">
+<script src="../styles/common.js"></script>
+<style>
+  .proccard { display:flex; flex-direction:column; gap:26px; }
+  .proccard .hd { font-weight:700; font-size:30px; color:var(--ink); }
+  .compare { display:flex; gap:20px; width:100%; }
+  .compare .c { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md);
+                box-shadow:var(--sh-sm); padding:26px 30px; }
+  .compare .c .lab { font-weight:700; font-size:26px; letter-spacing:1px; text-transform:uppercase; }
+  .compare .c .ex { font-weight:500; font-size:27px; color:var(--ink-2); margin-top:8px; }
+  .compare .good .lab { color:var(--excellent); }
+  .compare .bad .lab  { color:var(--poor); }
+</style>
+</head>
+<body>
+<div class="creative" data-paws>
+  <div class="top">
+    <div class="brand sm"><img src="../assets/icon.png" alt=""><span class="name">PetScans</span></div>
+    <span class="chip ghost">What's really inside</span>
+  </div>
+
+  <div class="mid">
+    <span class="eyebrow"><span class="dot"></span>Read their labels like yours</span>
+    <h1 class="h">How processed is<br>their food, <span class="grad">really?</span></h1>
+
+    <div class="card proccard">
+      <div class="hd">Sample kibble · processing profile</div>
+      <div class="proc">
+        <div class="bar">
+          <div class="seg s1" style="width:30%"></div>
+          <div class="seg s2" style="width:20%"></div>
+          <div class="seg s3" style="width:35%"></div>
+          <div class="seg s4" style="width:15%"></div>
+        </div>
+        <div class="legend">
+          <span class="li"><span class="d" style="background:var(--excellent)"></span>Natural</span>
+          <span class="li"><span class="d" style="background:var(--good)"></span>Refined</span>
+          <span class="li"><span class="d" style="background:var(--moderate)"></span>Processed</span>
+          <span class="li"><span class="d" style="background:var(--poor)"></span>Ultra</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="c good"><div class="lab">Minimally processed</div><div class="ex">Deboned chicken · brown rice</div></div>
+      <div class="c bad"><div class="lab">Ultra-processed</div><div class="ex">Hydrolyzed protein · BHA</div></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span class="tagline">See what's really inside.</span>
+    <span id="cta"></span>
+  </div>
+</div>
+<script>document.getElementById('cta').innerHTML = window.appStore();</script>
+</body>
+</html>

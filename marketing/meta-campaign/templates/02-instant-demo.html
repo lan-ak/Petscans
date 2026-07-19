@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetScans — Instant Demo</title>
+<link rel="stylesheet" href="../styles/creative.css">
+<script src="../styles/common.js"></script>
+<style>
+  .mid.center { gap:30px; }
+  .scanwrap { width:100%; }
+  .scan { aspect-ratio:auto; height:430px; }
+  [data-r="4x5"]  .scan { height:520px; }
+  [data-r="9x16"] .scan { height:540px; }
+  [data-r="9x16"] .h { font-size:90px; }
+  [data-r="9x16"] .mid.center { gap:56px; }
+  .scan .result { display:flex; flex-direction:column; align-items:center; gap:20px; z-index:2; transform:translateY(-30px); }
+  .scan .score { width:250px; height:250px; }
+  .scan .score .n { font-size:110px; }
+  .scan .pill-note { position:absolute; bottom:34px; left:50%; transform:translateX(-50%); }
+  .steps .num { width:74px; height:74px; font-size:38px; }
+  .steps .st { font-size:26px; }
+</style>
+</head>
+<body>
+<div class="creative" data-paws>
+  <div class="top">
+    <div class="brand sm"><img src="../assets/icon.png" alt=""><span class="name">PetScans</span></div>
+    <span class="chip ghost">How it works</span>
+  </div>
+
+  <div class="mid center">
+    <h1 class="h">Scan any pet food<br>in <span class="grad">seconds.</span></h1>
+
+    <div class="scanwrap">
+      <div class="scan">
+        <span class="bracket bl-tl"></span><span class="bracket bl-tr"></span>
+        <span class="bracket bl-bl"></span><span class="bracket bl-br"></span>
+        <div class="result">
+          <div class="score excellent"><div class="n">85</div><div class="l">EXCELLENT</div></div>
+        </div>
+        <span class="label pill-note">Instant 0–100 safety score</span>
+      </div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div class="st">Scan the label<br>or barcode</div></div>
+      <div class="step"><div class="num">2</div><div class="st">Get a science-backed<br>safety score</div></div>
+      <div class="step"><div class="num">3</div><div class="st">Choose with<br>confidence</div></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span id="cta"></span>
+    <span class="free">Free to download</span>
+  </div>
+</div>
+<script>document.getElementById('cta').innerHTML = window.appStore();</script>
+</body>
+</html>

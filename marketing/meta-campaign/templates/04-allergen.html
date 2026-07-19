@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetScans — Allergen</title>
+<link rel="stylesheet" href="../styles/creative.css">
+<script src="../styles/common.js"></script>
+<style>
+  .profile { display:flex; align-items:center; gap:26px; width:100%; }
+  .avatar { width:110px; height:110px; border-radius:999px; background:rgba(52,199,89,.14);
+            display:flex; align-items:center; justify-content:center; flex:none; }
+  .avatar svg { width:66px; height:66px; fill:var(--green); }
+  .profile .who .n { font-weight:700; font-size:42px; color:var(--ink); }
+  .profile .who .m { font-weight:500; font-size:28px; color:var(--ink-2); margin-top:4px; }
+  .aller { display:flex; gap:14px; margin-left:auto; flex-wrap:wrap; justify-content:flex-end; }
+  .aller .t { background:rgba(255,59,48,.1); color:var(--poor); font-weight:700; font-size:26px;
+              padding:12px 22px; border-radius:999px; }
+  .stack { display:flex; flex-direction:column; gap:28px; width:100%; }
+</style>
+</head>
+<body>
+<div class="creative" data-paws>
+  <div class="top">
+    <div class="brand sm"><img src="../assets/icon.png" alt=""><span class="name">PetScans</span></div>
+    <span class="chip ghost">Allergen alerts</span>
+  </div>
+
+  <div class="mid">
+    <span class="eyebrow"><span class="dot"></span>Tailored to your pet</span>
+    <h1 class="h">We flag what<br><span class="grad">your</span> pet can't eat.</h1>
+
+    <div class="stack">
+      <div class="card">
+        <div class="profile">
+          <div class="avatar" id="pawav"></div>
+          <div class="who"><div class="n">Max</div><div class="m">Golden Retriever · 3 yrs</div></div>
+          <div class="aller"><span class="t">Chicken</span><span class="t">Wheat</span></div>
+        </div>
+      </div>
+      <div class="card alert">
+        <span class="badge">HIGH</span>
+        <div class="txt">
+          <div class="t">Contains chicken</div>
+          <div class="d">Conflicts with Max's allergen profile — flagged instantly.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span class="tagline">Protection, tailored to your pet.</span>
+    <span id="cta"></span>
+  </div>
+</div>
+<script>
+  document.getElementById('pawav').innerHTML = window.PAW_SVG;
+  document.getElementById('cta').innerHTML = window.appStore();
+</script>
+</body>
+</html>
