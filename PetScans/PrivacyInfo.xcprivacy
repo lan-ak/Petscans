@@ -4,14 +4,16 @@
 <dict>
 	<key>NSPrivacyTracking</key>
 	<true/>
-	<!-- Deliberately empty. Apple blocks network calls to any domain listed here
-	     until ATT is authorized, and the Meta SDK uses graph.facebook.com for
-	     non-tracking traffic (config, app events) as well as tracking. It gates
-	     the IDFA itself via Settings.isAdvertiserTrackingEnabled, which
-	     AttributionService sets from the ATT result. Re-check against Meta's
-	     current privacy-manifest guidance before each release. -->
+	<!-- Apple requires NSPrivacyTrackingDomains to be non-empty when
+	     NSPrivacyTracking is true (else ITMS-91064 rejects the build). This is
+	     Meta's dedicated tracking endpoint, matching FBSDKCoreKit's own manifest;
+	     it is separate from graph.facebook.com (config/app-events), so listing it
+	     gates tracking traffic on ATT without blocking the SDK's non-tracking
+	     calls. Re-check against FBSDKCoreKit's PrivacyInfo.xcprivacy each SDK bump. -->
 	<key>NSPrivacyTrackingDomains</key>
-	<array/>
+	<array>
+		<string>ep1.facebook.com</string>
+	</array>
 	<key>NSPrivacyCollectedDataTypes</key>
 	<array>
 		<dict>
