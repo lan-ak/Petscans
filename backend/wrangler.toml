@@ -9,13 +9,13 @@ compatibility_date = "2024-09-09"
 # then paste the returned ids below (and create *_preview ids for `wrangler dev`).
 [[kv_namespaces]]
 binding = "CACHE"
-id = "REPLACE_WITH_CACHE_KV_ID"
-preview_id = "REPLACE_WITH_CACHE_KV_PREVIEW_ID"
+id = "c25b5ba51e52435b824721cf392f7bb6"
+preview_id = "c1bca2d3137d407685ad87c0662fa1df"
 
 [[kv_namespaces]]
 binding = "RATE"
-id = "REPLACE_WITH_RATE_KV_ID"
-preview_id = "REPLACE_WITH_RATE_KV_PREVIEW_ID"
+id = "ce8f9bb098994c2c8966d8a8d4d0c5a9"
+preview_id = "979d02ada48042c88d0811756425f495"
 
 # Non-secret tuning knobs. Secrets (the upstream API keys + AUTH_SECRET) are set
 # with `wrangler secret put <NAME>` and never committed. See .dev.vars.example.
