@@ -2,3 +2,6 @@
 node_modules/
 
 # Rendered PNGs ARE committed (they are the deliverable) — do not ignore output/
+
+# Local download bundle
+*.zip
