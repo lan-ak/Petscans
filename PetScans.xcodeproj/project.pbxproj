@@ -13,6 +13,7 @@
 		30252FA513A589765AC98425 /* AppInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */; };
 		FBDA00042F0846B800414B32 /* AttributionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA00052F0846B800414B32 /* AttributionService.swift */; };
 		FBDA00122F0846B800414B32 /* SuperwallAttributionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA00112F0846B800414B32 /* SuperwallAttributionDelegate.swift */; };
+		FBDA00202F0846B800414B32 /* SuperwallUserAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA001F2F0846B800414B32 /* SuperwallUserAttributes.swift */; };
 		3DE10D00CAA03C961EB5C7C0 /* PetScansLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */; };
 		5513270F12EF77C8F5AE5252 /* ProcessingBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472BC2B6F7A2F27042E0A689 /* ProcessingBadgeView.swift */; };
 		577C264FAA1448E6986DFF9F /* ProcessingSummaryCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 343C291F67136C43ACA59482 /* ProcessingSummaryCard.swift */; };
@@ -49,6 +50,10 @@
 		A1000026 /* ScoreCircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000026 /* ScoreCircleView.swift */; };
 		A1000027 /* ScoreBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000027 /* ScoreBarView.swift */; };
 		A1000028 /* WarningFlagView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000028 /* WarningFlagView.swift */; };
+		CA710010 /* catalog.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = CA720010 /* catalog.sqlite */; };
+		CA710001 /* BarcodeNormalizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA720001 /* BarcodeNormalizer.swift */; };
+		CA710002 /* LocalCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA720002 /* LocalCatalogStore.swift */; };
+		CA710003 /* ProductCatalogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA720003 /* ProductCatalogService.swift */; };
 		A1000029 /* ingredients.json in Resources */ = {isa = PBXBuildFile; fileRef = A2000029 /* ingredients.json */; };
 		A1000030 /* rules.json in Resources */ = {isa = PBXBuildFile; fileRef = A2000030 /* rules.json */; };
 		A1000031 /* synonyms.json in Resources */ = {isa = PBXBuildFile; fileRef = A2000031 /* synonyms.json */; };
@@ -127,6 +132,7 @@
 		0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppInitializer.swift; sourceTree = "<group>"; };
 		FBDA00052F0846B800414B32 /* AttributionService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AttributionService.swift; sourceTree = "<group>"; };
 		FBDA00112F0846B800414B32 /* SuperwallAttributionDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SuperwallAttributionDelegate.swift; sourceTree = "<group>"; };
+		FBDA001F2F0846B800414B32 /* SuperwallUserAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SuperwallUserAttributes.swift; sourceTree = "<group>"; };
 		FBDA00102F0846B800414B32 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config/Secrets.xcconfig; sourceTree = "<group>"; };
 		27ECB2A3B631701DF08EE70E /* CommonAllergens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommonAllergens.swift; sourceTree = "<group>"; };
 		293D87520CE50242DDCC5B5B /* AnimationTokens.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnimationTokens.swift; sourceTree = "<group>"; };
@@ -160,6 +166,10 @@
 		A2000026 /* ScoreCircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreCircleView.swift; sourceTree = "<group>"; };
 		A2000027 /* ScoreBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScoreBarView.swift; sourceTree = "<group>"; };
 		A2000028 /* WarningFlagView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningFlagView.swift; sourceTree = "<group>"; };
+		CA720010 /* catalog.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = catalog.sqlite; sourceTree = "<group>"; };
+		CA720001 /* BarcodeNormalizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarcodeNormalizer.swift; sourceTree = "<group>"; };
+		CA720002 /* LocalCatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCatalogStore.swift; sourceTree = "<group>"; };
+		CA720003 /* ProductCatalogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCatalogService.swift; sourceTree = "<group>"; };
 		A2000029 /* ingredients.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ingredients.json; sourceTree = "<group>"; };
 		A2000030 /* rules.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rules.json; sourceTree = "<group>"; };
 		A2000031 /* synonyms.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = synonyms.json; sourceTree = "<group>"; };
@@ -315,6 +325,7 @@
 				A2000029 /* ingredients.json */,
 				A2000030 /* rules.json */,
 				A2000031 /* synonyms.json */,
+				CA720010 /* catalog.sqlite */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -323,6 +334,9 @@
 			isa = PBXGroup;
 			children = (
 				F79CB1782F12E9B9007B2E84 /* APIKeys.swift */,
+				CA720001 /* BarcodeNormalizer.swift */,
+				CA720002 /* LocalCatalogStore.swift */,
+				CA720003 /* ProductCatalogService.swift */,
 				F7AA000000000000000000C1 /* PetScansAPIClient.swift */,
 				F79CB1822F13000000000001 /* FirecrawlService.swift */,
 				F79CB1792F12E9B9007B2E84 /* SerperService.swift */,
@@ -338,6 +352,7 @@
 				0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */,
 				FBDA00052F0846B800414B32 /* AttributionService.swift */,
 				FBDA00112F0846B800414B32 /* SuperwallAttributionDelegate.swift */,
+				FBDA001F2F0846B800414B32 /* SuperwallUserAttributes.swift */,
 				300738C9929108D43A916B95 /* UPCitemdbService.swift */,
 				68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */,
 				47EEABDA11677F60384CF67B /* IngredientTextParser.swift */,
@@ -575,6 +590,7 @@
 				A1000029 /* ingredients.json in Resources */,
 				A1000030 /* rules.json in Resources */,
 				A1000031 /* synonyms.json in Resources */,
+				CA710010 /* catalog.sqlite in Resources */,
 				F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */,
 				FBDA00062F0846B800414B32 /* PrivacyInfo.xcprivacy in Resources */,
 			);
@@ -633,6 +649,9 @@
 				A1000018 /* BarcodeScannerView.swift in Sources */,
 				A1000020 /* SpeciesCategoryPicker.swift in Sources */,
 				F7D834FF2F05E6C100414B32 /* OCRService.swift in Sources */,
+				CA710001 /* BarcodeNormalizer.swift in Sources */,
+				CA710002 /* LocalCatalogStore.swift in Sources */,
+				CA710003 /* ProductCatalogService.swift in Sources */,
 				F7D835152F06EC1400414B32 /* PetRowView.swift in Sources */,
 				A1000022 /* HistoryView.swift in Sources */,
 				A1000023 /* ScanRowView.swift in Sources */,
@@ -676,6 +695,7 @@
 				30252FA513A589765AC98425 /* AppInitializer.swift in Sources */,
 				FBDA00042F0846B800414B32 /* AttributionService.swift in Sources */,
 				FBDA00122F0846B800414B32 /* SuperwallAttributionDelegate.swift in Sources */,
+				FBDA00202F0846B800414B32 /* SuperwallUserAttributes.swift in Sources */,
 				127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */,
 				77485F1DFC27DCA0754D0928 /* UPCitemdbService.swift in Sources */,
 				135E1ACBD3D41B016EEB73D0 /* IngredientScraperService.swift in Sources */,

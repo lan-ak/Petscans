@@ -11,6 +11,9 @@ struct ProductNotFoundView: View {
     let onTakePhoto: () -> Void
     let onManualEntry: () -> Void
     let onRetry: () -> Void
+    /// Optional escape hatch to the slower web-lookup pipeline. Demoted from the default
+    /// path to an explicit choice; nil hides it entirely.
+    var onSearchOnline: (() -> Void)? = nil
 
     /// Check if we have product info to display
     private var hasProductInfo: Bool {
@@ -116,6 +119,16 @@ struct ProductNotFoundView: View {
                     Label("Enter Ingredients Manually", systemImage: "keyboard")
                 }
                 .secondaryButtonStyle()
+
+                // Optional: fall back to the slower web lookup, by explicit choice only.
+                if let onSearchOnline {
+                    Button {
+                        onSearchOnline()
+                    } label: {
+                        Label("Search the Web Instead", systemImage: "globe")
+                    }
+                    .secondaryButtonStyle()
+                }
 
                 // Tertiary: Try again
                 Button {

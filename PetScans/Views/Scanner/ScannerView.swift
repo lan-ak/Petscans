@@ -3,6 +3,7 @@ import SwiftData
 
 struct ScannerView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query(sort: \Pet.name) private var pets: [Pet]
     @StateObject private var viewModel = ScannerViewModel()
 
     private var useMockScanner: Bool {
@@ -116,7 +117,9 @@ struct ScannerView: View {
                 }
             } else if BarcodeScannerView.isSupported {
                 BarcodeScannerView(
-                    onScan: viewModel.handleBarcodeScan,
+                    onScan: { code in
+                        viewModel.handleBarcodeScan(code, pets: pets, modelContext: modelContext)
+                    },
                     onError: { error in
                         Task { @MainActor in
                             viewModel.currentError = .networkError(underlying: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: error]))
@@ -191,6 +194,9 @@ struct ScannerView: View {
             },
             onRetry: {
                 viewModel.restartScanning()
+            },
+            onSearchOnline: {
+                viewModel.goToProductPhotoCapture()
             }
         )
     }

@@ -87,3 +87,6 @@ PetScans/Config/Secrets.xcconfig
 
 # asc CLI local release checkpoints/state
 .asc/
+
+# Raw purchased datasets (huge, proprietary — never commit)
+Walmart Data/

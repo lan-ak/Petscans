@@ -106,12 +106,10 @@ struct BarcodeScannerView: UIViewRepresentable {
 
                 metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
 
-                // Support all common barcode types
-                metadataOutput.metadataObjectTypes = [
-                    .ean8, .ean13, .upce, .code39, .code39Mod43,
-                    .code93, .code128, .pdf417, .qr, .aztec,
-                    .interleaved2of5, .itf14, .dataMatrix
-                ]
+                // Retail product symbologies only. A GTIN can only arrive as one of these;
+                // QR, PDF417, Aztec, Code39/93/128 and DataMatrix are never retail barcodes
+                // and only slow detection and cause mis-triggers on packaging graphics.
+                metadataOutput.metadataObjectTypes = [.ean8, .ean13, .upce, .itf14]
             } else {
                 DispatchQueue.main.async { [weak self] in
                     self?.onError("Unable to add metadata output")

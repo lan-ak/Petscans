@@ -70,7 +70,10 @@ final class ScannerViewModel: ObservableObject {
 
     // MARK: - Published Properties
 
-    @Published var step: Step = .productPhotoCapture
+    // Barcode scanning is the default entry point (Yuka/Olive style). The photo/Vision
+    // flow — previously the default and the slowest, most expensive path — is now a
+    // fallback reached only when there's no readable barcode.
+    @Published var step: Step = .scanning
     @Published var barcode: String?
     @Published var productName: String = ""
     @Published var brand: String?
@@ -95,6 +98,11 @@ final class ScannerViewModel: ObservableObject {
     private let scoreCalculator: ScoreCalculator
     private let ocrService: OCRServiceProtocol
     private let productVisionService: ProductVisionServiceProtocol
+    private let catalogService: ProductCatalogService
+
+    /// Guards against a barcode held in frame re-triggering a resolve on every camera
+    /// frame. Cleared on reset and when a read is ignored as a non-product code.
+    private var lastHandledBarcode: String?
 
     // MARK: - Haptic Feedback
 
@@ -106,34 +114,113 @@ final class ScannerViewModel: ObservableObject {
         ingredientMatcher: IngredientMatcher = IngredientMatcher(),
         scoreCalculator: ScoreCalculator = ScoreCalculator(),
         ocrService: OCRServiceProtocol = OCRService(),
-        productVisionService: ProductVisionServiceProtocol = ProductVisionService()
+        productVisionService: ProductVisionServiceProtocol = ProductVisionService(),
+        catalogService: ProductCatalogService = ProductCatalogService()
     ) {
         self.ingredientMatcher = ingredientMatcher
         self.scoreCalculator = scoreCalculator
         self.ocrService = ocrService
         self.productVisionService = productVisionService
+        self.catalogService = catalogService
         successFeedback.prepare()
     }
 
     // MARK: - Actions
 
-    func handleBarcodeScan(_ code: String) {
-        barcode = code
+    /// The instant path. Resolve the barcode against the on-device catalog and, on a hit,
+    /// score locally and jump straight to results — no product-identification round trip,
+    /// no species/category picker, no "Analyze" tap. A miss goes straight to the OCR label
+    /// capture, which is on-device and sub-second. Only a code that isn't a retail product
+    /// barcode at all is silently ignored so the scanner keeps looking.
+    func handleBarcodeScan(_ code: String, pets: [Pet] = [], modelContext: ModelContext? = nil) {
+        guard code != lastHandledBarcode else { return }
+        lastHandledBarcode = code
         currentError = nil
-        step = .advancedSearch
+
+        Task {
+            let started = Date()
+            let resolution = await catalogService.resolve(rawBarcode: code)
+
+            switch resolution {
+            case .notAProductBarcode:
+                // Not something we can act on (QR, coupon, in-store code, bad check digit).
+                // Re-arm so a subsequent good read of the same physical label still fires.
+                lastHandledBarcode = nil
+
+            case .found(let product):
+                barcode = product.gtin
+                apply(product, pets: pets)
+                await computeScore()
+                logResolved(source: "catalog", started: started, gtin: product.gtin)
+                successFeedback.notificationOccurred(.success)
+                step = .results
+
+            case .unknown(let gtin):
+                barcode = gtin
+                if let context = modelContext, let cached = cachedScan(gtin: gtin, in: context) {
+                    apply(cached, pets: pets)
+                    await computeScore()
+                    logResolved(source: "cache", started: started, gtin: gtin)
+                    successFeedback.notificationOccurred(.success)
+                    step = .results
+                } else {
+                    // New product: capture the ingredients label on-device instead of the
+                    // old 30–60s web crawl.
+                    logResolved(source: "miss", started: started, gtin: gtin)
+                    isManualSearch = false
+                    step = .ocrCapture
+                }
+            }
+        }
+    }
+
+    /// Populate product fields from a catalog hit, defaulting to a pet of the matching
+    /// species so the score is personalised without asking.
+    private func apply(_ product: CatalogProduct, pets: [Pet]) {
+        productName = product.name
+        brand = product.brand
+        imageUrl = product.imageUrl
+        ingredientsText = product.ingredients
+        selectedSpecies = product.species
+        selectedCategory = product.category
+        scoreSource = .databaseVerified
+        selectedPet = pets.first { $0.speciesEnum == product.species } ?? pets.first
+    }
+
+    /// Re-hydrate from a product the user already scored once (via OCR or web), so a repeat
+    /// scan of a not-yet-catalogued item is still instant.
+    private func apply(_ scan: Scan, pets: [Pet]) {
+        productName = scan.productName ?? ""
+        brand = scan.brand
+        imageUrl = scan.imageUrl
+        ingredientsText = scan.rawIngredientText
+        selectedSpecies = scan.speciesEnum
+        selectedCategory = scan.categoryEnum
+        scoreSource = .databaseVerified
+        selectedPet = pets.first { $0.speciesEnum == scan.speciesEnum } ?? pets.first
+    }
+
+    /// Most recent prior scan for this canonical barcode, if any.
+    private func cachedScan(gtin: String, in context: ModelContext) -> Scan? {
+        var descriptor = FetchDescriptor<Scan>(
+            predicate: #Predicate { $0.barcode == gtin },
+            sortBy: [SortDescriptor(\.scannedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = 1
+        return try? context.fetch(descriptor).first
     }
 
     func retryLastScan() {
-        guard let code = barcode else {
-            step = .productPhotoCapture
-            return
-        }
-        handleBarcodeScan(code)
+        lastHandledBarcode = nil
+        barcode = nil
+        step = .scanning
+        currentError = nil
     }
 
     func restartScanning() {
+        lastHandledBarcode = nil
         barcode = nil
-        step = .productPhotoCapture
+        step = .scanning
         currentError = nil
     }
 
@@ -271,42 +358,72 @@ final class ScannerViewModel: ObservableObject {
 
     func performAnalysis() {
         Task {
-            // Get allergens from selected pet, or empty if no pet selected
-            let petAllergens = selectedPet?.allergens ?? []
-
-            // Use pet's species if available, otherwise fall back to selectedSpecies
-            let species = selectedPet?.speciesEnum ?? selectedSpecies
-
-            // Match ingredients (async - waits for database if needed)
-            matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText)
-
-            // Calculate score with allergens, pet name, and score source (async)
-            scoreBreakdown = await scoreCalculator.calculate(
-                species: species,
-                category: selectedCategory,
-                matched: matchedIngredients,
-                petAllergens: petAllergens,
-                petName: selectedPet?.name,
-                scoreSource: scoreSource,
-                ocrConfidence: ocrConfidence
-            )
-
-            // Update analysis count for Superwall targeting
-            let analysisCount = UserDefaults.standard.integer(forKey: "totalAnalysisCount") + 1
-            UserDefaults.standard.set(analysisCount, forKey: "totalAnalysisCount")
-
-            Superwall.shared.setUserAttributes([
-                "analysis_count": analysisCount
-            ])
-
-            Superwall.shared.register(placement: "analysis_complete")
-
-            // Meta ad-campaign signal: the app's core activation moment. No-ops
-            // unless Meta credentials are configured (see AttributionService).
-            AttributionService.logScanCompleted()
-
+            let started = Date()
+            await computeScore()
+            // Non-catalog resolutions land here (OCR, manual, web). Tag the source so the
+            // telemetry covers every path, not just instant hits.
+            let source: String
+            switch scoreSource {
+            case .ocrEstimated: source = "ocr"
+            case .webScraped: source = "web"
+            case .manualEntry: source = "manual"
+            case .databaseVerified: source = "catalog"
+            }
+            logResolved(source: source, started: started, gtin: barcode)
             step = .results
         }
+    }
+
+    /// Match ingredients and compute the score for the current product against the current
+    /// pet, then fire the activation signals. Sets `matchedIngredients` and
+    /// `scoreBreakdown` but not `step`, so both the picker flow and the instant catalog
+    /// path can call it and decide navigation themselves. Recomputing after a pet change is
+    /// just another call.
+    func computeScore() async {
+        let petAllergens = selectedPet?.allergens ?? []
+        let species = selectedPet?.speciesEnum ?? selectedSpecies
+
+        matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText)
+
+        scoreBreakdown = await scoreCalculator.calculate(
+            species: species,
+            category: selectedCategory,
+            matched: matchedIngredients,
+            petAllergens: petAllergens,
+            petName: selectedPet?.name,
+            scoreSource: scoreSource,
+            ocrConfidence: ocrConfidence
+        )
+
+        // Update analysis count for Superwall targeting
+        let analysisCount = UserDefaults.standard.integer(forKey: "totalAnalysisCount") + 1
+        UserDefaults.standard.set(analysisCount, forKey: "totalAnalysisCount")
+
+        Superwall.shared.setUserAttributes(["analysis_count": analysisCount])
+
+        // Paywall copy names the pet this scan was run for; nil falls back
+        // to the roster primary rather than leaving a stale name.
+        SuperwallUserAttributes.setFocusedPet(selectedPet)
+
+        Superwall.shared.register(placement: "analysis_complete")
+
+        // Meta ad-campaign signal: the app's core activation moment. No-ops
+        // unless Meta credentials are configured (see AttributionService).
+        AttributionService.logScanCompleted()
+    }
+
+    /// Records how a scan resolved and how long it took. `source` is one of
+    /// catalog | cache | ocr | web | miss. Proves p50 in production and, for misses,
+    /// produces the ranked list of unresolved GTINs that drives catalog growth.
+    private func logResolved(source: String, started: Date, gtin: String?) {
+        let elapsedMs = Int(Date().timeIntervalSince(started) * 1000)
+        Superwall.shared.setUserAttributes([
+            "last_scan_source": source,
+            "last_scan_elapsed_ms": elapsedMs,
+        ])
+        #if DEBUG
+        print("scan_resolved source=\(source) elapsed_ms=\(elapsedMs) gtin=\(gtin ?? "-")")
+        #endif
     }
 
     func saveToHistory(using modelContext: ModelContext) {
@@ -348,7 +465,8 @@ final class ScannerViewModel: ObservableObject {
     }
 
     func reset() {
-        step = .productPhotoCapture
+        step = .scanning
+        lastHandledBarcode = nil
         barcode = nil
         productName = ""
         brand = nil

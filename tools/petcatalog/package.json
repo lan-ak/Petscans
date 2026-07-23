@@ -1,0 +1,14 @@
+{
+  "name": "petscans-catalog-cli",
+  "private": true,
+  "description": "Builds the bundled product catalog (barcode -> ingredients) shipped inside the iOS app. Standalone - NOT part of the Cloudflare Worker in backend/.",
+  "scripts": {
+    "petcatalog": "tsx scripts/petcatalog.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4.19.2",
+    "typescript": "~5.5.0"
+  }
+}
