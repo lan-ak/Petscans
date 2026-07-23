@@ -131,10 +131,10 @@ struct OnboardingView: View {
     private func completeOnboarding() {
         isSubmitting = true
 
-        // Set user attributes for Superwall targeting
+        // Set user attributes for Superwall targeting. Must run before
+        // register() so the paywall can address the pet by name.
+        SuperwallUserAttributes.syncPets(modelContext: modelContext, fallbackSpecies: petSpecies)
         Superwall.shared.setUserAttributes([
-            "pet_species": petSpecies.rawValue,
-            "pet_count": 1,
             "onboarding_completed_at": Date()
         ])
 

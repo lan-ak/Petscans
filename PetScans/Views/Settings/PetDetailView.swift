@@ -77,6 +77,7 @@ struct PetDetailView: View {
                     pet.name = editedName.trimmed
                     pet.updatedAt = Date()
                     try? modelContext.save()
+                    SuperwallUserAttributes.syncPets(modelContext: modelContext)
                 }
             }
         }

@@ -51,6 +51,7 @@ struct AddPetSheet: View {
         let pet = Pet(name: name.trimmed, species: species, allergens: Array(selectedAllergens))
         modelContext.insert(pet)
         try? modelContext.save()
+        SuperwallUserAttributes.syncPets(modelContext: modelContext)
         dismiss()
     }
 }

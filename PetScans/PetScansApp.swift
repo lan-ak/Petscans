@@ -111,5 +111,8 @@ struct PetScansApp: App {
         // for ad attribution; Superwall holds it weakly, hence the static instance.
         Superwall.configure(apiKey: APIKeys.superwall)
         Superwall.shared.delegate = SuperwallAttributionDelegate.shared
+
+        // Keep pet attributes (used by paywall copy) current for existing users.
+        SuperwallUserAttributes.syncPets(modelContext: context)
     }
 }

@@ -58,5 +58,6 @@ struct PetListView: View {
             modelContext.delete(pets[index])
         }
         try? modelContext.save()
+        SuperwallUserAttributes.syncPets(modelContext: modelContext)
     }
 }
