@@ -1,0 +1,18 @@
+{
+  "runKey": "petscans-concept-installs-2026-07",
+  "specHash": "1067861829be4156",
+  "startedAt": "2026-07-19T13:05:28.254Z",
+  "status": "rolled_back",
+  "steps": [],
+  "failure": {
+    "step": "2",
+    "error": {
+      "message": "To run iOS 14+ app install campaigns for this app, you need to set up Apple’s SKAdNetwork for Apple’s iOS 14 requirements.",
+      "code": 300,
+      "subcode": 2446981,
+      "fbtraceId": "A9p5n-d3uaQioQ7VVS4m0AO",
+      "path": "act_1955259941795536/adsets",
+      "type": "graph"
+    }
+  }
+}

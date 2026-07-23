@@ -1,0 +1,5 @@
+# Holds a System User token with ads_management — can create campaigns and spend money.
+# NEVER commit. NEVER move into backend/ (the Cloudflare Worker) — it must not reach the
+# Worker runtime. See .env.local.example for the reasoning.
+.env.local
+node_modules/

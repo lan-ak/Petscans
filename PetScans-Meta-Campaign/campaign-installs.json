@@ -1,0 +1,128 @@
+{
+  "runKey": "petscans-concept-installs-2026-07b",
+  "campaign": {
+    "name": "PetScans | Concept Test | Installs | CA | Jul 2026",
+    "objective": "OUTCOME_APP_PROMOTION"
+  },
+  "adsets": [
+    {
+      "name": "Installs | CA | 01 Toxic Reveal",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "01 Toxic Reveal — 1x1",
+          "creative": {
+            "primaryText": "That 'premium' treat could be hiding synthetic preservatives, dyes and by-products. Scan it in 3 seconds and see the real score.",
+            "headline": "Is your pet's food hiding something?",
+            "description": "Scan. Score. Know.",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/01-toxic-reveal__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installs | CA | 06 Carousel",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "06 Carousel — What's in the bowl",
+          "creative": {
+            "primaryText": "Most pet-food labels are impossible to decode. Here's how PetScans reveals what's really inside — in 3 seconds. 🐾",
+            "cta": "INSTALL_MOBILE_APP",
+            "cards": [
+              {
+                "image": "./creatives/carousel/carousel-1-hook.png",
+                "headline": "What's really in the bowl?",
+                "description": "Every ingredient revealed."
+              },
+              {
+                "image": "./creatives/carousel/carousel-2-scan.png",
+                "headline": "Scan any label or barcode",
+                "description": "Takes 3 seconds"
+              },
+              {
+                "image": "./creatives/carousel/carousel-3-score.png",
+                "headline": "Get an instant 0–100 score",
+                "description": "Backed by vet science"
+              },
+              {
+                "image": "./creatives/carousel/carousel-4-alerts.png",
+                "headline": "Allergen & toxic alerts",
+                "description": "Flags what to avoid"
+              },
+              {
+                "image": "./creatives/carousel/carousel-5-download.png",
+                "headline": "Backed by vet science",
+                "description": "Download free"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installs | CA | 03 Vet Science",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "03 Vet Science — 1x1",
+          "creative": {
+            "primaryText": "Every PetScans rating is built on AAFCO, FDA, ASPCA Poison Control and the Merck Veterinary Manual — each rule graded by evidence strength.",
+            "headline": "Pet food safety, backed by science",
+            "description": "Trusted by pet parents",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/03-vet-science__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installs | CA | 04 Allergen",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "04 Allergen — 1x1",
+          "creative": {
+            "primaryText": "Chicken allergy? Sensitive stomach? Add your pet's profile once and PetScans flags every ingredient they should avoid — on every scan.",
+            "headline": "Protection tailored to your pet",
+            "description": "Allergen alerts built in",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/04-allergen__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installs | CA | 05 Ultra-Processed",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "05 Ultra-Processed — 1x1",
+          "creative": {
+            "primaryText": "You read your own labels — why not your pet's? See how ultra-processed their food really is with a clear NOVA breakdown.",
+            "headline": "How processed is their food, really?",
+            "description": "See what's really inside",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/05-ultra-processed__1x1.png" }
+          }
+        }
+      ]
+    }
+  ]
+}

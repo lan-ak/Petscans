@@ -1,0 +1,43 @@
+{
+  "runKey": "petscans-concept-traffic-2026-07",
+  "specHash": "87b729415a246fa0",
+  "startedAt": "2026-07-19T12:40:04.181Z",
+  "status": "rolled_back",
+  "steps": [
+    {
+      "type": "image",
+      "key": "image.0.0",
+      "id": "faca0b01c2df16e37b7cdbb8e13306f7",
+      "name": "01-toxic-reveal__1x1.png",
+      "at": "2026-07-19T12:44:26.665Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0",
+      "id": "b820782cd47b0f1b588d9f7e623b4448",
+      "name": "02-instant-demo__1x1.png",
+      "at": "2026-07-19T12:47:32.918Z"
+    },
+    {
+      "type": "image",
+      "key": "image.2.0",
+      "id": "5c3f6794b9af634ff803ebb991d43e1a",
+      "name": "03-vet-science__1x1.png",
+      "at": "2026-07-19T12:47:41.085Z"
+    },
+    {
+      "type": "image",
+      "key": "image.3.0",
+      "id": "2bfee1b5a2d2438add5015a54211b62d",
+      "name": "04-allergen__1x1.png",
+      "at": "2026-07-19T12:47:47.845Z"
+    },
+    {
+      "type": "image",
+      "key": "image.4.0",
+      "id": "2a9ff00635977407e26ab1d80ed9336b",
+      "name": "05-ultra-processed__1x1.png",
+      "at": "2026-07-19T12:47:56.212Z"
+    }
+  ]
+}

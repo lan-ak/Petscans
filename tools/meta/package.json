@@ -1,0 +1,14 @@
+{
+  "name": "petscans-meta-cli",
+  "private": true,
+  "description": "Meta Marketing API CLI for PetScans ad campaigns. Ported from PickleGo. Standalone — NOT part of the Cloudflare Worker in backend/.",
+  "scripts": {
+    "meta": "tsx scripts/meta.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "tsx": "^4.19.2",
+    "typescript": "~5.5.0"
+  }
+}

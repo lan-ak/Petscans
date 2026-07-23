@@ -1,0 +1,104 @@
+{
+  "runKey": "petscans-concept-traffic-2026-07",
+  "campaign": {
+    "name": "PetScans | Concept Test | Traffic | CA | Jul 2026",
+    "objective": "OUTCOME_TRAFFIC"
+  },
+  "adsets": [
+    {
+      "name": "Traffic | CA | 01 Toxic Reveal",
+      "optimizationGoal": "LINK_CLICKS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "01 Toxic Reveal — 1x1",
+          "creative": {
+            "primaryText": "That 'premium' treat could be hiding synthetic preservatives, dyes and by-products. Scan it in 3 seconds and see the real score.",
+            "headline": "Is your pet's food hiding something?",
+            "description": "Scan. Score. Know.",
+            "cta": "DOWNLOAD",
+            "media": { "type": "image", "path": "./creatives/01-toxic-reveal__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Traffic | CA | 02 Instant Demo",
+      "optimizationGoal": "LINK_CLICKS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "02 Instant Demo — 1x1",
+          "creative": {
+            "primaryText": "Point your camera at any pet-food label and get an instant 0–100 safety score, backed by veterinary science. No jargon, no guessing.",
+            "headline": "Scan any pet food in seconds",
+            "description": "Free on the App Store",
+            "cta": "DOWNLOAD",
+            "media": { "type": "image", "path": "./creatives/02-instant-demo__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Traffic | CA | 03 Vet Science",
+      "optimizationGoal": "LINK_CLICKS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "03 Vet Science — 1x1",
+          "creative": {
+            "primaryText": "Every PetScans rating is built on AAFCO, FDA, ASPCA Poison Control and the Merck Veterinary Manual — each rule graded by evidence strength.",
+            "headline": "Pet food safety, backed by science",
+            "description": "Trusted by pet parents",
+            "cta": "LEARN_MORE",
+            "media": { "type": "image", "path": "./creatives/03-vet-science__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Traffic | CA | 04 Allergen",
+      "optimizationGoal": "LINK_CLICKS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "04 Allergen — 1x1",
+          "creative": {
+            "primaryText": "Chicken allergy? Sensitive stomach? Add your pet's profile once and PetScans flags every ingredient they should avoid — on every scan.",
+            "headline": "Protection tailored to your pet",
+            "description": "Allergen alerts built in",
+            "cta": "DOWNLOAD",
+            "media": { "type": "image", "path": "./creatives/04-allergen__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Traffic | CA | 05 Ultra-Processed",
+      "optimizationGoal": "LINK_CLICKS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1000,
+      "targeting": { "countries": ["CA"], "ageMin": 25, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "05 Ultra-Processed — 1x1",
+          "creative": {
+            "primaryText": "You read your own labels — why not your pet's? See how ultra-processed their food really is with a clear NOVA breakdown.",
+            "headline": "How processed is their food, really?",
+            "description": "See what's really inside",
+            "cta": "DOWNLOAD",
+            "media": { "type": "image", "path": "./creatives/05-ultra-processed__1x1.png" }
+          }
+        }
+      ]
+    }
+  ]
+}

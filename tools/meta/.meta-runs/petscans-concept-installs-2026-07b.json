@@ -1,0 +1,183 @@
+{
+  "runKey": "petscans-concept-installs-2026-07b",
+  "specHash": "168a678b854e5f2b",
+  "startedAt": "2026-07-22T18:51:08.166Z",
+  "status": "complete",
+  "steps": [
+    {
+      "type": "campaign",
+      "key": "campaign",
+      "id": "120248321252990056",
+      "name": "PetScans | Concept Test | Installs | CA | Jul 2026",
+      "at": "2026-07-22T18:51:09.430Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.0",
+      "id": "120248321253520056",
+      "name": "Installs | CA | 01 Toxic Reveal",
+      "at": "2026-07-22T18:51:12.810Z"
+    },
+    {
+      "type": "image",
+      "key": "image.0.0",
+      "id": "faca0b01c2df16e37b7cdbb8e13306f7",
+      "name": "01-toxic-reveal__1x1.png",
+      "at": "2026-07-22T18:51:13.497Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.0.0",
+      "id": "1359043452960643",
+      "name": "01 Toxic Reveal — 1x1 — creative",
+      "at": "2026-07-22T18:51:14.606Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.0.0",
+      "id": "120248321253850056",
+      "name": "01 Toxic Reveal — 1x1",
+      "at": "2026-07-22T18:51:17.113Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.1",
+      "id": "120248321253990056",
+      "name": "Installs | CA | 06 Carousel",
+      "at": "2026-07-22T18:51:18.634Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0.c0",
+      "id": "21c09f56c5efa600681ea8d0ace19c08",
+      "name": "carousel-1-hook.png",
+      "at": "2026-07-22T18:51:20.404Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0.c1",
+      "id": "d71ee9de011ef869a7d2e9eb4576c7fc",
+      "name": "carousel-2-scan.png",
+      "at": "2026-07-22T18:51:22.333Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0.c2",
+      "id": "3e42293d47b42fef8974bed3e02546aa",
+      "name": "carousel-3-score.png",
+      "at": "2026-07-22T18:51:24.420Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0.c3",
+      "id": "6d6ca1792b4878326e6322ffa9beb3c8",
+      "name": "carousel-4-alerts.png",
+      "at": "2026-07-22T18:51:26.981Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0.c4",
+      "id": "ae76d9481ba013d08334bbe8f316a5b2",
+      "name": "carousel-5-download.png",
+      "at": "2026-07-22T18:51:29.113Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.1.0",
+      "id": "4401729036709018",
+      "name": "06 Carousel — What's in the bowl — creative",
+      "at": "2026-07-22T18:51:29.846Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.1.0",
+      "id": "120248321255480056",
+      "name": "06 Carousel — What's in the bowl",
+      "at": "2026-07-22T18:51:31.588Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.2",
+      "id": "120248321255630056",
+      "name": "Installs | CA | 03 Vet Science",
+      "at": "2026-07-22T18:51:33.329Z"
+    },
+    {
+      "type": "image",
+      "key": "image.2.0",
+      "id": "5c3f6794b9af634ff803ebb991d43e1a",
+      "name": "03-vet-science__1x1.png",
+      "at": "2026-07-22T18:51:33.843Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.2.0",
+      "id": "1557965075737703",
+      "name": "03 Vet Science — 1x1 — creative",
+      "at": "2026-07-22T18:51:34.616Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.2.0",
+      "id": "120248321256310056",
+      "name": "03 Vet Science — 1x1",
+      "at": "2026-07-22T18:51:36.402Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.3",
+      "id": "120248321256490056",
+      "name": "Installs | CA | 04 Allergen",
+      "at": "2026-07-22T18:51:38.140Z"
+    },
+    {
+      "type": "image",
+      "key": "image.3.0",
+      "id": "2bfee1b5a2d2438add5015a54211b62d",
+      "name": "04-allergen__1x1.png",
+      "at": "2026-07-22T18:51:38.609Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.3.0",
+      "id": "1038393138687824",
+      "name": "04 Allergen — 1x1 — creative",
+      "at": "2026-07-22T18:51:39.156Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.3.0",
+      "id": "120248321257160056",
+      "name": "04 Allergen — 1x1",
+      "at": "2026-07-22T18:51:42.324Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.4",
+      "id": "120248321380730056",
+      "name": "Installs | CA | 05 Ultra-Processed",
+      "at": "2026-07-22T18:59:38.679Z"
+    },
+    {
+      "type": "image",
+      "key": "image.4.0",
+      "id": "2a9ff00635977407e26ab1d80ed9336b",
+      "name": "05-ultra-processed__1x1.png",
+      "at": "2026-07-22T18:59:39.226Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.4.0",
+      "id": "2614427332352811",
+      "name": "05 Ultra-Processed — 1x1 — creative",
+      "at": "2026-07-22T18:59:39.937Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.4.0",
+      "id": "120248321381680056",
+      "name": "05 Ultra-Processed — 1x1",
+      "at": "2026-07-22T18:59:41.882Z"
+    }
+  ]
+}
