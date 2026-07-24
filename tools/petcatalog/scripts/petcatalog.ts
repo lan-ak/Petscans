@@ -16,17 +16,24 @@ import { readFileSync } from 'node:fs';
 import { build } from './petcatalog/build';
 import { enrich } from './petcatalog/enrich';
 import { chewyCandidates, walmartCandidates } from './petcatalog/candidates';
+import { collectChewy } from './petcatalog/chewy-collect';
 
 const REPO_ROOT = resolve(__dirname, '../../..');
 const DEFAULT_OUT = resolve(REPO_ROOT, 'PetScans/Data/catalog.sqlite');
 
-/** Read the Firecrawl key from backend/.dev.vars (never committed). */
-function firecrawlKey(): string {
+/** Read a key from backend/.dev.vars (never committed). */
+function devVar(name: string): string {
   const vars = readFileSync(resolve(REPO_ROOT, 'backend/.dev.vars'), 'utf8');
-  const m = vars.match(/^FIRECRAWL_API_KEY=(.+)$/m);
-  if (!m) throw new Error('FIRECRAWL_API_KEY not found in backend/.dev.vars');
+  const m = vars.match(new RegExp(`^${name}=(.+)$`, 'm'));
+  if (!m) throw new Error(`${name} not found in backend/.dev.vars`);
   return m[1].trim().replace(/^"|"$/g, '');
 }
+
+const firecrawlKey = (): string => devVar('FIRECRAWL_API_KEY');
+const brightDataKey = (): string => devVar('BRIGHTDATA_API_KEY');
+
+/** Urls already sent to Bright Data. Committed, so the skip-list is shared. */
+const LEDGER = resolve(REPO_ROOT, 'tools/petcatalog/collected-chewy-urls.txt');
 
 function arg(argv: string[], name: string): string | undefined {
   const i = argv.indexOf(`--${name}`);
@@ -46,6 +53,29 @@ petcatalog — build the bundled product catalog
     --source <path>      vendor JSON array (required)
     --out <path>         output sqlite (default: PetScans/Data/catalog.sqlite)
     --include-tier-c     also write 5-9 ingredient rows (default: excluded — usually truncated)
+
+  collect-chewy  Discover Chewy PDPs (Firecrawl) -> scrape them (Bright Data) -> write the
+                 records whose GTIN the catalog lacks. Skips urls already collected, so
+                 repeat runs only reach for new stock.
+
+    --storefront us|ca|both   which Chewy site (default: both)
+    --pages <n>               category pages to walk per category (default: 1, ~40 urls each)
+    --limit <n>               max NEW urls to collect this run (default: 250)
+    --out <path>              JSON for enrich to read (default: /tmp/chewy-new.json)
+    --db <path>               catalog to diff against (default: PetScans/Data/catalog.sqlite)
+
+  enrich   Fetch ingredients for identity-only rows and insert them into catalog.sqlite
+
+    --source chewy|walmart    candidate source (required)
+    --budget <credits>        Firecrawl spend ceiling (required)
+    --file <path>             candidate JSON (default: ~/Downloads/chewy products.json)
+    --out <path>              catalog sqlite to insert into
+    --limit <n>               max candidates (walmart scan only)
+
+Typical growth loop:
+
+  npm run petcatalog -- collect-chewy --pages 3 --limit 200
+  npm run petcatalog -- enrich --source chewy --file /tmp/chewy-new.json --budget 1500
 `;
 }
 
@@ -55,6 +85,40 @@ async function main(): Promise<void> {
 
   if (!cmd || cmd === 'help' || cmd === '--help') {
     console.log(help());
+    return;
+  }
+
+  if (cmd === 'collect-chewy') {
+    const out = resolve(process.cwd(), arg(argv, 'out') ?? '/tmp/chewy-new.json');
+    const storefront = (arg(argv, 'storefront') ?? 'both') as 'us' | 'ca' | 'both';
+    if (!['us', 'ca', 'both'].includes(storefront)) {
+      console.error('--storefront must be us | ca | both');
+      process.exitCode = 2;
+      return;
+    }
+    const r = await collectChewy({
+      fcKey: firecrawlKey(),
+      bdKey: brightDataKey(),
+      dbPath: resolve(process.cwd(), arg(argv, 'db') ?? DEFAULT_OUT),
+      ledgerPath: LEDGER,
+      out,
+      storefront,
+      pages: Number(arg(argv, 'pages') ?? '1'),
+      limit: Number(arg(argv, 'limit') ?? '250'),
+      onLog: (s) => process.stderr.write(s + '\n'),
+    });
+    console.log('');
+    console.log(`urls collected    : ${r.urlsDiscovered}`);
+    console.log(`urls skipped      : ${r.urlsSkipped}  (already in ledger)`);
+    console.log(`records returned  : ${r.recordsReturned}`);
+    console.log(`in target scope   : ${r.inScope}`);
+    console.log(`already in catalog: ${r.alreadyHeld}`);
+    console.log(`NEW GTINs written : ${r.newGtins}  -> ${r.outPath}`);
+    console.log('');
+    if (r.newGtins) {
+      console.log(`next: npm run petcatalog -- enrich --source chewy --file ${r.outPath} --budget <credits>`);
+      console.log('');
+    }
     return;
   }
 
