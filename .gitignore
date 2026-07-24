@@ -93,3 +93,4 @@ Walmart Data/
 
 # Catalog backups taken before a rebuild/enrich (large binaries)
 PetScans/Data/*.bak
+.asc/artifacts/
