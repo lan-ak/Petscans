@@ -18,9 +18,7 @@ struct SavedScanDetailView: View {
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
                 HStack(spacing: SpacingTokens.sm) {
-                    ShareLink(item: shareText) {
-                        Image(systemName: "square.and.arrow.up")
-                    }
+                    shareButton
 
                     Button {
                         scan.isFavorite.toggle()
@@ -30,6 +28,35 @@ struct SavedScanDetailView: View {
                             .foregroundColor(scan.isFavorite ? .yellow : .gray)
                     }
                 }
+            }
+        }
+    }
+
+    /// Same rendered-card share as the fresh-scan screen, so a scan shared from
+    /// History looks identical to one shared right after scanning. Falls back to
+    /// the plain text block if the render fails.
+    @ViewBuilder
+    private var shareButton: some View {
+        let productName = scan.productName ?? "Scanned product"
+        if let image = ShareCardRenderer.render(
+            productName: productName,
+            brand: scan.brand,
+            breakdown: scan.scoreBreakdown,
+            // Saved scans don't persist which pet they were run for — the same
+            // reason ProductScoreView passes petName: nil here. Allergen titles
+            // still carry the pet context inside the card's flag list.
+            petName: nil
+        ) {
+            let card = ShareCard(image: image, text: shareText)
+            ShareLink(
+                item: card,
+                preview: SharePreview(productName, image: Image(uiImage: image))
+            ) {
+                Image(systemName: "square.and.arrow.up")
+            }
+        } else {
+            ShareLink(item: shareText) {
+                Image(systemName: "square.and.arrow.up")
             }
         }
     }

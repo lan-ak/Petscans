@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FA200005 /* SuperwallSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100005 /* SuperwallSafe.swift */; };
+		UT000010 /* ScreenshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = UT000011 /* ScreenshotTests.swift */; };
 		FA200042 /* ReviewPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100042 /* ReviewPrompt.swift */; };
 		FA200043 /* ShareCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100043 /* ShareCardRenderer.swift */; };
 		FA200044 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100044 /* ShareCardView.swift */; };
@@ -136,8 +137,20 @@
 		F7OCR0012F09000000000001 /* OCRCameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7OCR0002F09000000000001 /* OCRCameraView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		UT000020 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A7000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A5000001;
+			remoteInfo = PetScans;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		FA100005 /* SuperwallSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperwallSafe.swift; sourceTree = "<group>"; };
+		UT000001 /* PetScansUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PetScansUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		UT000011 /* ScreenshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotTests.swift; sourceTree = "<group>"; };
 		FA100042 /* ReviewPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPrompt.swift; sourceTree = "<group>"; };
 		FA100043 /* ShareCardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardRenderer.swift; sourceTree = "<group>"; };
 		FA100044 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
@@ -285,6 +298,7 @@
 			isa = PBXGroup;
 			children = (
 				A4000002 /* PetScans */,
+				UT000030 /* PetScansUITests */,
 				F79CB1862F1BD76E007B2E84 /* Frameworks */,
 				A4000003 /* Products */,
 			);
@@ -312,10 +326,19 @@
 			path = PetScans;
 			sourceTree = "<group>";
 		};
+		UT000030 /* PetScansUITests */ = {
+			isa = PBXGroup;
+			children = (
+				UT000011 /* ScreenshotTests.swift */,
+			);
+			path = PetScansUITests;
+			sourceTree = "<group>";
+		};
 		A4000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				A0000001 /* PetScans.app */,
+				UT000001 /* PetScansUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -570,6 +593,22 @@
 			productReference = A0000001 /* PetScans.app */;
 			productType = "com.apple.product-type.application";
 		};
+		UT000002 /* PetScansUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = UT000040 /* Build configuration list for PBXNativeTarget "PetScansUITests" */;
+			buildPhases = (
+				UT000003 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				UT000021 /* PBXTargetDependency */,
+			);
+			name = PetScansUITests;
+			productName = PetScansUITests;
+			productReference = UT000001 /* PetScansUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -582,6 +621,10 @@
 				TargetAttributes = {
 					A5000001 = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					UT000002 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = A5000001;
 					};
 				};
 			};
@@ -604,6 +647,7 @@
 			projectRoot = "";
 			targets = (
 				A5000001 /* PetScans */,
+				UT000002 /* PetScansUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -749,7 +793,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		UT000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				UT000010 /* ScreenshotTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		UT000021 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A5000001 /* PetScans */;
+			targetProxy = UT000020 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A6000004 /* Debug */ = {
@@ -881,7 +941,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -896,7 +956,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -911,7 +971,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -926,12 +986,46 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.1;
+				MARKETING_VERSION = 1.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		UT000041 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.4.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = PetScans;
+			};
+			name = Debug;
+		};
+		UT000042 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 6;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.4.2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app.uitests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_TARGET_NAME = PetScans;
 			};
 			name = Release;
 		};
@@ -952,6 +1046,15 @@
 			buildConfigurations = (
 				A6000006 /* Debug */,
 				A6000007 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		UT000040 /* Build configuration list for PBXNativeTarget "PetScansUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				UT000041 /* Debug */,
+				UT000042 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

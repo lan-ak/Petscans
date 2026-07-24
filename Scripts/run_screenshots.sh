@@ -3,12 +3,14 @@
 # App Store Screenshot Automation Script for PetScans
 # Usage: ./Scripts/run_screenshots.sh
 #
+# The PetScansUITests target and ScreenshotTests.swift already exist in the
+# project and scheme — ScreenshotTests seeds real catalog products (Merrick,
+# Purina ONE, Milk-Bone) and captures the six App Store shots.
+#
 # Prerequisites:
-# 1. Add UI Test target to Xcode project (File > New > Target > UI Testing Bundle)
-#    - Name: PetScansUITests
-#    - Host Application: PetScans
-# 2. Add PetScansUITests/ScreenshotTests.swift to the new target
-# 3. Ensure simulators are available (Xcode > Window > Devices and Simulators)
+# 1. Install the simulators named in DEVICES below (Xcode > Settings > Platforms),
+#    or edit the names to simulators you have. The three sizes map to
+#    6.9" / 6.7" / 6.5", which is what App Store Connect asks for.
 
 set -e
 

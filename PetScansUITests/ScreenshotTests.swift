@@ -15,143 +15,127 @@ final class ScreenshotTests: XCTestCase {
         app = nil
     }
 
-    // MARK: - Onboarding Screenshots
+    // MARK: - App Store shot list (1.4.2)
+    //
+    // Every shot leads with a real, named product from the seeded catalog. The
+    // old suite led with three onboarding screens — a welcome page, a benefits
+    // page, and an empty form — none of which show the app recognizing anything.
+    // Yuka's first shot is a scored product; so is ours now.
+    //
+    // Captions are supplied by the framing step, not the app. These tests just
+    // stage the underlying screens; `Scripts/run_screenshots.sh` runs them
+    // across the three device sizes.
 
-    func test01_WelcomeScreenshot() throws {
-        app.launchArguments = ["-UITesting", "-ShowOnboarding"]
-        app.launch()
+    /// Shot 1 — the hero. A recognizable brand scored well, pack shot visible.
+    func test01_HeroScore() throws {
+        launchSeeded()
+        openScan(brandOrName: "Merrick")
+        Thread.sleep(forTimeInterval: 1.0)
+        takeScreenshot(named: "01_HeroScore")
+    }
 
-        // Wait for welcome page to appear
-        let welcomeView = app.otherElements["onboarding-welcome"]
-        XCTAssertTrue(welcomeView.waitForExistence(timeout: 5))
+    /// Shot 2 — the verdict that sells the app: a treat marked Avoid, with the
+    /// ingredient warning cards (BHA/BHT, unnamed meat, added color) in frame.
+    func test02_UnsafeIngredients() throws {
+        launchSeeded()
+        openScan(brandOrName: "Milk-Bone")
 
-        // Allow animations to complete
+        // Scroll to the warnings section so the harmful-ingredient cards, not
+        // just the score dial, are what the shot leads with.
+        let scoreView = app.scrollViews["product-score-view"]
+        scoreView.swipeUp()
+        Thread.sleep(forTimeInterval: 0.8)
+        takeScreenshot(named: "02_UnsafeIngredients")
+    }
+
+    /// Shot 3 — the pet-specific allergen banner, the thing a generic scanner
+    /// can't do. Top of the same Milk-Bone result, before any scrolling.
+    func test03_AllergenAlert() throws {
+        launchSeeded()
+        openScan(brandOrName: "Milk-Bone")
+        Thread.sleep(forTimeInterval: 1.0)
+        takeScreenshot(named: "03_AllergenAlert")
+    }
+
+    /// Shot 4 — an ingredient explained. Opens the detail sheet from a tappable
+    /// ingredient row on the Merrick result.
+    func test04_IngredientDetail() throws {
+        launchSeeded()
+        openScan(brandOrName: "Merrick")
+
+        let scoreView = app.scrollViews["product-score-view"]
+        // The ingredients card is below the fold; scroll it into reach.
+        scoreView.swipeUp()
+        scoreView.swipeUp()
         Thread.sleep(forTimeInterval: 0.5)
 
-        takeScreenshot(named: "01_Welcome")
+        // Ingredient rows are buttons whose label combines the rank and name
+        // ("1. Deboned Beef …"), so match on CONTAINS rather than equality. Only
+        // rows backed by a real catalog record are enabled, which is why the
+        // seeder points these at real ingredient IDs.
+        let beef = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] 'Deboned Beef'")
+        ).firstMatch
+        XCTAssertTrue(beef.waitForExistence(timeout: 5))
+        beef.tap()
+
+        // IngredientDetailSheet has a Done button — proof the sheet presented.
+        let done = app.buttons["Done"].firstMatch
+        XCTAssertTrue(done.waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.6)
+        takeScreenshot(named: "04_IngredientDetail")
     }
 
-    func test02_PetSetupScreenshot() throws {
-        app.launchArguments = ["-UITesting", "-ShowOnboarding"]
-        app.launch()
+    /// Shot 5 — the library. The seeded History list stands in for "10,000+
+    /// foods built in": three real products, each with a score dial.
+    func test05_Library() throws {
+        launchSeeded()
+        app.tabBars.buttons["History"].tap()
 
-        // Navigate through onboarding pages to pet setup (page 4)
-        // Page 0: Welcome -> tap "Get Started"
-        let getStartedButton = app.buttons["Get Started"]
-        XCTAssertTrue(getStartedButton.waitForExistence(timeout: 5))
-        getStartedButton.tap()
-
-        // Page 1: Benefits 1 -> tap "Continue"
-        Thread.sleep(forTimeInterval: 0.3)
-        let continueButton1 = app.buttons["Continue"]
-        XCTAssertTrue(continueButton1.waitForExistence(timeout: 5))
-        continueButton1.tap()
-
-        // Page 2: Benefits 2 -> tap "Continue"
-        Thread.sleep(forTimeInterval: 0.3)
-        let continueButton2 = app.buttons["Continue"]
-        XCTAssertTrue(continueButton2.waitForExistence(timeout: 5))
-        continueButton2.tap()
-
-        // Page 3: Pet Setup
-        Thread.sleep(forTimeInterval: 0.3)
-        let petSetupView = app.otherElements["onboarding-pet-setup"]
-        XCTAssertTrue(petSetupView.waitForExistence(timeout: 5))
-
-        // Fill in pet name for a realistic screenshot. The field autofocuses on
-        // arrival, so no tap is needed to start typing.
-        let petNameField = app.textFields["Pet Name"]
-        if petNameField.waitForExistence(timeout: 2) {
-            // Trailing newline presses return, which dismisses focus. Onboarding
-            // has no keyboard toolbar, and tapping the background would risk
-            // toggling one of the avoidance group rows.
-            petNameField.typeText("Max\n")
-        }
-        Thread.sleep(forTimeInterval: 0.3)
-
-        // Select avoidance groups for visual interest
-        for group in ["Artificial colours", "Ultra-processed ingredients"] {
-            let row = app.buttons[group]
-            if row.waitForExistence(timeout: 2) {
-                row.tap()
-            }
-        }
-
-        Thread.sleep(forTimeInterval: 0.3)
-        takeScreenshot(named: "02_PetSetup")
+        let historyView = app.collectionViews["history-view"]
+        XCTAssertTrue(historyView.waitForExistence(timeout: 5))
+        Thread.sleep(forTimeInterval: 0.6)
+        takeScreenshot(named: "05_Library")
     }
 
-    // MARK: - Main App Screenshots
+    /// Shot 6 — the trust shot, mirroring Yuka's independence screen. The
+    /// Scientific References screen lists AAFCO, FDA, ASPCA, Merck.
+    func test06_Sources() throws {
+        launchSeeded()
+        app.tabBars.buttons["Settings"].tap()
 
-    func test03_ScannerScreenshot() throws {
-        app.launchArguments = ["-UITesting", "-SkipOnboarding", "-MockScanner"]
-        app.launch()
-
-        // Scanner is the first tab, should be visible immediately
-        let scannerView = app.otherElements["scanner-view"]
-        XCTAssertTrue(scannerView.waitForExistence(timeout: 5))
-
-        Thread.sleep(forTimeInterval: 0.5)
-        takeScreenshot(named: "03_Scanner")
+        let references = app.buttons["Scientific References"].firstMatch
+        XCTAssertTrue(references.waitForExistence(timeout: 5))
+        references.tap()
+        Thread.sleep(forTimeInterval: 0.6)
+        takeScreenshot(named: "06_Sources")
     }
 
-    func test04_HistoryScreenshot() throws {
+    // MARK: - Navigation Helpers
+
+    private func launchSeeded() {
         app.launchArguments = ["-UITesting", "-SkipOnboarding", "-SeedScreenshotData"]
         app.launch()
+    }
 
-        // Navigate to History tab
-        let historyTab = app.tabBars.buttons["History"]
-        XCTAssertTrue(historyTab.waitForExistence(timeout: 5))
-        historyTab.tap()
+    /// Opens a seeded scan from History by matching the product cell's label,
+    /// which carries both the product name and the brand. Matching on text
+    /// rather than a positional index keeps each shot pinned to a specific
+    /// product regardless of how SwiftData happens to order same-timestamp rows.
+    private func openScan(brandOrName: String) {
+        app.tabBars.buttons["History"].tap()
 
-        // Wait for history view to load with data
-        let historyView = app.otherElements["history-view"]
+        let historyView = app.collectionViews["history-view"]
         XCTAssertTrue(historyView.waitForExistence(timeout: 5))
 
-        Thread.sleep(forTimeInterval: 0.5)
-        takeScreenshot(named: "04_History")
-    }
+        let cell = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", brandOrName)
+        ).firstMatch
+        XCTAssertTrue(cell.waitForExistence(timeout: 5))
+        cell.tap()
 
-    func test05_ResultsScreenshot() throws {
-        app.launchArguments = ["-UITesting", "-SkipOnboarding", "-SeedScreenshotData"]
-        app.launch()
-
-        // Navigate to History tab
-        let historyTab = app.tabBars.buttons["History"]
-        XCTAssertTrue(historyTab.waitForExistence(timeout: 5))
-        historyTab.tap()
-
-        Thread.sleep(forTimeInterval: 0.5)
-
-        // Tap on the first scan to view details (shows ProductScoreView)
-        let firstCell = app.cells.firstMatch
-        if firstCell.waitForExistence(timeout: 5) {
-            firstCell.tap()
-
-            // Wait for product score view
-            let scoreView = app.otherElements["product-score-view"]
-            XCTAssertTrue(scoreView.waitForExistence(timeout: 5))
-
-            Thread.sleep(forTimeInterval: 0.5)
-            takeScreenshot(named: "05_Results")
-        }
-    }
-
-    func test06_SettingsScreenshot() throws {
-        app.launchArguments = ["-UITesting", "-SkipOnboarding", "-SeedScreenshotData"]
-        app.launch()
-
-        // Navigate to Settings tab
-        let settingsTab = app.tabBars.buttons["Settings"]
-        XCTAssertTrue(settingsTab.waitForExistence(timeout: 5))
-        settingsTab.tap()
-
-        // Wait for settings view
-        let settingsView = app.otherElements["settings-view"]
-        XCTAssertTrue(settingsView.waitForExistence(timeout: 5))
-
-        Thread.sleep(forTimeInterval: 0.3)
-        takeScreenshot(named: "06_Settings")
+        let scoreView = app.scrollViews["product-score-view"]
+        XCTAssertTrue(scoreView.waitForExistence(timeout: 10))
     }
 
     // MARK: - Helper Methods

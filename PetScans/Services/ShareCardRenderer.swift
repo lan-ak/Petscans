@@ -36,9 +36,14 @@ enum ShareCardRenderer {
     }
 }
 
-/// `ShareLink` needs a `Transferable`. Wrapping the image lets the same item
-/// carry the text fallback, so a target that can't take an image (Notes, Mail
-/// as plain text) still gets something useful instead of nothing.
+/// `ShareLink` needs a `Transferable`. This exports a single thing — the PNG —
+/// on purpose.
+///
+/// An earlier version also carried a `ProxyRepresentation(\.text)` so a text
+/// target could fall back to the plain summary. In practice the text proxy won
+/// the share sheet's preview: the header rendered the text block with a text
+/// glyph instead of the card thumbnail, and image targets are the whole point.
+/// One representation, no ambiguity — the card image is what every target gets.
 struct ShareCard: Transferable {
     let image: UIImage
     let text: String
@@ -51,8 +56,6 @@ struct ShareCard: Transferable {
             return data
         }
         .suggestedFileName("petscans-score.png")
-
-        ProxyRepresentation(exporting: \.text)
     }
 }
 
