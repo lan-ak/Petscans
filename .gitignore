@@ -90,3 +90,6 @@ PetScans/Config/Secrets.xcconfig
 
 # Raw purchased datasets (huge, proprietary — never commit)
 Walmart Data/
+
+# Catalog backups taken before a rebuild/enrich (large binaries)
+PetScans/Data/*.bak

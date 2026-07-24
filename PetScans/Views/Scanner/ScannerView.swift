@@ -85,6 +85,8 @@ struct ScannerView: View {
                     productSearchingView
                 }
             }
+            .transition(.opacity)
+            .animateEmphasized(value: viewModel.step)
             .navigationTitle("Identify Product")
             .navigationBarTitleDisplayMode(.inline)
         }

@@ -10,7 +10,7 @@ import SuperwallKit
 final class ScannerViewModel: ObservableObject {
     // MARK: - Types
 
-    enum Step {
+    enum Step: Equatable {
         case scanning
         case error
         case productNotFound
@@ -164,11 +164,12 @@ final class ScannerViewModel: ObservableObject {
                     successFeedback.notificationOccurred(.success)
                     step = .results
                 } else {
-                    // New product: capture the ingredients label on-device instead of the
-                    // old 30–60s web crawl.
+                    // New product: surface a "not found" screen that names the barcode and
+                    // explains why, so the jump to the label camera isn't a silent, confusing
+                    // switch. Its primary action leads to the on-device OCR capture.
                     logResolved(source: "miss", started: started, gtin: gtin)
                     isManualSearch = false
-                    step = .ocrCapture
+                    step = .productNotFound
                 }
             }
         }
