@@ -50,10 +50,14 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
+	<!-- Both come from the build settings MARKETING_VERSION and
+	     CURRENT_PROJECT_VERSION, which are the real source of truth: with
+	     GENERATE_INFOPLIST_FILE = YES, Xcode overwrites these two keys from those
+	     settings, so a literal value here is silently ignored at build time. -->
 	<key>CFBundleShortVersionString</key>
-	<string>1.4.1</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>5</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>UIApplicationSceneManifest</key>
