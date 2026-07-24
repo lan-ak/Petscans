@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-import SuperwallKit
 
 /// Owns every pet-derived Superwall user attribute so paywall copy can address
 /// the animal by name. `pet_name` is never empty — it falls back to "your pet"
@@ -27,7 +26,9 @@ enum SuperwallUserAttributes {
         primarySpecies = pets.first?.speciesEnum.rawValue
             ?? fallbackSpecies?.rawValue ?? Species.dog.rawValue
 
-        Superwall.shared.setUserAttributes([
+        // The cached primaries above are set either way, so a later call once
+        // Superwall is up still has the right roster to fall back on.
+        SuperwallSafe.setUserAttributes([
             "pet_name": primaryName,
             "pet_names": pets.map(\.name).joined(separator: ", "),
             "pet_count": pets.count,
@@ -60,13 +61,13 @@ enum SuperwallUserAttributes {
             attributes[group.attributeKey] = groups.contains(group)
         }
 
-        Superwall.shared.setUserAttributes(attributes)
+        SuperwallSafe.setUserAttributes(attributes)
     }
 
     /// Points `pet_name` at the pet a scan was run for; `nil` restores the
     /// roster primary from the last `syncPets` call.
     static func setFocusedPet(_ pet: Pet?) {
-        Superwall.shared.setUserAttributes([
+        SuperwallSafe.setUserAttributes([
             "pet_name": pet?.name ?? primaryName,
             "pet_species": pet?.speciesEnum.rawValue ?? primarySpecies
         ])

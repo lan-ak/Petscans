@@ -3,7 +3,6 @@ import SwiftUI
 import SwiftData
 import Combine
 import UIKit
-import SuperwallKit
 
 /// ViewModel for the scanner workflow, managing state and business logic
 @MainActor
@@ -407,13 +406,13 @@ final class ScannerViewModel: ObservableObject {
         let analysisCount = UserDefaults.standard.integer(forKey: "totalAnalysisCount") + 1
         UserDefaults.standard.set(analysisCount, forKey: "totalAnalysisCount")
 
-        Superwall.shared.setUserAttributes(["analysis_count": analysisCount])
+        SuperwallSafe.setUserAttributes(["analysis_count": analysisCount])
 
         // Paywall copy names the pet this scan was run for; nil falls back
         // to the roster primary rather than leaving a stale name.
         SuperwallUserAttributes.setFocusedPet(selectedPet)
 
-        Superwall.shared.register(placement: "analysis_complete")
+        SuperwallSafe.register(placement: "analysis_complete")
 
         // Meta ad-campaign signal: the app's core activation moment. No-ops
         // unless Meta credentials are configured (see AttributionService).
@@ -450,7 +449,7 @@ final class ScannerViewModel: ObservableObject {
     /// produces the ranked list of unresolved GTINs that drives catalog growth.
     private func logResolved(source: String, started: Date, gtin: String?) {
         let elapsedMs = Int(Date().timeIntervalSince(started) * 1000)
-        Superwall.shared.setUserAttributes([
+        SuperwallSafe.setUserAttributes([
             "last_scan_source": source,
             "last_scan_elapsed_ms": elapsedMs,
         ])
@@ -486,7 +485,7 @@ final class ScannerViewModel: ObservableObject {
             let scanCount = UserDefaults.standard.integer(forKey: "totalScanCount") + 1
             UserDefaults.standard.set(scanCount, forKey: "totalScanCount")
 
-            Superwall.shared.setUserAttributes([
+            SuperwallSafe.setUserAttributes([
                 "scan_count": scanCount
             ])
 

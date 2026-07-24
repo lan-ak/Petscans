@@ -108,8 +108,9 @@ enum AttributionService {
     // MARK: - Conversion events
 
     /// Meta optimizes ad delivery against these, so they need to fire in the app
-    /// even though the purchase itself is Superwall's. Currently unwired — see the
-    /// Superwall delegate note in the integration write-up.
+    /// even though the purchase itself is Superwall's. Driven by
+    /// `SuperwallAttributionDelegate`, which maps `.subscriptionStart` and
+    /// `.freeTrialStart` onto the two calls below.
 
     /// A completed subscription purchase, the primary optimization event.
     static func logSubscription(amount: Decimal, currency: String) {

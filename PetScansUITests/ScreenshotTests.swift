@@ -62,15 +62,10 @@ final class ScreenshotTests: XCTestCase {
         // arrival, so no tap is needed to start typing.
         let petNameField = app.textFields["Pet Name"]
         if petNameField.waitForExistence(timeout: 2) {
-            petNameField.typeText("Max")
-        }
-
-        // Dismiss the keyboard via the toolbar rather than tapping the
-        // background — the background is now occupied by the avoidance group
-        // rows, and a stray tap would toggle one.
-        let doneButton = app.buttons["Done"]
-        if doneButton.waitForExistence(timeout: 2) {
-            doneButton.tap()
+            // Trailing newline presses return, which dismisses focus. Onboarding
+            // has no keyboard toolbar, and tapping the background would risk
+            // toggling one of the avoidance group rows.
+            petNameField.typeText("Max\n")
         }
         Thread.sleep(forTimeInterval: 0.3)
 

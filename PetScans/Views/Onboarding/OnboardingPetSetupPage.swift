@@ -19,6 +19,7 @@ struct OnboardingPetSetupPage: View {
                     // user has not seen an ingredient list yet.
                     selectedAllergens: .constant([]),
                     showAllergens: false,
+                    showHeaderIcon: false,
                     nameError: nameError,
                     isNameFocused: isNameFocused,
                     onSubmitName: onSubmitName

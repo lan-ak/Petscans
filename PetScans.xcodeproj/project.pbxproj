@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FA200005 /* SuperwallSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100005 /* SuperwallSafe.swift */; };
 		FA200001 /* AvoidanceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100001 /* AvoidanceGroup.swift */; };
 		FA200002 /* AvoidancePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100002 /* AvoidancePreferences.swift */; };
 		FA200003 /* CameraPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100003 /* CameraPermission.swift */; };
@@ -132,6 +133,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		FA100005 /* SuperwallSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperwallSafe.swift; sourceTree = "<group>"; };
 		FA100001 /* AvoidanceGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidanceGroup.swift; sourceTree = "<group>"; };
 		FA100002 /* AvoidancePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidancePreferences.swift; sourceTree = "<group>"; };
 		FA100003 /* CameraPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermission.swift; sourceTree = "<group>"; };
@@ -342,6 +344,7 @@
 		A4000006 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FA100005 /* SuperwallSafe.swift */,
 				FA100003 /* CameraPermission.swift */,
 				FA100002 /* AvoidancePreferences.swift */,
 				F79CB1782F12E9B9007B2E84 /* APIKeys.swift */,
@@ -615,6 +618,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA200005 /* SuperwallSafe.swift in Sources */,
 				FA200001 /* AvoidanceGroup.swift in Sources */,
 				FA200002 /* AvoidancePreferences.swift in Sources */,
 				FA200003 /* CameraPermission.swift in Sources */,

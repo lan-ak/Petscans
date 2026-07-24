@@ -21,8 +21,11 @@ struct ContentView: View {
                     hasCompletedOnboarding = true
                 }
             }
+            // No keyboardToolbar() here: onboarding has one text field, and a
+            // Cancel/Done bar above the keyboard costs height on the page that
+            // can least afford it. Dismissal is covered by the tap-to-dismiss
+            // above and by the name field's return key.
             .dismissKeyboardOnTap()
-            .keyboardToolbar()
         } else {
             // The ATT prompt is requested after the first completed scan, not
             // here — see ScannerViewModel. Asking on this screen raced the

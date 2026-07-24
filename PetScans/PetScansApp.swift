@@ -12,6 +12,25 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
         AttributionService.start(launchOptions: launchOptions)
+
+        // Superwall's docs are explicit that configure belongs "as soon as your
+        // app launches". It used to sit in `deferredInit()`, behind an `await`
+        // on the ingredient database — which meant the SDK only started fetching
+        // campaign settings and preloading paywalls after that finished. A first
+        // run reaches `onboarding_complete` within seconds of launch, so that
+        // delay ate most of the preload window for the one paywall that matters
+        // most. Configuring here also removes the window in which UI could touch
+        // `Superwall.shared` before it exists.
+        //
+        // Skipped under `-UITesting` so screenshot runs make no network calls and
+        // StoreKit never prompts; `SuperwallSafe` handles the resulting no-op.
+        if !PetScansApp.isUITesting {
+            Superwall.configure(apiKey: APIKeys.superwall)
+            // Forwards purchase/trial events to Meta for ad attribution.
+            // Superwall holds the delegate weakly, hence the static instance.
+            Superwall.shared.delegate = SuperwallAttributionDelegate.shared
+        }
+
         return true
     }
 }
@@ -107,12 +126,9 @@ struct PetScansApp: App {
         let context = ModelContext(container)
         PetMigrationService.migrateIfNeeded(modelContext: context)
 
-        // Configure Superwall. The delegate forwards purchase/trial events to Meta
-        // for ad attribution; Superwall holds it weakly, hence the static instance.
-        Superwall.configure(apiKey: APIKeys.superwall)
-        Superwall.shared.delegate = SuperwallAttributionDelegate.shared
-
-        // Keep pet attributes (used by paywall copy) current for existing users.
+        // Superwall itself is configured in the app delegate, at launch. Only the
+        // pet attributes wait for here, since they need the model container and
+        // the migration above to have run.
         SuperwallUserAttributes.syncPets(modelContext: context)
     }
 }

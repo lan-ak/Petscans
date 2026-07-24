@@ -12,6 +12,11 @@ struct PetFormView: View {
     /// lists and can answer it.
     var showAllergens: Bool = true
 
+    /// Onboarding turns this off: with the avoidance groups below it, an 80pt
+    /// icon pushed the last group off screen, and the title already labels the
+    /// page. AddPetSheet keeps it — that sheet has room.
+    var showHeaderIcon: Bool = true
+
     /// Shown under the name field once a submit has been attempted while blank.
     var nameError: String?
 
@@ -24,10 +29,12 @@ struct PetFormView: View {
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
-            // Heart icon (generic for all pets)
-            Image(systemName: "heart.fill")
-                .font(.system(size: SpacingTokens.iconXXLarge))
-                .foregroundColor(ColorTokens.brandPrimary)
+            if showHeaderIcon {
+                // Heart icon (generic for all pets)
+                Image(systemName: "heart.fill")
+                    .font(.system(size: SpacingTokens.iconXXLarge))
+                    .foregroundColor(ColorTokens.brandPrimary)
+            }
 
             // Title
             Text("Let's meet your pet")

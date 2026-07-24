@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import SuperwallKit
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -39,6 +38,16 @@ struct OnboardingView: View {
                 navigationButtons
                     .padding(.horizontal, SpacingTokens.screenPadding)
                     .padding(.bottom, SpacingTokens.xxl)
+                    // The skip link hangs inside the bottom padding instead of
+                    // stacking under the CTA, so the primary button lands at the
+                    // same height on every page rather than riding up on the
+                    // one page that has a secondary action.
+                    .overlay(alignment: .bottom) {
+                        if currentPage == setupPage {
+                            skipButton
+                                .padding(.bottom, SpacingTokens.xxs)
+                        }
+                    }
             }
         }
         .onChange(of: petName) { _, _ in
@@ -71,7 +80,7 @@ struct OnboardingView: View {
             OnboardingBenefitsPage(
                 icon: "barcode.viewfinder",
                 headline: "Scan the barcode, or type it in",
-                subheadline: "Point your camera at any pet food or treat. No barcode? Photograph the label or enter ingredients by hand."
+                subheadline: "Point your camera at any pet food or treat. No barcode? Take a photo of the label and we'll find it for you."
             )
             .transition(.opacity)
         case setupPage:
@@ -124,31 +133,18 @@ struct OnboardingView: View {
     @ViewBuilder
     private var navigationButtons: some View {
         if currentPage == setupPage {
-            VStack(spacing: SpacingTokens.xs) {
-                Button {
-                    submitSetup()
-                } label: {
-                    if isSubmitting {
-                        ProgressView()
-                            .tint(.white)
-                    } else {
-                        Text("Let's go!")
-                    }
+            Button {
+                submitSetup()
+            } label: {
+                if isSubmitting {
+                    ProgressView()
+                        .tint(.white)
+                } else {
+                    Text("Let's go!")
                 }
-                .primaryButtonStyle()
-                .disabled(isSubmitting)
-
-                // Plain text, stacked below: as an equal-width button beside the
-                // CTA it read as an equal choice, and skipping leaves the app
-                // with no pet to personalize against.
-                Button("Skip for now") {
-                    completeOnboarding(createdPet: false)
-                }
-                .font(TypographyTokens.labelLarge)
-                .foregroundColor(ColorTokens.textSecondary)
-                .disabled(isSubmitting)
-                .opacity(isSubmitting ? 0.6 : 1)
             }
+            .primaryButtonStyle()
+            .disabled(isSubmitting)
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {
                 withStandardAnimation {
@@ -157,6 +153,19 @@ struct OnboardingView: View {
             }
             .primaryButtonStyle()
         }
+    }
+
+    /// Plain text rather than a second full-width button: as an equal-width
+    /// button beside the CTA it read as an equal choice, and skipping leaves the
+    /// app with no pet to personalize against.
+    private var skipButton: some View {
+        Button("Skip for now") {
+            completeOnboarding(createdPet: false)
+        }
+        .font(TypographyTokens.labelLarge)
+        .foregroundColor(ColorTokens.textSecondary)
+        .disabled(isSubmitting)
+        .opacity(isSubmitting ? 0.6 : 1)
     }
 
     /// Gets the keyboard up on arrival at the setup page — the only page asking
@@ -205,16 +214,20 @@ struct OnboardingView: View {
         // register() so the paywall can address the pet by name.
         SuperwallUserAttributes.syncPets(modelContext: modelContext, fallbackSpecies: petSpecies)
         SuperwallUserAttributes.setAvoidanceGroups(selectedGroups)
-        Superwall.shared.setUserAttributes([
+
+        SuperwallSafe.setUserAttributes([
             "onboarding_completed_at": Date()
         ])
 
-        Superwall.shared.register(
+        SuperwallSafe.register(
             placement: "onboarding_finished",
             params: ["created_pet": createdPet, "avoid_group_count": selectedGroups.count]
         )
 
-        Superwall.shared.register(placement: "onboarding_complete") {
+        // Superwall gates the exit from onboarding. The gated register runs the
+        // feature block even when the SDK is unavailable, so a paywall that
+        // cannot load never strands the user on this page.
+        SuperwallSafe.register(placement: "onboarding_complete") {
             onComplete()
         }
     }
@@ -229,7 +242,7 @@ struct OnboardingView: View {
     /// that name on the dashboard, and a single name is far easier to keep out
     /// of campaigns than four.
     private func logStep(_ page: Int) {
-        Superwall.shared.register(
+        SuperwallSafe.register(
             placement: "onboarding_step",
             params: ["step": page]
         )
