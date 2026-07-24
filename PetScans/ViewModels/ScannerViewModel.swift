@@ -412,6 +412,16 @@ final class ScannerViewModel: ObservableObject {
         // to the roster primary rather than leaving a stale name.
         SuperwallUserAttributes.setFocusedPet(selectedPet)
 
+        // Armed before the register call: `analysis_complete` may present a
+        // paywall, and ReviewPrompt re-checks the paywall cooldown when the
+        // result screen drains this, so a paywall here cancels the ask.
+        if let scoreBreakdown {
+            ReviewPrompt.recordScanCompleted(
+                breakdown: scoreBreakdown,
+                analysisCount: analysisCount
+            )
+        }
+
         SuperwallSafe.register(placement: "analysis_complete")
 
         // Meta ad-campaign signal: the app's core activation moment. No-ops

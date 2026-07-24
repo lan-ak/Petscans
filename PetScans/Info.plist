@@ -60,6 +60,12 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- The app's only cryptography is HTTPS/TLS via system frameworks, which is
+	     exempt. Declaring it here means App Store Connect stops asking on every
+	     upload; without it each new build blocks submission until the answer is
+	     set by hand. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

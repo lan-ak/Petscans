@@ -155,6 +155,10 @@ struct PetScansApp: App {
     /// `init`.
     @MainActor
     private func deferredInit() async {
+        // One cold launch = one session. Gates the rating prompt on the user
+        // having come back at least once, which a scan count alone can't tell.
+        ReviewPrompt.recordSessionStart()
+
         // Pre-load custom fonts (forces font registration before views need them)
         _ = UIFont(name: "Quicksand-Bold", size: 1)
         _ = UIFont(name: "Quicksand-Medium", size: 1)

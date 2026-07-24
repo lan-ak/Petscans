@@ -1,1 +1,5 @@
-{"name":"PetScans","subtitle":"Food Safety Scanner for Pets","privacyPolicyUrl":"https://petscans.app/privacy"}
+{
+  "name": "PetScans",
+  "subtitle": "Dog & Cat Food Safety Scanner",
+  "privacyPolicyUrl": "https://petscans.app/privacy"
+}

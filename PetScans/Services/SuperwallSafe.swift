@@ -24,6 +24,7 @@ enum SuperwallSafe {
 
     static func register(placement: String, params: [String: Any]? = nil) {
         guard isReady else { return }
+        ReviewPrompt.noteSuperwallRegister()
         Superwall.shared.register(placement: placement, params: params)
     }
 
@@ -39,6 +40,7 @@ enum SuperwallSafe {
             feature()
             return
         }
+        ReviewPrompt.noteSuperwallRegister()
         Superwall.shared.register(placement: placement, params: params, feature: feature)
     }
 }

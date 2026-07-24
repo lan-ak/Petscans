@@ -21,10 +21,13 @@ struct ProductScoreView: View {
     let mode: Mode
     let scannedAt: Date?
 
+    @Environment(\.requestReview) private var requestReview
+
     @State private var notes: String = ""
     @State private var showDeleteConfirmation = false
     @State private var selectedIngredient: Ingredient?
     @State private var showAllIngredients = false
+    @State private var renderedShareCard: ShareCard?
 
     // Pre-computed values (calculated once in init, not on every render)
     private let actualMatchedCount: Int
@@ -151,6 +154,8 @@ struct ProductScoreView: View {
                 notes = scan.notes ?? ""
             }
         }
+        .task { renderShareCard() }
+        .task { await askForReviewIfEarned() }
         .confirmationDialog("Delete this scan?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             if case .savedScan(_, let onDelete) = mode {
                 Button("Delete", role: .destructive) {
@@ -163,6 +168,63 @@ struct ProductScoreView: View {
         .sheet(item: $selectedIngredient) { ingredient in
             IngredientDetailSheet(ingredient: ingredient, species: species, pet: selectedPet)
         }
+    }
+
+    // MARK: - Share
+
+    /// Shares a rendered score card, falling back to the plain text block until
+    /// the card exists — and permanently, if rendering fails. `ImageRenderer` is
+    /// a synchronous rasterize of a 1080pt view, so it runs once off `.task`
+    /// into `renderedShareCard` rather than on every body evaluation.
+    @ViewBuilder
+    private var shareButton: some View {
+        if let card = renderedShareCard {
+            ShareLink(
+                item: card,
+                preview: SharePreview(productName, image: Image(uiImage: card.image))
+            ) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            .secondaryButtonStyle()
+        } else {
+            ShareLink(item: shareText) {
+                Label("Share", systemImage: "square.and.arrow.up")
+            }
+            .secondaryButtonStyle()
+        }
+    }
+
+    private func renderShareCard() {
+        guard renderedShareCard == nil else { return }
+        guard let image = ShareCardRenderer.render(
+            productName: productName,
+            brand: brand,
+            breakdown: scoreBreakdown,
+            petName: petName
+        ) else { return }
+
+        renderedShareCard = ShareCard(image: image, text: shareText)
+    }
+
+    // MARK: - Rating Prompt
+
+    /// Presents the App Store rating sheet when `ReviewPrompt` armed one for
+    /// this scan. Only from a fresh result — re-opening a saved scan from
+    /// history is not the moment, and shouldn't be able to drain the flag.
+    ///
+    /// The delay is not cosmetic. `ScannerViewModel` schedules the ATT prompt
+    /// 800ms after this screen appears, and iOS drops a review request made
+    /// while another system alert owns the slot — silently, and it still counts
+    /// against the three-per-year budget. Waiting past that window means the
+    /// ask either lands or is never made.
+    private func askForReviewIfEarned() async {
+        guard case .scanResult = mode else { return }
+
+        try? await Task.sleep(for: .seconds(2.5))
+        guard !Task.isCancelled else { return }
+        guard ReviewPrompt.consumePending() else { return }
+
+        requestReview()
     }
 
     // MARK: - Allergen Alert Banner
@@ -434,10 +496,7 @@ struct ProductScoreView: View {
             .primaryButtonStyle()
 
             HStack(spacing: SpacingTokens.xs) {
-                ShareLink(item: shareText) {
-                    Label("Share", systemImage: "square.and.arrow.up")
-                }
-                .secondaryButtonStyle()
+                shareButton
 
                 Button {
                     onScanAnother()

@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		FA200005 /* SuperwallSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100005 /* SuperwallSafe.swift */; };
+		FA200042 /* ReviewPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100042 /* ReviewPrompt.swift */; };
+		FA200043 /* ShareCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100043 /* ShareCardRenderer.swift */; };
+		FA200044 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100044 /* ShareCardView.swift */; };
 		LM100002 /* LaunchMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = LM100001 /* LaunchMetrics.swift */; };
 		LM100004 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = LM100003 /* LaunchScreen.storyboard */; };
 		FA200001 /* AvoidanceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100001 /* AvoidanceGroup.swift */; };
@@ -135,6 +138,9 @@
 
 /* Begin PBXFileReference section */
 		FA100005 /* SuperwallSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperwallSafe.swift; sourceTree = "<group>"; };
+		FA100042 /* ReviewPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPrompt.swift; sourceTree = "<group>"; };
+		FA100043 /* ShareCardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardRenderer.swift; sourceTree = "<group>"; };
+		FA100044 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
 		LM100001 /* LaunchMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchMetrics.swift; sourceTree = "<group>"; };
 		LM100003 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FA100001 /* AvoidanceGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidanceGroup.swift; sourceTree = "<group>"; };
@@ -348,6 +354,8 @@
 			isa = PBXGroup;
 			children = (
 				FA100005 /* SuperwallSafe.swift */,
+				FA100042 /* ReviewPrompt.swift */,
+				FA100043 /* ShareCardRenderer.swift */,
 				FA100003 /* CameraPermission.swift */,
 				FA100002 /* AvoidancePreferences.swift */,
 				F79CB1782F12E9B9007B2E84 /* APIKeys.swift */,
@@ -437,6 +445,7 @@
 				F7D8352E2F07461100414B32 /* ScoreExplanationCard.swift */,
 				F7D835322F07470000414B32 /* ProductScoreView.swift */,
 				A2000026 /* ScoreCircleView.swift */,
+				FA100044 /* ShareCardView.swift */,
 				A2000027 /* ScoreBarView.swift */,
 				A2000028 /* WarningFlagView.swift */,
 				A2000036 /* NetworkErrorView.swift */,
@@ -624,6 +633,9 @@
 			files = (
 				LM100002 /* LaunchMetrics.swift in Sources */,
 				FA200005 /* SuperwallSafe.swift in Sources */,
+				FA200042 /* ReviewPrompt.swift in Sources */,
+				FA200043 /* ShareCardRenderer.swift in Sources */,
+				FA200044 /* ShareCardView.swift in Sources */,
 				FA200001 /* AvoidanceGroup.swift in Sources */,
 				FA200002 /* AvoidancePreferences.swift in Sources */,
 				FA200003 /* CameraPermission.swift in Sources */,
