@@ -9,8 +9,13 @@ struct IngredientSearchSheet: View {
     @State private var debouncedSearchText: String = ""
     @State private var searchTask: Task<Void, Never>?
 
+    /// Read in `body`, so SwiftUI's observation tracking re-renders this sheet when the
+    /// background decode publishes. Without that the list could open before the load
+    /// finished and stay permanently empty.
+    private let database = IngredientDatabase.shared
+
     private var allIngredients: [Ingredient] {
-        IngredientDatabase.shared.sortedIngredients
+        database.sortedIngredients
     }
 
     private var filteredIngredients: [Ingredient] {
@@ -98,17 +103,27 @@ struct IngredientSearchSheet: View {
         .padding(.bottom, SpacingTokens.xxs)
     }
 
+    @ViewBuilder
     private var ingredientList: some View {
-        List {
-            ForEach(filteredIngredients) { ingredient in
-                IngredientRowView(
-                    ingredient: ingredient,
-                    isSelected: selectedAllergens.contains(ingredient.commonName.lowercased()),
-                    onToggle: { toggleSelection(ingredient) }
-                )
+        if database.isLoaded {
+            List {
+                ForEach(filteredIngredients) { ingredient in
+                    IngredientRowView(
+                        ingredient: ingredient,
+                        isSelected: selectedAllergens.contains(ingredient.commonName.lowercased()),
+                        onToggle: { toggleSelection(ingredient) }
+                    )
+                }
             }
+            .listStyle(.plain)
+        } else {
+            // Only reachable in the first moments after launch, while the bundled
+            // JSON is still decoding. A spinner beats an empty list, which reads as
+            // "we have no ingredients".
+            ProgressView()
+                .tint(ColorTokens.brandPrimary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .listStyle(.plain)
     }
 
     private var actionBar: some View {

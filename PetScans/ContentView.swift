@@ -15,6 +15,20 @@ struct ContentView: View {
     }
 
     var body: some View {
+        content
+            // The number that actually matters: how long the user stared at the launch
+            // screen. Everything before it — dyld, `App.init`, the app delegate — is
+            // time with nothing on screen.
+            .onAppear { LaunchMetrics.mark("firstFrame") }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        // The other end of the bracket: the gap from here to `firstFrame` is the
+        // cost of building and rendering the first screen, custom font registration
+        // included.
+        let _ = LaunchMetrics.markOnce("contentBody")
+
         if shouldShowOnboarding {
             OnboardingView {
                 withStandardAnimation {

@@ -9,9 +9,14 @@ struct IngredientSelectionView: View {
     let onSubmit: ([Ingredient]) -> Void
     let onCancel: () -> Void
 
+    /// Read in `body`, so SwiftUI's observation tracking re-renders this view when the
+    /// background decode publishes. Without that the list could open before the load
+    /// finished and stay permanently empty.
+    private let database = IngredientDatabase.shared
+
     /// Use pre-sorted list from database (sorted once on load, not every render)
     private var allIngredients: [Ingredient] {
-        IngredientDatabase.shared.sortedIngredients
+        database.sortedIngredients
     }
 
     private var filteredIngredients: [Ingredient] {
@@ -26,7 +31,7 @@ struct IngredientSelectionView: View {
 
     private var selectedIngredients: [Ingredient] {
         selectedIngredientIds.compactMap { id in
-            IngredientDatabase.shared.ingredients[id]
+            database.ingredients[id]
         }
     }
 
@@ -105,17 +110,27 @@ struct IngredientSelectionView: View {
         .padding(.bottom, SpacingTokens.xxs)
     }
 
+    @ViewBuilder
     private var ingredientList: some View {
-        List {
-            ForEach(filteredIngredients) { ingredient in
-                IngredientRowView(
-                    ingredient: ingredient,
-                    isSelected: selectedIngredientIds.contains(ingredient.id),
-                    onToggle: { toggleSelection(ingredient) }
-                )
+        if database.isLoaded {
+            List {
+                ForEach(filteredIngredients) { ingredient in
+                    IngredientRowView(
+                        ingredient: ingredient,
+                        isSelected: selectedIngredientIds.contains(ingredient.id),
+                        onToggle: { toggleSelection(ingredient) }
+                    )
+                }
             }
+            .listStyle(.plain)
+        } else {
+            // Only reachable in the first moments after launch, while the bundled
+            // JSON is still decoding. A spinner beats an empty list, which reads as
+            // "we have no ingredients".
+            ProgressView()
+                .tint(ColorTokens.brandPrimary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .listStyle(.plain)
     }
 
     private var actionBar: some View {

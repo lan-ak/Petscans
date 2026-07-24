@@ -61,13 +61,11 @@
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<true/>
 	</dict>
-	<key>UILaunchScreen</key>
-	<dict>
-		<key>UIColorName</key>
-		<string>LaunchScreenBackground</string>
-		<key>UIImageName</key>
-		<string>AppIcon</string>
-	</dict>
+	<!-- A storyboard, not a UILaunchScreen dict: that dict's UIImageName pointed at
+	     "AppIcon", an .appiconset, which UIKit cannot resolve as a launch image — so
+	     the launch screen rendered as a bare colour fill with no logo or wordmark. -->
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>arm64</string>

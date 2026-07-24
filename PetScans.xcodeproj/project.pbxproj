@@ -8,12 +8,13 @@
 
 /* Begin PBXBuildFile section */
 		FA200005 /* SuperwallSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100005 /* SuperwallSafe.swift */; };
+		LM100002 /* LaunchMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = LM100001 /* LaunchMetrics.swift */; };
+		LM100004 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = LM100003 /* LaunchScreen.storyboard */; };
 		FA200001 /* AvoidanceGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100001 /* AvoidanceGroup.swift */; };
 		FA200002 /* AvoidancePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100002 /* AvoidancePreferences.swift */; };
 		FA200003 /* CameraPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100003 /* CameraPermission.swift */; };
 		FA200004 /* AvoidanceGroupPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100004 /* AvoidanceGroupPicker.swift */; };
 		03881CE4D87C557C1EB9E014 /* AdvancedSearchViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F39C818B4245DD52B539CDB9 /* AdvancedSearchViewModel.swift */; };
-		127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04D76F13AF42C97C3BE08E0 /* SplashView.swift */; };
 		135E1ACBD3D41B016EEB73D0 /* IngredientScraperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */; };
 		30252FA513A589765AC98425 /* AppInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D9F6A7FD304CE13023B1750 /* AppInitializer.swift */; };
 		FBDA00042F0846B800414B32 /* AttributionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBDA00052F0846B800414B32 /* AttributionService.swift */; };
@@ -134,6 +135,8 @@
 
 /* Begin PBXFileReference section */
 		FA100005 /* SuperwallSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperwallSafe.swift; sourceTree = "<group>"; };
+		LM100001 /* LaunchMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchMetrics.swift; sourceTree = "<group>"; };
+		LM100003 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FA100001 /* AvoidanceGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidanceGroup.swift; sourceTree = "<group>"; };
 		FA100002 /* AvoidancePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidancePreferences.swift; sourceTree = "<group>"; };
 		FA100003 /* CameraPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermission.swift; sourceTree = "<group>"; };
@@ -192,7 +195,6 @@
 		A2000039 /* ScoreBreakdown+ShareText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ScoreBreakdown+ShareText.swift"; sourceTree = "<group>"; };
 		A2209611D0D07D48930074C0 /* ProcessingLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingLevel.swift; sourceTree = "<group>"; };
 		A9D45279D1D5F96EB18B555E /* AdvancedSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AdvancedSearchView.swift; sourceTree = "<group>"; };
-		B04D76F13AF42C97C3BE08E0 /* SplashView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SplashView.swift; sourceTree = "<group>"; };
 		C56E4209081EE9A4907B88B0 /* ProductSearchView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductSearchView.swift; sourceTree = "<group>"; };
 		C71F30B90EBC251BDC995AA6 /* ProductPhotoCaptureView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductPhotoCaptureView.swift; sourceTree = "<group>"; };
 		CA61927221DB7E4DC9CABFBC /* PetScansLogo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PetScansLogo.swift; sourceTree = "<group>"; };
@@ -291,6 +293,7 @@
 				A2000001 /* PetScansApp.swift */,
 				A2000002 /* ContentView.swift */,
 				A2000032 /* Info.plist */,
+				LM100003 /* LaunchScreen.storyboard */,
 				FBDA00072F0846B800414B32 /* PrivacyInfo.xcprivacy */,
 				FBDA00102F0846B800414B32 /* Secrets.xcconfig */,
 				A4000004 /* Models */,
@@ -371,6 +374,7 @@
 				68FECA8A6B1BDA9015F11EAE /* IngredientScraperService.swift */,
 				47EEABDA11677F60384CF67B /* IngredientTextParser.swift */,
 				04398EE51EF5AE73D2E45069 /* ProductVisionService.swift */,
+				LM100001 /* LaunchMetrics.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -383,7 +387,6 @@
 				A4000009 /* History */,
 				A4000010 /* Shared */,
 				A4000013 /* Settings */,
-				B04D76F13AF42C97C3BE08E0 /* SplashView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -608,6 +611,7 @@
 				CA710010 /* catalog.sqlite in Resources */,
 				F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */,
 				FBDA00062F0846B800414B32 /* PrivacyInfo.xcprivacy in Resources */,
+				LM100004 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -618,6 +622,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				LM100002 /* LaunchMetrics.swift in Sources */,
 				FA200005 /* SuperwallSafe.swift in Sources */,
 				FA200001 /* AvoidanceGroup.swift in Sources */,
 				FA200002 /* AvoidancePreferences.swift in Sources */,
@@ -716,7 +721,6 @@
 				FBDA00042F0846B800414B32 /* AttributionService.swift in Sources */,
 				FBDA00122F0846B800414B32 /* SuperwallAttributionDelegate.swift in Sources */,
 				FBDA00202F0846B800414B32 /* SuperwallUserAttributes.swift in Sources */,
-				127FCD453E5E16F7CBBE3ED0 /* SplashView.swift in Sources */,
 				77485F1DFC27DCA0754D0928 /* UPCitemdbService.swift in Sources */,
 				135E1ACBD3D41B016EEB73D0 /* IngredientScraperService.swift in Sources */,
 				C1B8BBE32C4CBB75D4652D99 /* UPCitemdbServiceProtocol.swift in Sources */,
@@ -873,7 +877,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "PetScans needs camera access to scan product barcodes";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -903,7 +907,7 @@
 				INFOPLIST_KEY_NSCameraUsageDescription = "PetScans needs camera access to scan product barcodes";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (

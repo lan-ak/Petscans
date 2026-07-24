@@ -47,22 +47,21 @@ enum AttributionService {
     static func start(launchOptions: [UIApplication.LaunchOptionsKey: Any]?) {
         guard isEnabled else { return }
 
-        // Seed from the status already on disk rather than hardcoding false. A user
-        // who granted ATT on an earlier launch is authorized from the first event of
-        // this one; waiting for requestTrackingAuthorization() to re-confirm would
-        // strip the IDFA from every event fired before the UI comes up — losing
-        // attribution on precisely the users who opted in. On a first launch the
-        // status is .notDetermined, so this correctly evaluates to false.
-        Settings.shared.isAdvertiserTrackingEnabled =
-            (ATTrackingManager.trackingAuthorizationStatus == .authorized)
-
+        // `Settings.shared.isAdvertiserTrackingEnabled` used to be seeded here from
+        // `ATTrackingManager.trackingAuthorizationStatus`, so a user who granted ATT
+        // on an earlier launch was authorized from this launch's first event rather
+        // than only after requestTrackingAuthorization() re-confirmed. As of FBSDK 18
+        // the setter is deprecated and ignored — the SDK reads ATT status itself,
+        // which is exactly the behaviour that seeding was reaching for — and calling
+        // it only emitted a deprecation warning on every launch.
         ApplicationDelegate.shared.application(
             UIApplication.shared,
             didFinishLaunchingWithOptions: launchOptions
         )
     }
 
-    /// Shows the iOS tracking prompt, then tells Meta whether it may use the IDFA.
+    /// Shows the iOS tracking prompt. Meta picks the result up on its own — the SDK
+    /// reads `ATTrackingManager` directly, so there is nothing to hand it here.
     ///
     /// Without an `.authorized` result Meta gets no IDFA and attribution degrades
     /// to SKAdNetwork (aggregated, delayed, campaign-level only) — that is the
@@ -75,13 +74,11 @@ enum AttributionService {
     static func requestTrackingAuthorization() async {
         guard isEnabled else { return }
 
-        let status = await withCheckedContinuation { continuation in
+        _ = await withCheckedContinuation { continuation in
             ATTrackingManager.requestTrackingAuthorization { status in
                 continuation.resume(returning: status)
             }
         }
-
-        Settings.shared.isAdvertiserTrackingEnabled = (status == .authorized)
     }
 
     /// Routes an incoming URL to Meta for deferred deep links and ad referrals.

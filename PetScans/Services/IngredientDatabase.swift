@@ -2,6 +2,12 @@ import Foundation
 
 /// Singleton that loads and provides access to the bundled ingredient database
 /// Uses background loading to avoid blocking app startup
+///
+/// `@Observable` so views reading the collections below re-render when the load
+/// lands. Since removing the splash screen, a view can be on screen before the
+/// decode finishes — without this, `IngredientSelectionView` and
+/// `IngredientSearchSheet` would render an empty list and never update.
+@Observable
 final class IngredientDatabase {
     static let shared = IngredientDatabase()
 
@@ -15,7 +21,19 @@ final class IngredientDatabase {
     /// Rules indexed by ingredient ID for O(1) lookup
     private(set) var rulesByIngredient: [String: [Rule]] = [:]
 
-    private var loadingTask: Task<Void, Never>?
+    /// Whether the bundled JSON has been decoded and published. False for the first
+    /// few hundred milliseconds of a launch, so anything rendering the collections
+    /// above should show a loading state rather than an empty one until it flips.
+    private(set) var isLoaded = false
+
+    /// Assigned exactly once, in `init`, before any other reference to the instance
+    /// exists — so `waitForLoad()` can never observe it as nil.
+    ///
+    /// It used to be cleared at the end of the load, which made it a genuine data
+    /// race for no benefit: the write happened on the main actor while `waitForLoad()`
+    /// reads it from whatever executor its caller is on, and awaiting an
+    /// already-finished `Task` returns immediately regardless.
+    private var loadingTask: Task<Void, Never>!
 
     private init() {
         // Start loading immediately in background - doesn't block main thread
@@ -23,10 +41,6 @@ final class IngredientDatabase {
             let ingredients = Self.loadIngredients()
             let rules = Self.loadRules()
             let synonyms = Self.loadSynonyms()
-
-            #if DEBUG
-            print("IngredientDatabase loaded: \(ingredients.count) ingredients, \(rules.count) rules, \(synonyms.count) synonyms")
-            #endif
 
             // Pre-sort ingredients once (expensive operation done in background)
             let sorted = Array(ingredients.values)
@@ -42,14 +56,19 @@ final class IngredientDatabase {
                 self.synonyms = synonyms
                 self.sortedIngredients = sorted
                 self.rulesByIngredient = ruleIndex
-                self.loadingTask = nil
+                self.isLoaded = true
             }
+
+            LaunchMetrics.mark("ingredientDBLoaded")
+            #if DEBUG
+            print("IngredientDatabase loaded: \(ingredients.count) ingredients, \(rules.count) rules, \(synonyms.count) synonyms")
+            #endif
         }
     }
 
     /// Wait for database to finish loading (call before accessing data)
     func waitForLoad() async {
-        await loadingTask?.value
+        await loadingTask.value
     }
 
     private static func loadIngredients() -> [String: Ingredient] {

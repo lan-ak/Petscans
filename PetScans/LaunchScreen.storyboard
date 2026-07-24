@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The static twin of SplashView: LaunchScreenBackground fill, 120pt app icon with a
+  22pt corner radius, "PetScans" in Quicksand-Bold 28pt below it.
+
+  The icon and wordmark are one image, LaunchLogo, rather than a styled view plus a
+  label, because launch storyboards are rendered by SpringBoard before the app
+  process exists: user-defined runtime attributes are rejected outright (so no
+  layer.cornerRadius), and UIAppFonts is not registered yet, so any UILabel here
+  silently falls back to San Francisco no matter what font it names. Every piece of
+  brand type on this screen is therefore an image.
+
+  Worth knowing when editing this file: the Simulator only regenerates its cached
+  launch snapshot when the storyboard itself changes. Edit only an asset and it will
+  keep showing you the previous render — `xcrun simctl erase` is the reliable way to
+  see a change.
+
+  LaunchLogo is generated from AppIconImage's icon-1024.png plus text set in
+  Quicksand.ttf, at 1x/2x/3x in light and dark variants (only the wordmark colour
+  differs). Regenerate all six together if the app icon or the brand font changes.
+  LaunchSubtitle is generated the same way, for the same font reason.
+
+  The spinner does not spin. Nothing on this screen animates: SpringBoard renders the
+  storyboard once and shows the result as a still image until the app's own first
+  frame replaces it. It is here as the conventional "working on it" affordance next
+  to the subtitle, not as a live progress indicator.
+
+  A storyboard rather than the Info.plist `UILaunchScreen` dict, which used to point
+  UIImageName at "AppIcon" — an .appiconset, which UIKit cannot resolve as a launch
+  image, so nothing but the background colour ever rendered. UILaunchScreen also
+  scales its image to fill the screen, which is wrong for a centred logo.
+
+  This renders before any app code runs, which is the whole point: ModelContainer
+  creation and SDK setup happen behind it.
+-->
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchLogo" translatesAutoresizingMaskIntoConstraints="NO" id="Lgo-Jw-1aB">
+                                <rect key="frame" x="131.5" y="343.5" width="130" height="165"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="130" id="w1a-Jw-2bC"/>
+                                    <constraint firstAttribute="height" constant="165" id="h1a-Jw-3cD"/>
+                                </constraints>
+                            </imageView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Spn-Jw-9mN">
+                                <rect key="frame" x="186.5" y="568.5" width="20" height="20"/>
+                                <color key="color" red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            </activityIndicatorView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchSubtitle" translatesAutoresizingMaskIntoConstraints="NO" id="Sub-Jw-7pQ">
+                                <rect key="frame" x="72.5" y="604.5" width="248" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="248" id="w3a-Jw-1rS"/>
+                                    <constraint firstAttribute="height" constant="21" id="h3a-Jw-2tU"/>
+                                </constraints>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" name="LaunchScreenBackground"/>
+                        <constraints>
+                            <constraint firstItem="Lgo-Jw-1aB" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="cx1-Jw-5eF"/>
+                            <constraint firstItem="Lgo-Jw-1aB" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" multiplier="0.9" id="cy1-Jw-6fG"/>
+                            <constraint firstItem="Spn-Jw-9mN" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="cx2-Jw-3vW"/>
+                            <constraint firstItem="Spn-Jw-9mN" firstAttribute="top" secondItem="Lgo-Jw-1aB" secondAttribute="bottom" constant="60" id="tp1-Jw-4xY"/>
+                            <constraint firstItem="Sub-Jw-7pQ" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="cx3-Jw-5zA"/>
+                            <constraint firstItem="Sub-Jw-7pQ" firstAttribute="top" secondItem="Spn-Jw-9mN" secondAttribute="bottom" constant="16" id="tp2-Jw-6bC"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="LaunchLogo" width="130" height="165"/>
+        <image name="LaunchSubtitle" width="248" height="21"/>
+        <namedColor name="LaunchScreenBackground">
+            <color red="0.94099999999999995" green="0.97599999999999998" blue="0.95699999999999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

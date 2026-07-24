@@ -6,7 +6,15 @@ actor OCRService: OCRServiceProtocol {
 
     // MARK: - Dependencies
 
-    private let ingredientParser = IngredientTextParser()
+    /// Lazy, and it has to stay that way. `IngredientTextParser.init` reads
+    /// `IngredientDatabase.shared.synonyms` synchronously and keeps the result for
+    /// good, so building it eagerly means whenever this actor is constructed before
+    /// the database finishes decoding — which is now normal, since `ScannerView`
+    /// creates its view model on the first frame and there is no splash screen
+    /// holding that back — the parser captures an empty synonym set and silently
+    /// stops matching anything. Deferring to first use puts it after
+    /// `extractText`'s callers have awaited the load.
+    private lazy var ingredientParser = IngredientTextParser()
 
     // MARK: - Error Types
 
@@ -95,6 +103,12 @@ actor OCRService: OCRServiceProtocol {
         if averageConfidence < minimumConfidence {
             throw OCRError.lowConfidence(averageConfidence)
         }
+
+        // Post-processing runs the text through `ingredientParser`, which snapshots
+        // the synonym table the first time it is built. Awaiting the load here makes
+        // that snapshot complete by construction rather than by luck — the lazy
+        // initializer fires inside the call below.
+        await IngredientDatabase.shared.waitForLoad()
 
         // Post-process the text
         let processedText = postProcessText(text)
