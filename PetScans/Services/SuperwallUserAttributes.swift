@@ -35,6 +35,34 @@ enum SuperwallUserAttributes {
         ])
     }
 
+    /// Pushes the avoidance groups picked during onboarding.
+    ///
+    /// Sent three ways because each answers a different question in the
+    /// dashboard: `avoid_groups` for copy, `avoid_group_count` for "did they
+    /// engage with the question at all", and a boolean per group because
+    /// targeting rules are far easier to write against booleans than against a
+    /// joined string. Every group's boolean is always set — an absent attribute
+    /// and a false one behave differently in targeting, and only the explicit
+    /// false is truthful about a user who saw the question and said no.
+    static func setAvoidanceGroups(_ groups: Set<AvoidanceGroup>) {
+        // Enum case order, not Set order, so the string is stable between users
+        // and launches.
+        let ordered = AvoidanceGroup.allCases.filter(groups.contains)
+
+        var attributes: [String: Any] = [
+            // Empty string rather than nil so `{{ user.avoid_groups }}` renders
+            // without a Liquid filter, same reasoning as `pet_name` above.
+            "avoid_groups": ordered.map(\.rawValue).joined(separator: ","),
+            "avoid_group_count": ordered.count
+        ]
+
+        for group in AvoidanceGroup.allCases {
+            attributes[group.attributeKey] = groups.contains(group)
+        }
+
+        Superwall.shared.setUserAttributes(attributes)
+    }
+
     /// Points `pet_name` at the pet a scan was run for; `nil` restores the
     /// roster primary from the last `syncPets` call.
     static func setFocusedPet(_ pet: Pet?) {

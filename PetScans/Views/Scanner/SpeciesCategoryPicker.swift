@@ -78,44 +78,26 @@ struct SpeciesCategoryPicker: View {
                         .heading2()
 
                     // General scan option
-                    Button {
-                        isGeneralScan = true
-                        selectedPet = nil
-                    } label: {
-                        HStack(spacing: SpacingTokens.xs) {
-                            Image(systemName: "magnifyingglass")
-                                .font(TypographyTokens.heading1)
-                                .foregroundColor(isGeneralScan ? .white : ColorTokens.brandPrimary)
-                                .frame(width: SpacingTokens.xxl, height: SpacingTokens.xxl)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("General scan")
-                                    .heading3()
-                                    .foregroundColor(isGeneralScan ? .white : ColorTokens.textPrimary)
-                                Text("Select species below")
-                                    .caption()
-                                    .foregroundColor(isGeneralScan ? .white.opacity(0.8) : ColorTokens.textSecondary)
+                    ScanTargetRow(
+                        target: .general,
+                        isSelected: isGeneralScan,
+                        onSelect: {
+                            withStandardAnimation {
+                                isGeneralScan = true
+                                selectedPet = nil
                             }
-
-                            Spacer()
-
-                            Image(systemName: isGeneralScan ? "checkmark.circle.fill" : "circle")
-                                .font(TypographyTokens.heading1)
-                                .foregroundColor(isGeneralScan ? .white : ColorTokens.textSecondary)
                         }
-                        .padding(SpacingTokens.xs)
-                        .background(isGeneralScan ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)
-                        .cornerRadius(SpacingTokens.radiusMedium)
-                    }
-                    .buttonStyle(.plain)
+                    )
 
                     ForEach(pets) { pet in
-                        PetSelectionRow(
-                            pet: pet,
+                        ScanTargetRow(
+                            target: .pet(pet),
                             isSelected: selectedPet?.id == pet.id,
                             onSelect: {
-                                selectedPet = pet
-                                isGeneralScan = false
+                                withStandardAnimation {
+                                    selectedPet = pet
+                                    isGeneralScan = false
+                                }
                             }
                         )
                     }
@@ -137,6 +119,7 @@ struct SpeciesCategoryPicker: View {
                         .pickerStyle(.segmented)
                     }
                     .padding(.horizontal)
+                    .transition(.opacity.combined(with: .move(edge: .top)))
                 }
             }
 
@@ -174,6 +157,14 @@ struct SpeciesCategoryPicker: View {
             .padding()
         }
         .dismissKeyboardOnTap()
+        .onAppear {
+            // Paths that don't preselect a pet (OCR, manual, web) would otherwise land here
+            // with nothing highlighted. Default to the first pet, matching the instant
+            // catalog path in ScannerViewModel.apply(_:pets:).
+            if selectedPet == nil, let first = pets.first {
+                selectedPet = first
+            }
+        }
     }
 }
 

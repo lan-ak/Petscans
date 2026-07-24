@@ -6,6 +6,22 @@ struct PetFormView: View {
     @Binding var petSpecies: Species
     @Binding var selectedAllergens: Set<String>
 
+    /// Onboarding asks about avoidance groups instead (see `AvoidanceGroup`),
+    /// so it opts out. AddPetSheet keeps the ingredient-level picker: by the
+    /// time someone adds a second pet in Settings they have seen ingredient
+    /// lists and can answer it.
+    var showAllergens: Bool = true
+
+    /// Shown under the name field once a submit has been attempted while blank.
+    var nameError: String?
+
+    /// Lets the owning screen drive focus — onboarding autofocuses the field so
+    /// the keyboard is already up on arrival.
+    var isNameFocused: FocusState<Bool>.Binding?
+
+    /// Called when the keyboard's return key is pressed.
+    var onSubmitName: () -> Void = {}
+
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
             // Heart icon (generic for all pets)
@@ -20,13 +36,16 @@ struct PetFormView: View {
                 .multilineTextAlignment(.center)
 
             // Pet info section
-            VStack(spacing: SpacingTokens.sm) {
-                TextField("Pet Name", text: $petName)
-                    .font(TypographyTokens.bodyLarge)
-                    .textInputAutocapitalization(.words)
-                    .padding()
-                    .background(ColorTokens.surfacePrimary)
-                    .cornerRadius(SpacingTokens.radiusMedium)
+            VStack(alignment: .leading, spacing: SpacingTokens.sm) {
+                VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
+                    nameField
+
+                    if let nameError {
+                        Text(nameError)
+                            .font(TypographyTokens.caption)
+                            .foregroundColor(ColorTokens.error)
+                    }
+                }
 
                 Picker("Species", selection: $petSpecies) {
                     ForEach(Species.allCases) { species in
@@ -37,12 +56,45 @@ struct PetFormView: View {
                 .pickerStyle(.segmented)
             }
 
-            Divider()
-                .padding(.vertical, SpacingTokens.xxs)
+            if showAllergens {
+                Divider()
+                    .padding(.vertical, SpacingTokens.xxs)
 
-            // Ingredients to avoid section
-            AllergenSelectionView(selectedAllergens: $selectedAllergens, showHeader: true)
+                // Ingredients to avoid section
+                AllergenSelectionView(selectedAllergens: $selectedAllergens, showHeader: true)
+            }
         }
+    }
+
+    /// `focused(_:)` needs a concrete binding, so the focusable and plain
+    /// variants are built separately rather than conditionally applying the
+    /// modifier.
+    @ViewBuilder
+    private var nameField: some View {
+        if let isNameFocused {
+            baseNameField.focused(isNameFocused)
+        } else {
+            baseNameField
+        }
+    }
+
+    private var baseNameField: some View {
+        TextField("Pet Name", text: $petName)
+            .font(TypographyTokens.bodyLarge)
+            .textInputAutocapitalization(.words)
+            // Pet names are not dictionary words — autocorrect turns "Nala"
+            // into "Nada" and "Mochi" into "Mocha" as the user types.
+            .autocorrectionDisabled()
+            .submitLabel(.done)
+            .onSubmit(onSubmitName)
+            .padding()
+            .background(ColorTokens.surfacePrimary)
+            .cornerRadius(SpacingTokens.radiusMedium)
+            .overlay(
+                RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
+                    .stroke(nameError == nil ? Color.clear : ColorTokens.error, lineWidth: 1)
+            )
+            .accessibilityIdentifier("pet-name-field")
     }
 }
 

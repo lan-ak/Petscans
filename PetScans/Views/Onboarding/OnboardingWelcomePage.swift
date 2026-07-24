@@ -15,7 +15,7 @@ struct OnboardingWelcomePage: View {
                     .foregroundColor(ColorTokens.textPrimary)
                     .multilineTextAlignment(.center)
 
-                Text("Let's get started")
+                Text("Check any pet food or treat in seconds — and find out what's really in it.")
                     .font(TypographyTokens.bodyLarge)
                     .foregroundColor(ColorTokens.textSecondary)
                     .multilineTextAlignment(.center)

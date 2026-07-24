@@ -196,6 +196,87 @@ struct ScannerUnavailableView: View {
     }
 }
 
+/// Shown before the system camera prompt. iOS asks once per install, so the
+/// explanation has to come first — an unprimed prompt arriving seconds after a
+/// paywall gets declined a lot, and a decline is not recoverable in-app.
+struct CameraPrimingView: View {
+    let onEnable: () -> Void
+    let onManualEntry: () -> Void
+
+    var body: some View {
+        VStack(spacing: SpacingTokens.md) {
+            Image(systemName: "camera.viewfinder")
+                .font(.system(size: SpacingTokens.iconXLarge))
+                .foregroundColor(ColorTokens.brandPrimary)
+
+            Text("Scan a label")
+                .displaySmall()
+
+            Text("PetScans reads barcodes and ingredient labels through your camera. Photos stay on your device.")
+                .bodySmall()
+                .foregroundColor(ColorTokens.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            VStack(spacing: SpacingTokens.xs) {
+                Button("Enable Camera") {
+                    onEnable()
+                }
+                .primaryButtonStyle()
+
+                Button("Enter Manually") {
+                    onManualEntry()
+                }
+                .font(TypographyTokens.labelLarge)
+                .foregroundColor(ColorTokens.textSecondary)
+            }
+            .padding(.horizontal)
+        }
+        .padding(SpacingTokens.sm)
+        .accessibilityIdentifier("camera-priming")
+    }
+}
+
+/// Shown when camera access was denied or is restricted. Replaces what used to
+/// be a black capture preview with no explanation.
+struct CameraDeniedView: View {
+    let onOpenSettings: () -> Void
+    let onManualEntry: () -> Void
+
+    var body: some View {
+        VStack(spacing: SpacingTokens.md) {
+            Image(systemName: "camera.fill")
+                .font(.system(size: SpacingTokens.iconXLarge))
+                .foregroundColor(ColorTokens.textSecondary)
+
+            Text("Camera Access Off")
+                .displaySmall()
+
+            Text("Scanning needs camera access. Turn it on in Settings → PetScans → Camera, or enter ingredients by hand.")
+                .bodySmall()
+                .foregroundColor(ColorTokens.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            VStack(spacing: SpacingTokens.xs) {
+                Button("Open Settings") {
+                    onOpenSettings()
+                }
+                .primaryButtonStyle()
+
+                Button("Enter Manually") {
+                    onManualEntry()
+                }
+                .font(TypographyTokens.labelLarge)
+                .foregroundColor(ColorTokens.textSecondary)
+            }
+            .padding(.horizontal)
+        }
+        .padding(SpacingTokens.sm)
+        .accessibilityIdentifier("camera-denied")
+    }
+}
+
 // Mock scanner view for App Store screenshots
 struct MockScannerPreviewView: View {
     var body: some View {
@@ -231,6 +312,14 @@ struct MockScannerPreviewView: View {
             }
         }
     }
+}
+
+#Preview("Camera Priming") {
+    CameraPrimingView(onEnable: {}, onManualEntry: {})
+}
+
+#Preview("Camera Denied") {
+    CameraDeniedView(onOpenSettings: {}, onManualEntry: {})
 }
 
 #Preview("Scanner Unavailable") {

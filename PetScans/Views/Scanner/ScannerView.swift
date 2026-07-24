@@ -3,8 +3,10 @@ import SwiftData
 
 struct ScannerView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \Pet.name) private var pets: [Pet]
     @StateObject private var viewModel = ScannerViewModel()
+    @StateObject private var cameraPermission = CameraPermission()
 
     private var useMockScanner: Bool {
         ProcessInfo.processInfo.arguments.contains("-MockScanner")
@@ -117,7 +119,23 @@ struct ScannerView: View {
                     }
                     .padding(.bottom, SpacingTokens.xxl)
                 }
-            } else if BarcodeScannerView.isSupported {
+            } else if !BarcodeScannerView.isSupported {
+                ScannerUnavailableView {
+                    viewModel.goToManualEntry()
+                }
+            } else if cameraPermission.state == .notDetermined {
+                CameraPrimingView(
+                    onEnable: {
+                        Task { await cameraPermission.request() }
+                    },
+                    onManualEntry: viewModel.goToManualEntry
+                )
+            } else if cameraPermission.state == .denied {
+                CameraDeniedView(
+                    onOpenSettings: cameraPermission.openSettings,
+                    onManualEntry: viewModel.goToManualEntry
+                )
+            } else {
                 BarcodeScannerView(
                     onScan: { code in
                         viewModel.handleBarcodeScan(code, pets: pets, modelContext: modelContext)
@@ -149,13 +167,17 @@ struct ScannerView: View {
                     }
                     .padding(.bottom, SpacingTokens.xxl)
                 }
-            } else {
-                ScannerUnavailableView {
-                    viewModel.goToManualEntry()
-                }
             }
         }
         .accessibilityIdentifier("scanner-view")
+        .onChange(of: scenePhase) { _, phase in
+            // The user may have granted access in Settings and come back;
+            // without this they would return to the same denied screen and read
+            // it as the grant not having worked.
+            if phase == .active {
+                cameraPermission.refresh()
+            }
+        }
     }
 
     @ViewBuilder

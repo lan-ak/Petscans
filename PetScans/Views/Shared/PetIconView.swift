@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Standardized sizes for pet icons across the app.
 enum PetIconSize {
-    case small   // PetSelectionRow
+    case small   // ScanTargetRow
     case medium  // PetRowView
     case large   // PetDetailView
 
@@ -24,7 +24,7 @@ enum PetIconSize {
 }
 
 /// Reusable pet species icon with consistent styling.
-/// Used in PetRowView, PetSelectionRow, and PetDetailView.
+/// Used in PetRowView, ScanTargetRow, and PetDetailView.
 struct PetIconView: View {
     let species: Species
     var size: PetIconSize = .medium

@@ -58,26 +58,28 @@ final class ScreenshotTests: XCTestCase {
         let petSetupView = app.otherElements["onboarding-pet-setup"]
         XCTAssertTrue(petSetupView.waitForExistence(timeout: 5))
 
-        // Fill in pet name for a realistic screenshot
+        // Fill in pet name for a realistic screenshot. The field autofocuses on
+        // arrival, so no tap is needed to start typing.
         let petNameField = app.textFields["Pet Name"]
         if petNameField.waitForExistence(timeout: 2) {
-            petNameField.tap()
             petNameField.typeText("Max")
         }
 
-        // Dismiss keyboard
-        app.tap()
+        // Dismiss the keyboard via the toolbar rather than tapping the
+        // background — the background is now occupied by the avoidance group
+        // rows, and a stray tap would toggle one.
+        let doneButton = app.buttons["Done"]
+        if doneButton.waitForExistence(timeout: 2) {
+            doneButton.tap()
+        }
         Thread.sleep(forTimeInterval: 0.3)
 
-        // Select some allergens for visual interest
-        let chickenButton = app.buttons["Chicken"]
-        if chickenButton.waitForExistence(timeout: 2) {
-            chickenButton.tap()
-        }
-
-        let wheatButton = app.buttons["Wheat"]
-        if wheatButton.waitForExistence(timeout: 2) {
-            wheatButton.tap()
+        // Select avoidance groups for visual interest
+        for group in ["Artificial colours", "Ultra-processed ingredients"] {
+            let row = app.buttons[group]
+            if row.waitForExistence(timeout: 2) {
+                row.tap()
+            }
         }
 
         Thread.sleep(forTimeInterval: 0.3)

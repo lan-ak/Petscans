@@ -152,8 +152,7 @@ final class ScannerViewModel: ObservableObject {
                 apply(product, pets: pets)
                 await computeScore()
                 logResolved(source: "catalog", started: started, gtin: product.gtin)
-                successFeedback.notificationOccurred(.success)
-                step = .results
+                showResults()
 
             case .unknown(let gtin):
                 barcode = gtin
@@ -161,8 +160,7 @@ final class ScannerViewModel: ObservableObject {
                     apply(cached, pets: pets)
                     await computeScore()
                     logResolved(source: "cache", started: started, gtin: gtin)
-                    successFeedback.notificationOccurred(.success)
-                    step = .results
+                    showResults()
                 } else {
                     // New product: surface a "not found" screen that names the barcode and
                     // explains why, so the jump to the label camera isn't a silent, confusing
@@ -371,8 +369,17 @@ final class ScannerViewModel: ObservableObject {
             case .databaseVerified: source = "catalog"
             }
             logResolved(source: source, started: started, gtin: barcode)
-            step = .results
+            showResults()
         }
+    }
+
+    /// The single "results are ready" moment. Every path — instant catalog hit, cached
+    /// repeat scan, OCR, manual, web — lands here so the confirmation feels identical
+    /// regardless of how the product was resolved.
+    private func showResults() {
+        successFeedback.notificationOccurred(.success)
+        successFeedback.prepare()
+        step = .results
     }
 
     /// Match ingredients and compute the score for the current product against the current
@@ -411,6 +418,31 @@ final class ScannerViewModel: ObservableObject {
         // Meta ad-campaign signal: the app's core activation moment. No-ops
         // unless Meta credentials are configured (see AttributionService).
         AttributionService.logScanCompleted()
+
+        requestTrackingAuthorizationIfNeeded()
+    }
+
+    /// Asks for tracking permission once the user has seen a real result.
+    ///
+    /// This used to fire 500ms after the tab bar appeared, which put it in a
+    /// race with the camera permission alert ScannerView triggers on appear.
+    /// iOS silently declines to present the ATT prompt while another system
+    /// alert is up, and a prompt that never appears leaves the status
+    /// `.notDetermined` forever — Meta attribution then has no IDFA at all.
+    /// Here the result screen is showing and nothing else is competing for the
+    /// alert slot, and the ask lands right after the app has proven itself.
+    ///
+    /// Left un-flagged deliberately: every later call is a no-op once iOS has a
+    /// stored answer, so a prompt that did get dropped is retried on the next
+    /// scan instead of being lost.
+    private func requestTrackingAuthorizationIfNeeded() {
+        Task {
+            // The result view is mid-transition when this runs; presenting into
+            // an animating hierarchy is what drops the prompt.
+            try? await Task.sleep(for: .milliseconds(800))
+            guard UIApplication.shared.applicationState == .active else { return }
+            await AttributionService.requestTrackingAuthorization()
+        }
     }
 
     /// Records how a scan resolved and how long it took. `source` is one of

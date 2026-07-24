@@ -24,19 +24,13 @@ struct ContentView: View {
             .dismissKeyboardOnTap()
             .keyboardToolbar()
         } else {
+            // The ATT prompt is requested after the first completed scan, not
+            // here — see ScannerViewModel. Asking on this screen raced the
+            // camera permission alert that ScannerView triggers on appear, and
+            // iOS drops the ATT prompt when another system alert is up, leaving
+            // the status .notDetermined permanently with no second chance.
             MainTabView()
                 .keyboardToolbar()
-                .task {
-                    // Reached both by finishing onboarding and by launching as an
-                    // existing user, so the prompt lands once the app has shown its
-                    // value rather than on a cold splash screen — asking there costs
-                    // a large share of opt-ins, and opt-in rate is what decides
-                    // whether Meta attribution has an IDFA to work with at all.
-                    // iOS shows the prompt only once per install; later calls return
-                    // the cached status without any UI.
-                    try? await Task.sleep(for: .milliseconds(500))
-                    await AttributionService.requestTrackingAuthorization()
-                }
         }
     }
 }

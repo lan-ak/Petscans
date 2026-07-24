@@ -69,6 +69,10 @@ struct SpacingTokens {
 
     // MARK: - Icon Sizes
 
+    /// Page indicator dot (onboarding). A size, not a gap — kept distinct from
+    /// the spacing scale so changing spacing does not resize the dots.
+    static let indicatorDot: CGFloat = 8
+
     /// Small icon
     static let iconSmall: CGFloat = 16
 

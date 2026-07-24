@@ -3,7 +3,11 @@ import SwiftUI
 struct OnboardingPetSetupPage: View {
     @Binding var petName: String
     @Binding var petSpecies: Species
-    @Binding var selectedAllergens: Set<String>
+    @Binding var selectedGroups: Set<AvoidanceGroup>
+
+    var nameError: String?
+    var isNameFocused: FocusState<Bool>.Binding?
+    var onSubmitName: () -> Void = {}
 
     var body: some View {
         ScrollView {
@@ -11,11 +15,22 @@ struct OnboardingPetSetupPage: View {
                 PetFormView(
                     petName: $petName,
                     petSpecies: $petSpecies,
-                    selectedAllergens: $selectedAllergens
+                    // Onboarding asks about categories instead — a first-time
+                    // user has not seen an ingredient list yet.
+                    selectedAllergens: .constant([]),
+                    showAllergens: false,
+                    nameError: nameError,
+                    isNameFocused: isNameFocused,
+                    onSubmitName: onSubmitName
                 )
 
+                Divider()
+                    .padding(.vertical, SpacingTokens.xxs)
+
+                AvoidanceGroupPicker(selected: $selectedGroups)
+
                 // Footer
-                Text("You can always update this later\nin Settings")
+                Text("You can always update this later in Settings")
                     .font(TypographyTokens.caption)
                     .foregroundColor(ColorTokens.textTertiary)
                     .multilineTextAlignment(.center)
@@ -32,7 +47,7 @@ struct OnboardingPetSetupPage: View {
     OnboardingPetSetupPage(
         petName: .constant(""),
         petSpecies: .constant(.dog),
-        selectedAllergens: .constant([])
+        selectedGroups: .constant([])
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(ColorTokens.backgroundPrimary)
@@ -42,7 +57,18 @@ struct OnboardingPetSetupPage: View {
     OnboardingPetSetupPage(
         petName: .constant("Buddy"),
         petSpecies: .constant(.dog),
-        selectedAllergens: .constant(["ing_chicken", "ing_beef", "ing_wheat"])
+        selectedGroups: .constant([.artificialColours, .ultraProcessed])
+    )
+    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(ColorTokens.backgroundPrimary)
+}
+
+#Preview("Name Error") {
+    OnboardingPetSetupPage(
+        petName: .constant(""),
+        petSpecies: .constant(.cat),
+        selectedGroups: .constant([]),
+        nameError: "Please enter your pet's name"
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(ColorTokens.backgroundPrimary)
