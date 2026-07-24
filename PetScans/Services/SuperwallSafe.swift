@@ -6,11 +6,10 @@ import SuperwallKit
 ///
 /// `Superwall.shared` is not a no-op before `Superwall.configure` — reading it
 /// calls `assertionFailure`, so a debug build dies on that line
-/// (`Superwall.swift:354`). Configure runs in `PetScansApp.deferredInit()`,
-/// which is skipped entirely when launched with `-UITesting` and, on a normal
-/// launch, completes asynchronously behind the splash screen. Anything that
-/// fires before it lands — onboarding's first frame, an instant catalog hit —
-/// crashes without this guard.
+/// (`Superwall.swift:354`). Configure runs in `AppDelegate.didFinishLaunching`,
+/// which is skipped entirely when launched with `-UITesting`. It normally lands
+/// before any UI, but anything that could fire before it — onboarding's first
+/// frame, an instant catalog hit — crashes without this guard.
 @MainActor
 enum SuperwallSafe {
     /// `Superwall.isInitialized` flips to true inside `configure`, so this is
@@ -20,6 +19,18 @@ enum SuperwallSafe {
     static func setUserAttributes(_ attributes: [String: Any]) {
         guard isReady else { return }
         Superwall.shared.setUserAttributes(attributes)
+    }
+
+    /// Preloads the paywalls attached to specific placements, on demand.
+    ///
+    /// Automatic preload-all is disabled at `configure` (it built a WebView for
+    /// every paywall in every campaign at launch, saturating the main thread for
+    /// seconds). Callers preload the one or two paywalls they're about to need,
+    /// off the launch critical path. If Superwall isn't ready yet this no-ops and
+    /// the paywall simply builds lazily on the first `register` — no user stranded.
+    static func preload(placements: Set<String>) {
+        guard isReady else { return }
+        Superwall.shared.preloadPaywalls(forPlacements: placements)
     }
 
     static func register(placement: String, params: [String: Any]? = nil) {

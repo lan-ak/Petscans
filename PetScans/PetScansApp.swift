@@ -15,18 +15,23 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         LaunchMetrics.mark("attributionStarted")
 
         // Superwall's docs are explicit that configure belongs "as soon as your
-        // app launches". It used to sit in `deferredInit()`, behind an `await`
-        // on the ingredient database — which meant the SDK only started fetching
-        // campaign settings and preloading paywalls after that finished. A first
-        // run reaches `onboarding_complete` within seconds of launch, so that
-        // delay ate most of the preload window for the one paywall that matters
-        // most. Configuring here also removes the window in which UI could touch
-        // `Superwall.shared` before it exists.
+        // app launches", so it runs here rather than in `deferredInit()` — that
+        // starts campaign-settings fetch early and closes the window in which UI
+        // could touch `Superwall.shared` before it exists.
+        //
+        // `shouldPreload = false` is the launch-speed fix: by default the SDK
+        // builds a WKWebView for *every* paywall in *every* campaign the moment
+        // config loads, which saturated the main thread for ~8s and pushed first
+        // frame to ~11s. With preload-all off, `OnboardingView` preloads just the
+        // post-onboarding paywall on demand (`SuperwallSafe.preload`), off the
+        // launch critical path.
         //
         // Skipped under `-UITesting` so screenshot runs make no network calls and
         // StoreKit never prompts; `SuperwallSafe` handles the resulting no-op.
         if !PetScansApp.isUITesting {
-            Superwall.configure(apiKey: APIKeys.superwall)
+            let options = SuperwallOptions()
+            options.paywalls.shouldPreload = false
+            Superwall.configure(apiKey: APIKeys.superwall, options: options)
             // Forwards purchase/trial events to Meta for ad attribution.
             // Superwall holds the delegate weakly, hence the static instance.
             Superwall.shared.delegate = SuperwallAttributionDelegate.shared
@@ -81,6 +86,15 @@ struct PetScansApp: App {
                 ScreenshotDataSeeder.seed(context: context)
             }
         }
+
+        // Warm the Quicksand font before first paint, so the first
+        // `Font.custom("Quicksand")` on the welcome screen isn't the one that
+        // pays first-use registration/glyph cost. "Quicksand" is the family name
+        // the whole design system resolves (TypographyTokens). The previous
+        // warm-up lived in `deferredInit`, a `.task` that runs *after* first
+        // frame, so it never helped the first paint it was meant to.
+        _ = UIFont(name: "Quicksand", size: 1)
+        _ = UIFont(name: "Quicksand-Regular", size: 1)
 
         LaunchMetrics.mark("appInitEnd")
     }
@@ -159,10 +173,7 @@ struct PetScansApp: App {
         // having come back at least once, which a scan count alone can't tell.
         ReviewPrompt.recordSessionStart()
 
-        // Pre-load custom fonts (forces font registration before views need them)
-        _ = UIFont(name: "Quicksand-Bold", size: 1)
-        _ = UIFont(name: "Quicksand-Medium", size: 1)
-        _ = UIFont(name: "Quicksand-Regular", size: 1)
+        // (Font warm-up moved to `init`, before first frame — see there.)
 
         // Run pet migration
         let context = ModelContext(container)

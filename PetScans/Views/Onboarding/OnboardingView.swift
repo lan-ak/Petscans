@@ -61,6 +61,15 @@ struct OnboardingView: View {
             logStep(currentPage)
             focusNameFieldIfNeeded(on: currentPage)
         }
+        .task {
+            // Automatic preload-all is disabled at configure for launch speed, so
+            // preload the end-of-onboarding paywall on demand. Delayed a beat so
+            // the WebView spin-up (a WebContent + Networking process) lands after
+            // the first paint instead of contending with it — onboarding lasts
+            // several seconds, so this still preloads well before the paywall shows.
+            try? await Task.sleep(for: .seconds(1))
+            SuperwallSafe.preload(placements: ["onboarding_complete", "onboarding_finished"])
+        }
     }
 
     @ViewBuilder
