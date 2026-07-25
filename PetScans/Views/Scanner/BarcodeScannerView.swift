@@ -170,7 +170,8 @@ class CameraPreviewView: UIView {
 
 // Fallback view when scanner is not supported
 struct ScannerUnavailableView: View {
-    let onManualEntry: () -> Void
+    /// Jump straight into the photo search (which can pick from the library).
+    let onSearchWithPhoto: () -> Void
 
     var body: some View {
         VStack(spacing: SpacingTokens.md) {
@@ -181,16 +182,19 @@ struct ScannerUnavailableView: View {
             Text("Camera Not Available")
                 .displaySmall()
 
-            Text("Barcode scanning requires a device with a camera.")
+            Text("We can't scan barcodes on this device, but you can still search from a photo in your library.")
                 .bodySmall()
                 .foregroundColor(ColorTokens.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            Button("Enter Manually") {
-                onManualEntry()
+            Button {
+                onSearchWithPhoto()
+            } label: {
+                Label("Search with a Photo", systemImage: "photo.on.rectangle")
             }
             .primaryButtonStyle()
+            .padding(.horizontal)
         }
         .padding(SpacingTokens.sm)
     }
@@ -201,7 +205,6 @@ struct ScannerUnavailableView: View {
 /// paywall gets declined a lot, and a decline is not recoverable in-app.
 struct CameraPrimingView: View {
     let onEnable: () -> Void
-    let onManualEntry: () -> Void
 
     var body: some View {
         VStack(spacing: SpacingTokens.md) {
@@ -212,24 +215,16 @@ struct CameraPrimingView: View {
             Text("Scan a label")
                 .displaySmall()
 
-            Text("PetScans reads barcodes and ingredient labels through your camera. Photos stay on your device.")
+            Text("PetScans reads barcodes and identifies products through your camera. Photos stay on your device.")
                 .bodySmall()
                 .foregroundColor(ColorTokens.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
 
-            VStack(spacing: SpacingTokens.xs) {
-                Button("Enable Camera") {
-                    onEnable()
-                }
-                .primaryButtonStyle()
-
-                Button("Enter Manually") {
-                    onManualEntry()
-                }
-                .font(TypographyTokens.labelLarge)
-                .foregroundColor(ColorTokens.textSecondary)
+            Button("Enable Camera") {
+                onEnable()
             }
+            .primaryButtonStyle()
             .padding(.horizontal)
         }
         .padding(SpacingTokens.sm)
@@ -241,7 +236,8 @@ struct CameraPrimingView: View {
 /// be a black capture preview with no explanation.
 struct CameraDeniedView: View {
     let onOpenSettings: () -> Void
-    let onManualEntry: () -> Void
+    /// Camera-free escape hatch: search from a library photo instead.
+    let onSearchWithPhoto: () -> Void
 
     var body: some View {
         VStack(spacing: SpacingTokens.md) {
@@ -252,7 +248,7 @@ struct CameraDeniedView: View {
             Text("Camera Access Off")
                 .displaySmall()
 
-            Text("Scanning needs camera access. Turn it on in Settings → PetScans → Camera, or enter ingredients by hand.")
+            Text("Scanning barcodes needs camera access — turn it on in Settings → PetScans → Camera. Or search from a photo in your library.")
                 .bodySmall()
                 .foregroundColor(ColorTokens.textSecondary)
                 .multilineTextAlignment(.center)
@@ -264,11 +260,12 @@ struct CameraDeniedView: View {
                 }
                 .primaryButtonStyle()
 
-                Button("Enter Manually") {
-                    onManualEntry()
+                Button {
+                    onSearchWithPhoto()
+                } label: {
+                    Label("Search with a Photo", systemImage: "photo.on.rectangle")
                 }
-                .font(TypographyTokens.labelLarge)
-                .foregroundColor(ColorTokens.textSecondary)
+                .secondaryButtonStyle()
             }
             .padding(.horizontal)
         }
@@ -315,15 +312,15 @@ struct MockScannerPreviewView: View {
 }
 
 #Preview("Camera Priming") {
-    CameraPrimingView(onEnable: {}, onManualEntry: {})
+    CameraPrimingView(onEnable: {})
 }
 
 #Preview("Camera Denied") {
-    CameraDeniedView(onOpenSettings: {}, onManualEntry: {})
+    CameraDeniedView(onOpenSettings: {}, onSearchWithPhoto: {})
 }
 
 #Preview("Scanner Unavailable") {
-    ScannerUnavailableView(onManualEntry: {})
+    ScannerUnavailableView(onSearchWithPhoto: {})
 }
 
 #Preview("Mock Scanner") {

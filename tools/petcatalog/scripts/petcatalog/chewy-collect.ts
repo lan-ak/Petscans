@@ -83,6 +83,87 @@ export function categoriesFor(storefront: 'us' | 'ca' | 'both'): string[] {
 }
 
 /**
+ * Pet-specialty / vet-channel brands. Chewy stocks these; Walmart (the catalog's source
+ * scrape) largely doesn't, so the shipped catalog systematically lacks them — that's the gap
+ * this run fills. The broad category lists above eventually reach these brands too, but only
+ * after paginating past thousands of grocery-channel SKUs already in the catalog, paying
+ * Bright Data for each. Brand-scoped discovery goes straight to the missing rows.
+ *
+ * Discovery is Chewy's own search (`/s?query=`), which Firecrawl returns real /dp/ links from;
+ * `extractDpUrl` unwraps the sponsored ad-redirect links search pages are full of.
+ */
+export const SPECIALTY_BRANDS = [
+  'royal canin',
+  'hills science diet',
+  'hills prescription diet',
+  'purina pro plan veterinary diets',
+  'orijen',
+  'acana',
+  'fromm',
+  'wellness',
+  'merrick',
+  'ziwi',
+  'stella and chewys',
+  'instinct',
+  'nutro',
+  'eukanuba',
+  'farmina',
+  'open farm',
+  'the honest kitchen',
+  'weruva',
+  'tiki',
+  'nulo',
+  'canidae',
+];
+
+function brandSearches(base: string): string[] {
+  return SPECIALTY_BRANDS.map((b) => `${base}/s?query=${encodeURIComponent(b)}`);
+}
+
+export function brandSearchesFor(storefront: 'us' | 'ca' | 'both'): string[] {
+  const us = brandSearches('https://www.chewy.com');
+  const ca = brandSearches('https://www.chewy.com/ca');
+  if (storefront === 'us') return us;
+  if (storefront === 'ca') return ca;
+  const out: string[] = [];
+  for (let i = 0; i < SPECIALTY_BRANDS.length; i++) {
+    out.push(us[i]);
+    out.push(ca[i]);
+  }
+  return out;
+}
+
+/** Ad-hoc search urls for one free-text query, both storefronts — for targeting a specific
+ *  product/brand on demand rather than walking the whole specialty list. */
+export function searchUrlsFor(storefront: 'us' | 'ca' | 'both', term: string): string[] {
+  const q = encodeURIComponent(term);
+  const us = `https://www.chewy.com/s?query=${q}`;
+  const ca = `https://www.chewy.com/ca/s?query=${q}`;
+  if (storefront === 'us') return [us];
+  if (storefront === 'ca') return [ca];
+  return [us, ca];
+}
+
+/**
+ * Pull the canonical `.../dp/<id>` url out of a Firecrawl link. Handles three shapes seen on
+ * Chewy listing/search pages: a direct PDP link, a sponsored ad-redirect wrapper
+ * (`/api/event/p/sar/click?...&redirect=<pdp>`), and percent-encoded variants of either.
+ * Returns null for anything that isn't a product page (nav, facets, bowls-as-ads).
+ */
+const DP_RE = /https?:\/\/www\.chewy\.com\/(?:ca\/)?[a-z0-9-]+\/dp\/\d+/i;
+
+export function extractDpUrl(link: string): string | null {
+  let s = link;
+  try {
+    s = decodeURIComponent(link);
+  } catch {
+    /* malformed %-encoding: fall back to the raw string */
+  }
+  const m = s.match(DP_RE);
+  return m ? m[0] : null;
+}
+
+/**
  * Scope test on a record's `product_category`.
  *
  * CA and US ship different taxonomies for the same product — "Dog > Food > Dry Food" vs
@@ -151,7 +232,9 @@ export async function discoverProductUrls(
   for (let p = 1; p <= pages; p++) {
     for (const cat of categories) {
       if (fresh.size >= opts.limit) return { fresh: [...fresh].slice(0, opts.limit), skipped };
-      const url = p === 1 ? cat : `${cat}?page=${p}`;
+      // Category urls are bare (`?page=` works); brand-search urls already carry `?query=`
+      // and need `&page=`.
+      const url = p === 1 ? cat : `${cat}${cat.includes('?') ? '&' : '?'}page=${p}`;
       let links: string[] = [];
       try {
         links = await fcLinks(key, url);
@@ -161,8 +244,8 @@ export async function discoverProductUrls(
       }
       const before = fresh.size;
       for (const l of links) {
-        if (!l.includes('/dp/')) continue;
-        const clean = l.split('?')[0];
+        const clean = extractDpUrl(l);
+        if (!clean) continue;
         if (skip.has(clean)) {
           skipped++;
           continue;
@@ -244,6 +327,18 @@ export async function collectChewy(opts: {
   storefront: 'us' | 'ca' | 'both';
   pages: number;
   limit: number;
+  /** 'categories' walks the broad food/treat listings; 'brands' targets the specialty-brand
+   *  gap via Chewy search. Default 'categories'. */
+  discovery?: 'categories' | 'brands';
+  /** Ad-hoc free-text search term; overrides `discovery` to target one product/brand. */
+  query?: string;
+  /** Stop after Firecrawl discovery: write the url list, skip the paid Bright Data step, and
+   *  DON'T touch the ledger. For confirming a scope finds what you expect before spending. */
+  dryRun?: boolean;
+  /** Skip discovery entirely and collect from a pre-discovered url list (a JSON array of dp
+   *  urls, e.g. a prior --dry-run output). Lets a full sweep pay Firecrawl discovery ONCE, then
+   *  batch the paid Bright Data collection from the static list (ledger-skip advances each run). */
+  urlsFile?: string;
   onLog?: (s: string) => void;
 }): Promise<CollectResult> {
   const log = opts.onLog ?? (() => {});
@@ -251,13 +346,47 @@ export async function collectChewy(opts: {
   const ledger = readLedger(opts.ledgerPath);
   log(`ledger: ${ledger.size} urls already collected`);
 
-  const { fresh, skipped } = await discoverProductUrls(opts.fcKey, categoriesFor(opts.storefront), {
-    limit: opts.limit,
-    pages: opts.pages,
-    skip: ledger,
-    onLog: log,
-  });
-  log(`discovered ${fresh.length} new urls (${skipped} skipped as already collected)`);
+  let fresh: string[];
+  let skipped: number;
+  if (opts.urlsFile) {
+    const all = JSON.parse(readFileSync(opts.urlsFile, 'utf8')) as string[];
+    const unseen = all.filter((u) => !ledger.has(u));
+    skipped = all.length - unseen.length;
+    fresh = unseen.slice(0, opts.limit);
+    log(`urls file: ${all.length} total, ${fresh.length} taken this batch (${skipped} already in ledger)`);
+  } else {
+    const sources = opts.query
+      ? searchUrlsFor(opts.storefront, opts.query)
+      : opts.discovery === 'brands'
+        ? brandSearchesFor(opts.storefront)
+        : categoriesFor(opts.storefront);
+    log(`discovery: ${opts.query ? `query "${opts.query}"` : (opts.discovery ?? 'categories')} — ${sources.length} source urls`);
+    const r = await discoverProductUrls(opts.fcKey, sources, {
+      limit: opts.limit,
+      pages: opts.pages,
+      skip: ledger,
+      onLog: log,
+    });
+    fresh = r.fresh;
+    skipped = r.skipped;
+    log(`discovered ${fresh.length} new urls (${skipped} skipped as already collected)`);
+  }
+
+  if (opts.dryRun) {
+    mkdirSync(dirname(opts.out), { recursive: true });
+    writeFileSync(opts.out, JSON.stringify(fresh, null, 2));
+    log(`dry run: wrote ${fresh.length} urls to ${opts.out}; Bright Data NOT called, ledger untouched`);
+    return {
+      urlsDiscovered: fresh.length,
+      urlsSkipped: skipped,
+      recordsReturned: 0,
+      inScope: 0,
+      newGtins: 0,
+      alreadyHeld: 0,
+      outPath: opts.out,
+    };
+  }
+
   if (!fresh.length) {
     writeFileSync(opts.out, '[]');
     return {

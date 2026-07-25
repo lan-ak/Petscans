@@ -13,22 +13,26 @@ final class ScannerViewModel: ObservableObject {
         case scanning
         case error
         case productNotFound
-        case advancedSearch
-        case ocrCapture
-        case ocrProcessing
         case selectOptions
-        case manualEntry
         case results
         // Product photo identification flow
         case productPhotoCapture
         case productIdentification
+        case confirmProduct
         case productSearching
+    }
+
+    /// Why the "not found" screen is being shown, so it can tailor its copy.
+    enum NotFoundReason {
+        /// The scanned barcode isn't in the catalog yet.
+        case notInCatalog
+        /// A photo was taken but the AI couldn't recognise the product.
+        case notRecognized
     }
 
     enum ScanError: LocalizedError {
         case networkError(underlying: Error)
         case productNotFound
-        case noIngredients
         case saveFailed(underlying: Error)
 
         var errorDescription: String? {
@@ -37,8 +41,6 @@ final class ScannerViewModel: ObservableObject {
                 return "Network Error"
             case .productNotFound:
                 return "Product Not Found"
-            case .noIngredients:
-                return "No Ingredients"
             case .saveFailed:
                 return "Save Failed"
             }
@@ -49,9 +51,7 @@ final class ScannerViewModel: ObservableObject {
             case .networkError:
                 return "Please check your internet connection and try again."
             case .productNotFound:
-                return "This product wasn't found in our database. You can enter the details manually."
-            case .noIngredients:
-                return "No ingredient information available. Please enter ingredients manually."
+                return "This product isn't in our database yet. Snap a photo and we'll find it."
             case .saveFailed:
                 return "Failed to save the scan. Please try again."
             }
@@ -61,7 +61,7 @@ final class ScannerViewModel: ObservableObject {
             switch self {
             case .networkError:
                 return true
-            case .productNotFound, .noIngredients, .saveFailed:
+            case .productNotFound, .saveFailed:
                 return false
             }
         }
@@ -84,18 +84,21 @@ final class ScannerViewModel: ObservableObject {
     @Published var matchedIngredients: [MatchedIngredient] = []
     @Published var scoreBreakdown: ScoreBreakdown?
     @Published var currentError: ScanError?
-    @Published var ocrImage: UIImage?
-    @Published var ocrConfidence: Float?
+    @Published var notFoundReason: NotFoundReason = .notInCatalog
     @Published var scoreSource: ScoreSource = .databaseVerified
-    @Published var isManualSearch: Bool = false
     @Published var productImage: UIImage?
     @Published var productIdentification: ProductIdentification?
+    /// In-flight guard for `performAnalysis` so a double-tap can't run it twice.
+    @Published var isAnalyzing: Bool = false
+
+    /// Vision confidence below this routes through an explicit "is this your
+    /// product?" confirmation before we spend a scrape and produce a safety score.
+    private let confidenceConfirmThreshold: Double = 0.7
 
     // MARK: - Dependencies
 
     private let ingredientMatcher: IngredientMatcher
     private let scoreCalculator: ScoreCalculator
-    private let ocrService: OCRServiceProtocol
     private let productVisionService: ProductVisionServiceProtocol
     private let catalogService: ProductCatalogService
 
@@ -106,31 +109,31 @@ final class ScannerViewModel: ObservableObject {
     // MARK: - Haptic Feedback
 
     private let successFeedback = UINotificationFeedbackGenerator()
+    private let errorFeedback = UINotificationFeedbackGenerator()
 
     // MARK: - Init
 
     init(
         ingredientMatcher: IngredientMatcher = IngredientMatcher(),
         scoreCalculator: ScoreCalculator = ScoreCalculator(),
-        ocrService: OCRServiceProtocol = OCRService(),
         productVisionService: ProductVisionServiceProtocol = ProductVisionService(),
         catalogService: ProductCatalogService = ProductCatalogService()
     ) {
         self.ingredientMatcher = ingredientMatcher
         self.scoreCalculator = scoreCalculator
-        self.ocrService = ocrService
         self.productVisionService = productVisionService
         self.catalogService = catalogService
         successFeedback.prepare()
+        errorFeedback.prepare()
     }
 
     // MARK: - Actions
 
     /// The instant path. Resolve the barcode against the on-device catalog and, on a hit,
     /// score locally and jump straight to results — no product-identification round trip,
-    /// no species/category picker, no "Analyze" tap. A miss goes straight to the OCR label
-    /// capture, which is on-device and sub-second. Only a code that isn't a retail product
-    /// barcode at all is silently ignored so the scanner keeps looking.
+    /// no species/category picker, no "Analyze" tap. A miss surfaces the "not found" screen,
+    /// whose single action leads into the AI photo search. Only a code that isn't a retail
+    /// product barcode at all is silently ignored so the scanner keeps looking.
     func handleBarcodeScan(_ code: String, pets: [Pet] = [], modelContext: ModelContext? = nil) {
         guard code != lastHandledBarcode else { return }
         lastHandledBarcode = code
@@ -162,10 +165,12 @@ final class ScannerViewModel: ObservableObject {
                     showResults()
                 } else {
                     // New product: surface a "not found" screen that names the barcode and
-                    // explains why, so the jump to the label camera isn't a silent, confusing
-                    // switch. Its primary action leads to the on-device OCR capture.
+                    // explains why, so the jump to the photo search isn't a silent, confusing
+                    // switch. Its primary action leads into the AI photo search.
                     logResolved(source: "miss", started: started, gtin: gtin)
-                    isManualSearch = false
+                    notFoundReason = .notInCatalog
+                    errorFeedback.notificationOccurred(.warning)
+                    errorFeedback.prepare()
                     step = .productNotFound
                 }
             }
@@ -208,87 +213,20 @@ final class ScannerViewModel: ObservableObject {
         return try? context.fetch(descriptor).first
     }
 
-    func retryLastScan() {
-        lastHandledBarcode = nil
-        barcode = nil
-        step = .scanning
-        currentError = nil
+    /// A hard camera/scanner failure surfaced by `BarcodeScannerView`.
+    func handleScannerError(_ message: String) {
+        failToError(NSError(domain: "Scanner", code: 0, userInfo: [NSLocalizedDescriptionKey: message]))
     }
 
+    /// Return to a clean scanner. Full `reset()` so no product/identification state
+    /// (name, brand, image, scoreSource…) leaks from an abandoned flow into the next.
     func restartScanning() {
-        lastHandledBarcode = nil
-        barcode = nil
-        step = .scanning
-        currentError = nil
+        reset()
     }
 
-    func handleManualEntry(name: String?, brandName: String?, ingredients: String) {
-        productName = name ?? ""
-        brand = brandName
-        ingredientsText = ingredients
-        scoreSource = .manualEntry
-        step = .selectOptions
-    }
-
-    func goToManualEntry() {
-        isManualSearch = true
-        step = .productNotFound
-    }
-
-    func goToIngredientSelection() {
-        step = .manualEntry
-    }
-
-    func startAdvancedSearch() {
-        guard barcode != nil else { return }
-        step = .advancedSearch
-    }
-
-    func handleAdvancedSearchComplete(ingredientsText: String, productName: String?, brand: String?, matched: [MatchedIngredient], imageUrl: URL?) {
-        self.ingredientsText = ingredientsText
-        if let productName = productName, !productName.isEmpty {
-            self.productName = productName
-        }
-        if let brand = brand, !brand.isEmpty {
-            self.brand = brand
-        }
-        if let imageUrl = imageUrl {
-            self.imageUrl = imageUrl.absoluteString
-        }
-        self.matchedIngredients = matched
-        self.scoreSource = .webScraped
-        step = .selectOptions
-    }
-
-    func handleOCRCapture(_ image: UIImage) {
-        ocrImage = image
-        step = .ocrProcessing
-
-        Task {
-            do {
-                let result = try await ocrService.extractText(from: image)
-                ingredientsText = result.text
-                ocrConfidence = result.confidence
-                scoreSource = .ocrEstimated
-                step = .selectOptions
-            } catch let error as OCRService.OCRError {
-                handleOCRError(error)
-            } catch {
-                currentError = .networkError(underlying: error)
-                step = .error
-            }
-        }
-    }
-
-    private func handleOCRError(_ error: OCRService.OCRError) {
-        // Convert OCR errors to scan errors
-        switch error {
-        case .noTextDetected, .lowConfidence, .imageTooSmall:
-            currentError = .noIngredients
-        case .processingFailed(let underlying):
-            currentError = .networkError(underlying: underlying)
-        }
-        step = .error
+    /// Retry after an error — same clean return to the scanner.
+    func retryLastScan() {
+        reset()
     }
 
     // MARK: - Product Photo Identification
@@ -304,38 +242,67 @@ final class ScannerViewModel: ObservableObject {
         Task {
             do {
                 let identification = try await productVisionService.identifyProduct(from: image)
+                // The user can Cancel the identify wait; if they navigated away while the
+                // request was in flight, drop the result rather than yanking them back.
+                guard step == .productIdentification else { return }
                 productIdentification = identification
 
                 guard identification.searchQuery != nil else {
                     throw ProductVisionError.noProductFound
                 }
 
-                // Transition to searching with the identified product
-                step = .productSearching
+                // A shaky, low-confidence guess would otherwise flow silently into a
+                // scrape and a pet-specific safety score. Pause and let the user confirm
+                // before we commit to it.
+                if identification.confidence < confidenceConfirmThreshold {
+                    step = .confirmProduct
+                } else {
+                    step = .productSearching
+                }
             } catch {
+                guard step == .productIdentification else { return }
                 handleProductIdentificationError(error)
             }
         }
     }
 
+    /// User confirmed a low-confidence identification is correct; proceed to the search.
+    func confirmIdentification() {
+        step = .productSearching
+    }
+
     private func handleProductIdentificationError(_ error: Error) {
         if let visionError = error as? ProductVisionError {
             switch visionError {
-            case .noProductFound, .lowConfidence:
-                // Allow fallback to ingredient photo or retry
-                currentError = .productNotFound
-                step = .productNotFound
+            case .noProductFound:
+                // The photo didn't yield a usable product — send the user back to the
+                // not-found screen, this time explaining the photo wasn't recognised.
+                failToNotRecognized()
             case .networkError, .rateLimited:
-                currentError = .networkError(underlying: error)
-                step = .error
+                failToError(error)
             default:
-                currentError = .productNotFound
-                step = .productNotFound
+                failToNotRecognized()
             }
         } else {
-            currentError = .networkError(underlying: error)
-            step = .error
+            failToError(error)
         }
+    }
+
+    /// Soft failure: product wasn't recognised. Warning haptic (not a hard error).
+    private func failToNotRecognized() {
+        currentError = .productNotFound
+        notFoundReason = .notRecognized
+        errorFeedback.notificationOccurred(.warning)
+        errorFeedback.prepare()
+        step = .productNotFound
+    }
+
+    /// Hard failure: something broke (network/rate limit/unexpected). Error haptic.
+    private func failToError(_ error: Error) {
+        currentError = .networkError(underlying: error)
+        errorFeedback.notificationOccurred(.error)
+        errorFeedback.prepare()
+        step = .error
     }
 
     func handleProductSearchComplete(ingredientsText: String, productName: String?, brand: String?, matched: [MatchedIngredient], imageUrl: URL?) {
@@ -351,10 +318,20 @@ final class ScannerViewModel: ObservableObject {
         }
         self.matchedIngredients = matched
         self.scoreSource = .webScraped
+        // Pre-fill the species the vision model already identified, so the picker
+        // defaults correctly (e.g. Cat) instead of always starting at Dog.
+        if let visionSpecies = productIdentification?.species?.lowercased(),
+           let species = Species(rawValue: visionSpecies) {
+            selectedSpecies = species
+        }
         step = .selectOptions
     }
 
     func performAnalysis() {
+        // Guard against a double-tap on "Analyze": a second run would double-count
+        // the analysis, re-register the paywall placement, and re-transition.
+        guard !isAnalyzing else { return }
+        isAnalyzing = true
         Task {
             let started = Date()
             await computeScore()
@@ -369,6 +346,7 @@ final class ScannerViewModel: ObservableObject {
             }
             logResolved(source: source, started: started, gtin: barcode)
             showResults()
+            isAnalyzing = false
         }
     }
 
@@ -399,7 +377,7 @@ final class ScannerViewModel: ObservableObject {
             petAllergens: petAllergens,
             petName: selectedPet?.name,
             scoreSource: scoreSource,
-            ocrConfidence: ocrConfidence
+            ocrConfidence: nil
         )
 
         // Update analysis count for Superwall targeting
@@ -520,12 +498,11 @@ final class ScannerViewModel: ObservableObject {
         matchedIngredients = []
         scoreBreakdown = nil
         currentError = nil
-        ocrImage = nil
-        ocrConfidence = nil
+        notFoundReason = .notInCatalog
         scoreSource = .databaseVerified
-        isManualSearch = false
         productImage = nil
         productIdentification = nil
+        isAnalyzing = false
     }
 
     // MARK: - Share Content

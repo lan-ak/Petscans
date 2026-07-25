@@ -1,10 +1,17 @@
 import SwiftUI
 
-/// Animated step-by-step progress indicator for advanced search
-/// Shows current step with animated icon, status text, and dot indicators
-struct AdvancedSearchProgressView: View {
+/// Shared step-by-step progress indicator for the image-search flow.
+///
+/// This is the single loading UI for every waiting state in the AI product
+/// search: an animated icon with a pulse ring, warm status copy, and a
+/// `StepProgressBar` with a trailing paw — so the photo path gets a polished
+/// treatment instead of a bare spinner.
+struct SearchProgressView: View {
     let currentStep: AdvancedSearchViewModel.SearchStep
     let completedSteps: Set<AdvancedSearchViewModel.SearchStep>
+    /// When a failure is a soft "not found" (vs a hard error), show it in warning
+    /// amber rather than error red, matching the not-found screens.
+    var isSoftFailure: Bool = false
 
     // MARK: - Animation State
 
@@ -18,6 +25,8 @@ struct AdvancedSearchProgressView: View {
     private let iconCircleSize: CGFloat = 80
     private let pulseRingSize: CGFloat = 100
 
+    /// The steps the user actually moves through in the image flow (barcode
+    /// lookup is skipped — we start from the identified product).
     private var displaySteps: [AdvancedSearchViewModel.SearchStep] {
         [.lookingUpBarcode, .searchingIngredients, .analyzingIngredients]
     }
@@ -26,15 +35,14 @@ struct AdvancedSearchProgressView: View {
 
     var body: some View {
         VStack(spacing: SpacingTokens.xl) {
-            // Main animated icon
             iconSection
 
-            // Status text (hidden on failure - shown in errorSection instead)
+            // Status text is hidden on failure — the host view's error section
+            // owns the failure messaging so it isn't duplicated.
             if currentStep != .failed {
                 statusTextSection
             }
 
-            // Progress bar with trailing paw icon
             progressBarSection
         }
         .onAppear {
@@ -116,12 +124,17 @@ struct AdvancedSearchProgressView: View {
 
     // MARK: - Computed Properties
 
+    /// Red for a hard error, amber for a soft "not found".
+    private var failureColor: Color {
+        isSoftFailure ? ColorTokens.warning : ColorTokens.error
+    }
+
     private var iconBackgroundColor: Color {
         switch currentStep {
         case .complete:
             return ColorTokens.success.opacity(0.15)
         case .failed:
-            return ColorTokens.error.opacity(0.15)
+            return failureColor.opacity(0.15)
         default:
             return ColorTokens.brandPrimary.opacity(0.15)
         }
@@ -132,7 +145,7 @@ struct AdvancedSearchProgressView: View {
         case .complete:
             return ColorTokens.success
         case .failed:
-            return ColorTokens.error
+            return failureColor
         default:
             return ColorTokens.brandPrimary
         }
@@ -143,10 +156,7 @@ struct AdvancedSearchProgressView: View {
     private func startPulseAnimation() {
         guard !reduceMotion else { return }
 
-        withAnimation(
-            Animation.easeInOut(duration: 1.5)
-                .repeatForever(autoreverses: true)
-        ) {
+        withAnimation(AnimationTokens.pulse) {
             pulseScale = 1.2
             pulseOpacity = 0.0
         }
@@ -155,7 +165,7 @@ struct AdvancedSearchProgressView: View {
     private func triggerStepChangeAnimation() {
         guard !reduceMotion else { return }
 
-        // Bounce effect on step change
+        // Bounce the icon on each step change.
         withAnimation(AnimationTokens.springSnappy) {
             iconScale = 0.85
         }
@@ -172,7 +182,7 @@ struct AdvancedSearchProgressView: View {
 
 #Preview("In Progress") {
     VStack {
-        AdvancedSearchProgressView(
+        SearchProgressView(
             currentStep: .searchingIngredients,
             completedSteps: [.lookingUpBarcode]
         )
@@ -182,7 +192,7 @@ struct AdvancedSearchProgressView: View {
 
 #Preview("Complete") {
     VStack {
-        AdvancedSearchProgressView(
+        SearchProgressView(
             currentStep: .complete,
             completedSteps: [.lookingUpBarcode, .searchingIngredients, .analyzingIngredients, .complete]
         )
@@ -192,7 +202,7 @@ struct AdvancedSearchProgressView: View {
 
 #Preview("Failed") {
     VStack {
-        AdvancedSearchProgressView(
+        SearchProgressView(
             currentStep: .failed,
             completedSteps: [.lookingUpBarcode]
         )

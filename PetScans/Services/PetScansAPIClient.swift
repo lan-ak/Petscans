@@ -2,9 +2,9 @@ import Foundation
 
 /// Shared client for the PetScans backend proxy.
 ///
-/// All paid third-party calls (OpenAI Vision, Firecrawl, Serper, UPCitemdb,
-/// Unwrangle) now go through our Cloudflare Worker instead of hitting the
-/// providers directly. The Worker holds the real API keys; this client only
+/// All paid third-party calls (OpenAI Vision, Firecrawl, Serper) now go through
+/// our Cloudflare Worker instead of hitting the providers directly. The Worker
+/// holds the real API keys; this client only
 /// presents an anonymous, per-device bearer token. That keeps secrets out of
 /// the app binary and lets the backend cache results and cap spend.
 ///

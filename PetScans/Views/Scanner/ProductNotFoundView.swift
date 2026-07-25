@@ -1,94 +1,66 @@
 import SwiftUI
 
-/// View displayed when all automatic methods have failed
-/// Offers OCR photo or manual entry as final fallbacks
+/// Shown when a scanned barcode isn't in the catalog, or when an AI photo
+/// identification failed. Offers a single clear path forward — search with a
+/// photo — plus a way back to the scanner.
 struct ProductNotFoundView: View {
+    let reason: ScannerViewModel.NotFoundReason
     let barcode: String?
-    let productName: String?
-    let brand: String?
-    let imageUrl: String?
-    var isManualSearch: Bool = false
-    let onTakePhoto: () -> Void
-    let onManualEntry: () -> Void
-    let onRetry: () -> Void
-    /// Optional escape hatch to the slower web-lookup pipeline. Demoted from the default
-    /// path to an explicit choice; nil hides it entirely.
-    var onSearchOnline: (() -> Void)? = nil
-
-    /// Check if we have product info to display
-    private var hasProductInfo: Bool {
-        productName != nil && !productName!.isEmpty
-    }
+    let onSearchWithPhoto: () -> Void
+    let onScanAnother: () -> Void
 
     private var title: String {
-        if isManualSearch { return "Search by Ingredients" }
-        if hasProductInfo { return "Missing Ingredients" }
-        return "Product Not Found"
+        switch reason {
+        case .notInCatalog: return "Product Not Found"
+        case .notRecognized: return "We couldn't recognize that"
+        }
     }
 
     private var subtitle: String {
-        if isManualSearch {
-            return "Choose how you'd like to enter ingredients:"
+        switch reason {
+        case .notInCatalog:
+            return "This product isn't in our database yet. Snap a photo of the front of the pack and PetScans AI will find it."
+        case .notRecognized:
+            return "We couldn't identify the product from that photo. Try again with the front of the pack in clear focus and good light."
         }
-        if hasProductInfo {
-            return "We found this product but don't have its ingredients. You can:"
-        }
-        return "This product isn't in our database yet. You can:"
     }
 
     private var icon: String {
-        if isManualSearch { return "magnifyingglass" }
-        if hasProductInfo { return "doc.text.magnifyingglass" }
-        return "exclamationmark.magnifyingglass"
+        switch reason {
+        case .notInCatalog: return "exclamationmark.magnifyingglass"
+        case .notRecognized: return "eye.trianglebadge.exclamationmark"
+        }
     }
 
-    private var iconColor: Color {
-        if isManualSearch { return ColorTokens.brandPrimary }
-        if hasProductInfo { return ColorTokens.brandPrimary }
-        return ColorTokens.warning.opacity(0.8)
+    private var primaryLabel: String {
+        switch reason {
+        case .notInCatalog: return "Search with a Photo"
+        case .notRecognized: return "Try Another Photo"
+        }
+    }
+
+    /// `sparkles` for the first jump into AI search; a camera for a straight
+    /// photo-retake, matching the retake action in ProductSearchView.
+    private var primaryIcon: String {
+        switch reason {
+        case .notInCatalog: return "sparkles"
+        case .notRecognized: return "camera.fill"
+        }
     }
 
     var body: some View {
         VStack(spacing: SpacingTokens.lg) {
             Spacer()
 
-            // Show product image if available
-            if let urlString = imageUrl {
-                ProductImageView(
-                    url: URL(string: urlString),
-                    size: 100,
-                    maxSize: 120,
-                    showPlaceholder: false
-                )
-            }
+            Image(systemName: icon)
+                .font(.system(size: SpacingTokens.iconXLarge))
+                .foregroundColor(ColorTokens.warning.opacity(0.8))
 
-            // Show product info if available
-            if hasProductInfo {
-                VStack(spacing: SpacingTokens.xxs) {
-                    Text(productName!)
-                        .heading2()
-                        .multilineTextAlignment(.center)
-                    if let brand = brand, !brand.isEmpty {
-                        Text(brand)
-                            .bodySmall()
-                            .foregroundColor(ColorTokens.textSecondary)
-                    }
-                }
-            }
-
-            // Icon (only show if no product image)
-            if imageUrl == nil || !hasProductInfo {
-                Image(systemName: icon)
-                    .font(.system(size: SpacingTokens.iconXLarge))
-                    .foregroundColor(iconColor)
-            }
-
-            // Title and message
             VStack(spacing: SpacingTokens.xxs) {
                 Text(title)
                     .displaySmall()
 
-                if !isManualSearch, let code = barcode, !hasProductInfo {
+                if reason == .notInCatalog, let code = barcode {
                     Text("Barcode: \(code)")
                         .caption()
                         .foregroundColor(ColorTokens.textSecondary)
@@ -102,39 +74,20 @@ struct ProductNotFoundView: View {
                     .padding(.horizontal)
             }
 
-            // Action buttons
             VStack(spacing: SpacingTokens.xs) {
-                // Primary: Take Photo of Ingredients (OCR)
+                // Primary: the one supported way forward — the AI photo search.
                 Button {
-                    onTakePhoto()
+                    onSearchWithPhoto()
                 } label: {
-                    Label("Photo of Ingredients", systemImage: "camera.fill")
+                    Label(primaryLabel, systemImage: primaryIcon)
                 }
                 .primaryButtonStyle()
 
-                // Secondary: Manual Entry
+                // Secondary: back to the scanner for a different product.
                 Button {
-                    onManualEntry()
+                    onScanAnother()
                 } label: {
-                    Label("Enter Ingredients Manually", systemImage: "keyboard")
-                }
-                .secondaryButtonStyle()
-
-                // Optional: fall back to the slower web lookup, by explicit choice only.
-                if let onSearchOnline {
-                    Button {
-                        onSearchOnline()
-                    } label: {
-                        Label("Search the Web Instead", systemImage: "globe")
-                    }
-                    .secondaryButtonStyle()
-                }
-
-                // Tertiary: Try again
-                Button {
-                    onRetry()
-                } label: {
-                    Label("Start Over", systemImage: "camera.fill")
+                    Label("Scan Another", systemImage: "barcode.viewfinder")
                 }
                 .buttonStyle(.plain)
                 .foregroundColor(ColorTokens.textSecondary)
@@ -150,38 +103,20 @@ struct ProductNotFoundView: View {
 
 // MARK: - Previews
 
-#Preview("With Barcode") {
+#Preview("Not In Catalog") {
     ProductNotFoundView(
-        barcode: "123456789",
-        productName: nil,
-        brand: nil,
-        imageUrl: nil,
-        onTakePhoto: {},
-        onManualEntry: {},
-        onRetry: {}
-    )
-}
-
-#Preview("With Product Info") {
-    ProductNotFoundView(
+        reason: .notInCatalog,
         barcode: "5998749138199",
-        productName: "Whiskas Temptation",
-        brand: "Whiskas",
-        imageUrl: "https://images.openfoodfacts.org/images/products/599/874/913/8199/front_en.3.400.jpg",
-        onTakePhoto: {},
-        onManualEntry: {},
-        onRetry: {}
+        onSearchWithPhoto: {},
+        onScanAnother: {}
     )
 }
 
-#Preview("Without Barcode (Manual Search)") {
+#Preview("Not Recognized") {
     ProductNotFoundView(
+        reason: .notRecognized,
         barcode: nil,
-        productName: nil,
-        brand: nil,
-        imageUrl: nil,
-        onTakePhoto: {},
-        onManualEntry: {},
-        onRetry: {}
+        onSearchWithPhoto: {},
+        onScanAnother: {}
     )
 }

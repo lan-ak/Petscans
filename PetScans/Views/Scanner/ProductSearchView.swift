@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// View for searching product after identification from photo
-/// Similar to AdvancedSearchView but uses product identification instead of barcode
+/// View for searching a product's ingredients after it's been identified from a photo.
+/// Drives the shared `SearchProgressView` off `AdvancedSearchViewModel`.
 struct ProductSearchView: View {
     /// The product identification from vision API
     let identification: ProductIdentification?
@@ -10,10 +10,10 @@ struct ProductSearchView: View {
     /// Parameters: ingredientsText, productName, brand, matchedIngredients, imageUrl
     let onComplete: (String, String?, String?, [MatchedIngredient], URL?) -> Void
 
-    /// Called when user chooses to fall back to photo capture
-    let onFallbackToPhoto: () -> Void
+    /// Called when the user wants to retake the product photo (retry the search).
+    let onRetakePhoto: () -> Void
 
-    /// Called when user cancels the search
+    /// Called when the user backs out to the scanner.
     let onCancel: () -> Void
 
     // MARK: - State
@@ -34,10 +34,12 @@ struct ProductSearchView: View {
             VStack(spacing: SpacingTokens.lg) {
                 Spacer()
 
-                // Progress indicator (skip barcode step visually since we start from image)
-                ProductSearchProgressView(
+                // Shared progress indicator (starts from the identified product,
+                // so the barcode-lookup step is pre-completed).
+                SearchProgressView(
                     currentStep: viewModel.currentStep,
-                    completedSteps: viewModel.completedSteps
+                    completedSteps: viewModel.completedSteps,
+                    isSoftFailure: viewModel.failureIsSoft
                 )
 
                 // Product info from identification
@@ -87,13 +89,10 @@ struct ProductSearchView: View {
     @ViewBuilder
     private var actionSection: some View {
         if viewModel.currentStep == .failed {
-            // Error state with recovery options
             errorSection
         } else if viewModel.currentStep == .complete {
-            // Success state
             successSection
         } else {
-            // In progress - show cancel button
             inProgressSection
         }
     }
@@ -101,14 +100,20 @@ struct ProductSearchView: View {
     // MARK: - Error Section
 
     private var errorSection: some View {
-        VStack(spacing: SpacingTokens.md) {
+        // When a retake can't change the outcome (product found, but no ingredients
+        // online), lead with "Back to Scanner" so the user isn't looped into the
+        // same failing identify+scrape.
+        let retakeWontHelp = viewModel.error?.retakeWontHelp ?? false
+        let titleColor = viewModel.failureIsSoft ? ColorTokens.warning : ColorTokens.error
+
+        return VStack(spacing: SpacingTokens.md) {
             if let error = viewModel.error {
                 VStack(spacing: SpacingTokens.xs) {
                     Text(error.errorDescription ?? "Search failed")
                         .heading2()
-                        .foregroundColor(ColorTokens.error)
+                        .foregroundColor(titleColor)
 
-                    Text(error.recoverySuggestion ?? "Please try another method.")
+                    Text(error.recoverySuggestion ?? "Let's try another photo.")
                         .bodySmall()
                         .foregroundColor(ColorTokens.textSecondary)
                         .multilineTextAlignment(.center)
@@ -116,19 +121,34 @@ struct ProductSearchView: View {
                 .padding(.bottom, SpacingTokens.sm)
             }
 
-            // Primary action: Take photo of ingredients
-            Button {
-                onFallbackToPhoto()
-            } label: {
-                Label("Take Photo of Ingredients", systemImage: "camera.fill")
-            }
-            .primaryButtonStyle()
+            if retakeWontHelp {
+                // Product located but ingredients unavailable — scanning another
+                // product is the action that can actually succeed.
+                Button {
+                    onCancel()
+                } label: {
+                    Label("Scan Another", systemImage: "barcode.viewfinder")
+                }
+                .primaryButtonStyle()
 
-            // Secondary action: Cancel
-            Button("Cancel") {
-                onCancel()
+                Button("Try Another Photo") {
+                    onRetakePhoto()
+                }
+                .foregroundColor(ColorTokens.textSecondary)
+            } else {
+                // Couldn't read/identify the photo — a better one may help.
+                Button {
+                    onRetakePhoto()
+                } label: {
+                    Label("Try Another Photo", systemImage: "camera.fill")
+                }
+                .primaryButtonStyle()
+
+                Button("Back to Scanner") {
+                    onCancel()
+                }
+                .foregroundColor(ColorTokens.textSecondary)
             }
-            .foregroundColor(ColorTokens.textSecondary)
         }
         .padding(.horizontal)
         .padding(.bottom, SpacingTokens.lg)
@@ -163,8 +183,8 @@ struct ProductSearchView: View {
             .primaryButtonStyle()
 
             // Option to retake/change
-            Button("Take Photo Instead") {
-                onFallbackToPhoto()
+            Button("Retake Photo") {
+                onRetakePhoto()
             }
             .foregroundColor(ColorTokens.textSecondary)
         }
@@ -175,97 +195,21 @@ struct ProductSearchView: View {
     // MARK: - In Progress Section
 
     private var inProgressSection: some View {
-        Button("Cancel") {
-            onCancel()
+        VStack(spacing: SpacingTokens.sm) {
+            // Set expectations: the vision + retailer scrape can be slow, so tell
+            // the user up front rather than leaving a silent spinner.
+            Text("This can take up to a minute — we're reading the label and checking retailers.")
+                .caption()
+                .foregroundColor(ColorTokens.textTertiary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, SpacingTokens.lg)
+
+            Button("Cancel") {
+                onCancel()
+            }
+            .foregroundColor(ColorTokens.textSecondary)
         }
-        .foregroundColor(ColorTokens.textSecondary)
         .padding(.bottom, SpacingTokens.lg)
-    }
-}
-
-// MARK: - Product Search Progress View
-
-/// Progress view that shows search steps (skipping barcode lookup)
-private struct ProductSearchProgressView: View {
-    let currentStep: AdvancedSearchViewModel.SearchStep
-    let completedSteps: Set<AdvancedSearchViewModel.SearchStep>
-
-    var body: some View {
-        VStack(spacing: SpacingTokens.lg) {
-            // Current step indicator
-            ZStack {
-                Circle()
-                    .fill(stepBackgroundColor)
-                    .frame(width: SpacingTokens.iconXXLarge, height: SpacingTokens.iconXXLarge)
-
-                if currentStep == .complete {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-                } else if currentStep == .failed {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(.white)
-                } else {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .tint(.white)
-                }
-            }
-
-            // Status text
-            VStack(spacing: SpacingTokens.xxs) {
-                Text(statusTitle)
-                    .heading2()
-                    .multilineTextAlignment(.center)
-
-                Text(statusSubtitle)
-                    .bodySmall()
-                    .foregroundColor(ColorTokens.textSecondary)
-                    .multilineTextAlignment(.center)
-            }
-        }
-    }
-
-    private var stepBackgroundColor: Color {
-        switch currentStep {
-        case .complete:
-            return ColorTokens.success
-        case .failed:
-            return ColorTokens.error
-        default:
-            return ColorTokens.brandPrimary
-        }
-    }
-
-    private var statusTitle: String {
-        switch currentStep {
-        case .lookingUpBarcode:
-            return "Identified!"
-        case .searchingIngredients:
-            return "Getting ingredients..."
-        case .analyzingIngredients:
-            return "Almost there!"
-        case .complete:
-            return "All done!"
-        case .failed:
-            return "Couldn't find ingredients"
-        }
-    }
-
-    private var statusSubtitle: String {
-        switch currentStep {
-        case .lookingUpBarcode:
-            return "Product recognized from photo"
-        case .searchingIngredients:
-            return "Searching for the freshest data"
-        case .analyzingIngredients:
-            return "Getting the most up-to-date info"
-        case .complete:
-            return "Ready for you to review"
-        case .failed:
-            return "Let's try another way"
-        }
     }
 }
 
@@ -282,7 +226,7 @@ private struct ProductSearchProgressView: View {
             primaryCarb: "Rice"
         ),
         onComplete: { _, _, _, _, _ in },
-        onFallbackToPhoto: {},
+        onRetakePhoto: {},
         onCancel: {}
     )
 }

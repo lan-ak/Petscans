@@ -28,6 +28,8 @@ struct ProductScoreView: View {
     @State private var selectedIngredient: Ingredient?
     @State private var showAllIngredients = false
     @State private var renderedShareCard: ShareCard?
+    /// Drives the one-time result-reveal bounce on a fresh scan (not on saved scans).
+    @State private var ratingRevealed = false
 
     // Pre-computed values (calculated once in init, not on every render)
     private let actualMatchedCount: Int
@@ -91,8 +93,10 @@ struct ProductScoreView: View {
                 // Allergen alert banner (only shown when allergens found)
                 allergenAlertBanner
 
-                // Rating label
+                // Rating label — bounces in once when a fresh result appears.
                 RatingLabelView(label: scoreBreakdown.ratingLabel)
+                    .scaleEffect(ratingRevealed ? 1 : 0.85)
+                    .opacity(ratingRevealed ? 1 : 0)
 
                 // Score breakdown with explanations
                 VStack(spacing: SpacingTokens.xs) {
@@ -152,6 +156,14 @@ struct ProductScoreView: View {
         .onAppear {
             if let scan = scan {
                 notes = scan.notes ?? ""
+            }
+            // Celebrate a fresh scan result; saved scans appear already-revealed.
+            if case .scanResult = mode {
+                withAnimation(AnimationTokens.celebrationBounce.delay(0.15)) {
+                    ratingRevealed = true
+                }
+            } else {
+                ratingRevealed = true
             }
         }
         .task { renderShareCard() }
@@ -501,7 +513,7 @@ struct ProductScoreView: View {
                 Button {
                     onScanAnother()
                 } label: {
-                    Text("Scan Another")
+                    Label("Scan Another", systemImage: "barcode.viewfinder")
                 }
                 .secondaryButtonStyle()
             }

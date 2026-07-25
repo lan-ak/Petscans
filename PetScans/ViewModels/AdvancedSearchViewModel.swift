@@ -75,14 +75,13 @@ final class AdvancedSearchViewModel: ObservableObject {
 
     /// Error types for advanced search
     enum AdvancedSearchError: LocalizedError {
-        case barcodeNotFound
         case productNotFound
         case ingredientsNotFound
         case networkError(underlying: Error)
 
         var errorDescription: String? {
             switch self {
-            case .barcodeNotFound, .productNotFound:
+            case .productNotFound:
                 return "We couldn't find this product"
             case .ingredientsNotFound:
                 return "We couldn't find the ingredients"
@@ -93,10 +92,30 @@ final class AdvancedSearchViewModel: ObservableObject {
 
         var recoverySuggestion: String? {
             switch self {
-            case .barcodeNotFound, .productNotFound, .ingredientsNotFound:
-                return "Take a photo of the ingredients and we'll analyze it."
+            case .productNotFound:
+                return "Try another photo of the front of the pack, or scan a different product."
+            case .ingredientsNotFound:
+                return "We found the product but couldn't pull its ingredient list online. Try scanning a different product."
             case .networkError:
                 return "Please check your internet connection and try again."
+            }
+        }
+
+        /// True when a better photo can't change the outcome (product was located,
+        /// but its ingredients aren't available online) — so the UI shouldn't lead
+        /// with "try another photo."
+        var retakeWontHelp: Bool {
+            if case .ingredientsNotFound = self { return true }
+            return false
+        }
+
+        /// A soft "we couldn't find it" outcome (vs a hard error that broke). Drives
+        /// warning-amber vs error-red treatment and the haptic class, matching the
+        /// vision stage's split.
+        var isNotFound: Bool {
+            switch self {
+            case .productNotFound, .ingredientsNotFound: return true
+            case .networkError: return false
             }
         }
     }
@@ -105,38 +124,33 @@ final class AdvancedSearchViewModel: ObservableObject {
 
     @Published var currentStep: SearchStep = .lookingUpBarcode
     @Published var completedSteps: Set<SearchStep> = []
-    @Published var isSearching: Bool = false
     @Published var error: AdvancedSearchError?
 
     // Results from search
     @Published var productName: String?
     @Published var brand: String?
     @Published var ingredientsText: String?
-    @Published var dataSource: String?
     @Published var matchedIngredients: [MatchedIngredient] = []
     @Published var productImageURL: URL?
 
     // MARK: - Dependencies
 
-    private let upcService: UPCitemdbServiceProtocol
     private let firecrawlService: FirecrawlServiceProtocol
     private let serperService: SerperServiceProtocol
     private let ingredientMatcher: IngredientMatcher
-    private let successFeedback = UINotificationFeedbackGenerator()
+    private let errorFeedback = UINotificationFeedbackGenerator()
 
     // MARK: - Init
 
     init(
-        upcService: UPCitemdbServiceProtocol = UPCitemdbService(),
         firecrawlService: FirecrawlServiceProtocol,
         serperService: SerperServiceProtocol = SerperService(),
         ingredientMatcher: IngredientMatcher = IngredientMatcher()
     ) {
-        self.upcService = upcService
         self.firecrawlService = firecrawlService
         self.serperService = serperService
         self.ingredientMatcher = ingredientMatcher
-        successFeedback.prepare()
+        errorFeedback.prepare()
     }
 
     // MARK: - Actions
@@ -144,7 +158,6 @@ final class AdvancedSearchViewModel: ObservableObject {
     /// Start search from product identification (bypasses barcode lookup)
     /// - Parameter identification: Product identification from vision API
     func startSearchFromImage(identification: ProductIdentification) async {
-        isSearching = true
         error = nil
         completedSteps = []
 
@@ -157,9 +170,7 @@ final class AdvancedSearchViewModel: ObservableObject {
         currentStep = .searchingIngredients
 
         guard let searchQuery = identification.searchQuery else {
-            error = .productNotFound
-            currentStep = .failed
-            isSearching = false
+            markFailed(.productNotFound)
             return
         }
 
@@ -212,9 +223,7 @@ final class AdvancedSearchViewModel: ObservableObject {
             guard !product.ingredients.isEmpty else {
                 throw AdvancedSearchError.ingredientsNotFound
             }
-
-            // Set data source to winning source (could be retailer or manufacturer)
-            dataSource = winningSource.displayName
+            print("DEBUG: Winning source \(winningSource.displayName)")
 
             // Update product data from result
             ingredientsText = product.ingredients.joined(separator: ", ")
@@ -236,10 +245,10 @@ final class AdvancedSearchViewModel: ObservableObject {
             matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText ?? "")
             completedSteps.insert(.analyzingIngredients)
 
-            // Complete!
+            // Complete! The single success haptic fires later at the result screen
+            // (ScannerViewModel.showResults), so it isn't double-tapped here.
             currentStep = .complete
             completedSteps.insert(.complete)
-            successFeedback.notificationOccurred(.success)
 
         } catch let serperError as SerperError {
             print("DEBUG: Serper Error: \(serperError)")
@@ -249,183 +258,59 @@ final class AdvancedSearchViewModel: ObservableObject {
             handleFirecrawlError(firecrawlError)
         } catch let advancedError as AdvancedSearchError {
             print("DEBUG: Advanced Search Error: \(advancedError)")
-            error = advancedError
-            currentStep = .failed
+            markFailed(advancedError)
         } catch {
             print("DEBUG: Unknown Error: \(error)")
-            self.error = .networkError(underlying: error)
-            currentStep = .failed
+            markFailed(.networkError(underlying: error))
         }
-
-        isSearching = false
-    }
-
-    /// Start the advanced search process with a barcode
-    /// - Parameter barcode: The barcode scanned by the user
-    func startSearch(barcode: String) async {
-        isSearching = true
-        error = nil
-        completedSteps = []
-        currentStep = .lookingUpBarcode
-
-        do {
-            // Step 1: Look up barcode in UPCitemdb
-            let upcResult = try await upcService.lookupBarcode(barcode)
-            productName = upcResult.displayName
-            brand = upcResult.brand
-            completedSteps.insert(.lookingUpBarcode)
-
-            guard let searchQuery = upcResult.searchQuery else {
-                throw AdvancedSearchError.barcodeNotFound
-            }
-
-            // Step 2: Search and extract ingredients via Serper + parallel Scrape
-            currentStep = .searchingIngredients
-            try await Task.sleep(nanoseconds: 200_000_000)
-
-            // Search across pet retailers (get all matching URLs)
-            // Pass brand explicitly for better search matching
-            let searchResults = try await serperService.searchProductURLs(
-                query: searchQuery,
-                brand: upcResult.brand,
-                retailers: [.petco, .chewy, .petsmart]
-            )
-            print("DEBUG: Found \(searchResults.count) URLs via Serper")
-
-            // Scrape all URLs in parallel, return first success
-            let (product, winningSource) = try await firecrawlService.scrapeFirstSuccessful(
-                searchResults: searchResults
-            )
-            print("DEBUG: First success from \(winningSource.displayName), ingredients: \(product.ingredients.count)")
-
-            // Validate ingredients
-            guard !product.ingredients.isEmpty else {
-                throw AdvancedSearchError.ingredientsNotFound
-            }
-
-            // Set data source to winning source (could be retailer or manufacturer)
-            dataSource = winningSource.displayName
-
-            // Update product data from result
-            ingredientsText = product.ingredients.joined(separator: ", ")
-
-            if !product.name.isEmpty {
-                productName = product.name
-            }
-            if let productBrand = product.brand {
-                brand = productBrand
-            }
-            if let imageURL = product.imageURL {
-                productImageURL = imageURL
-            }
-
-            completedSteps.insert(.searchingIngredients)
-
-            // Step 3: Match ingredients against database
-            currentStep = .analyzingIngredients
-            matchedIngredients = await ingredientMatcher.match(rawIngredients: ingredientsText ?? "")
-            completedSteps.insert(.analyzingIngredients)
-
-            // Complete!
-            currentStep = .complete
-            completedSteps.insert(.complete)
-            successFeedback.notificationOccurred(.success)
-
-        } catch let upcError as UPCitemdbError {
-            print("DEBUG: UPC Error: \(upcError)")
-            handleUPCError(upcError)
-        } catch let serperError as SerperError {
-            print("DEBUG: Serper Error: \(serperError)")
-            handleSerperError(serperError)
-        } catch let firecrawlError as FirecrawlError {
-            print("DEBUG: Firecrawl Error: \(firecrawlError)")
-            handleFirecrawlError(firecrawlError)
-        } catch let advancedError as AdvancedSearchError {
-            print("DEBUG: Advanced Search Error: \(advancedError)")
-            error = advancedError
-            currentStep = .failed
-        } catch {
-            print("DEBUG: Unknown Error: \(error)")
-            self.error = .networkError(underlying: error)
-            currentStep = .failed
-        }
-
-        isSearching = false
     }
 
     /// Reset the view model state
     func reset() {
         currentStep = .lookingUpBarcode
         completedSteps = []
-        isSearching = false
         error = nil
         productName = nil
         brand = nil
         ingredientsText = nil
-        dataSource = nil
         matchedIngredients = []
         productImageURL = nil
     }
 
     // MARK: - Private Methods
 
-    private func handleUPCError(_ error: UPCitemdbError) {
-        switch error {
-        case .productNotFound, .invalidBarcode:
-            self.error = .barcodeNotFound
-        case .rateLimited, .networkError, .decodingError:
-            self.error = .networkError(underlying: error)
-        }
+    /// Whether the current failure is a soft "not found" (vs a hard error).
+    var failureIsSoft: Bool { error?.isNotFound ?? false }
+
+    /// Single failure path: record the error, move to the failed step, and fire a
+    /// haptic that matches severity — `.warning` for not-found, `.error` for a hard
+    /// failure — mirroring the vision stage's split.
+    private func markFailed(_ error: AdvancedSearchError) {
+        self.error = error
         currentStep = .failed
+        errorFeedback.notificationOccurred(error.isNotFound ? .warning : .error)
+        errorFeedback.prepare()
     }
 
     private func handleFirecrawlError(_ error: FirecrawlError) {
         switch error {
         case .extractionFailed, .scrapeFailed:
-            self.error = .ingredientsNotFound
+            markFailed(.ingredientsNotFound)
         case .agentJobTimeout, .agentJobFailed, .insufficientCredits, .rateLimited:
-            self.error = .productNotFound
+            markFailed(.productNotFound)
         case .invalidAPIKey:
-            self.error = .networkError(underlying: error)
+            markFailed(.networkError(underlying: error))
         case .networkError, .decodingError:
-            self.error = .networkError(underlying: error)
+            markFailed(.networkError(underlying: error))
         }
-        currentStep = .failed
     }
 
     private func handleSerperError(_ error: SerperError) {
         switch error {
         case .noResultsFound:
-            self.error = .productNotFound
+            markFailed(.productNotFound)
         case .invalidAPIKey, .rateLimited, .networkError, .decodingError:
-            self.error = .networkError(underlying: error)
+            markFailed(.networkError(underlying: error))
         }
-        currentStep = .failed
-    }
-}
-
-// MARK: - Step Progress Helpers
-
-extension AdvancedSearchViewModel {
-    /// Steps to display in the progress indicator (excludes terminal states)
-    var displaySteps: [SearchStep] {
-        [.lookingUpBarcode, .searchingIngredients, .analyzingIngredients]
-    }
-
-    /// Current step index for progress calculation
-    var currentStepIndex: Int {
-        currentStep.rawValue
-    }
-
-    /// Total number of steps (excluding terminal states)
-    var totalSteps: Int {
-        displaySteps.count
-    }
-
-    /// Progress as a percentage (0.0 to 1.0)
-    var progressPercentage: Double {
-        guard currentStep != .failed else { return 0 }
-        if currentStep == .complete { return 1.0 }
-        return Double(completedSteps.count) / Double(totalSteps)
     }
 }

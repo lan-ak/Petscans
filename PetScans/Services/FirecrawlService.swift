@@ -117,8 +117,7 @@ actor FirecrawlService: FirecrawlServiceProtocol {
             brand: extractedData.brand,
             ingredients: extractedData.ingredients,
             price: extractedData.price,
-            imageURL: extractedData.imageURL.flatMap { URL(string: $0) },
-            ingredientsImageURL: nil  // Scrape endpoint doesn't support this yet
+            imageURL: extractedData.imageURL.flatMap { URL(string: $0) }
         )
     }
 

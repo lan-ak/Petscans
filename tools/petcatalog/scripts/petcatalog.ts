@@ -59,8 +59,14 @@ petcatalog — build the bundled product catalog
                  repeat runs only reach for new stock.
 
     --storefront us|ca|both   which Chewy site (default: both)
-    --pages <n>               category pages to walk per category (default: 1, ~40 urls each)
+    --pages <n>               listing pages to walk per source (default: 1, ~40 urls each)
     --limit <n>               max NEW urls to collect this run (default: 250)
+    --brands                  discover via specialty-brand search (Royal Canin, Hill's, …)
+                              instead of the broad food categories — targets the Walmart gap
+    --query <term>            discover via one ad-hoc Chewy search (targets a specific product)
+    --dry-run                 discover only: write the url list, skip Bright Data, keep the ledger
+    --urls <file>             skip discovery; collect from a JSON url list (e.g. a --dry-run output).
+                              Batch a full sweep: discover once, then loop this with --limit chunks
     --out <path>              JSON for enrich to read (default: /tmp/chewy-new.json)
     --db <path>               catalog to diff against (default: PetScans/Data/catalog.sqlite)
 
@@ -105,6 +111,10 @@ async function main(): Promise<void> {
       storefront,
       pages: Number(arg(argv, 'pages') ?? '1'),
       limit: Number(arg(argv, 'limit') ?? '250'),
+      discovery: argv.includes('--brands') ? 'brands' : 'categories',
+      query: arg(argv, 'query'),
+      dryRun: argv.includes('--dry-run'),
+      urlsFile: arg(argv, 'urls') ? resolve(process.cwd(), arg(argv, 'urls')!) : undefined,
       onLog: (s) => process.stderr.write(s + '\n'),
     });
     console.log('');

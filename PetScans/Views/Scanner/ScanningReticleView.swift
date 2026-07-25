@@ -12,6 +12,10 @@ struct ScanningReticleView: View {
     var lineWidth: CGFloat = 3
     var showScanningLine: Bool = true
     var instructionText: String? = nil
+    /// When true, the instruction pill sits in the lower third of the screen
+    /// instead of tucked just under the reticle. Used by the barcode scanner so
+    /// the hint clears the frame and fills the otherwise-empty space above the tabs.
+    var instructionAtBottom: Bool = false
     var showDarkOverlay: Bool = true
 
     private var pulseAnimation: Animation? {
@@ -22,8 +26,15 @@ struct ScanningReticleView: View {
         AnimationTokens.respecting(AnimationTokens.scanLine, reduceMotion: reduceMotion)
     }
 
+    /// True when the hint sits *below* the reticle, which reserves an extra 60pt
+    /// under the frame and shifts the reticle up to keep the whole assembly
+    /// centered. Bottom-anchored hints don't reserve that space.
+    private var reservesSpaceBelowFrame: Bool {
+        instructionText != nil && !instructionAtBottom
+    }
+
     private var totalHeight: CGFloat {
-        instructionText != nil ? frameHeight + 60 : frameHeight
+        reservesSpaceBelowFrame ? frameHeight + 60 : frameHeight
     }
 
     var body: some View {
@@ -43,21 +54,27 @@ struct ScanningReticleView: View {
                     scanningLine
                 }
 
-                // Instructional text (for OCR mode)
+                // Instructional text
                 if let text = instructionText {
-                    VStack {
-                        Spacer()
-                            .frame(height: frameHeight / 2 + 30)
+                    if instructionAtBottom {
+                        // Anchor the hint in the lower third, above the tab bar
+                        VStack {
+                            Spacer()
+                            instructionLabel(text)
+                            Spacer()
+                                .frame(height: geometry.size.height * 0.16)
+                        }
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                    } else {
+                        // Tuck the hint just below the reticle (OCR / photo capture)
+                        VStack {
+                            Spacer()
+                                .frame(height: frameHeight / 2 + 30)
 
-                        Text(text)
-                            .caption()
-                            .foregroundColor(.white.opacity(0.8))
-                            .padding(.horizontal, SpacingTokens.sm)
-                            .padding(.vertical, SpacingTokens.xxs)
-                            .background(.ultraThinMaterial.opacity(0.6))
-                            .cornerRadius(SpacingTokens.radiusSmall)
+                            instructionLabel(text)
+                        }
+                        .frame(width: frameWidth, height: totalHeight)
                     }
-                    .frame(width: frameWidth, height: totalHeight)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -67,6 +84,18 @@ struct ScanningReticleView: View {
         .onAppear {
             startAnimations()
         }
+    }
+
+    // MARK: - Instruction Label
+
+    private func instructionLabel(_ text: String) -> some View {
+        Text(text)
+            .caption()
+            .foregroundColor(.white.opacity(0.8))
+            .padding(.horizontal, SpacingTokens.sm)
+            .padding(.vertical, SpacingTokens.xxs)
+            .background(.ultraThinMaterial.opacity(0.6))
+            .cornerRadius(SpacingTokens.radiusSmall)
     }
 
     // MARK: - Dark Overlay
@@ -96,9 +125,9 @@ struct ScanningReticleView: View {
         Canvas { context, size in
             let cornerColor = Color.white.opacity(0.9)
 
-            // Calculate offset to center the frame when instruction text is present
+            // Calculate offset to center the frame when space is reserved below it
             let offsetX = (size.width - frameWidth) / 2
-            let offsetY = instructionText != nil ? (size.height - frameHeight - 60) / 2 : 0
+            let offsetY = reservesSpaceBelowFrame ? (size.height - frameHeight - 60) / 2 : 0
 
             // Top Left Corner
             var topLeft = Path()
@@ -128,7 +157,7 @@ struct ScanningReticleView: View {
             bottomRight.addLine(to: CGPoint(x: offsetX + frameWidth, y: offsetY + frameHeight - cornerLength))
             context.stroke(bottomRight, with: .color(cornerColor), lineWidth: lineWidth)
         }
-        .frame(width: frameWidth, height: instructionText != nil ? frameHeight + 60 : frameHeight)
+        .frame(width: frameWidth, height: totalHeight)
     }
 
     // MARK: - Scanning Line

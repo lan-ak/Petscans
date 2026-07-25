@@ -88,8 +88,8 @@ struct OnboardingView: View {
         case 2:
             OnboardingBenefitsPage(
                 icon: "barcode.viewfinder",
-                headline: "Scan the barcode, or type it in",
-                subheadline: "Point your camera at any pet food or treat. No barcode? Take a photo of the label and we'll find it for you."
+                headline: "Just scan the barcode",
+                subheadline: "Point your camera at any pet food or treat. No barcode? Take a photo of the front and we'll find it for you."
             )
             .transition(.opacity)
         case setupPage:

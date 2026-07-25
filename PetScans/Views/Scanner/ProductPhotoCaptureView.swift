@@ -5,15 +5,26 @@ import PhotosUI
 /// Uses camera to photograph the front of pet food packaging
 struct ProductPhotoCaptureView: View {
     let onImageSelected: (UIImage) -> Void
+    /// Back out of the photo flow to the scanner.
+    let onCancel: () -> Void
+    /// When the live camera isn't usable (permission denied / no camera), show the
+    /// library-first layout instead of a black preview.
+    var startInLibraryMode: Bool = false
 
     @State private var showImagePicker = false
     @State private var shouldCapture = false
     @State private var showCameraError = false
     @State private var cameraErrorMessage = ""
 
+    /// True when we're showing the light library-first layout rather than the dark
+    /// live-camera preview — drives adaptive control colors and header copy.
+    private var showingLibraryLayout: Bool {
+        !OCRCameraView.isSupported || startInLibraryMode
+    }
+
     var body: some View {
         ZStack {
-            if OCRCameraView.isSupported {
+            if OCRCameraView.isSupported && !startInLibraryMode {
                 // Live camera preview
                 OCRCameraView(
                     onCapture: { image in
@@ -33,7 +44,7 @@ struct ProductPhotoCaptureView: View {
                     frameHeight: 400,
                     cornerLength: 50,
                     showScanningLine: false,
-                    instructionText: "Position product in frame"
+                    instructionText: "Front of pack, good light"
                 )
 
                 // Bottom controls
@@ -68,6 +79,26 @@ struct ProductPhotoCaptureView: View {
                 // Fallback when camera is not available
                 cameraUnavailableView
             }
+
+            // Always-available way back to the scanner.
+            VStack {
+                HStack {
+                    Button {
+                        onCancel()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(showingLibraryLayout ? ColorTokens.textPrimary : .white)
+                            .padding(SpacingTokens.sm)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+                    .accessibilityLabel("Back to scanner")
+
+                    Spacer()
+                }
+                Spacer()
+            }
+            .padding(SpacingTokens.md)
         }
         .sheet(isPresented: $showImagePicker) {
             ProductImagePickerView(sourceType: .photoLibrary) { image in
@@ -95,10 +126,13 @@ struct ProductPhotoCaptureView: View {
                 .foregroundColor(ColorTokens.brandPrimary)
 
             VStack(spacing: SpacingTokens.xs) {
-                Text("Camera Not Available")
+                // Distinguish "no camera on this device" from "camera permission off".
+                Text(OCRCameraView.isSupported ? "Camera Access Off" : "Camera Not Available")
                     .displaySmall()
 
-                Text("You can still select an image from your photo library")
+                Text(OCRCameraView.isSupported
+                     ? "Pick a photo from your library and we'll identify it."
+                     : "You can still select an image from your photo library.")
                     .bodySmall()
                     .foregroundColor(ColorTokens.textSecondary)
                     .multilineTextAlignment(.center)
@@ -158,6 +192,7 @@ private struct ProductImagePickerView: UIViewControllerRepresentable {
 
 #Preview {
     ProductPhotoCaptureView(
-        onImageSelected: { _ in }
+        onImageSelected: { _ in },
+        onCancel: {}
     )
 }

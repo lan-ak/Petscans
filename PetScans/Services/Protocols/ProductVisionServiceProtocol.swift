@@ -25,11 +25,6 @@ struct ProductIdentification: Codable, Sendable {
         }
         return query
     }
-
-    /// Whether identification has enough confidence to proceed
-    var isUsable: Bool {
-        searchQuery != nil && confidence >= 0.5
-    }
 }
 
 // MARK: - Product Vision Errors
@@ -37,7 +32,6 @@ struct ProductIdentification: Codable, Sendable {
 enum ProductVisionError: LocalizedError {
     case imageEncodingFailed
     case noProductFound
-    case lowConfidence(Double)
     case networkError(underlying: Error)
     case invalidAPIKey
     case rateLimited
@@ -50,8 +44,6 @@ enum ProductVisionError: LocalizedError {
             return "Failed to process image"
         case .noProductFound:
             return "Could not identify product"
-        case .lowConfidence(let confidence):
-            return "Low confidence identification (\(Int(confidence * 100))%)"
         case .networkError:
             return "Network connection failed"
         case .invalidAPIKey:

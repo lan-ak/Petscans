@@ -9,7 +9,6 @@ struct FirecrawlProduct {
     let ingredients: [String]
     let price: Double?
     let imageURL: URL?
-    let ingredientsImageURL: URL?
 }
 
 // MARK: - Firecrawl Errors

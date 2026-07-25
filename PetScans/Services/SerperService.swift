@@ -199,25 +199,6 @@ actor SerperService: SerperServiceProtocol {
 
     // MARK: - Public Methods
 
-    /// Search for a pet food product across multiple sources
-    func searchProduct(query: String, retailers: [ProductSource]) async throws -> SerperSearchResult {
-        try await searchProduct(query: query, brand: nil, retailers: retailers)
-    }
-
-    /// Search for a pet food product across multiple sources with explicit brand
-    func searchProduct(query: String, brand: String?, retailers: [ProductSource]) async throws -> SerperSearchResult {
-        let results = try await searchProductURLs(query: query, brand: brand, retailers: retailers)
-        guard let first = results.first else {
-            throw SerperError.noResultsFound
-        }
-        return first
-    }
-
-    /// Search for a pet food product across all sources, returning all matches
-    func searchProductURLs(query: String, retailers: [ProductSource]) async throws -> [SerperSearchResult] {
-        try await searchProductURLs(query: query, brand: nil, retailers: retailers)
-    }
-
     /// Search for a pet food product across all sources in parallel with explicit brand
     /// Automatically includes manufacturer site if brand is detected
     func searchProductURLs(query: String, brand: String?, retailers: [ProductSource]) async throws -> [SerperSearchResult] {
@@ -292,12 +273,6 @@ actor SerperService: SerperServiceProtocol {
 
         print("DEBUG: Found \(results.count) URLs total")
         return results
-    }
-
-    /// Search for a pet food product on Chewy.com via Google (legacy method)
-    func searchChewyProduct(query: String) async throws -> URL {
-        let result = try await searchProduct(query: query, retailers: [.chewy])
-        return result.url
     }
 
     // MARK: - Brand to Manufacturer Mapping

@@ -25,15 +25,6 @@ struct ScannerView: View {
                 case .productNotFound:
                     productNotFoundView
 
-                case .advancedSearch:
-                    advancedSearchView
-
-                case .ocrCapture:
-                    ocrCaptureView
-
-                case .ocrProcessing:
-                    ocrProcessingView
-
                 case .selectOptions:
                     SpeciesCategoryPicker(
                         productName: $viewModel.productName,
@@ -44,15 +35,6 @@ struct ScannerView: View {
                         category: $viewModel.selectedCategory,
                         onAnalyze: {
                             viewModel.performAnalysis()
-                        },
-                        onCancel: viewModel.reset
-                    )
-
-                case .manualEntry:
-                    IngredientSelectionView(
-                        onSubmit: { selectedIngredients in
-                            let ingredientsText = selectedIngredients.map { $0.commonName }.joined(separator: ", ")
-                            viewModel.handleManualEntry(name: nil, brandName: nil, ingredients: ingredientsText)
                         },
                         onCancel: viewModel.reset
                     )
@@ -83,6 +65,9 @@ struct ScannerView: View {
                 case .productIdentification:
                     productIdentificationView
 
+                case .confirmProduct:
+                    productConfirmView
+
                 case .productSearching:
                     productSearchingView
                 }
@@ -104,36 +89,20 @@ struct ScannerView: View {
                     .ignoresSafeArea()
 
                 ScanningReticleView()
-
-                VStack {
-                    Spacer()
-
-                    Button {
-                        viewModel.goToManualEntry()
-                    } label: {
-                        Label("Enter Manually", systemImage: "keyboard")
-                            .labelLarge()
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(SpacingTokens.radiusMedium)
-                    }
-                    .padding(.bottom, SpacingTokens.xxl)
-                }
             } else if !BarcodeScannerView.isSupported {
-                ScannerUnavailableView {
-                    viewModel.goToManualEntry()
-                }
+                ScannerUnavailableView(
+                    onSearchWithPhoto: viewModel.goToProductPhotoCapture
+                )
             } else if cameraPermission.state == .notDetermined {
                 CameraPrimingView(
                     onEnable: {
                         Task { await cameraPermission.request() }
-                    },
-                    onManualEntry: viewModel.goToManualEntry
+                    }
                 )
             } else if cameraPermission.state == .denied {
                 CameraDeniedView(
                     onOpenSettings: cameraPermission.openSettings,
-                    onManualEntry: viewModel.goToManualEntry
+                    onSearchWithPhoto: viewModel.goToProductPhotoCapture
                 )
             } else {
                 BarcodeScannerView(
@@ -142,31 +111,14 @@ struct ScannerView: View {
                     },
                     onError: { error in
                         Task { @MainActor in
-                            viewModel.currentError = .networkError(underlying: NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: error]))
-                            viewModel.step = .error
+                            viewModel.handleScannerError(error)
                         }
                     }
                 )
                 .ignoresSafeArea()
 
                 // Scanning reticle overlay
-                ScanningReticleView()
-
-                // Overlay with manual entry button
-                VStack {
-                    Spacer()
-
-                    Button {
-                        viewModel.goToManualEntry()
-                    } label: {
-                        Label("Enter Manually", systemImage: "keyboard")
-                            .labelLarge()
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(SpacingTokens.radiusMedium)
-                    }
-                    .padding(.bottom, SpacingTokens.xxl)
-                }
+                ScanningReticleView(instructionText: "Point at the barcode", instructionAtBottom: true)
             }
         }
         .accessibilityIdentifier("scanner-view")
@@ -187,81 +139,29 @@ struct ScannerView: View {
                 title: error.errorDescription ?? "Error",
                 message: error.recoverySuggestion ?? "An error occurred.",
                 canRetry: error.canRetry,
-                onRetry: { viewModel.retryLastScan() },
-                onAlternative: viewModel.goToManualEntry,
-                alternativeLabel: "Enter Manually"
+                onRetry: { viewModel.retryLastScan() }
             )
         } else {
             NetworkErrorView(
                 title: "Unknown Error",
                 message: "Something went wrong. Please try again.",
                 canRetry: true,
-                onRetry: { viewModel.retryLastScan() },
-                onAlternative: viewModel.goToManualEntry,
-                alternativeLabel: "Enter Manually"
+                onRetry: { viewModel.retryLastScan() }
             )
         }
     }
 
     private var productNotFoundView: some View {
         ProductNotFoundView(
+            reason: viewModel.notFoundReason,
             barcode: viewModel.barcode,
-            productName: viewModel.productName,
-            brand: viewModel.brand,
-            imageUrl: viewModel.imageUrl,
-            isManualSearch: viewModel.isManualSearch,
-            onTakePhoto: {
-                viewModel.step = .ocrCapture
-            },
-            onManualEntry: {
-                viewModel.goToIngredientSelection()
-            },
-            onRetry: {
-                viewModel.restartScanning()
-            },
-            onSearchOnline: {
+            onSearchWithPhoto: {
                 viewModel.goToProductPhotoCapture()
+            },
+            onScanAnother: {
+                viewModel.restartScanning()
             }
         )
-    }
-
-    private var advancedSearchView: some View {
-        AdvancedSearchView(
-            barcode: viewModel.barcode ?? "",
-            onComplete: { ingredientsText, productName, brand, matched, imageUrl in
-                viewModel.handleAdvancedSearchComplete(
-                    ingredientsText: ingredientsText,
-                    productName: productName,
-                    brand: brand,
-                    matched: matched,
-                    imageUrl: imageUrl
-                )
-            },
-            onFallbackToPhoto: {
-                // Barcode lookup failed → go to product photo capture
-                viewModel.step = .productPhotoCapture
-            },
-            onCancel: {
-                // Barcode lookup failed → go to product photo capture
-                viewModel.step = .productPhotoCapture
-            }
-        )
-    }
-
-    private var ocrCaptureView: some View {
-        IngredientCameraView(
-            onImageSelected: { image in
-                viewModel.handleOCRCapture(image)
-            },
-            onCancel: {
-                // OCR cancelled → show final fallback options (manual entry)
-                viewModel.step = .productNotFound
-            }
-        )
-    }
-
-    private var ocrProcessingView: some View {
-        OCRProcessingView()
     }
 
     // MARK: - Product Photo Identification Views
@@ -270,7 +170,13 @@ struct ScannerView: View {
         ProductPhotoCaptureView(
             onImageSelected: { image in
                 viewModel.handleProductPhotoCapture(image)
-            }
+            },
+            onCancel: {
+                viewModel.restartScanning()
+            },
+            // Reached from the camera-denied / unavailable screens too — prefer the
+            // library picker there rather than a dead black preview.
+            startInLibraryMode: cameraPermission.state == .denied || !BarcodeScannerView.isSupported
         )
     }
 
@@ -278,7 +184,28 @@ struct ScannerView: View {
         ProductIdentificationProgressView(
             image: viewModel.productImage,
             identification: viewModel.productIdentification,
-            isProcessing: true
+            isProcessing: true,
+            onCancel: {
+                viewModel.restartScanning()
+            }
+        )
+    }
+
+    /// Low-confidence confirmation gate: show what the AI thinks the product is
+    /// and let the user confirm or retake before we spend a scrape on it.
+    private var productConfirmView: some View {
+        ProductIdentificationConfirmView(
+            image: viewModel.productImage,
+            identification: viewModel.productIdentification,
+            onConfirm: {
+                viewModel.confirmIdentification()
+            },
+            onRetake: {
+                viewModel.goToProductPhotoCapture()
+            },
+            onCancel: {
+                viewModel.restartScanning()
+            }
         )
     }
 
@@ -294,13 +221,13 @@ struct ScannerView: View {
                     imageUrl: imageUrl
                 )
             },
-            onFallbackToPhoto: {
-                // Product search failed → go to OCR as backup
-                viewModel.step = .ocrCapture
+            onRetakePhoto: {
+                // Search failed or user wants a do-over → retake the product photo.
+                viewModel.goToProductPhotoCapture()
             },
             onCancel: {
-                // Product search cancelled → go to OCR as backup
-                viewModel.step = .ocrCapture
+                // Back out to the scanner.
+                viewModel.restartScanning()
             }
         )
     }

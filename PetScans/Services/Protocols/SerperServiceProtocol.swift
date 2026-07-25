@@ -163,7 +163,6 @@ enum ProductSource: String, CaseIterable, Sendable {
     /// Validates if a URL is a valid product page for this source
     func isValidProductURL(_ url: URL) -> Bool {
         guard let host = url.host?.lowercased() else { return false }
-
         switch self {
         // Retailers - strict validation
         case .chewy:
@@ -228,10 +227,6 @@ enum ProductSource: String, CaseIterable, Sendable {
         }
     }
 
-    /// All retailer sources
-    static var retailers: [ProductSource] {
-        [.chewy, .petco, .petsmart]
-    }
 }
 
 // MARK: - Search Result
@@ -244,54 +239,12 @@ struct SerperSearchResult: Sendable {
     let source: ProductSource
 }
 
-// MARK: - Dynamic Source (for discovered websites)
-
-/// A dynamically discovered product source (for brands not in the known list)
-struct DynamicProductSource: Sendable {
-    let brand: String
-    let domain: String
-    let siteQuery: String
-
-    var displayName: String { brand }
-
-    func isValidProductURL(_ url: URL) -> Bool {
-        guard let host = url.host?.lowercased() else { return false }
-        return host.contains(domain.lowercased())
-    }
-}
-
 // MARK: - Protocol
 
 /// Protocol for Google search via Serper.dev API
 protocol SerperServiceProtocol: Sendable {
-    /// Search for a pet food product across multiple sources
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - retailers: Ordered list of retailers to search (first match wins)
-    /// - Returns: The product URL and source if found
-    /// - Throws: SerperError on failure
-    func searchProduct(query: String, retailers: [ProductSource]) async throws -> SerperSearchResult
-
-    /// Search for a pet food product across multiple sources with explicit brand
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - brand: Optional explicit brand name for better matching
-    ///   - retailers: Ordered list of retailers to search (first match wins)
-    /// - Returns: The product URL and source if found
-    /// - Throws: SerperError on failure
-    func searchProduct(query: String, brand: String?, retailers: [ProductSource]) async throws -> SerperSearchResult
-
-    /// Search for a pet food product across all sources, returning all matches
-    /// Automatically includes manufacturer site if brand is detected
-    /// - Parameters:
-    ///   - query: Product name and brand to search for
-    ///   - retailers: List of retailers to search
-    /// - Returns: Array of product URLs (one per source that has a match)
-    /// - Throws: SerperError on failure (only if no results found at all)
-    func searchProductURLs(query: String, retailers: [ProductSource]) async throws -> [SerperSearchResult]
-
-    /// Search for a pet food product across all sources with explicit brand
-    /// Automatically includes manufacturer site if brand is detected
+    /// Search for a pet food product across all sources with explicit brand.
+    /// Automatically includes manufacturer site if brand is detected.
     /// - Parameters:
     ///   - query: Product name and brand to search for
     ///   - brand: Optional explicit brand name for better matching and manufacturer detection
@@ -299,12 +252,6 @@ protocol SerperServiceProtocol: Sendable {
     /// - Returns: Array of product URLs (one per source that has a match)
     /// - Throws: SerperError on failure (only if no results found at all)
     func searchProductURLs(query: String, brand: String?, retailers: [ProductSource]) async throws -> [SerperSearchResult]
-
-    /// Search for a pet food product on Chewy.com via Google (legacy method)
-    /// - Parameter query: Product name and brand to search for
-    /// - Returns: The Chewy product URL if found
-    /// - Throws: SerperError on failure
-    func searchChewyProduct(query: String) async throws -> URL
 }
 
 /// Errors that can occur during Serper API operations

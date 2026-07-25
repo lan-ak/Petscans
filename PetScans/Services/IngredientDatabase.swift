@@ -5,8 +5,8 @@ import Foundation
 ///
 /// `@Observable` so views reading the collections below re-render when the load
 /// lands. Since removing the splash screen, a view can be on screen before the
-/// decode finishes — without this, `IngredientSelectionView` and
-/// `IngredientSearchSheet` would render an empty list and never update.
+/// decode finishes — without this, `IngredientSearchSheet` would render an
+/// empty list and never update.
 @Observable
 final class IngredientDatabase {
     static let shared = IngredientDatabase()
