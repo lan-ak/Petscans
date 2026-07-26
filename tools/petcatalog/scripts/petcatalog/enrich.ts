@@ -116,7 +116,7 @@ export async function enrich(
   opts: { key: string; dbPath: string; budget: number; concurrency?: number; onLog?: (s: string) => void },
 ): Promise<EnrichResult> {
   const { key, dbPath, budget } = opts;
-  const conc = Math.min(opts.concurrency ?? 4, 5); // Hobby allows 5 concurrent
+  const conc = Math.min(opts.concurrency ?? 4, 25); // cap kept under the Firecrawl plan's concurrency limit (Standard = 50)
   const log = opts.onLog ?? (() => {});
 
   const startRemaining = await creditsRemaining(key);

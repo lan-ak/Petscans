@@ -159,6 +159,7 @@ async function main(): Promise<void> {
       key: firecrawlKey(),
       dbPath: resolve(process.cwd(), out),
       budget,
+      concurrency: Number(arg(argv, 'concurrency') ?? '5'),
       onLog: (s) => process.stderr.write(s + '\n'),
     });
     console.log('');
