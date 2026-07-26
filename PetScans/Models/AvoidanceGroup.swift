@@ -41,6 +41,18 @@ enum AvoidanceGroup: String, Codable, CaseIterable, Identifiable {
     /// The proteins and grains behind most food sensitivities.
     case commonAllergens
 
+    /// Collected-only, like the rest — added sugars and sweeteners.
+    case addedSugars
+
+    /// Collected-only — vaguely-named rendered proteins.
+    case meatByproducts
+
+    /// Collected-only — grains and cheap carbohydrate bulk.
+    case grainFillers
+
+    /// Collected-only — texture agents, mostly in wet food.
+    case gumsThickeners
+
     var id: String { rawValue }
 
     var displayName: String {
@@ -49,6 +61,10 @@ enum AvoidanceGroup: String, Codable, CaseIterable, Identifiable {
         case .artificialColours: return "Artificial colours"
         case .artificialPreservatives: return "Artificial preservatives"
         case .commonAllergens: return "Common allergens"
+        case .addedSugars: return "Added sugars & sweeteners"
+        case .meatByproducts: return "Meat by-products"
+        case .grainFillers: return "Grains & fillers"
+        case .gumsThickeners: return "Gums & thickeners"
         }
     }
 
@@ -61,6 +77,10 @@ enum AvoidanceGroup: String, Codable, CaseIterable, Identifiable {
         case .artificialColours: return "Red 40, Yellow 5, Titanium dioxide"
         case .artificialPreservatives: return "BHA, BHT, Ethoxyquin, TBHQ"
         case .commonAllergens: return "Chicken, beef, wheat, dairy, soy"
+        case .addedSugars: return "Corn syrup, cane molasses, sucrose"
+        case .meatByproducts: return "By-product meal, meat & bone meal"
+        case .grainFillers: return "Corn, wheat, soy, brewers rice"
+        case .gumsThickeners: return "Carrageenan, guar gum, cellulose"
         }
     }
 
@@ -70,6 +90,10 @@ enum AvoidanceGroup: String, Codable, CaseIterable, Identifiable {
         case .artificialColours: return "paintpalette.fill"
         case .artificialPreservatives: return "flask.fill"
         case .commonAllergens: return "exclamationmark.triangle.fill"
+        case .addedSugars: return "cube.fill"
+        case .meatByproducts: return "fork.knife"
+        case .grainFillers: return "leaf.fill"
+        case .gumsThickeners: return "drop.fill"
         }
     }
 

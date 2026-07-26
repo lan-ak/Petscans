@@ -54,6 +54,12 @@ export const US_CATEGORIES = [
   'https://www.chewy.com/b/soft-cat-treats-1553', // Cat soft & chewy
   'https://www.chewy.com/b/freeze-dried-cat-treats-11870', // Cat freeze-dried
   'https://www.chewy.com/b/lickable-cat-treats-2275', // Cat lickable
+  'https://www.chewy.com/b/crunchy-cat-treats-1552', // Cat crunchy (Temptations et al.)
+  'https://www.chewy.com/b/cat-hairball-treats-15561', // Cat hairball
+  'https://www.chewy.com/b/kitten-treats-2295', // Kitten treats
+  'https://www.chewy.com/b/vet-diet-cat-treats-1556', // Cat vet-diet treats
+  'https://www.chewy.com/b/dental-treats-1502', // Dental treats (dog + cat)
+  'https://www.chewy.com/b/dental-treats-12803', // Dental treats (dog + cat)
 ];
 
 export const CA_CATEGORIES = [
@@ -68,6 +74,8 @@ export const CA_CATEGORIES = [
   'https://www.chewy.com/ca/b/soft-chewy-treats-1553',
   'https://www.chewy.com/ca/b/freeze-dried-treats-11870',
   'https://www.chewy.com/ca/b/lickable-treats-2275',
+  'https://www.chewy.com/ca/b/crunchy-treats-1552', // Cat crunchy (Temptations et al.)
+  'https://www.chewy.com/ca/b/dental-treats-12803', // Dental treats (dog + cat)
 ];
 
 export function categoriesFor(storefront: 'us' | 'ca' | 'both'): string[] {

@@ -3,7 +3,7 @@ import SwiftUI
 struct OnboardingPetSetupPage: View {
     @Binding var petName: String
     @Binding var petSpecies: Species
-    @Binding var selectedGroups: Set<AvoidanceGroup>
+    @Binding var selectedAllergens: Set<String>
 
     var nameError: String?
     var isNameFocused: FocusState<Bool>.Binding?
@@ -15,20 +15,13 @@ struct OnboardingPetSetupPage: View {
                 PetFormView(
                     petName: $petName,
                     petSpecies: $petSpecies,
-                    // Onboarding asks about categories instead — a first-time
-                    // user has not seen an ingredient list yet.
-                    selectedAllergens: .constant([]),
-                    showAllergens: false,
+                    selectedAllergens: $selectedAllergens,
+                    showAllergens: true,
                     showHeaderIcon: false,
                     nameError: nameError,
                     isNameFocused: isNameFocused,
                     onSubmitName: onSubmitName
                 )
-
-                Divider()
-                    .padding(.vertical, SpacingTokens.xxs)
-
-                AvoidanceGroupPicker(selected: $selectedGroups)
 
                 // Footer
                 Text("You can always update this later in Settings")
@@ -48,7 +41,7 @@ struct OnboardingPetSetupPage: View {
     OnboardingPetSetupPage(
         petName: .constant(""),
         petSpecies: .constant(.dog),
-        selectedGroups: .constant([])
+        selectedAllergens: .constant([])
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(ColorTokens.backgroundPrimary)
@@ -58,7 +51,7 @@ struct OnboardingPetSetupPage: View {
     OnboardingPetSetupPage(
         petName: .constant("Buddy"),
         petSpecies: .constant(.dog),
-        selectedGroups: .constant([.artificialColours, .ultraProcessed])
+        selectedAllergens: .constant(["chicken", "beef"])
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background(ColorTokens.backgroundPrimary)
@@ -68,7 +61,7 @@ struct OnboardingPetSetupPage: View {
     OnboardingPetSetupPage(
         petName: .constant(""),
         petSpecies: .constant(.cat),
-        selectedGroups: .constant([]),
+        selectedAllergens: .constant([]),
         nameError: "Please enter your pet's name"
     )
     .frame(maxWidth: .infinity, maxHeight: .infinity)

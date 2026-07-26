@@ -6,6 +6,7 @@ struct OnboardingView: View {
     @State private var currentPage = 0
     @State private var petName = ""
     @State private var petSpecies: Species = .dog
+    @State private var selectedAllergens: Set<String> = []
     @State private var selectedGroups: Set<AvoidanceGroup> = []
     @State private var isSubmitting = false
     @State private var showNameValidation = false
@@ -13,8 +14,9 @@ struct OnboardingView: View {
 
     let onComplete: () -> Void
 
-    private let totalPages = 4
-    private let setupPage = 3
+    private let totalPages = 5
+    private let profilePage = 3
+    private let groupsPage = 4
 
     var body: some View {
         ZStack {
@@ -43,7 +45,7 @@ struct OnboardingView: View {
                     // same height on every page rather than riding up on the
                     // one page that has a secondary action.
                     .overlay(alignment: .bottom) {
-                        if currentPage == setupPage {
+                        if currentPage == profilePage || currentPage == groupsPage {
                             skipButton
                                 .padding(.bottom, SpacingTokens.xxs)
                         }
@@ -92,20 +94,23 @@ struct OnboardingView: View {
                 subheadline: "Point your camera at any pet food or treat. No barcode? Take a photo of the front and we'll find it for you."
             )
             .transition(.opacity)
-        case setupPage:
+        case profilePage:
             OnboardingPetSetupPage(
                 petName: $petName,
                 petSpecies: $petSpecies,
-                selectedGroups: $selectedGroups,
+                selectedAllergens: $selectedAllergens,
                 nameError: nameError,
                 isNameFocused: $isNameFocused,
                 // Return dismisses the keyboard and leaves the user on the page.
-                // It deliberately does not submit: the avoidance groups sit
-                // below the fold, and finishing onboarding — and firing the
-                // paywall — off a return key press would skip past them.
+                // It deliberately does not advance: the ingredient picker sits
+                // below the fold, and moving on off a return key press would
+                // skip past it.
                 onSubmitName: { isNameFocused = false }
             )
             .transition(.opacity)
+        case groupsPage:
+            OnboardingAvoidanceGroupsPage(selectedGroups: $selectedGroups)
+                .transition(.opacity)
         default:
             EmptyView()
         }
@@ -141,9 +146,9 @@ struct OnboardingView: View {
 
     @ViewBuilder
     private var navigationButtons: some View {
-        if currentPage == setupPage {
+        if currentPage == groupsPage {
             Button {
-                submitSetup()
+                createPetAndComplete()
             } label: {
                 if isSubmitting {
                     ProgressView()
@@ -154,6 +159,11 @@ struct OnboardingView: View {
             }
             .primaryButtonStyle()
             .disabled(isSubmitting)
+        } else if currentPage == profilePage {
+            Button("Continue") {
+                continueFromProfile()
+            }
+            .primaryButtonStyle()
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {
                 withStandardAnimation {
@@ -165,11 +175,19 @@ struct OnboardingView: View {
     }
 
     /// Plain text rather than a second full-width button: as an equal-width
-    /// button beside the CTA it read as an equal choice, and skipping leaves the
-    /// app with no pet to personalize against.
+    /// button beside the CTA it read as an equal choice. What skipping means
+    /// depends on the page — no pet at all on the profile page, just no
+    /// avoidance groups on the (optional) groups page.
     private var skipButton: some View {
         Button("Skip for now") {
-            completeOnboarding(createdPet: false)
+            if currentPage == groupsPage {
+                // The pet's name, species and ingredients are already entered on
+                // the previous page — skipping here only skips the optional
+                // groups, so still create the pet.
+                createPetAndComplete()
+            } else {
+                completeOnboarding(createdPet: false)
+            }
         }
         .font(TypographyTokens.labelLarge)
         .foregroundColor(ColorTokens.textSecondary)
@@ -183,7 +201,7 @@ struct OnboardingView: View {
     /// Deferred rather than assigned inline: focus set while the page is still
     /// transitioning in is dropped, and the field ends up unfocused.
     private func focusNameFieldIfNeeded(on page: Int) {
-        guard page == setupPage else {
+        guard page == profilePage else {
             isNameFocused = false
             return
         }
@@ -193,9 +211,14 @@ struct OnboardingView: View {
         }
     }
 
-    private func submitSetup() {
+    /// Advances off the profile page once a name is present. Name entry is the
+    /// one required answer, so it gates leaving this page rather than the final
+    /// submit — by the time the groups page finishes, the name is already valid.
+    private func continueFromProfile() {
         if petName.isNotBlank {
-            createPetAndComplete()
+            withStandardAnimation {
+                currentPage += 1
+            }
         } else {
             showNameValidation = true
             isNameFocused = true
@@ -206,7 +229,7 @@ struct OnboardingView: View {
         guard petName.isNotBlank, !isSubmitting else { return }
         isSubmitting = true
 
-        let pet = Pet(name: petName.trimmed, species: petSpecies)
+        let pet = Pet(name: petName.trimmed, species: petSpecies, allergens: Array(selectedAllergens))
         modelContext.insert(pet)
         try? modelContext.save()
 

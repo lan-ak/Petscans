@@ -34,7 +34,7 @@ struct ProductNotFoundView: View {
 
     private var primaryLabel: String {
         switch reason {
-        case .notInCatalog: return "Search with a Photo"
+        case .notInCatalog: return "Search with PetScans AI"
         case .notRecognized: return "Try Another Photo"
         }
     }
