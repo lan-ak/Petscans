@@ -1,4 +1,6 @@
 import SwiftUI
+import UIKit
+import CoreText
 
 /// Typography tokens for the PetScans design system
 /// Inspired by Yuka's clean, readable sans-serif approach using Quicksand font
@@ -8,6 +10,59 @@ struct TypographyTokens {
 
     /// Quicksand variable font name (supports weights 300-700)
     private static let quicksandFont = "Quicksand"
+
+    // MARK: - Navigation Bar
+
+    /// Quicksand as a `UIFont` at a given weight. Quicksand ships as a *variable*
+    /// font, and in UIKit the symbolic `.traits[.weight]` descriptor does NOT move a
+    /// variable font's weight (SwiftUI's `.weight(_:)` does, UIKit doesn't) — the
+    /// title would render at the font's default weight. So the weight is applied by
+    /// driving the `wght` variation axis directly. `weight` is a raw axis value on
+    /// Quicksand's 300–700 scale (e.g. 600 semibold, 700 bold). Falls back to the
+    /// system font if the family isn't registered yet.
+    private static func quicksandUIFont(size: CGFloat, weight: CGFloat) -> UIFont {
+        guard let base = UIFont(name: quicksandFont, size: size) else {
+            return UIFont.systemFont(ofSize: size, weight: .bold)
+        }
+        let wghtAxis = 0x77676874 // 'wght' four-char code
+        let descriptor = base.fontDescriptor.addingAttributes([
+            UIFontDescriptor.AttributeName(rawValue: kCTFontVariationAttribute as String): [wghtAxis: weight]
+        ])
+        return UIFont(descriptor: descriptor, size: size)
+    }
+
+    /// Route `.navigationTitle(...)` bar titles through Quicksand so the top-of-screen
+    /// header matches the in-content headings (which already resolve to Quicksand via
+    /// the `heading*`/`display*` tokens). Only the title *fonts* are overridden — the
+    /// bar backgrounds keep the system defaults (opaque/blurred when scrolled,
+    /// transparent at the scroll edge), so large- and inline-title screens look
+    /// unchanged apart from the typeface. Inline titles are 17 bold — a step heavier
+    /// than the semibold `heading2` used for list-item titles, so the page header
+    /// sits above the content. Large titles match `displayLarge` (34 bold).
+    static func configureNavigationBarAppearance() {
+        let inlineTitle: [NSAttributedString.Key: Any] = [
+            .font: quicksandUIFont(size: 17, weight: 700)
+        ]
+        let largeTitle: [NSAttributedString.Key: Any] = [
+            .font: quicksandUIFont(size: 34, weight: 700)
+        ]
+
+        let standard = UINavigationBarAppearance()
+        standard.configureWithDefaultBackground()
+        standard.titleTextAttributes = inlineTitle
+        standard.largeTitleTextAttributes = largeTitle
+
+        let scrollEdge = UINavigationBarAppearance()
+        scrollEdge.configureWithTransparentBackground()
+        scrollEdge.titleTextAttributes = inlineTitle
+        scrollEdge.largeTitleTextAttributes = largeTitle
+
+        let navBar = UINavigationBar.appearance()
+        navBar.standardAppearance = standard
+        navBar.compactAppearance = standard
+        navBar.scrollEdgeAppearance = scrollEdge
+        navBar.compactScrollEdgeAppearance = scrollEdge
+    }
 
     // MARK: - Display Styles (Large, Prominent)
 

@@ -22,6 +22,8 @@ struct HistoryView: View {
                                 NavigationLink(value: scan) {
                                     ScanRowView(scan: scan)
                                 }
+                                .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+                                .listRowSeparatorTint(ColorTokens.border)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
                                         viewModel.delete(scan, using: modelContext)
@@ -55,6 +57,7 @@ struct HistoryView: View {
                 }
             }
             .navigationTitle("History")
+            .navigationBarTitleDisplayMode(.inline)
             .navigationDestination(for: Scan.self) { scan in
                 SavedScanDetailView(scan: scan, shareText: viewModel.generateShareText(for: scan)) {
                     viewModel.delete(scan, using: modelContext)

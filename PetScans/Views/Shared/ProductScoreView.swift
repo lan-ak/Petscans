@@ -177,6 +177,19 @@ struct ProductScoreView: View {
             Button("Cancel", role: .cancel) {}
         }
         .accessibilityIdentifier("product-score-view")
+        .toolbar {
+            if case .scanResult(_, let onScanAnother) = mode {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button {
+                        onScanAnother()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                    .accessibilityLabel("Close")
+                    .accessibilityIdentifier("scan-result-close")
+                }
+            }
+        }
         .sheet(item: $selectedIngredient) { ingredient in
             IngredientDetailSheet(ingredient: ingredient, species: species, pet: selectedPet)
         }

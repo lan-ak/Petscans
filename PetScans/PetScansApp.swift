@@ -96,6 +96,11 @@ struct PetScansApp: App {
         _ = UIFont(name: "Quicksand", size: 1)
         _ = UIFont(name: "Quicksand-Regular", size: 1)
 
+        // Route navigation-bar titles through Quicksand so the bar header matches
+        // the in-content headings. Runs after the warm-up above so the family is
+        // registered before the appearance proxy resolves it.
+        TypographyTokens.configureNavigationBarAppearance()
+
         LaunchMetrics.mark("appInitEnd")
     }
 
