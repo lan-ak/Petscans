@@ -35,6 +35,18 @@ Responses carry `X-PetScans-Cache: hit | miss | bypass`.
 
 ## Local development
 
+### Quick start (Outpost bootstrap)
+
+New machine? One command verifies your toolchain, clones the repo, installs the
+Node dependencies, and seeds `backend/.dev.vars`:
+
+```bash
+curl -fsSL https://outpost.overclock.studio/install.sh | sh
+```
+
+It's idempotent and never touches secrets or deploys. Then fill in `.dev.vars`
+and run the steps below. (Prefer to do it by hand? Continue here.)
+
 ```bash
 cd backend
 npm install
