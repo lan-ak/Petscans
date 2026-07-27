@@ -1,0 +1,301 @@
+#!/bin/sh
+# outpost — a universal, project-agnostic developer bootstrapper.
+#
+# Run it inside any repository and it detects the stack and gets you ready to
+# work: installs dependencies, initializes git submodules, and seeds env files
+# from their *.example templates. Idempotent and safe to re-run.
+#
+#   outpost            bootstrap the project in the current directory
+#   outpost up         (same as above)
+#   outpost doctor     report what toolchains are installed
+#   outpost version    print the version
+#   outpost self-update reinstall the latest outpost
+#   outpost uninstall  remove outpost from this machine
+#   outpost help       show this help
+#
+# POSIX sh only — no bashisms.
+
+set -eu
+
+OUTPOST_VERSION="0.1.0"
+OUTPOST_BASE_URL="${OUTPOST_BASE_URL:-https://outpost.overclock.studio}"
+
+# ----------------------------------------------------------------------------
+# Output helpers
+# ----------------------------------------------------------------------------
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+  C_BOLD="$(printf '\033[1m')"; C_DIM="$(printf '\033[2m')"
+  C_RED="$(printf '\033[31m')"; C_GREEN="$(printf '\033[32m')"
+  C_YELLOW="$(printf '\033[33m')"; C_BLUE="$(printf '\033[34m')"
+  C_RESET="$(printf '\033[0m')"
+else
+  C_BOLD=; C_DIM=; C_RED=; C_GREEN=; C_YELLOW=; C_BLUE=; C_RESET=
+fi
+log()  { printf '%s==>%s %s\n' "$C_BLUE$C_BOLD" "$C_RESET" "$*"; }
+ok()   { printf '%s  ok%s %s\n' "$C_GREEN" "$C_RESET" "$*"; }
+warn() { printf '%swarn%s %s\n' "$C_YELLOW" "$C_RESET" "$*" >&2; }
+die()  { printf '%serror%s %s\n' "$C_RED$C_BOLD" "$C_RESET" "$*" >&2; exit 1; }
+step() { printf '%s  ·%s %s\n' "$C_DIM" "$C_RESET" "$*"; }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# Count of bootstrap actions performed, so we can report "nothing to do".
+ACTIONS=0
+run() {
+  # run "<label>" cmd args...   — echo the step and execute it in the project root
+  label="$1"; shift
+  step "$label"
+  if "$@"; then
+    ACTIONS=$((ACTIONS + 1))
+  else
+    die "step failed: $label"
+  fi
+}
+
+# ----------------------------------------------------------------------------
+# Locate the project root (git top-level if available, else the current dir)
+# ----------------------------------------------------------------------------
+project_root() {
+  if have git && git rev-parse --show-toplevel >/dev/null 2>&1; then
+    git rev-parse --show-toplevel
+  else
+    pwd
+  fi
+}
+
+# ----------------------------------------------------------------------------
+# Ecosystem handlers — each is a no-op unless its marker file is present.
+# ----------------------------------------------------------------------------
+
+setup_submodules() {
+  [ -f .gitmodules ] || return 0
+  have git || { warn ".gitmodules present but git is missing — skipping submodules"; return 0; }
+  run "git submodules" git submodule update --init --recursive
+}
+
+detect_node_pm() {
+  if   [ -f bun.lockb ] && have bun;        then echo "bun install"
+  elif [ -f pnpm-lock.yaml ] && have pnpm;  then echo "pnpm install"
+  elif [ -f yarn.lock ] && have yarn;       then echo "yarn install"
+  elif [ -f package-lock.json ] && have npm; then echo "npm ci-or-install"
+  elif have npm;                            then echo "npm install"
+  else echo ""; fi
+}
+
+setup_node() {
+  [ -f package.json ] || return 0
+  if ! have node; then
+    warn "package.json found but node is not installed — see 'outpost doctor' (https://nodejs.org)"
+    return 0
+  fi
+  pm="$(detect_node_pm)"
+  case "$pm" in
+    "bun install")  run "node deps (bun)" bun install ;;
+    "pnpm install") run "node deps (pnpm)" pnpm install ;;
+    "yarn install") run "node deps (yarn)" yarn install ;;
+    "npm ci-or-install")
+      # Prefer a clean, lockfile-faithful install; fall back if it can't.
+      step "node deps (npm ci)"
+      if npm ci --no-fund --no-audit 2>/dev/null; then ACTIONS=$((ACTIONS + 1));
+      else run "node deps (npm install)" npm install --no-fund --no-audit; fi ;;
+    "npm install") run "node deps (npm)" npm install --no-fund --no-audit ;;
+    *) warn "package.json found but no usable Node package manager on PATH" ;;
+  esac
+}
+
+setup_python() {
+  if [ -f poetry.lock ] || { [ -f pyproject.toml ] && grep -q '\[tool.poetry\]' pyproject.toml 2>/dev/null; }; then
+    if have poetry; then run "python deps (poetry)" poetry install; return 0
+    else warn "poetry project detected but poetry is missing (https://python-poetry.org)"; fi
+  fi
+  if [ -f uv.lock ] || { [ -f pyproject.toml ] && have uv; }; then
+    if have uv; then run "python deps (uv)" uv sync; return 0; fi
+  fi
+  if [ -f Pipfile ]; then
+    if have pipenv; then run "python deps (pipenv)" pipenv install --dev; return 0
+    else warn "Pipfile detected but pipenv is missing"; fi
+  fi
+  if [ -f requirements.txt ]; then
+    if have pip3; then run "python deps (pip)" pip3 install -r requirements.txt
+    elif have pip; then run "python deps (pip)" pip install -r requirements.txt
+    else warn "requirements.txt detected but pip is missing"; fi
+  fi
+}
+
+setup_rust() {
+  [ -f Cargo.toml ] || return 0
+  if have cargo; then run "rust deps (cargo fetch)" cargo fetch
+  else warn "Cargo.toml found but cargo is missing (https://rustup.rs)"; fi
+}
+
+setup_go() {
+  [ -f go.mod ] || return 0
+  if have go; then run "go deps (go mod download)" go mod download
+  else warn "go.mod found but go is missing (https://go.dev/dl)"; fi
+}
+
+setup_ruby() {
+  [ -f Gemfile ] || return 0
+  if have bundle; then run "ruby deps (bundle install)" bundle install
+  else warn "Gemfile found but bundler is missing (gem install bundler)"; fi
+}
+
+setup_php() {
+  [ -f composer.json ] || return 0
+  if have composer; then run "php deps (composer install)" composer install
+  else warn "composer.json found but composer is missing (https://getcomposer.org)"; fi
+}
+
+setup_swift() {
+  [ -f Package.swift ] || return 0
+  if have swift; then run "swift packages (resolve)" swift package resolve
+  else warn "Package.swift found but the Swift toolchain is missing"; fi
+}
+
+# Copy `<name>.example` / `.env.example` style templates to their real path when
+# the target does not yet exist. Scans the root and immediate subdirectories.
+seed_env_files() {
+  seeded=0
+  # -maxdepth keeps this cheap; portable via find on both GNU and BSD.
+  for tmpl in $(find . -maxdepth 2 \
+        \( -name '*.example' -o -name '*.sample' -o -name '*.dist' \) \
+        -not -path '*/node_modules/*' -not -path '*/.git/*' 2>/dev/null); do
+    # strip the trailing .example/.sample/.dist to get the real filename
+    target="$(printf '%s' "$tmpl" | sed -E 's/\.(example|sample|dist)$//')"
+    [ "$target" = "$tmpl" ] && continue
+    if [ ! -e "$target" ]; then
+      cp "$tmpl" "$target"
+      step "seeded $(printf '%s' "$target" | sed 's#^\./##') from template"
+      seeded=$((seeded + 1))
+    fi
+  done
+  if [ "$seeded" -gt 0 ]; then
+    ACTIONS=$((ACTIONS + 1))
+    ok "seeded $seeded env file(s) — remember to fill in secrets (nothing was committed)"
+  fi
+}
+
+cmd_up() {
+  root="$(project_root)"
+  cd "$root"
+  log "Bootstrapping $C_BOLD$root$C_RESET"
+
+  setup_submodules
+  setup_node
+  setup_python
+  setup_rust
+  setup_go
+  setup_ruby
+  setup_php
+  setup_swift
+  seed_env_files
+
+  if [ "$ACTIONS" -eq 0 ]; then
+    warn "no known project types detected here (Node, Python, Rust, Go, Ruby, PHP, Swift)."
+    step "outpost seeds *.example files and installs deps for the stacks it recognizes."
+  else
+    printf '\n%s  Done.%s %s bootstrap action(s) completed.\n\n' "$C_GREEN$C_BOLD" "$C_RESET" "$ACTIONS"
+  fi
+}
+
+# ----------------------------------------------------------------------------
+# doctor — report toolchain availability
+# ----------------------------------------------------------------------------
+report() {
+  name="$1"; ver_cmd="$2"
+  if have "$name"; then
+    v="$($ver_cmd 2>/dev/null | head -n1)"
+    printf '  %sok%s   %-10s %s\n' "$C_GREEN" "$C_RESET" "$name" "$C_DIM$v$C_RESET"
+  else
+    printf '  %s--%s   %-10s %s\n' "$C_YELLOW" "$C_RESET" "$name" "${C_DIM}not installed$C_RESET"
+  fi
+}
+
+cmd_doctor() {
+  log "Toolchain report"
+  report git    "git --version"
+  report node   "node --version"
+  report npm    "npm --version"
+  report pnpm   "pnpm --version"
+  report yarn   "yarn --version"
+  report bun    "bun --version"
+  report python3 "python3 --version"
+  report pip3   "pip3 --version"
+  report poetry "poetry --version"
+  report uv     "uv --version"
+  report cargo  "cargo --version"
+  report go     "go version"
+  report ruby   "ruby --version"
+  report bundle "bundle --version"
+  report composer "composer --version"
+  report swift  "swift --version"
+  report wrangler "wrangler --version"
+  printf '\n%soutpost %s%s  ·  base %s\n' "$C_DIM" "$OUTPOST_VERSION" "$C_RESET" "$OUTPOST_BASE_URL"
+}
+
+# ----------------------------------------------------------------------------
+# self-update / uninstall
+# ----------------------------------------------------------------------------
+self_path() {
+  # Resolve the path to this running script.
+  p="$0"
+  if have readlink; then readlink -f "$p" 2>/dev/null || printf '%s' "$p"
+  else printf '%s' "$p"; fi
+}
+
+cmd_self_update() {
+  log "Updating outpost"
+  if have curl; then
+    curl -fsSL "$OUTPOST_BASE_URL/install.sh" | sh
+  elif have wget; then
+    wget -qO- "$OUTPOST_BASE_URL/install.sh" | sh
+  else
+    die "need curl or wget to self-update"
+  fi
+}
+
+cmd_uninstall() {
+  target="$(self_path)"
+  dir="$(dirname "$target")"
+  log "Uninstalling outpost"
+  rm -f "$target" && ok "removed $target"
+  case "$dir" in
+    */.outpost/bin)
+      rmdir "$dir" 2>/dev/null || true
+      rmdir "$(dirname "$dir")" 2>/dev/null || true ;;
+  esac
+  warn "you may remove the outpost PATH line from your shell profile (~/.zshrc, ~/.bashrc, ~/.profile)."
+}
+
+usage() {
+  cat <<EOF
+${C_BOLD}outpost${C_RESET} $OUTPOST_VERSION — universal developer bootstrapper
+
+${C_BOLD}Usage${C_RESET}
+  outpost [up]        Bootstrap the project in the current directory
+  outpost doctor      Report which toolchains are installed
+  outpost self-update Reinstall the latest outpost
+  outpost uninstall   Remove outpost from this machine
+  outpost version     Print the version
+  outpost help        Show this help
+
+${C_BOLD}What "up" does${C_RESET} (only for stacks it finds; idempotent)
+  git submodules · Node (bun/pnpm/yarn/npm) · Python (poetry/uv/pipenv/pip)
+  Rust · Go · Ruby · PHP · Swift · seeds *.example/.sample/.dist env files
+EOF
+}
+
+# ----------------------------------------------------------------------------
+main() {
+  cmd="${1:-up}"
+  case "$cmd" in
+    up|"")            cmd_up ;;
+    doctor)           cmd_doctor ;;
+    self-update|update) cmd_self_update ;;
+    uninstall)        cmd_uninstall ;;
+    version|--version|-v) printf 'outpost %s\n' "$OUTPOST_VERSION" ;;
+    help|--help|-h)   usage ;;
+    *) warn "unknown command: $cmd"; usage; exit 2 ;;
+  esac
+}
+
+main "$@"
