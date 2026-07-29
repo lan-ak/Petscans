@@ -77,6 +77,73 @@ function ingredientBlocks(raw: unknown): string[] {
 }
 
 /**
+ * Marketing/analysis debris that the vendor scrape appended to ~4% of ingredient fields:
+ * a leaked Guaranteed Analysis / nutrition table, HTML, marketing sentences, or contact
+ * blurbs. Everything from the first of these markers onward is never an ingredient, so we
+ * truncate there. Matched case-insensitively.
+ */
+const TABLE_MARKER =
+  /\b(guaranteed analysis|crude protein|crude fat|crude fib|metabolizable energy|calorie content|calorie information)\b/i;
+
+/** A token that is marketing prose or a contact/URL blurb rather than an ingredient. */
+const PROSE_TOKEN =
+  /\b(we |our |your (dog|cat|pet)|this product|these treats?|made with|family owned|dedicated to|call \d|visit (our|us)|www\.|https?:\/\/|customer care|satisfaction|money back|guarantee)\b/i;
+
+/**
+ * Strip the parts of a scraped ingredient string that are not ingredients: HTML markup and
+ * entities, then anything from a Guaranteed-Analysis / nutrition-table marker onward.
+ */
+function cleanIngredientText(raw: string): string {
+  let s = raw
+    .replace(/<[^>]*>/g, ' ') // HTML tags
+    // HTML entities — the trailing ';' is optional because an earlier naive splitter
+    // sometimes consumed it, leaving bare "&amp" fragments in already-stored data.
+    .replace(/&(amp|lt|gt|quot|apos|nbsp|copy|reg|trade|#\d+);?/gi, ' ')
+    .replace(/�/g, ' '); // replacement char from bad encoding
+  const marker = s.search(TABLE_MARKER);
+  if (marker >= 0) s = s.slice(0, marker);
+  return s;
+}
+
+/**
+ * Split on comma/semicolon only at parenthesis depth 0 — mirrors
+ * IngredientMatcher.splitIngredientList so what we store is what the app parses. A naive
+ * split shatters grouped sub-ingredients like "Vitamins (A Supplement, D3 Supplement)"
+ * into dangling-paren fragments.
+ */
+function splitIngredients(text: string): string[] {
+  const tokens: string[] = [];
+  let current = '';
+  let depth = 0;
+  for (const ch of text) {
+    if (ch === '(' || ch === '[' || ch === '{') {
+      depth++;
+      current += ch;
+    } else if (ch === ')' || ch === ']' || ch === '}') {
+      depth = Math.max(0, depth - 1);
+      current += ch;
+    } else if ((ch === ',' || ch === ';') && depth === 0) {
+      tokens.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  tokens.push(current);
+  return tokens.map((t) => t.trim()).filter(Boolean);
+}
+
+/**
+ * The single ingredient tokenizer for every ingestion path (build cascade + enrich). Cleans
+ * scrape debris, splits parenthesis-aware, and drops single-char punctuation and marketing
+ * prose. Keeping this one function means what `enrich` writes is cleaned identically to what
+ * `build` writes, and both match what IngredientMatcher parses on-device.
+ */
+export function tokenizeIngredients(rawText: string): string[] {
+  return splitIngredients(cleanIngredientText(rawText)).filter((t) => t.length > 1 && !PROSE_TOKEN.test(t));
+}
+
+/**
  * The vendor's own extractor left ingredients behind in other fields on ~7,280 rows.
  * Recovering them is free yield.
  */
@@ -99,19 +166,16 @@ export function extract(row: Record<string, unknown>): CatalogRow | RejectReason
   const brand = String(row.brand ?? '').trim();
   if (!brand || JUNK_BRAND.test(brand)) return 'junk_brand';
 
-  const text = ingredientBlocks(row.ingredients_full).join(' ') || recoverIngredients(row);
+  const rawText = ingredientBlocks(row.ingredients_full).join(' ') || recoverIngredients(row);
 
-  // Split the way IngredientMatcher.splitIngredientList does, so what we store is what it
-  // will parse. Single characters are punctuation debris, not ingredients.
-  const tokens = text
-    .split(/[,;]/)
-    .map((t) => t.trim())
-    .filter((t) => t.length > 1);
+  // Tokenize the way IngredientMatcher does (parenthesis-aware) after stripping scrape debris,
+  // so what we store is what it will parse.
+  const tokens = tokenizeIngredients(rawText);
   if (tokens.length < 5) return 'thin_ingredients';
 
   const name = String(row.product_name ?? '').trim();
-  if (SPANISH.test(name) || SPANISH.test(text)) return 'non_english';
-  if (VAGUE.test(text)) return 'vague_labelling';
+  if (SPANISH.test(name) || SPANISH.test(rawText)) return 'non_english';
+  if (VAGUE.test(rawText)) return 'vague_labelling';
 
   const blob = `${name} ${row.category_path ?? ''} ${row.breadcrumb_text ?? ''}`;
 

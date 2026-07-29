@@ -152,7 +152,15 @@ struct ProductScoreView: View {
                 }
             }
             .padding()
+            // Pin the content to exactly the viewport width. Without this, an
+            // occasional oversized child — a long unbroken ingredient name,
+            // product title, or unrecognized-ingredient string — widens the
+            // stack past the screen and unlocks horizontal scrolling, letting
+            // the user drag the whole view sideways into blank space. Locking
+            // the width forces that content to wrap instead of overflow.
+            .containerRelativeFrame(.horizontal)
         }
+        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
         .onAppear {
             if let scan = scan {
                 notes = scan.notes ?? ""

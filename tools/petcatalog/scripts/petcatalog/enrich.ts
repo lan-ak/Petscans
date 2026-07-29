@@ -16,6 +16,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { canonical, isShippable } from './gtin';
 import { packIngredients } from './pack';
+import { tokenizeIngredients } from './extract';
 
 export interface Candidate {
   gtin: string;
@@ -90,14 +91,11 @@ async function search(key: string, query: string): Promise<string[]> {
   return (j.data ?? []).map((d) => d.url ?? '').filter(Boolean);
 }
 
-/** Comma-join → tokens the way IngredientMatcher expects; null if unusable. */
+/** Clean + tokenize the way the build cascade does; null if unusable. */
 function normalizeIngredients(list: string[]): { text: string; n: number } | null {
   const joined = list.join(', ');
   if (SPANISH.test(joined) || VAGUE.test(joined)) return null;
-  const tokens = joined
-    .split(/[,;]/)
-    .map((t) => t.trim())
-    .filter((t) => t.length > 1);
+  const tokens = tokenizeIngredients(joined);
   if (tokens.length < 5) return null;
   return { text: tokens.join(', '), n: tokens.length };
 }

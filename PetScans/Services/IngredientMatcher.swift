@@ -64,9 +64,39 @@ struct IngredientMatcher {
         }
     }
 
-    /// Split ingredient list on commas and semicolons
+    /// Split ingredient list on commas and semicolons, but only at parenthesis depth 0.
+    ///
+    /// Labels routinely group sub-ingredients in parentheses — e.g.
+    /// "Vitamins (Vitamin E Supplement, Thiamine Mononitrate, Vitamin D3 Supplement)".
+    /// A naive split on every comma shatters that group into "Vitamins (Vitamin E Supplement",
+    /// "Thiamine Mononitrate", "Vitamin D3 Supplement)" — dangling-paren tokens that fail
+    /// synonym matching and read as broken in the UI. Splitting only at depth 0 keeps the
+    /// group intact as a single token.
     private func splitIngredientList(_ raw: String) -> [String] {
-        raw.components(separatedBy: CharacterSet(charactersIn: ",;"))
+        var tokens: [String] = []
+        var current = ""
+        var depth = 0
+        for ch in raw {
+            switch ch {
+            case "(", "[", "{":
+                depth += 1
+                current.append(ch)
+            case ")", "]", "}":
+                depth = max(0, depth - 1)
+                current.append(ch)
+            case ",", ";":
+                if depth == 0 {
+                    tokens.append(current)
+                    current = ""
+                } else {
+                    current.append(ch)
+                }
+            default:
+                current.append(ch)
+            }
+        }
+        tokens.append(current)
+        return tokens
             .map { $0.trimmingCharacters(in: .whitespaces) }
             .filter { !$0.isEmpty }
     }
