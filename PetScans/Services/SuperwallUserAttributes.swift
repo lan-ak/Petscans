@@ -64,6 +64,21 @@ enum SuperwallUserAttributes {
         SuperwallSafe.setUserAttributes(attributes)
     }
 
+    /// Pushes the food the user searched during the onboarding AHA moment, so a
+    /// paywall can reference the exact product and its verdict ("We found 3 things
+    /// in {{ searched_food_name }} you'll want to avoid"). Set when the result is
+    /// shown; absence means the user skipped the search.
+    static func setSearchedFood(_ result: OnboardingFoodResult) {
+        SuperwallSafe.setUserAttributes([
+            "searched_food": true,
+            "searched_food_name": result.name,
+            "searched_food_brand": result.brand ?? "",
+            "searched_food_score": Int(result.score.rounded()),
+            "searched_food_verdict": result.verdict.rawValue,
+            "searched_food_flag_count": result.flagCount
+        ])
+    }
+
     /// Points `pet_name` at the pet a scan was run for; `nil` restores the
     /// roster primary from the last `syncPets` call.
     static func setFocusedPet(_ pet: Pet?) {

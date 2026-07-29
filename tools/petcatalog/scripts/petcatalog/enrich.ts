@@ -15,6 +15,7 @@
 
 import { DatabaseSync } from 'node:sqlite';
 import { canonical, isShippable } from './gtin';
+import { packIngredients } from './pack';
 
 export interface Candidate {
   gtin: string;
@@ -124,8 +125,8 @@ export async function enrich(
 
   const db = new DatabaseSync(dbPath);
   const insert = db.prepare(
-    `INSERT OR IGNORE INTO products (gtin, name, brand, image_url, ingredients, species, category, n_ingredients, tier)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT OR IGNORE INTO products (gtin, name, brand, image_url, ingredients, species, category, tier)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   );
   const existing = new Set<string>(
     (db.prepare('SELECT gtin FROM products').all() as { gtin: string }[]).map((r) => r.gtin),
@@ -200,22 +201,30 @@ export async function enrich(
       res.attempted += item.candidates.length;
 
       let list: string[] = [];
+      const c0 = item.candidates[0];
       try {
+        // Direct PDP scrape first (Chewy/brand pages carry ingredients inline).
         if (item.url) {
           spent += COST_SCRAPE;
           list = await scrapeIngredients(key, item.url);
-        } else {
-          const c = item.candidates[0];
+        }
+        // Fallback (and the only route for url-less candidates): retailer product pages
+        // (e.g. Only Natural Pet) frequently omit the ingredient list, so search the
+        // brand+name and scrape the best non-marketplace hit — usually the brand's own site.
+        if (normalizeIngredients(list) === null && spent + COST_SEARCH + 2 * COST_SCRAPE <= budget) {
           spent += COST_SEARCH;
-          const urls = (await search(key, `${c.brand} ${c.name} ingredients`)).filter((u) => !BAD_HOST.test(u));
+          const urls = (await search(key, `${c0.brand} ${c0.name} ingredients`)).filter((u) => !BAD_HOST.test(u));
           for (const u of urls.slice(0, 2)) {
             spent += COST_SCRAPE;
-            list = await scrapeIngredients(key, u).catch(() => []);
-            if (list.length >= 5) break;
+            const got = await scrapeIngredients(key, u).catch(() => []);
+            if (normalizeIngredients(got) !== null) {
+              list = got;
+              break;
+            }
           }
         }
       } catch {
-        list = [];
+        // keep whatever list we have
       }
 
       const norm = normalizeIngredients(list);
@@ -228,7 +237,8 @@ export async function enrich(
         // image_url is for the *image*. Fall back to the PDP only when the source gave us
         // nothing better (Walmart identity rows), never in preference to a real image.
         const image = (c.image ?? c.url ?? '').slice(0, 300);
-        insert.run(c.gtin, c.name.slice(0, 120), c.brand.slice(0, 60), image, norm.text, c.species, c.category, norm.n, tier);
+        // ingredients ship compressed (see pack.ts); n_ingredients is no longer stored.
+        insert.run(c.gtin, c.name.slice(0, 120), c.brand.slice(0, 60), image, packIngredients(norm.text), c.species, c.category, tier);
         res.inserted++;
       }
       if (res.inserted % 25 === 0) log(`  inserted ${res.inserted} (attempted ${res.attempted}, ~${spent} credits)`);

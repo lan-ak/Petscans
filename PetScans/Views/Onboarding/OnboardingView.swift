@@ -8,48 +8,48 @@ struct OnboardingView: View {
     @State private var petSpecies: Species = .dog
     @State private var selectedAllergens: Set<String> = []
     @State private var selectedGroups: Set<AvoidanceGroup> = []
+    @State private var selectedProduct: CatalogProduct?
+    @State private var searchedFood: OnboardingFoodResult?
     @State private var isSubmitting = false
     @State private var showNameValidation = false
+    @State private var isForward = true
     @FocusState private var isNameFocused: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     let onComplete: () -> Void
 
-    private let totalPages = 5
-    private let profilePage = 3
-    private let groupsPage = 4
+    // Only the standard-chrome pages (0–3) carry the dot indicator; the search
+    // and result pages are full-screen takeovers. `totalPages` counts just the
+    // tracked portion so the dots don't promise steps the tracker never shows.
+    private let totalPages = 4
+    private let profilePage = 2
+    private let groupsPage = 3
+    private let searchPage = 4
+    private let resultPage = 5
 
     var body: some View {
         ZStack {
             ColorTokens.backgroundPrimary
                 .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                backButton
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, SpacingTokens.screenPadding)
-
-                Spacer()
-
-                pageContent
-
-                Spacer()
-
-                PageIndicator(totalPages: totalPages, currentPage: currentPage)
-                    .padding(.bottom, SpacingTokens.lg)
-
-                navigationButtons
-                    .padding(.horizontal, SpacingTokens.screenPadding)
-                    .padding(.bottom, SpacingTokens.xxl)
-                    // The skip link hangs inside the bottom padding instead of
-                    // stacking under the CTA, so the primary button lands at the
-                    // same height on every page rather than riding up on the
-                    // one page that has a secondary action.
-                    .overlay(alignment: .bottom) {
-                        if currentPage == profilePage || currentPage == groupsPage {
-                            skipButton
-                                .padding(.bottom, SpacingTokens.xxs)
-                        }
+            switch currentPage {
+            case searchPage:
+                ProductCatalogSearchView(
+                    title: "Let's check your pet's food",
+                    titleFont: TypographyTokens.displayMedium,
+                    onLeading: { navigate(to: groupsPage) },
+                    onSkip: { completeAfterAHA(presentedResultPaywall: false) },
+                    onSelect: { product in
+                        selectedProduct = product
+                        withStandardAnimation { currentPage = resultPage }
                     }
+                )
+                .transition(.opacity)
+            case resultPage:
+                resultPageContent
+                    .transition(.opacity)
+            default:
+                standardChrome
             }
         }
         .onChange(of: petName) { _, _ in
@@ -60,6 +60,9 @@ struct OnboardingView: View {
             focusNameFieldIfNeeded(on: page)
         }
         .onAppear {
+            #if DEBUG
+            applyDebugStartIfNeeded()
+            #endif
             logStep(currentPage)
             focusNameFieldIfNeeded(on: currentPage)
         }
@@ -70,7 +73,62 @@ struct OnboardingView: View {
             // the first paint instead of contending with it — onboarding lasts
             // several seconds, so this still preloads well before the paywall shows.
             try? await Task.sleep(for: .seconds(1))
-            SuperwallSafe.preload(placements: ["onboarding_complete", "onboarding_finished"])
+            SuperwallSafe.preload(placements: ["onboarding_complete", "onboarding_finished", "aha_food_result"])
+        }
+    }
+
+    /// The shared centered layout used by the welcome/benefit/profile/groups pages.
+    private var standardChrome: some View {
+        VStack(spacing: 0) {
+            backButton
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, SpacingTokens.screenPadding)
+
+            Spacer()
+
+            pageContent
+
+            Spacer()
+
+            PageIndicator(totalPages: totalPages, currentPage: currentPage)
+                .padding(.bottom, SpacingTokens.lg)
+
+            navigationButtons
+                .padding(.horizontal, SpacingTokens.screenPadding)
+                .padding(.bottom, SpacingTokens.xxl)
+                // The skip link hangs inside the bottom padding instead of
+                // stacking under the CTA, so the primary button lands at the
+                // same height on every page rather than riding up on the
+                // one page that has a secondary action.
+                .overlay(alignment: .bottom) {
+                    if currentPage == profilePage || currentPage == groupsPage {
+                        skipButton
+                            .padding(.bottom, SpacingTokens.xxs)
+                    }
+                }
+        }
+    }
+
+    /// The AHA payoff page. Recovers to search if the product was somehow lost
+    /// (e.g. state reset), so the user is never stranded on a blank screen.
+    @ViewBuilder
+    private var resultPageContent: some View {
+        if let product = selectedProduct {
+            OnboardingFoodResultView(
+                product: product,
+                petName: petName.isNotBlank ? petName.trimmed : nil,
+                allergens: selectedAllergens,
+                groups: selectedGroups,
+                onBack: { withStandardAnimation { currentPage = searchPage } },
+                onSkip: { completeAfterAHA(presentedResultPaywall: false) },
+                onScored: { summary in
+                    searchedFood = summary
+                    SuperwallUserAttributes.setSearchedFood(summary)
+                },
+                onContinue: { completeAfterAHA(presentedResultPaywall: true) }
+            )
+        } else {
+            Color.clear.onAppear { withStandardAnimation { currentPage = searchPage } }
         }
     }
 
@@ -79,21 +137,14 @@ struct OnboardingView: View {
         switch currentPage {
         case 0:
             OnboardingWelcomePage()
-                .transition(.opacity)
+                .transition(pageTransition)
         case 1:
             OnboardingBenefitsPage(
                 icon: "checkmark.shield.fill",
                 headline: "Know if it's safe before you buy",
                 subheadline: "Every product gets a score for your pet, with the ingredients behind it explained in plain language."
             )
-            .transition(.opacity)
-        case 2:
-            OnboardingBenefitsPage(
-                icon: "barcode.viewfinder",
-                headline: "Just scan the barcode",
-                subheadline: "Point your camera at any pet food or treat. No barcode? Take a photo of the front and we'll find it for you."
-            )
-            .transition(.opacity)
+            .transition(pageTransition)
         case profilePage:
             OnboardingPetSetupPage(
                 petName: $petName,
@@ -107,10 +158,10 @@ struct OnboardingView: View {
                 // skip past it.
                 onSubmitName: { isNameFocused = false }
             )
-            .transition(.opacity)
+            .transition(pageTransition)
         case groupsPage:
             OnboardingAvoidanceGroupsPage(selectedGroups: $selectedGroups)
-                .transition(.opacity)
+                .transition(pageTransition)
         default:
             EmptyView()
         }
@@ -122,13 +173,29 @@ struct OnboardingView: View {
         (showNameValidation && !petName.isNotBlank) ? "Please enter your pet's name" : nil
     }
 
+    /// Directional push for the setup pages so advancing feels like forward
+    /// travel and back feels like retreat, rather than every step crossfading
+    /// in place. Falls back to a plain fade when Reduce Motion is on.
+    private var pageTransition: AnyTransition {
+        guard !reduceMotion else { return .opacity }
+        return .asymmetric(
+            insertion: .move(edge: isForward ? .trailing : .leading).combined(with: .opacity),
+            removal: .move(edge: isForward ? .leading : .trailing).combined(with: .opacity)
+        )
+    }
+
+    /// Single entry point for page changes so the slide direction is inferred
+    /// from the target rather than set by hand at each call site.
+    private func navigate(to page: Int) {
+        isForward = page >= currentPage
+        withAnimation(AnimationTokens.springEmphasized) { currentPage = page }
+    }
+
     @ViewBuilder
     private var backButton: some View {
         if currentPage > 0 && !isSubmitting {
             Button {
-                withStandardAnimation {
-                    currentPage -= 1
-                }
+                navigate(to: currentPage - 1)
             } label: {
                 Image(systemName: "chevron.left")
                     .font(TypographyTokens.heading3)
@@ -147,18 +214,10 @@ struct OnboardingView: View {
     @ViewBuilder
     private var navigationButtons: some View {
         if currentPage == groupsPage {
-            Button {
-                createPetAndComplete()
-            } label: {
-                if isSubmitting {
-                    ProgressView()
-                        .tint(.white)
-                } else {
-                    Text("Let's go!")
-                }
+            Button("Continue") {
+                navigate(to: searchPage)
             }
             .primaryButtonStyle()
-            .disabled(isSubmitting)
         } else if currentPage == profilePage {
             Button("Continue") {
                 continueFromProfile()
@@ -166,9 +225,7 @@ struct OnboardingView: View {
             .primaryButtonStyle()
         } else {
             Button(currentPage == 0 ? "Get Started" : "Continue") {
-                withStandardAnimation {
-                    currentPage += 1
-                }
+                navigate(to: currentPage + 1)
             }
             .primaryButtonStyle()
         }
@@ -181,10 +238,10 @@ struct OnboardingView: View {
     private var skipButton: some View {
         Button("Skip for now") {
             if currentPage == groupsPage {
-                // The pet's name, species and ingredients are already entered on
-                // the previous page — skipping here only skips the optional
-                // groups, so still create the pet.
-                createPetAndComplete()
+                // Skipping here only skips the optional groups — the pet is
+                // already set up, so continue to the "check your food" moment
+                // rather than finishing onboarding early.
+                navigate(to: searchPage)
             } else {
                 completeOnboarding(createdPet: false)
             }
@@ -216,51 +273,82 @@ struct OnboardingView: View {
     /// submit — by the time the groups page finishes, the name is already valid.
     private func continueFromProfile() {
         if petName.isNotBlank {
-            withStandardAnimation {
-                currentPage += 1
-            }
+            navigate(to: currentPage + 1)
         } else {
             showNameValidation = true
             isNameFocused = true
         }
     }
 
-    private func createPetAndComplete() {
-        guard petName.isNotBlank, !isSubmitting else { return }
-        isSubmitting = true
-
-        let pet = Pet(name: petName.trimmed, species: petSpecies, allergens: Array(selectedAllergens))
-        modelContext.insert(pet)
-        try? modelContext.save()
-
-        completeOnboarding(createdPet: true)
-    }
-
-    private func completeOnboarding(createdPet: Bool) {
-        isSubmitting = true
-        isNameFocused = false
+    /// Persists the pet and pushes every Superwall targeting attribute. Shared by
+    /// both exit paths; deliberately does NOT fire the gating placement so each
+    /// caller can choose its own paywall trigger.
+    private func persistAndSync(createdPet: Bool) {
+        if createdPet, petName.isNotBlank {
+            let pet = Pet(name: petName.trimmed, species: petSpecies, allergens: Array(selectedAllergens))
+            modelContext.insert(pet)
+            try? modelContext.save()
+        }
 
         AvoidancePreferences.groups = selectedGroups
 
-        // Set user attributes for Superwall targeting. Must run before
-        // register() so the paywall can address the pet by name.
+        // Must run before any register() so the paywall can address the pet by name.
         SuperwallUserAttributes.syncPets(modelContext: modelContext, fallbackSpecies: petSpecies)
         SuperwallUserAttributes.setAvoidanceGroups(selectedGroups)
-
-        SuperwallSafe.setUserAttributes([
-            "onboarding_completed_at": Date()
-        ])
+        SuperwallSafe.setUserAttributes(["onboarding_completed_at": Date()])
 
         SuperwallSafe.register(
             placement: "onboarding_finished",
             params: ["created_pet": createdPet, "avoid_group_count": selectedGroups.count]
         )
+    }
 
-        // Superwall gates the exit from onboarding. The gated register runs the
-        // feature block even when the SDK is unavailable, so a paywall that
-        // cannot load never strands the user on this page.
+    /// Exit used when the user skips the AHA search entirely (or skipped the pet
+    /// setup). The paywall is gated on `onboarding_complete`, the long-standing
+    /// end-of-onboarding trigger.
+    private func completeOnboarding(createdPet: Bool) {
+        guard !isSubmitting else { return }
+        isSubmitting = true
+        isNameFocused = false
+
+        persistAndSync(createdPet: createdPet)
+
+        // The gated register runs the feature block even when the SDK is
+        // unavailable, so a paywall that cannot load never strands the user.
         SuperwallSafe.register(placement: "onboarding_complete") {
             onComplete()
+        }
+    }
+
+    /// Exit from the AHA payoff page. When the user taps the result CTA the
+    /// paywall fires at the peak-intent moment on `aha_food_result`; when they
+    /// skip the payoff it falls back to the standard `onboarding_complete` gate.
+    /// Only one of the two campaigns should be active in the dashboard so a user
+    /// never sees two paywalls back to back.
+    private func completeAfterAHA(presentedResultPaywall: Bool) {
+        guard !isSubmitting else { return }
+        isSubmitting = true
+        isNameFocused = false
+
+        // Name is guaranteed present by the time the AHA is reached (it gates
+        // leaving the profile page), so a pet is always created here.
+        persistAndSync(createdPet: petName.isNotBlank)
+
+        if presentedResultPaywall {
+            SuperwallSafe.register(
+                placement: "aha_food_result",
+                params: [
+                    "verdict": searchedFood?.verdict.rawValue ?? "",
+                    "score": Int((searchedFood?.score ?? 0).rounded()),
+                    "flag_count": searchedFood?.flagCount ?? 0
+                ]
+            ) {
+                onComplete()
+            }
+        } else {
+            SuperwallSafe.register(placement: "onboarding_complete") {
+                onComplete()
+            }
         }
     }
 
@@ -273,6 +361,32 @@ struct OnboardingView: View {
     /// registering a placement can present a paywall if one is ever attached to
     /// that name on the dashboard, and a single name is far easier to keep out
     /// of campaigns than four.
+    #if DEBUG
+    /// Debug affordance: `-OnboardingStartPage <n>` jumps straight to a page with
+    /// demo profile/allergen/group state seeded, so the AHA screens can be driven
+    /// and screenshotted in isolation without walking the whole flow.
+    private func applyDebugStartIfNeeded() {
+        // `-OnboardingStartPage <n>` is parsed by iOS into the UserDefaults argument
+        // domain, so read it there rather than from ProcessInfo.arguments.
+        let page = UserDefaults.standard.integer(forKey: "OnboardingStartPage")
+        guard page > 0 else { return }
+        NSLog("[AHA-DEBUG] jumping onboarding to page \(page)")
+        petName = "Max"
+        selectedAllergens = ["chicken"]
+        selectedGroups = [.artificialColours, .meatByproducts, .commonAllergens]
+        if page == resultPage {
+            Task {
+                if let product = await ProductCatalogService().search(query: "chicken", limit: 1).first {
+                    selectedProduct = product
+                    currentPage = resultPage
+                }
+            }
+        } else {
+            currentPage = page
+        }
+    }
+    #endif
+
     private func logStep(_ page: Int) {
         SuperwallSafe.register(
             placement: "onboarding_step",

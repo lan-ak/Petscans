@@ -9,12 +9,12 @@ struct OnboardingAvoidanceGroupsPage: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: SpacingTokens.lg) {
-                VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                VStack(alignment: .leading, spacing: SpacingTokens.sm) {
                     Text("What should we watch out for?")
                         .font(TypographyTokens.displayMedium)
                         .foregroundColor(ColorTokens.textPrimary)
 
-                    Text("It helps us improve what we focus on for your pet.")
+                    Text("We'll warn you whenever a food contains these — pick as many or as few as you like.")
                         .font(TypographyTokens.bodyLarge)
                         .foregroundColor(ColorTokens.textSecondary)
                 }

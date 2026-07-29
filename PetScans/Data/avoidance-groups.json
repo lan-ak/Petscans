@@ -1,0 +1,508 @@
+{
+ "ing_acacia_gum": [
+  "gumsThickeners"
+ ],
+ "ing_agar_agar": [
+  "gumsThickeners"
+ ],
+ "ing_animal_digest": [
+  "meatByproducts"
+ ],
+ "ing_animal_fat": [
+  "meatByproducts"
+ ],
+ "ing_artificial_colors": [
+  "artificialColours"
+ ],
+ "ing_artificial_flavor": [
+  "ultraProcessed"
+ ],
+ "ing_beef": [
+  "commonAllergens"
+ ],
+ "ing_beef_by_products": [
+  "commonAllergens",
+  "meatByproducts"
+ ],
+ "ing_beef_digest": [
+  "commonAllergens"
+ ],
+ "ing_beef_fresh": [
+  "commonAllergens"
+ ],
+ "ing_beef_heart": [
+  "commonAllergens"
+ ],
+ "ing_beef_kidney": [
+  "commonAllergens"
+ ],
+ "ing_beef_liver": [
+  "commonAllergens"
+ ],
+ "ing_beef_lung": [
+  "commonAllergens"
+ ],
+ "ing_beef_meal": [
+  "commonAllergens"
+ ],
+ "ing_beef_tripe": [
+  "commonAllergens"
+ ],
+ "ing_bha": [
+  "artificialPreservatives"
+ ],
+ "ing_bht": [
+  "artificialPreservatives"
+ ],
+ "ing_blue_1": [
+  "artificialColours"
+ ],
+ "ing_blue_2": [
+  "artificialColours"
+ ],
+ "ing_bone_meal": [
+  "meatByproducts"
+ ],
+ "ing_brewers_rice": [
+  "grainFillers"
+ ],
+ "ing_buttermilk": [
+  "commonAllergens"
+ ],
+ "ing_calcium_propionate": [
+  "artificialPreservatives"
+ ],
+ "ing_caramel_color": [
+  "artificialColours"
+ ],
+ "ing_carboxymethylcellulose": [
+  "gumsThickeners"
+ ],
+ "ing_carob_bean_gum": [
+  "gumsThickeners"
+ ],
+ "ing_carrageenan": [
+  "gumsThickeners"
+ ],
+ "ing_casein": [
+  "commonAllergens"
+ ],
+ "ing_cassia_gum": [
+  "gumsThickeners"
+ ],
+ "ing_cellulose": [
+  "gumsThickeners"
+ ],
+ "ing_cellulose_gum": [
+  "gumsThickeners"
+ ],
+ "ing_cheese": [
+  "commonAllergens"
+ ],
+ "ing_cheese_powder": [
+  "commonAllergens"
+ ],
+ "ing_chicken": [
+  "commonAllergens"
+ ],
+ "ing_chicken_by_product_meal": [
+  "commonAllergens",
+  "meatByproducts"
+ ],
+ "ing_chicken_by_products": [
+  "commonAllergens",
+  "meatByproducts"
+ ],
+ "ing_chicken_digest": [
+  "commonAllergens"
+ ],
+ "ing_chicken_fresh": [
+  "commonAllergens"
+ ],
+ "ing_chicken_gizzard": [
+  "commonAllergens"
+ ],
+ "ing_chicken_heart": [
+  "commonAllergens"
+ ],
+ "ing_chicken_liver": [
+  "commonAllergens"
+ ],
+ "ing_chicken_meal": [
+  "commonAllergens"
+ ],
+ "ing_chicken_meal_aafco": [
+  "commonAllergens"
+ ],
+ "ing_corn": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_corn_bran": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_corn_flour": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_corn_germ_meal": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_corn_gluten_meal": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_corn_meal": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_corn_starch": [
+  "grainFillers"
+ ],
+ "ing_cottage_cheese": [
+  "commonAllergens"
+ ],
+ "ing_dried_buttermilk": [
+  "commonAllergens"
+ ],
+ "ing_dried_casein": [
+  "commonAllergens"
+ ],
+ "ing_dried_egg": [
+  "commonAllergens"
+ ],
+ "ing_dried_egg_product": [
+  "commonAllergens"
+ ],
+ "ing_dried_egg_white": [
+  "commonAllergens"
+ ],
+ "ing_dried_egg_yolk": [
+  "commonAllergens"
+ ],
+ "ing_dried_goat_milk": [
+  "commonAllergens"
+ ],
+ "ing_dried_milk": [
+  "commonAllergens"
+ ],
+ "ing_dried_skim_milk": [
+  "commonAllergens"
+ ],
+ "ing_dried_whey": [
+  "commonAllergens"
+ ],
+ "ing_duck_egg": [
+  "commonAllergens"
+ ],
+ "ing_egg": [
+  "commonAllergens"
+ ],
+ "ing_egg_product": [
+  "commonAllergens"
+ ],
+ "ing_egg_white": [
+  "commonAllergens"
+ ],
+ "ing_egg_yolk": [
+  "commonAllergens"
+ ],
+ "ing_erythritol": [
+  "addedSugars"
+ ],
+ "ing_ethoxyquin": [
+  "artificialPreservatives"
+ ],
+ "ing_fish_digest": [
+  "commonAllergens"
+ ],
+ "ing_fish_meal": [
+  "commonAllergens"
+ ],
+ "ing_fish_protein_concentrate": [
+  "commonAllergens"
+ ],
+ "ing_goat_milk": [
+  "commonAllergens"
+ ],
+ "ing_guar_gum": [
+  "gumsThickeners"
+ ],
+ "ing_gum_arabic": [
+  "gumsThickeners"
+ ],
+ "ing_hydrolyzed_chicken": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_fish_protein": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_meat_protein": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_poultry_protein": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_protein": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_salmon": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_soy": [
+  "ultraProcessed"
+ ],
+ "ing_hydrolyzed_vegetable_protein": [
+  "ultraProcessed"
+ ],
+ "ing_iron_oxide": [
+  "artificialColours"
+ ],
+ "ing_iron_oxide_black": [
+  "artificialColours"
+ ],
+ "ing_iron_oxide_red": [
+  "artificialColours"
+ ],
+ "ing_iron_oxide_yellow": [
+  "artificialColours"
+ ],
+ "ing_konjac": [
+  "gumsThickeners"
+ ],
+ "ing_lactose": [
+  "commonAllergens"
+ ],
+ "ing_lamb": [
+  "commonAllergens"
+ ],
+ "ing_lamb_fresh": [
+  "commonAllergens"
+ ],
+ "ing_lamb_heart": [
+  "commonAllergens"
+ ],
+ "ing_lamb_liver": [
+  "commonAllergens"
+ ],
+ "ing_lamb_meal": [
+  "commonAllergens"
+ ],
+ "ing_locust_bean_gum": [
+  "gumsThickeners"
+ ],
+ "ing_meat_and_bone_meal": [
+  "meatByproducts"
+ ],
+ "ing_meat_by_products": [
+  "meatByproducts"
+ ],
+ "ing_meat_meal": [
+  "meatByproducts"
+ ],
+ "ing_methylcellulose": [
+  "gumsThickeners"
+ ],
+ "ing_milk_protein": [
+  "commonAllergens"
+ ],
+ "ing_millet": [
+  "grainFillers"
+ ],
+ "ing_millet_flour": [
+  "grainFillers"
+ ],
+ "ing_modified_food_starch": [
+  "gumsThickeners"
+ ],
+ "ing_mono_diglycerides": [
+  "gumsThickeners"
+ ],
+ "ing_msg": [
+  "ultraProcessed"
+ ],
+ "ing_ocean_fish": [
+  "commonAllergens"
+ ],
+ "ing_ocean_fish_meal": [
+  "commonAllergens"
+ ],
+ "ing_pectin": [
+  "gumsThickeners"
+ ],
+ "ing_polysorbate_80": [
+  "gumsThickeners"
+ ],
+ "ing_pork": [
+  "commonAllergens"
+ ],
+ "ing_pork_fresh": [
+  "commonAllergens"
+ ],
+ "ing_pork_liver": [
+  "commonAllergens"
+ ],
+ "ing_pork_meal": [
+  "commonAllergens"
+ ],
+ "ing_poultry_by_product_meal": [
+  "meatByproducts"
+ ],
+ "ing_poultry_by_products": [
+  "meatByproducts"
+ ],
+ "ing_poultry_meal": [
+  "meatByproducts"
+ ],
+ "ing_powdered_cellulose": [
+  "gumsThickeners"
+ ],
+ "ing_propyl_gallate": [
+  "artificialPreservatives"
+ ],
+ "ing_propylene_glycol": [
+  "artificialPreservatives"
+ ],
+ "ing_quail_egg": [
+  "commonAllergens"
+ ],
+ "ing_red_40": [
+  "artificialColours"
+ ],
+ "ing_rice_bran": [
+  "grainFillers"
+ ],
+ "ing_rice_hulls": [
+  "grainFillers"
+ ],
+ "ing_salmon": [
+  "commonAllergens"
+ ],
+ "ing_salmon_fresh": [
+  "commonAllergens"
+ ],
+ "ing_salmon_meal": [
+  "commonAllergens"
+ ],
+ "ing_skim_milk": [
+  "commonAllergens"
+ ],
+ "ing_sodium_benzoate": [
+  "artificialPreservatives"
+ ],
+ "ing_sodium_bisulfite": [
+  "artificialPreservatives"
+ ],
+ "ing_sodium_hexametaphosphate": [
+  "ultraProcessed"
+ ],
+ "ing_sodium_nitrite": [
+  "artificialPreservatives"
+ ],
+ "ing_sodium_tripolyphosphate": [
+  "ultraProcessed"
+ ],
+ "ing_sorbic_acid": [
+  "artificialPreservatives"
+ ],
+ "ing_sorbitol": [
+  "addedSugars"
+ ],
+ "ing_sorghum": [
+  "grainFillers"
+ ],
+ "ing_sorghum_flour": [
+  "grainFillers"
+ ],
+ "ing_soy_flour": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_soy_hulls": [
+  "grainFillers"
+ ],
+ "ing_soy_protein": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_soy_protein_concentrate": [
+  "commonAllergens"
+ ],
+ "ing_soy_protein_isolate": [
+  "commonAllergens"
+ ],
+ "ing_soybean_meal": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_soybeans": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_tara_gum": [
+  "gumsThickeners"
+ ],
+ "ing_tbhq": [
+  "artificialPreservatives"
+ ],
+ "ing_titanium_dioxide": [
+  "artificialColours"
+ ],
+ "ing_wheat": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_wheat_bran": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_wheat_flour": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_wheat_germ": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_wheat_gluten": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_wheat_middlings": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_whey": [
+  "commonAllergens"
+ ],
+ "ing_whey_protein_concentrate": [
+  "commonAllergens"
+ ],
+ "ing_whey_protein_isolate": [
+  "commonAllergens"
+ ],
+ "ing_whole_egg": [
+  "commonAllergens"
+ ],
+ "ing_whole_milk": [
+  "commonAllergens"
+ ],
+ "ing_whole_wheat": [
+  "commonAllergens",
+  "grainFillers"
+ ],
+ "ing_xanthan_gum": [
+  "gumsThickeners"
+ ],
+ "ing_xylitol": [
+  "addedSugars"
+ ],
+ "ing_yellow_5": [
+  "artificialColours"
+ ],
+ "ing_yellow_6": [
+  "artificialColours"
+ ]
+}

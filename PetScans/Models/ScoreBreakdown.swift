@@ -117,9 +117,10 @@ struct ScoreBreakdown: Codable {
         // If no overrides, use score-based label
         guard !overrides.isEmpty else { return scoreLabel }
 
-        // Return the worst label (avoid > caution > good > excellent)
+        // Return the worst label (avoid > caution > good > excellent). Lower
+        // `severity` == worse, so the worst label is the minimum severity.
         let allLabels = overrides + [scoreLabel]
-        return allLabels.min(by: { $0.severity > $1.severity }) ?? scoreLabel
+        return allLabels.min(by: { $0.severity < $1.severity }) ?? scoreLabel
     }
 
     var allergenFlags: [WarningFlag] {
@@ -187,9 +188,17 @@ enum ScoreSource: String, Codable {
 // MARK: - Warning Type
 
 enum WarningType: String, Codable {
-    case allergen   // Pet-specific allergen conflicts
-    case safety     // Ingredient safety rules
-    case general    // Other warnings
+    case allergen        // Pet-specific allergen conflicts
+    case safety          // Ingredient safety rules
+    case avoidanceGroup  // Matches an owner-selected avoidance group (warning, never forces Avoid)
+    case general         // Other warnings
+
+    /// Old saved scans predate `avoidanceGroup`; any unrecognised value decodes as `.general`
+    /// so a stored WarningFlag from a prior build never fails to decode.
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = WarningType(rawValue: raw) ?? .general
+    }
 }
 
 struct WarningFlag: Codable, Identifiable {

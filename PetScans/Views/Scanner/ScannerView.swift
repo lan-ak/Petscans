@@ -7,6 +7,7 @@ struct ScannerView: View {
     @Query(sort: \Pet.name) private var pets: [Pet]
     @StateObject private var viewModel = ScannerViewModel()
     @StateObject private var cameraPermission = CameraPermission()
+    @State private var showingCatalogSearch = false
 
     private var useMockScanner: Bool {
         ProcessInfo.processInfo.arguments.contains("-MockScanner")
@@ -76,6 +77,36 @@ struct ScannerView: View {
             .animateEmphasized(value: viewModel.step)
             .navigationTitle("Identify Product")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // Text-search entry from the Identify Product view — for when the
+                // barcode won't scan, the camera is unavailable, or the user just
+                // wants to look a product up by name. Shown on every pre-result state
+                // (scanning, camera error, not-found) since those are exactly when a
+                // name search is the way forward.
+                if [.scanning, .error, .productNotFound].contains(viewModel.step) {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showingCatalogSearch = true
+                        } label: {
+                            Image(systemName: "magnifyingglass")
+                        }
+                        .accessibilityLabel("Search by name")
+                        .accessibilityIdentifier("scanner-search-by-name")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingCatalogSearch) {
+                ProductCatalogSearchView(
+                    title: "Search by name",
+                    subtitle: "Find any food in our catalog by brand or product name.",
+                    leadingIcon: "xmark",
+                    onLeading: { showingCatalogSearch = false },
+                    onSelect: { product in
+                        showingCatalogSearch = false
+                        viewModel.selectCatalogProduct(product, pets: pets)
+                    }
+                )
+            }
         }
     }
 

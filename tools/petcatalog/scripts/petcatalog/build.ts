@@ -12,6 +12,7 @@ import { mkdirSync, rmSync, statSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { streamJsonArray } from './stream';
 import { extract, type CatalogRow, type RejectReason } from './extract';
+import { packIngredients, INGREDIENTS_CODEC } from './pack';
 
 export interface BuildOptions {
   source: string;
@@ -42,10 +43,9 @@ CREATE TABLE products (
   name          TEXT NOT NULL,
   brand         TEXT,
   image_url     TEXT,
-  ingredients   TEXT NOT NULL,
+  ingredients   BLOB NOT NULL,   -- raw-DEFLATE of the ingredient text; see pack.ts / meta.ingredients_codec
   species       TEXT NOT NULL,
   category      TEXT NOT NULL,
-  n_ingredients INTEGER NOT NULL,
   tier          TEXT NOT NULL
 );
 CREATE UNIQUE INDEX idx_products_gtin ON products (gtin);
@@ -95,12 +95,13 @@ export async function build(opts: BuildOptions): Promise<BuildResult> {
   db.exec(SCHEMA);
 
   const insert = db.prepare(
-    `INSERT INTO products (gtin, name, brand, image_url, ingredients, species, category, n_ingredients, tier)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO products (gtin, name, brand, image_url, ingredients, species, category, tier)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   );
   db.exec('BEGIN');
   for (const r of rows) {
-    insert.run(r.gtin, r.name, r.brand, r.imageUrl, r.ingredients, r.species, r.category, r.nIngredients, r.tier);
+    // ingredients ship compressed; n_ingredients is dropped (derivable, never read on-device).
+    insert.run(r.gtin, r.name, r.brand, r.imageUrl, packIngredients(r.ingredients), r.species, r.category, r.tier);
   }
   db.exec('COMMIT');
 
@@ -109,6 +110,7 @@ export async function build(opts: BuildOptions): Promise<BuildResult> {
   meta.run('built_at', new Date().toISOString());
   meta.run('count', String(rows.length));
   meta.run('source', opts.source.split('/').pop() ?? opts.source);
+  meta.run('ingredients_codec', INGREDIENTS_CODEC);
 
   db.exec('VACUUM');
   db.close();

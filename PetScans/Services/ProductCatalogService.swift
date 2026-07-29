@@ -37,4 +37,10 @@ struct ProductCatalogService {
         }
         return .unknown(gtin: gtin)
     }
+
+    /// Free-text name/brand search over the bundled catalog. Used by the onboarding
+    /// "find your food" flow; returns [] for queries shorter than two characters.
+    func search(query: String, limit: Int = 30) async -> [CatalogProduct] {
+        await store.search(query: query, limit: limit)
+    }
 }

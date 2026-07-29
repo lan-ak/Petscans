@@ -1,0 +1,66 @@
+{
+  "runKey": "petscans-allergen-statics-2026-08",
+  "campaign": {
+    "name": "PetScans | Allergen Winner | Statics | Installs | CA+US | Aug 2026",
+    "objective": "OUTCOME_APP_PROMOTION"
+  },
+  "adsets": [
+    {
+      "name": "Installs | CA+US | A Chicken Allergy",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1375,
+      "targeting": { "countries": ["CA", "US"], "ageMin": 25, "ageMax": 65, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "A — Chicken Allergy — 1x1",
+          "creative": {
+            "primaryText": "Chicken is the most common food allergy in dogs and cats — and it hides in 'premium' recipes under names you'd never catch. Add your pet's profile once and PetScans flags it on every label you scan, in about 3 seconds. 🐾",
+            "headline": "Chicken allergy? Check every bowl.",
+            "description": "Allergen alerts, built in.",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/v2/a-chicken__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installs | CA+US | B Symptoms",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1375,
+      "targeting": { "countries": ["CA", "US"], "ageMin": 25, "ageMax": 65, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "B — Symptoms — 1x1",
+          "creative": {
+            "primaryText": "Constant scratching? Recurring ear infections? A stomach that's never quite settled? It's often one ingredient in the bowl. Add your pet's sensitivities to PetScans and see them flagged on every food you scan.",
+            "headline": "Itching, ear infections, upset tummy?",
+            "description": "It could be one ingredient.",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/v2/b-symptoms__1x1.png" }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Installs | CA+US | C Flip",
+      "optimizationGoal": "APP_INSTALLS",
+      "billingEvent": "IMPRESSIONS",
+      "dailyBudgetCents": 1375,
+      "targeting": { "countries": ["CA", "US"], "ageMin": 25, "ageMax": 65, "advantageAudience": true },
+      "ads": [
+        {
+          "name": "C — Flip — 1x1",
+          "creative": {
+            "primaryText": "You'd never eat something you're allergic to. Your pet can't read the label — so PetScans reads it for them. Set their profile once, then scan any food to see every ingredient they should avoid.",
+            "headline": "You'd never eat your allergen. Why should they?",
+            "description": "Personalized allergen protection.",
+            "cta": "INSTALL_MOBILE_APP",
+            "media": { "type": "image", "path": "./creatives/v2/c-flip__1x1.png" }
+          }
+        }
+      ]
+    }
+  ]
+}

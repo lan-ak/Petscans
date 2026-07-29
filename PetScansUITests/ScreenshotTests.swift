@@ -111,6 +111,194 @@ final class ScreenshotTests: XCTestCase {
         takeScreenshot(named: "06_Sources")
     }
 
+    /// Smoke — Settings → My Pets → Luna → Add Ingredient → tap a chip → Done.
+    /// Guards the "add ingredient to avoid" flow against crashing.
+    func test99_AddIngredientToAvoid() throws {
+        launchSeeded()
+
+        app.tabBars.buttons["Settings"].tap()
+
+        let myPets = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] 'My Pets'")
+        ).firstMatch
+        XCTAssertTrue(myPets.waitForExistence(timeout: 5), "My Pets row missing")
+        myPets.tap()
+
+        let luna = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] 'Luna'")
+        ).firstMatch
+        XCTAssertTrue(luna.waitForExistence(timeout: 5), "Luna row missing")
+        luna.tap()
+
+        let addIngredient = app.buttons["Add Ingredient"].firstMatch
+        XCTAssertTrue(addIngredient.waitForExistence(timeout: 5), "Add Ingredient button missing")
+        addIngredient.tap()
+
+        // The search sheet now opens directly (no intermediate chips sheet), and
+        // where the old `.searchable` crashed with "search text field already
+        // borrowed". Its inline search field must render.
+        let searchField = app.textFields.firstMatch
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "Search field missing — sheet did not present (crash?)")
+
+        // The common quick-pick chips live in this sheet now.
+        let beefChip = app.buttons["Beef"].firstMatch
+        XCTAssertTrue(beefChip.waitForExistence(timeout: 5), "Beef quick-pick chip missing")
+        beefChip.tap()
+
+        let done = app.buttons.containing(
+            NSPredicate(format: "label BEGINSWITH 'Done'")
+        ).firstMatch
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "Done missing")
+        done.tap()
+
+        // Back on pet detail without the app dying.
+        XCTAssertTrue(app.buttons["Add Ingredient"].waitForExistence(timeout: 5),
+                      "Did not return to pet detail — likely crashed")
+    }
+
+    // MARK: - AHA Onboarding Flow
+
+    /// Walks the full onboarding → "check your food" AHA moment and captures a
+    /// screenshot at each key step. Not part of the App Store shot list — this is
+    /// a verification/iteration harness for the onboarding AHA feature.
+    func testAHA_OnboardingFlow() throws {
+        // -ResetOnboarding (not -ShowOnboarding) so onboarding shows AND can be
+        // completed into the main app, letting us verify the History auto-save.
+        app.launchArguments = ["-UITesting", "-ResetOnboarding"]
+        app.launch()
+
+        // Welcome → two benefit pages.
+        tapButton("Get Started")
+        tapButton("Continue")
+        tapButton("Continue")
+
+        // Pet setup: name (required) + a common allergen so the result flags it.
+        // The trailing \n fires the field's Done action, dismissing the keyboard so
+        // the allergen chips below it become hittable.
+        let nameField = app.textFields["pet-name-field"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 5), "pet name field")
+        nameField.tap()
+        nameField.typeText("Max\n")
+        // Chip / row accessibility labels include example text, so match on CONTAINS.
+        tapIfExists(containingButton("chicken"))
+        takeScreenshot(named: "aha-00-petsetup")
+        tapButton("Continue")
+
+        // Avoidance groups: pick a couple (labels carry their example lists).
+        tapIfExists(containingButton("Artificial colours"))
+        tapIfExists(containingButton("Meat by-products"))
+        takeScreenshot(named: "aha-01-groups")
+        tapButton("Continue")
+
+        // Search page (shared ProductCatalogSearchView). Multi-term query exercises
+        // the fuzzy brand+protein matching.
+        let searchField = app.textFields["catalog-search-field"]
+        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "search field")
+        searchField.tap()
+        searchField.typeText("purina chicken")
+        takeScreenshot(named: "aha-02-search")
+
+        // First result → result page.
+        let firstResult = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "chicken")
+        ).firstMatch
+        XCTAssertTrue(firstResult.waitForExistence(timeout: 8), "a search result")
+        firstResult.tap()
+
+        // Result page: wait for the tour's Next button (tour auto-starts).
+        let tourNext = app.buttons["tour-next"]
+        XCTAssertTrue(tourNext.waitForExistence(timeout: 12), "tour started")
+        takeScreenshot(named: "aha-03-result-tour1")
+        tourNext.tap()
+        Thread.sleep(forTimeInterval: 0.8)
+        takeScreenshot(named: "aha-04-result-tour2")
+        app.buttons["tour-next"].tap()
+        Thread.sleep(forTimeInterval: 0.8)
+        takeScreenshot(named: "aha-05-result-tour3")
+        app.buttons["tour-next"].tap()   // "Got it" — ends tour
+        Thread.sleep(forTimeInterval: 0.8)
+        takeScreenshot(named: "aha-06-result-full")
+
+        // Tap an ingredient to open its detail sheet.
+        let infoRow = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "chicken")
+        ).firstMatch
+        if infoRow.waitForExistence(timeout: 3) {
+            infoRow.tap()
+            Thread.sleep(forTimeInterval: 1.0)
+            takeScreenshot(named: "aha-07-ingredient-detail")
+            // Dismiss the ingredient detail sheet.
+            let sheetDone = app.buttons["Done"].firstMatch
+            if sheetDone.waitForExistence(timeout: 2) { sheetDone.tap() }
+        }
+
+        // Finish onboarding (top-bar Skip always visible), then confirm the searched
+        // food was auto-saved to History.
+        let resultSkip = app.buttons["aha-result-skip"].firstMatch
+        XCTAssertTrue(resultSkip.waitForExistence(timeout: 3), "result skip")
+        resultSkip.tap()
+
+        let historyTab = app.tabBars.buttons["History"]
+        XCTAssertTrue(historyTab.waitForExistence(timeout: 10), "reached main app after onboarding")
+        historyTab.tap()
+        XCTAssertTrue(app.collectionViews["history-view"].waitForExistence(timeout: 5), "history view")
+        let savedScan = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "purina")
+        ).firstMatch
+        XCTAssertTrue(savedScan.waitForExistence(timeout: 5), "searched food auto-saved to history")
+        takeScreenshot(named: "aha-08-history-saved")
+    }
+
+    /// The catalog text-search reached from the camera / Identify Product view:
+    /// tap the search entry, run a fuzzy brand+protein query, pick a result, and
+    /// confirm it lands on the normal results screen (same path as a barcode scan).
+    func testScannerCatalogSearch() throws {
+        launchSeeded()
+        app.tabBars.buttons["Search"].firstMatch.tap()   // scanner ("Identify Product") tab
+
+        let searchEntry = app.buttons["scanner-search-by-name"]
+        XCTAssertTrue(searchEntry.waitForExistence(timeout: 5), "camera-view search entry missing")
+        searchEntry.tap()
+
+        let field = app.textFields["catalog-search-field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5), "catalog search field missing")
+        field.tap()
+        field.typeText("purina chicken")
+
+        let result = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", "purina")
+        ).firstMatch
+        XCTAssertTrue(result.waitForExistence(timeout: 8), "fuzzy search returned no result")
+        takeScreenshot(named: "scanner-search-results")
+        result.tap()
+
+        let score = app.scrollViews["product-score-view"]
+        XCTAssertTrue(score.waitForExistence(timeout: 10), "search did not route to results screen")
+        takeScreenshot(named: "scanner-search-scored")
+    }
+
+    private func tapButton(_ label: String) {
+        let button = app.buttons[label].firstMatch
+        XCTAssertTrue(button.waitForExistence(timeout: 6), "button '\(label)'")
+        button.tap()
+        Thread.sleep(forTimeInterval: 0.5)
+    }
+
+    private func tapIfExists(_ element: XCUIElement) {
+        if element.waitForExistence(timeout: 2) {
+            element.tap()
+        }
+    }
+
+    /// First button whose accessibility label contains `text` (case-insensitive).
+    /// Chips and group rows compose their label from title + example text, so exact
+    /// matching misses them.
+    private func containingButton(_ text: String) -> XCUIElement {
+        app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] %@", text)
+        ).firstMatch
+    }
+
     // MARK: - Navigation Helpers
 
     private func launchSeeded() {

@@ -1,0 +1,134 @@
+{
+  "runKey": "petscans-allergen-winner-2026-08b",
+  "specHash": "6fe75eb76158b839",
+  "startedAt": "2026-07-28T03:04:42.502Z",
+  "status": "complete",
+  "steps": [
+    {
+      "type": "campaign",
+      "key": "campaign",
+      "id": "120248427667800056",
+      "name": "PetScans | Allergen Winner | Installs | CA+US | Aug 2026",
+      "at": "2026-07-28T03:04:43.435Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.0",
+      "id": "120248427668080056",
+      "name": "Installs | CA+US | A Chicken Allergy",
+      "at": "2026-07-28T03:04:44.846Z"
+    },
+    {
+      "type": "image",
+      "key": "image.0.0",
+      "id": "bcfc8df54b439d670280950b41d6e2fc",
+      "name": "a-chicken__1x1.png",
+      "at": "2026-07-28T03:04:45.674Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.0.0",
+      "id": "1024758720318765",
+      "name": "A — Chicken Allergy — 1x1 — creative",
+      "at": "2026-07-28T03:04:46.472Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.0.0",
+      "id": "120248427668630056",
+      "name": "A — Chicken Allergy — 1x1",
+      "at": "2026-07-28T03:04:48.173Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.1",
+      "id": "120248427668760056",
+      "name": "Installs | CA+US | B Symptoms",
+      "at": "2026-07-28T03:04:49.826Z"
+    },
+    {
+      "type": "image",
+      "key": "image.1.0",
+      "id": "15b8dd77631530aaede72b8046ee5566",
+      "name": "b-symptoms__1x1.png",
+      "at": "2026-07-28T03:04:51.275Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.1.0",
+      "id": "1466470452169948",
+      "name": "B — Symptoms — 1x1 — creative",
+      "at": "2026-07-28T03:04:51.945Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.1.0",
+      "id": "120248427669760056",
+      "name": "B — Symptoms — 1x1",
+      "at": "2026-07-28T03:04:53.685Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.2",
+      "id": "120248427670340056",
+      "name": "Installs | CA+US | C Flip",
+      "at": "2026-07-28T03:04:55.231Z"
+    },
+    {
+      "type": "image",
+      "key": "image.2.0",
+      "id": "09f2beaeec944ac8f876e88d32f7a264",
+      "name": "c-flip__1x1.png",
+      "at": "2026-07-28T03:04:56.166Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.2.0",
+      "id": "1032739212737329",
+      "name": "C — Flip — 1x1 — creative",
+      "at": "2026-07-28T03:04:58.215Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.2.0",
+      "id": "120248427670780056",
+      "name": "C — Flip — 1x1",
+      "at": "2026-07-28T03:04:59.623Z"
+    },
+    {
+      "type": "adset",
+      "key": "adset.3",
+      "id": "120248427670920056",
+      "name": "Installs | CA+US | V1 UGC Video",
+      "at": "2026-07-28T03:05:01.029Z"
+    },
+    {
+      "type": "video",
+      "key": "video.3.0",
+      "id": "1746348863062088",
+      "name": "v1-ugc__9x16.mp4",
+      "at": "2026-07-28T03:05:03.820Z"
+    },
+    {
+      "type": "image",
+      "key": "thumb.3.0",
+      "id": "7f1b0484d72164b44a475b8f2438233d",
+      "name": "v1-ugc__thumb.png",
+      "at": "2026-07-28T03:05:22.333Z"
+    },
+    {
+      "type": "creative",
+      "key": "creative.3.0",
+      "id": "1060510023041657",
+      "name": "V1 — UGC Testimonial — 9x16 — creative",
+      "at": "2026-07-28T03:05:23.542Z"
+    },
+    {
+      "type": "ad",
+      "key": "ad.3.0",
+      "id": "120248427673910056",
+      "name": "V1 — UGC Testimonial — 9x16",
+      "at": "2026-07-28T03:05:25.477Z"
+    }
+  ]
+}

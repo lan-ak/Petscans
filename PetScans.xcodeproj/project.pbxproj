@@ -55,6 +55,7 @@
 		CA710002 /* LocalCatalogStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA720002 /* LocalCatalogStore.swift */; };
 		CA710003 /* ProductCatalogService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA720003 /* ProductCatalogService.swift */; };
 		CA710010 /* catalog.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = CA720010 /* catalog.sqlite */; };
+		CA710011 /* avoidance-groups.json in Resources */ = {isa = PBXBuildFile; fileRef = CA720011 /* avoidance-groups.json */; };
 		D2A71D937C423553343FDB69 /* ProductSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C56E4209081EE9A4907B88B0 /* ProductSearchView.swift */; };
 		D5CC373BB3CEDC37E1EC6709 /* ProductVisionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04398EE51EF5AE73D2E45069 /* ProductVisionService.swift */; };
 		F79CB17C2F12E9B9007B2E84 /* SerperService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F79CB1792F12E9B9007B2E84 /* SerperService.swift */; };
@@ -77,9 +78,11 @@
 		F7D835152F06EC1400414B32 /* PetRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835142F06EC1400414B32 /* PetRowView.swift */; };
 		F7D835172F06EC2600414B32 /* PetDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835162F06EC2600414B32 /* PetDetailView.swift */; };
 		F7D8351A2F06EC3C00414B32 /* AddPetSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835192F06EC3C00414B32 /* AddPetSheet.swift */; };
-		F7D8351B2F06EC3C00414B32 /* AddAllergenSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */; };
 		F7D8351D2F06EC5400414B32 /* ScanTargetRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D8351C2F06EC5400414B32 /* ScanTargetRow.swift */; };
 		F7D835252F0720A200414B32 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835222F0720A200414B32 /* OnboardingView.swift */; };
+		AHA20001 /* ProductCatalogSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AHA10001 /* ProductCatalogSearchView.swift */; };
+		AHA20002 /* OnboardingFoodResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AHA10002 /* OnboardingFoodResultView.swift */; };
+		AHA20004 /* OnboardingFoodScorer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AHA10004 /* OnboardingFoodScorer.swift */; };
 		F7D835262F0720A200414B32 /* OnboardingPetSetupPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835212F0720A200414B32 /* OnboardingPetSetupPage.swift */; };
 		F7D835402F0720A200414B32 /* OnboardingAvoidanceGroupsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835412F0720A200414B32 /* OnboardingAvoidanceGroupsPage.swift */; };
 		F7D835272F0720A200414B32 /* OnboardingWelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */; };
@@ -184,6 +187,7 @@
 		CA720002 /* LocalCatalogStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCatalogStore.swift; sourceTree = "<group>"; };
 		CA720003 /* ProductCatalogService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCatalogService.swift; sourceTree = "<group>"; };
 		CA720010 /* catalog.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = catalog.sqlite; sourceTree = "<group>"; };
+		CA720011 /* avoidance-groups.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "avoidance-groups.json"; sourceTree = "<group>"; };
 		D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingInfoSheet.swift; sourceTree = "<group>"; };
 		D28D8AF851F5F7D681F2FE82 /* IngredientDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientDetailSheet.swift; sourceTree = "<group>"; };
 		D46A46C6B334E5DC617A7DE7 /* ProductVisionServiceProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ProductVisionServiceProtocol.swift; sourceTree = "<group>"; };
@@ -206,13 +210,15 @@
 		F7D835122F06EC0B00414B32 /* PetListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetListView.swift; sourceTree = "<group>"; };
 		F7D835142F06EC1400414B32 /* PetRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetRowView.swift; sourceTree = "<group>"; };
 		F7D835162F06EC2600414B32 /* PetDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetDetailView.swift; sourceTree = "<group>"; };
-		F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAllergenSheet.swift; sourceTree = "<group>"; };
 		F7D835192F06EC3C00414B32 /* AddPetSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPetSheet.swift; sourceTree = "<group>"; };
 		F7D8351C2F06EC5400414B32 /* ScanTargetRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanTargetRow.swift; sourceTree = "<group>"; };
 		F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingBenefitsPage.swift; sourceTree = "<group>"; };
 		F7D835212F0720A200414B32 /* OnboardingPetSetupPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPetSetupPage.swift; sourceTree = "<group>"; };
 		F7D835412F0720A200414B32 /* OnboardingAvoidanceGroupsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAvoidanceGroupsPage.swift; sourceTree = "<group>"; };
 		F7D835222F0720A200414B32 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		AHA10001 /* ProductCatalogSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductCatalogSearchView.swift; sourceTree = "<group>"; };
+		AHA10002 /* OnboardingFoodResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFoodResultView.swift; sourceTree = "<group>"; };
+		AHA10004 /* OnboardingFoodScorer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFoodScorer.swift; sourceTree = "<group>"; };
 		F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingWelcomePage.swift; sourceTree = "<group>"; };
 		F7D8352B2F0724E300414B32 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F7D8352D2F07461100414B32 /* RatingLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatingLabelView.swift; sourceTree = "<group>"; };
@@ -337,6 +343,7 @@
 				A2000030 /* rules.json */,
 				A2000031 /* synonyms.json */,
 				CA720010 /* catalog.sqlite */,
+				CA720011 /* avoidance-groups.json */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -345,6 +352,7 @@
 			isa = PBXGroup;
 			children = (
 				FA100005 /* SuperwallSafe.swift */,
+				AHA10004 /* OnboardingFoodScorer.swift */,
 				FA100042 /* ReviewPrompt.swift */,
 				FA100043 /* ShareCardRenderer.swift */,
 				FA100003 /* CameraPermission.swift */,
@@ -438,6 +446,7 @@
 				D28D8AF851F5F7D681F2FE81 /* ProcessingInfoSheet.swift */,
 				D28D8AF851F5F7D681F2FE82 /* IngredientDetailSheet.swift */,
 				915FE411A73DAB192CC37787 /* SearchProgressView.swift */,
+				AHA10001 /* ProductCatalogSearchView.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -465,7 +474,6 @@
 		A4000013 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				F7D835182F06EC3C00414B32 /* AddAllergenSheet.swift */,
 				F7D835192F06EC3C00414B32 /* AddPetSheet.swift */,
 				F7D835162F06EC2600414B32 /* PetDetailView.swift */,
 				F7D835142F06EC1400414B32 /* PetRowView.swift */,
@@ -492,6 +500,7 @@
 				F7D835412F0720A200414B32 /* OnboardingAvoidanceGroupsPage.swift */,
 				F7D835222F0720A200414B32 /* OnboardingView.swift */,
 				F7D835232F0720A200414B32 /* OnboardingWelcomePage.swift */,
+				AHA10002 /* OnboardingFoodResultView.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -626,6 +635,7 @@
 				A1000030 /* rules.json in Resources */,
 				A1000031 /* synonyms.json in Resources */,
 				CA710010 /* catalog.sqlite in Resources */,
+				CA710011 /* avoidance-groups.json in Resources */,
 				F7D8352C2F0724E300414B32 /* Assets.xcassets in Resources */,
 				FBDA00062F0846B800414B32 /* PrivacyInfo.xcprivacy in Resources */,
 				LM100004 /* LaunchScreen.storyboard in Resources */,
@@ -685,7 +695,6 @@
 				F79CB1812F12E9CA007B2E84 /* SerperServiceProtocol.swift in Sources */,
 				F79CB1842F13000000000001 /* FirecrawlService.swift in Sources */,
 				F79CB1852F13000000000002 /* FirecrawlServiceProtocol.swift in Sources */,
-				F7D8351B2F06EC3C00414B32 /* AddAllergenSheet.swift in Sources */,
 				A1000017 /* ScannerView.swift in Sources */,
 				A1000018 /* BarcodeScannerView.swift in Sources */,
 				A1000020 /* SpeciesCategoryPicker.swift in Sources */,
@@ -708,6 +717,9 @@
 				F79CB1842F1431B5007B2E84 /* FloatingElementsView.swift in Sources */,
 				F79CB1852F1431B5007B2E84 /* StepProgressBar.swift in Sources */,
 				F7D835252F0720A200414B32 /* OnboardingView.swift in Sources */,
+				AHA20001 /* ProductCatalogSearchView.swift in Sources */,
+				AHA20002 /* OnboardingFoodResultView.swift in Sources */,
+				AHA20004 /* OnboardingFoodScorer.swift in Sources */,
 				F7D835262F0720A200414B32 /* OnboardingPetSetupPage.swift in Sources */,
 				F7D835402F0720A200414B32 /* OnboardingAvoidanceGroupsPage.swift in Sources */,
 				F7D835272F0720A200414B32 /* OnboardingWelcomePage.swift in Sources */,

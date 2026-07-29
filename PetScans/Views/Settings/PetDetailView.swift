@@ -8,6 +8,10 @@ struct PetDetailView: View {
     @State private var showEditName = false
     @State private var editedName: String = ""
 
+    /// Live working copy the search sheet mutates; committed to the pet when the
+    /// sheet dismisses. Seeded from the pet each time the sheet opens.
+    @State private var selectedAllergens: Set<String> = []
+
     var body: some View {
         List {
             Section {
@@ -58,6 +62,7 @@ struct PetDetailView: View {
 
             Section {
                 Button {
+                    selectedAllergens = Set(pet.allergens)
                     showAddAllergen = true
                 } label: {
                     Label("Add Ingredient", systemImage: "plus.circle.fill")
@@ -66,8 +71,8 @@ struct PetDetailView: View {
         }
         .navigationTitle(pet.name)
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showAddAllergen) {
-            AddAllergenSheet(pet: pet)
+        .sheet(isPresented: $showAddAllergen, onDismiss: saveAllergens) {
+            IngredientSearchSheet(selectedAllergens: $selectedAllergens, showCommonChips: true, species: pet.speciesEnum)
         }
         .alert("Edit Name", isPresented: $showEditName) {
             TextField("Name", text: $editedName)
@@ -81,6 +86,13 @@ struct PetDetailView: View {
                 }
             }
         }
+    }
+
+    private func saveAllergens() {
+        let updated = Array(selectedAllergens).sorted()
+        guard updated != pet.allergens else { return }
+        pet.allergens = updated
+        try? modelContext.save()
     }
 
     private func deleteAllergen(at offsets: IndexSet) {

@@ -7,9 +7,15 @@ struct OnboardingBenefitsPage: View {
 
     var body: some View {
         VStack(spacing: SpacingTokens.xl) {
+            // Framed in a tinted chip rather than left as a bare glyph, so it
+            // reads as an intentional badge (matching the app's icon treatment)
+            // and keeps the welcome page's 120pt hero footprint for rhythm.
             Image(systemName: icon)
-                .font(.system(size: SpacingTokens.iconXXLarge, weight: .medium))
+                .font(.system(size: SpacingTokens.iconXLarge, weight: .medium))
                 .foregroundColor(ColorTokens.brandPrimary)
+                .frame(width: SpacingTokens.iconOnboarding, height: SpacingTokens.iconOnboarding)
+                .background(ColorTokens.brandPrimary.opacity(0.12))
+                .clipShape(Circle())
 
             VStack(spacing: SpacingTokens.sm) {
                 Text(headline)

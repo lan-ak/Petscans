@@ -68,7 +68,7 @@ struct PetFormView: View {
                     .padding(.vertical, SpacingTokens.xxs)
 
                 // Ingredients to avoid section
-                AllergenSelectionView(selectedAllergens: $selectedAllergens, showHeader: true)
+                AllergenSelectionView(selectedAllergens: $selectedAllergens, species: petSpecies, showHeader: true)
             }
         }
     }

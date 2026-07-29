@@ -177,6 +177,22 @@ final class ScannerViewModel: ObservableObject {
         }
     }
 
+    /// Score a product chosen from catalog text search. Routes through the same
+    /// path as a barcode hit so it lands on the normal results screen (and can be
+    /// saved to history from there), keeping the search and scan experiences identical.
+    func selectCatalogProduct(_ product: CatalogProduct, pets: [Pet] = []) {
+        currentError = nil
+        lastHandledBarcode = nil
+        Task {
+            let started = Date()
+            barcode = product.gtin
+            apply(product, pets: pets)
+            await computeScore()
+            logResolved(source: "search", started: started, gtin: product.gtin)
+            showResults()
+        }
+    }
+
     /// Populate product fields from a catalog hit, defaulting to a pet of the matching
     /// species so the score is personalised without asking.
     private func apply(_ product: CatalogProduct, pets: [Pet]) {

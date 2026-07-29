@@ -19,6 +19,13 @@ struct ScoreCalculator {
     private static let allergenPenaltyTop5: Double = 30.0
     private static let allergenPenaltyOthers: Double = 15.0
 
+    // Avoidance-group penalties. Owner-selected groups are a soft signal: they lower
+    // the total (enough to nudge the rating label down a tier or two) and raise a
+    // warning flag, but never force "Avoid" — only allergens/toxics do that.
+    private static let avoidanceGroupPenaltyTop5: Double = 8.0
+    private static let avoidanceGroupPenaltyOthers: Double = 4.0
+    private static let avoidanceGroupPenaltyCap: Double = 40.0
+
     // Processing level penalties (higher = more processed = lower score)
     private static let processingPenalties: [ProcessingLevel: Double] = [
         .unprocessed: 0,
@@ -32,18 +39,25 @@ struct ScoreCalculator {
     init() {}
 
     /// Calculate scores for a product
+    ///
+    /// `avoidanceGroups` defaults to the device-level selection so every existing
+    /// caller (scanner, history) automatically reflects the owner's watch list. The
+    /// onboarding AHA passes its in-progress selection explicitly, because the pet
+    /// and preferences aren't persisted until onboarding completes.
     func calculate(
         species: Species,
         category: Category,
         matched: [MatchedIngredient],
         petAllergens: [String] = [],
         petName: String? = nil,
+        avoidanceGroups: Set<AvoidanceGroup> = AvoidancePreferences.groups,
         scoreSource: ScoreSource = .databaseVerified,
         ocrConfidence: Float? = nil
     ) async -> ScoreBreakdown {
         await database.waitForLoad()
         let ingredients = database.ingredients
         let rules = database.rules
+        let groupMap = database.avoidanceGroups
 
         let normalizedAllergens = normalizeAllergens(petAllergens)
 
@@ -63,10 +77,16 @@ struct ScoreCalculator {
             ingredients: ingredients,
             rules: rules
         )
+        let (groupPenalty, groupFlags, _) = checkAvoidanceGroups(
+            matched: matched,
+            selectedGroups: avoidanceGroups,
+            ingredients: ingredients,
+            groupMap: groupMap
+        )
 
         // Combine results
         let totalSafetyPenalty = safetyPenalty + rulePenalty
-        let allFlags = allergenFlags + ruleFlags
+        let allFlags = allergenFlags + ruleFlags + groupFlags
         let allSafetyFactors = safetyFactors + ruleFactors
 
         // CRITICAL: Any allergen match = score 0, rating "Avoid"
@@ -79,7 +99,8 @@ struct ScoreCalculator {
             suitability: suitability,
             category: category,
             sawCritical: sawCritical,
-            hasAllergenMatch: hasAllergenMatch
+            hasAllergenMatch: hasAllergenMatch,
+            avoidanceGroupPenalty: groupPenalty
         )
 
         let matchedCount = matched.count - unmatched.count
@@ -253,6 +274,63 @@ struct ScoreCalculator {
         return (suitability, flags, factors)
     }
 
+    /// Flag ingredients that fall into an owner-selected avoidance group.
+    ///
+    /// Warning-only: returns a bounded penalty and `.warn` flags. It sets no label
+    /// override, so it can pull the numeric rating down a tier but never forces
+    /// "Avoid" the way an allergen or toxic ingredient does.
+    private func checkAvoidanceGroups(
+        matched: [MatchedIngredient],
+        selectedGroups: Set<AvoidanceGroup>,
+        ingredients: [String: Ingredient],
+        groupMap: [String: Set<AvoidanceGroup>]
+    ) -> (penalty: Double, flags: [WarningFlag], factors: [ExplanationFactor]) {
+        guard !selectedGroups.isEmpty else { return (0, [], []) }
+
+        var penalty = 0.0
+        var flags: [WarningFlag] = []
+        var factors: [ExplanationFactor] = []
+
+        for mi in matched {
+            guard let ingredientId = mi.ingredientId,
+                  let ing = ingredients[ingredientId],
+                  let ingredientGroups = groupMap[ingredientId] else {
+                continue
+            }
+
+            let hit = ingredientGroups.intersection(selectedGroups)
+            guard !hit.isEmpty else { continue }
+
+            let weight = rankWeight(mi.rank)
+            penalty += (mi.rank <= 5 ?
+                Self.avoidanceGroupPenaltyTop5 : Self.avoidanceGroupPenaltyOthers) * weight
+
+            // Stable, human-readable list of the matched groups, in enum case order.
+            let groupNames = AvoidanceGroup.allCases
+                .filter(hit.contains)
+                .map(\.displayName)
+                .joined(separator: ", ")
+
+            flags.append(WarningFlag(
+                severity: .warn,
+                title: "On your avoid list",
+                explain: "\(ing.commonName) matches a group you chose to avoid: \(groupNames).",
+                ingredientId: ing.id,
+                source: nil,
+                type: .avoidanceGroup
+            ))
+
+            factors.append(ExplanationFactor(
+                id: "avoidgroup-\(ing.id)",
+                description: "Matches your avoid list: \(groupNames)",
+                impact: .negative,
+                ingredientName: ing.commonName
+            ))
+        }
+
+        return (min(penalty, Self.avoidanceGroupPenaltyCap), flags, factors)
+    }
+
     /// Calculate processing score based on NOVA-style classification
     private func calculateProcessingScore(
         matched: [MatchedIngredient]
@@ -374,14 +452,16 @@ struct ScoreCalculator {
         suitability: Double,
         category: Category,
         sawCritical: Bool,
-        hasAllergenMatch: Bool
+        hasAllergenMatch: Bool,
+        avoidanceGroupPenalty: Double
     ) -> (total: Double, safety: Double, processing: Double?, suitability: Double) {
         // Clamp individual scores to 0-100 range
         let safety = max(0, min(100, 100 - safetyPenalty))
         let clampedSuitability = max(0, min(100, suitability))
         let clampedProcessing = max(0, min(100, processing))
 
-        // CRITICAL: Any allergen match = total score 0, always "Avoid"
+        // CRITICAL: Any allergen match = total score 0, always "Avoid". Avoidance-group
+        // penalties are irrelevant here — the score is already at the floor.
         if hasAllergenMatch {
             return (0, safety, clampedProcessing, 0)
         }
@@ -400,6 +480,10 @@ struct ScoreCalculator {
         if sawCritical {
             total = min(total, criticalCap)
         }
+
+        // Apply the owner's avoidance-group penalty last, as a soft nudge that can
+        // lower the rating but not drive it to a forced "Avoid".
+        total = max(0, total - avoidanceGroupPenalty)
 
         return (total, safety, clampedProcessing, clampedSuitability)
     }

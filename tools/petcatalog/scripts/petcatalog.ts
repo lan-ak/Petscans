@@ -12,11 +12,13 @@
  */
 
 import { resolve } from 'node:path';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, statSync } from 'node:fs';
 import { build } from './petcatalog/build';
-import { enrich } from './petcatalog/enrich';
+import { enrich, type Candidate } from './petcatalog/enrich';
 import { chewyCandidates, walmartCandidates } from './petcatalog/candidates';
 import { collectChewy } from './petcatalog/chewy-collect';
+import { shopifyCandidates, SHOPIFY_BRANDS } from './petcatalog/shopify';
+import { packInPlace } from './petcatalog/pack';
 
 const REPO_ROOT = resolve(__dirname, '../../..');
 const DEFAULT_OUT = resolve(REPO_ROOT, 'PetScans/Data/catalog.sqlite');
@@ -70,18 +72,38 @@ petcatalog — build the bundled product catalog
     --out <path>              JSON for enrich to read (default: /tmp/chewy-new.json)
     --db <path>               catalog to diff against (default: PetScans/Data/catalog.sqlite)
 
+  collect-shopify  Reach specialty brands Chewy-search never surfaces, via their Shopify
+                 storefronts — variant.barcode gives a real UPC for free (no Firecrawl).
+                 Writes candidates for enrich to fetch ingredients from.
+
+    --brand <name> --domain <host>   one ad-hoc store (else the built-in SHOPIFY_BRANDS)
+    --out <path>              candidate JSON (default: /tmp/shopify-new.json)
+
   enrich   Fetch ingredients for identity-only rows and insert them into catalog.sqlite
 
-    --source chewy|walmart    candidate source (required)
+    --source chewy|walmart|file  candidate source (required). 'file' reads a pre-built
+                                 Candidate[] JSON (e.g. from collect-shopify) verbatim.
     --budget <credits>        Firecrawl spend ceiling (required)
     --file <path>             candidate JSON (default: ~/Downloads/chewy products.json)
     --out <path>              catalog sqlite to insert into
     --limit <n>               max candidates (walmart scan only)
 
+  pack     Compress the ingredient column (raw-DEFLATE) + drop n_ingredients + VACUUM, in
+           place. Idempotent, round-trip verified. Halves the shipped file; the app inflates
+           natively via Apple's Compression framework. Run before shipping a build.
+
+    --db <path>               catalog to pack (default: PetScans/Data/catalog.sqlite)
+
 Typical growth loop:
 
   npm run petcatalog -- collect-chewy --pages 3 --limit 200
   npm run petcatalog -- enrich --source chewy --file /tmp/chewy-new.json --budget 1500
+
+Fill a Shopify specialty brand, then shrink for shipping:
+
+  npm run petcatalog -- collect-shopify --brand "Open Farm" --domain openfarmpet.com
+  npm run petcatalog -- enrich --source file --file /tmp/shopify-new.json --budget 800
+  npm run petcatalog -- pack
 `;
 }
 
@@ -132,13 +154,55 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (cmd === 'pack') {
+    // Compress the ingredient column (raw-DEFLATE) + drop n_ingredients + VACUUM, in place.
+    // Idempotent; verifies every row round-trips before swapping. Run before shipping a build.
+    const db = resolve(process.cwd(), arg(argv, 'db') ?? DEFAULT_OUT);
+    const before = statSync(db).size;
+    const r = packInPlace(db, (s) => process.stderr.write(s + '\n'));
+    const after = statSync(db).size;
+    console.log('');
+    console.log(r.migrated ? 'packed (ingredients → raw-DEFLATE, n_ingredients dropped)' : 'already packed — no change');
+    console.log(`rows              : ${r.rows}`);
+    console.log(`round-trip fails  : ${r.mismatches}`);
+    console.log(`size              : ${(before / 1e6).toFixed(1)} MB -> ${(after / 1e6).toFixed(1)} MB`);
+    console.log('');
+    return;
+  }
+
+  if (cmd === 'collect-shopify') {
+    const out = resolve(process.cwd(), arg(argv, 'out') ?? '/tmp/shopify-new.json');
+    // --brand "Open Farm" --domain openfarmpet.com for an ad-hoc store, else the registry.
+    const oneBrand = arg(argv, 'brand');
+    const oneDomain = arg(argv, 'domain');
+    const targets: [string, string][] = oneBrand && oneDomain
+      ? [[oneBrand, oneDomain]]
+      : Object.entries(SHOPIFY_BRANDS);
+
+    const all: Candidate[] = [];
+    for (const [brand, domain] of targets) {
+      const c = await shopifyCandidates(brand, domain, { onLog: (s) => process.stderr.write(s + '\n') });
+      all.push(...c);
+    }
+    writeFileSync(out, JSON.stringify(all, null, 2));
+    console.log('');
+    console.log(`brands scanned    : ${targets.length}`);
+    console.log(`barcoded candidates: ${all.length}  -> ${out}`);
+    console.log('');
+    if (all.length) {
+      console.log(`next: npm run petcatalog -- enrich --source file --file ${out} --budget <credits>`);
+      console.log('');
+    }
+    return;
+  }
+
   if (cmd === 'enrich') {
-    const source = arg(argv, 'source'); // 'chewy' | 'walmart'
+    const source = arg(argv, 'source'); // 'chewy' | 'walmart' | 'file'
     const out = arg(argv, 'out') ?? DEFAULT_OUT;
     const budget = Number(arg(argv, 'budget') ?? '0');
     const limit = Number(arg(argv, 'limit') ?? '2000');
     if (!source || !budget) {
-      console.error('enrich requires --source chewy|walmart and --budget <credits>');
+      console.error('enrich requires --source chewy|walmart|file and --budget <credits>');
       process.exitCode = 2;
       return;
     }
@@ -148,6 +212,15 @@ async function main(): Promise<void> {
     } else if (source === 'walmart') {
       process.stderr.write('scanning Walmart file for identity-only rows…\n');
       cands = await walmartCandidates(resolve(process.cwd(), arg(argv, 'file') ?? `${REPO_ROOT}/Walmart Data/BrightData_july232026.json`), limit);
+    } else if (source === 'file') {
+      // A pre-built Candidate[] JSON (e.g. from collect-shopify): GTIN + url already resolved.
+      const file = arg(argv, 'file');
+      if (!file) {
+        console.error('enrich --source file requires --file <candidates.json>');
+        process.exitCode = 2;
+        return;
+      }
+      cands = JSON.parse(readFileSync(resolve(process.cwd(), file), 'utf8')) as Candidate[];
     } else {
       console.error(`unknown --source ${source}`);
       process.exitCode = 2;

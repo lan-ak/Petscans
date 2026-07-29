@@ -85,6 +85,12 @@ struct PetScansApp: App {
             if ProcessInfo.processInfo.arguments.contains("-SeedScreenshotData") {
                 ScreenshotDataSeeder.seed(context: context)
             }
+            // Clears the completion flag so onboarding shows AND can be finished into
+            // the main app (unlike `-ShowOnboarding`, which pins onboarding on). Used
+            // by the onboarding→app end-to-end test.
+            if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") {
+                UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+            }
         }
 
         // Warm the Quicksand font before first paint, so the first

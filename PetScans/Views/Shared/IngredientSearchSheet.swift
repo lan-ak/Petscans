@@ -5,6 +5,16 @@ struct IngredientSearchSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var selectedAllergens: Set<String>
 
+    /// When presented directly (from a pet's "Add Ingredient"), show the common
+    /// quick-pick chips at the top so the fast path survives collapsing the old
+    /// two-sheet flow. When reached via `AllergenSelectionView` (add-pet form),
+    /// that view already shows the chips, so this stays off to avoid duplicates.
+    var showCommonChips: Bool = false
+
+    /// Drives which quick-pick chips appear when `showCommonChips` is on — the
+    /// common allergens differ between dogs and cats (see `QuickPickAllergens`).
+    var species: Species = .dog
+
     @State private var searchText: String = ""
     @State private var debouncedSearchText: String = ""
     @State private var searchTask: Task<Void, Never>?
@@ -31,7 +41,23 @@ struct IngredientSearchSheet: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                headerSection
+                // A plain inline search field rather than `.searchable`: this sheet
+                // is presented on top of AddAllergenSheet's NavigationStack while the
+                // History tab already owns a `.searchable`, and inlining a second
+                // search field into a nav bar that has one borrowed crashes UIKit
+                // ("Attempted to inline a search text field that was already
+                // borrowed"). A TextField avoids UISearchController entirely.
+                searchBar
+                    .padding(.horizontal, SpacingTokens.screenPadding)
+                    .padding(.top, SpacingTokens.sm)
+                    .padding(.bottom, SpacingTokens.xs)
+
+                // Quick-pick chips for the most common allergens — the fast path
+                // preserved from the old chips sheet. Hidden while searching so
+                // the results list gets the room.
+                if showCommonChips && searchText.isEmpty {
+                    commonChipsSection
+                }
 
                 if !selectedAllergens.isEmpty {
                     selectedCountBadge
@@ -54,7 +80,6 @@ struct IngredientSearchSheet: View {
                     }
                 }
             }
-            .searchable(text: $searchText, prompt: "Search ingredients")
             .onChange(of: searchText) { _, newValue in
                 searchTask?.cancel()
                 searchTask = Task {
@@ -70,21 +95,65 @@ struct IngredientSearchSheet: View {
 
     // MARK: - Subviews
 
-    private var headerSection: some View {
-        VStack(spacing: SpacingTokens.xxs) {
-            Image(systemName: "exclamationmark.triangle.fill")
-                .font(.system(size: SpacingTokens.iconXLarge))
-                .foregroundColor(ColorTokens.brandPrimary)
-
-            Text("What ingredients are you avoiding?")
-                .displaySmall()
-                .multilineTextAlignment(.center)
-
-            Text("Search from \(allIngredients.count) ingredients")
-                .bodySmall()
+    /// Styled to match the app's standard input (see `PetFormView.baseNameField`):
+    /// surfacePrimary fill, medium radius, a `border` stroke so it reads as a
+    /// tap target against the tinted background instead of washing into it.
+    private var searchBar: some View {
+        HStack(spacing: SpacingTokens.xs) {
+            Image(systemName: "magnifyingglass")
                 .foregroundColor(ColorTokens.textSecondary)
+
+            TextField("Search \(allIngredients.count) ingredients", text: $searchText)
+                .autocorrectionDisabled()
+                .textInputAutocapitalization(.never)
+                .submitLabel(.search)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(ColorTokens.textTertiary)
+                }
+                .buttonStyle(.plain)
+            }
         }
-        .padding(SpacingTokens.screenPadding)
+        .padding(SpacingTokens.sm)
+        .background(ColorTokens.surfacePrimary)
+        .cornerRadius(SpacingTokens.radiusMedium)
+        .overlay(
+            RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
+                .stroke(ColorTokens.border, lineWidth: 1)
+        )
+    }
+
+    private var commonChipsSection: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
+            Text("Common")
+                .font(TypographyTokens.caption)
+                .foregroundColor(ColorTokens.textSecondary)
+
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: SpacingTokens.xxs) {
+                ForEach(QuickPickAllergens.list(for: species), id: \.id) { allergen in
+                    let isSelected = selectedAllergens.contains(allergen.id)
+                    Button {
+                        if isSelected {
+                            selectedAllergens.remove(allergen.id)
+                        } else {
+                            selectedAllergens.insert(allergen.id)
+                        }
+                    } label: {
+                        Text(allergen.name)
+                            .lineLimit(1)
+                            .chipStyle(isSelected: isSelected)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, SpacingTokens.screenPadding)
+        .padding(.bottom, SpacingTokens.xs)
     }
 
     private var selectedCountBadge: some View {

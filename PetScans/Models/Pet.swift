@@ -10,9 +10,6 @@ final class Pet {
     var createdAt: Date
     var updatedAt: Date
 
-    // Transient cached property to avoid JSON decoding on every access
-    @Transient private var _cachedAllergens: [String]?
-
     init(
         id: UUID = UUID(),
         name: String,
@@ -34,16 +31,10 @@ final class Pet {
 
     var allergens: [String] {
         get {
-            if let cached = _cachedAllergens {
-                return cached
-            }
             guard let data = allergensJSON.data(using: .utf8) else { return [] }
-            let decoded = (try? JSONDecoder().decode([String].self, from: data)) ?? []
-            _cachedAllergens = decoded
-            return decoded
+            return (try? JSONDecoder().decode([String].self, from: data)) ?? []
         }
         set {
-            _cachedAllergens = newValue  // Update cache immediately
             allergensJSON = (try? JSONEncoder().encode(newValue))
                 .flatMap { String(data: $0, encoding: .utf8) } ?? "[]"
             updatedAt = Date()

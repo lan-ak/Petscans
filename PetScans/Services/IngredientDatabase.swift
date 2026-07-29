@@ -15,6 +15,11 @@ final class IngredientDatabase {
     private(set) var rules: [Rule] = []
     private(set) var synonyms: [String: String] = [:]
 
+    /// Curated map of ingredient ID -> the avoidance groups it belongs to, from
+    /// `avoidance-groups.json`. Consumed by `ScoreCalculator` to raise warning flags
+    /// for the groups an owner selected. Empty until the load lands.
+    private(set) var avoidanceGroups: [String: Set<AvoidanceGroup>] = [:]
+
     /// Pre-sorted ingredient list (sorted once on load, not on every access)
     private(set) var sortedIngredients: [Ingredient] = []
 
@@ -41,6 +46,7 @@ final class IngredientDatabase {
             let ingredients = Self.loadIngredients()
             let rules = Self.loadRules()
             let synonyms = Self.loadSynonyms()
+            let avoidanceGroups = Self.loadAvoidanceGroups()
 
             // Pre-sort ingredients once (expensive operation done in background)
             let sorted = Array(ingredients.values)
@@ -56,6 +62,7 @@ final class IngredientDatabase {
                 self.synonyms = synonyms
                 self.sortedIngredients = sorted
                 self.rulesByIngredient = ruleIndex
+                self.avoidanceGroups = avoidanceGroups
                 self.isLoaded = true
             }
 
@@ -124,6 +131,31 @@ final class IngredientDatabase {
         } catch {
             #if DEBUG
             print("Failed to decode synonyms.json: \(error)")
+            #endif
+            return [:]
+        }
+    }
+
+    private static func loadAvoidanceGroups() -> [String: Set<AvoidanceGroup>] {
+        guard let url = Bundle.main.url(forResource: "avoidance-groups", withExtension: "json"),
+              let data = try? Data(contentsOf: url) else {
+            #if DEBUG
+            print("Failed to load avoidance-groups.json")
+            #endif
+            return [:]
+        }
+
+        do {
+            // File is id -> [group rawValue]; unknown group strings are ignored so a
+            // future group added to the JSON can't break decode on an older build.
+            let raw = try JSONDecoder().decode([String: [String]].self, from: data)
+            return raw.reduce(into: [:]) { result, pair in
+                let groups = Set(pair.value.compactMap(AvoidanceGroup.init(rawValue:)))
+                if !groups.isEmpty { result[pair.key] = groups }
+            }
+        } catch {
+            #if DEBUG
+            print("Failed to decode avoidance-groups.json: \(error)")
             #endif
             return [:]
         }
