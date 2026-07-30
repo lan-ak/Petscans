@@ -34,30 +34,29 @@ struct ScoreCalculator {
         .ultraProcessed: 15
     ]
 
-    private var database: IngredientDatabase { IngredientDatabase.shared }
-
     init() {}
 
-    /// Calculate scores for a product
-    ///
-    /// `avoidanceGroups` defaults to the device-level selection so every existing
-    /// caller (scanner, history) automatically reflects the owner's watch list. The
-    /// onboarding AHA passes its in-progress selection explicitly, because the pet
-    /// and preferences aren't persisted until onboarding completes.
+    /// Score against a given database. Synchronous and pure — the entry point
+    /// tests and the `matchkit` score-delta audit use, so an offline before/after
+    /// comparison exercises exactly the scoring the app will perform.
     func calculate(
         species: Species,
         category: Category,
         matched: [MatchedIngredient],
+        data: IngredientData,
         petAllergens: [String] = [],
         petName: String? = nil,
-        avoidanceGroups: Set<AvoidanceGroup> = AvoidancePreferences.groups,
+        // Deliberately no default. The async overload in `Matching+SharedDatabase`
+        // defaults this to `AvoidancePreferences.groups`; if this one defaulted to
+        // `[]`, dropping an `await` at a call site would silently stop applying the
+        // owner's watch list and nothing would fail. Callers must say what they mean.
+        avoidanceGroups: Set<AvoidanceGroup>,
         scoreSource: ScoreSource = .databaseVerified,
         ocrConfidence: Float? = nil
-    ) async -> ScoreBreakdown {
-        await database.waitForLoad()
-        let ingredients = database.ingredients
-        let rules = database.rules
-        let groupMap = database.avoidanceGroups
+    ) -> ScoreBreakdown {
+        let ingredients = data.ingredients
+        let rules = data.rules
+        let groupMap = data.avoidanceGroups
 
         let normalizedAllergens = normalizeAllergens(petAllergens)
 
@@ -494,13 +493,11 @@ struct ScoreCalculator {
     }
 
     /// Base penalty for risk level
+    /// Delegates to `RiskTier`, the single classification the row indicators and
+    /// the detail sheet also use — so a warning triangle on a row can never
+    /// disagree with the penalty behind the score.
     private func basePenalty(for riskLevel: String) -> Double {
-        let r = riskLevel.lowercased()
-        if r.contains("toxic") { return 40 }
-        if r.contains("caution") { return 15 }
-        if r.contains("moderation") { return 6 }
-        if r.contains("safe_for_most") { return 2 }
-        return 0
+        RiskTier(riskLevel).basePenalty
     }
 
     // MARK: - Explanation Generation

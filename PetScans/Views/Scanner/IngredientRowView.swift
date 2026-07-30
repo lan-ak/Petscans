@@ -53,17 +53,15 @@ struct IngredientRowView: View {
 
     @ViewBuilder
     private var riskIndicator: some View {
-        let risk = currentRiskLevel.lowercased()
-        if risk.contains("caution") || risk.contains("moderation") {
-            Image(systemName: "exclamationmark.triangle.fill")
+        // The last of the three `riskLevel.contains(...)` ladders `RiskTier` was written to
+        // replace. It put an amber warning triangle on the `safe_in_moderation` family,
+        // which the tier deliberately colours `info` — so this row and the detail sheet
+        // disagreed about the same ingredient.
+        let tier = RiskTier(currentRiskLevel)
+        if tier.isConcerning {
+            Image(systemName: tier.icon)
                 .font(TypographyTokens.caption)
-                .foregroundColor(ColorTokens.warning)
-        } else if risk.contains("toxic") || risk.contains("avoid") {
-            Image(systemName: "xmark.circle.fill")
-                .font(TypographyTokens.caption)
-                .foregroundColor(ColorTokens.error)
-        } else {
-            EmptyView()
+                .foregroundColor(tier.color)
         }
     }
 }

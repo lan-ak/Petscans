@@ -1,0 +1,1 @@
+../../../../../PetScans/Models/Rule.swift

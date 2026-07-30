@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 struct ScoreBreakdown: Codable {
     let total: Double
@@ -16,6 +15,11 @@ struct ScoreBreakdown: Codable {
     let suitabilityExplanation: ScoreExplanation?
     let processingExplanation: ScoreExplanation?
 
+    /// True when a decode found none of `total`/`safety`/`suitability`, i.e. this
+    /// breakdown's zeros are absence of data rather than a real score of zero.
+    /// Derived, never encoded. Always false for a freshly calculated breakdown.
+    let scoresAreMissing: Bool
+
     // Custom decoder to handle old saved scans missing processing field
     private enum CodingKeys: String, CodingKey {
         case total, safety, suitability, processing, flags, unmatched
@@ -25,21 +29,41 @@ struct ScoreBreakdown: Codable {
         case nutrition
     }
 
+    /// Every key decodes with `decodeIfPresent`, including the ones that are
+    /// logically required.
+    ///
+    /// The reason is the call site: `Scan.scoreBreakdown` decodes with `try?` and
+    /// falls back to `.empty`, which is a total of 0 — and a total of 0 renders as
+    /// **"Avoid"**, indistinguishable from a genuinely dangerous product. A decoder
+    /// that throws on one missing key therefore doesn't produce an error state, it
+    /// produces a confident lie about a product's safety. Partial data is strictly
+    /// better than that, so nothing here is allowed to throw.
+    ///
+    /// A scan that decodes with no scores at all is still wrong, just not silently:
+    /// `scoresAreMissing` marks it so the UI can say so.
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        total = try container.decode(Double.self, forKey: .total)
-        safety = try container.decode(Double.self, forKey: .safety)
-        suitability = try container.decode(Double.self, forKey: .suitability)
+        let decodedTotal = try container.decodeIfPresent(Double.self, forKey: .total)
+        let decodedSafety = try container.decodeIfPresent(Double.self, forKey: .safety)
+        let decodedSuitability = try container.decodeIfPresent(Double.self, forKey: .suitability)
+
+        total = decodedTotal ?? 0
+        safety = decodedSafety ?? 0
+        suitability = decodedSuitability ?? 0
+        scoresAreMissing = decodedTotal == nil && decodedSafety == nil && decodedSuitability == nil
+
         processing = try container.decodeIfPresent(Double.self, forKey: .processing)
-        flags = try container.decode([WarningFlag].self, forKey: .flags)
-        unmatched = try container.decode([String].self, forKey: .unmatched)
-        matchedCount = try container.decode(Int.self, forKey: .matchedCount)
-        totalCount = try container.decode(Int.self, forKey: .totalCount)
-        scoreSource = try container.decode(ScoreSource.self, forKey: .scoreSource)
+        flags = (try? container.decodeIfPresent([WarningFlag].self, forKey: .flags)) ?? []
+        unmatched = (try? container.decodeIfPresent([String].self, forKey: .unmatched)) ?? []
+        matchedCount = try container.decodeIfPresent(Int.self, forKey: .matchedCount) ?? 0
+        totalCount = try container.decodeIfPresent(Int.self, forKey: .totalCount) ?? 0
+        scoreSource = try container.decodeIfPresent(ScoreSource.self, forKey: .scoreSource) ?? .databaseVerified
         ocrConfidence = try container.decodeIfPresent(Float.self, forKey: .ocrConfidence)
-        safetyExplanation = try container.decodeIfPresent(ScoreExplanation.self, forKey: .safetyExplanation)
-        suitabilityExplanation = try container.decodeIfPresent(ScoreExplanation.self, forKey: .suitabilityExplanation)
-        processingExplanation = try container.decodeIfPresent(ScoreExplanation.self, forKey: .processingExplanation)
+        // `try?`: the explanations are presentational. A malformed one should cost
+        // the narration, not the scores it narrates.
+        safetyExplanation = try? container.decodeIfPresent(ScoreExplanation.self, forKey: .safetyExplanation)
+        suitabilityExplanation = try? container.decodeIfPresent(ScoreExplanation.self, forKey: .suitabilityExplanation)
+        processingExplanation = try? container.decodeIfPresent(ScoreExplanation.self, forKey: .processingExplanation)
         // Note: nutrition is ignored during decode (legacy field)
     }
 
@@ -56,8 +80,10 @@ struct ScoreBreakdown: Codable {
         ocrConfidence: Float?,
         safetyExplanation: ScoreExplanation?,
         suitabilityExplanation: ScoreExplanation?,
-        processingExplanation: ScoreExplanation?
+        processingExplanation: ScoreExplanation?,
+        scoresAreMissing: Bool = false
     ) {
+        self.scoresAreMissing = scoresAreMissing
         self.total = total
         self.safety = safety
         self.suitability = suitability
@@ -157,6 +183,14 @@ enum ScoreSource: String, Codable {
     case manualEntry        // User-typed ingredients
     case webScraped         // Ingredients from web scraping
 
+    /// Unknown raw values decode to `.databaseVerified`. Persisted inside
+    /// `ScoreBreakdown`, so throwing would cost the whole breakdown; the badge is
+    /// cosmetic, the scores are not. See `RuleSeverity.init(from:)`.
+    init(from decoder: Decoder) throws {
+        let raw = try decoder.singleValueContainer().decode(String.self)
+        self = ScoreSource(rawValue: raw) ?? .databaseVerified
+    }
+
     var badge: String {
         switch self {
         case .databaseVerified: return "Verified"
@@ -172,15 +206,6 @@ enum ScoreSource: String, Codable {
         case .ocrEstimated: return "camera.fill"
         case .manualEntry: return "keyboard.fill"
         case .webScraped: return "sparkles"
-        }
-    }
-
-    var badgeColor: Color {
-        switch self {
-        case .databaseVerified: return ColorTokens.success
-        case .ocrEstimated: return ColorTokens.info
-        case .manualEntry: return ColorTokens.textSecondary
-        case .webScraped: return ColorTokens.info
         }
     }
 }
@@ -221,6 +246,24 @@ struct WarningFlag: Codable, Identifiable {
         self.source = source
         self.type = type
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case severity, title, explain, ingredientId, source, type
+    }
+
+    /// Nothing here throws, for the same reason as `ScoreBreakdown.init(from:)`:
+    /// these live in an array inside a blob decoded with `try?`, so one malformed
+    /// flag would take every *other* flag — allergen and toxicity warnings included —
+    /// down with it. A flag with a blank title still shows its severity and text.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        severity = try container.decodeIfPresent(RuleSeverity.self, forKey: .severity) ?? .warn
+        title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
+        explain = try container.decodeIfPresent(String.self, forKey: .explain) ?? ""
+        ingredientId = try container.decodeIfPresent(String.self, forKey: .ingredientId)
+        source = try container.decodeIfPresent(String.self, forKey: .source)
+        type = try container.decodeIfPresent(WarningType.self, forKey: .type) ?? .general
+    }
 }
 
 // MARK: - Rating Label
@@ -247,15 +290,6 @@ enum RatingLabel: String, Codable {
         case 50..<75: return .good
         case 25..<50: return .caution
         default: return .avoid
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .excellent: return ColorTokens.scoreExcellent
-        case .good: return ColorTokens.scoreGood
-        case .caution: return ColorTokens.scoreModerate
-        case .avoid: return ColorTokens.scorePoor
         }
     }
 
@@ -299,14 +333,6 @@ struct ExplanationFactor: Codable, Identifiable {
             case .positive: return "plus.circle.fill"
             case .negative: return "minus.circle.fill"
             case .neutral: return "circle.fill"
-            }
-        }
-
-        var color: Color {
-            switch self {
-            case .positive: return ColorTokens.success
-            case .negative: return ColorTokens.error
-            case .neutral: return ColorTokens.textSecondary
             }
         }
     }

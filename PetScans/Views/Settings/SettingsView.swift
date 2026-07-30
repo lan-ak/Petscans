@@ -70,6 +70,27 @@ struct SettingsView: View {
                         .foregroundColor(ColorTokens.textPrimary)
                     }
 
+                    // Sits next to the privacy link because an auto-renewing subscription
+                    // is expected to reach its terms from inside the app, not only from
+                    // the store listing or the paywall — and both paywall audiences are
+                    // gated on having no entitlement, so a subscriber can't open one.
+                    Link(destination: URL(string: "https://petscans.app/terms")!) {
+                        HStack {
+                            Image(systemName: "doc.text.fill")
+                                .foregroundColor(ColorTokens.brandPrimary)
+                                .frame(width: SpacingTokens.iconSettingsRow)
+
+                            Text("Terms of Use")
+
+                            Spacer()
+
+                            Image(systemName: "arrow.up.right")
+                                .font(.caption)
+                                .foregroundColor(ColorTokens.textSecondary)
+                        }
+                        .foregroundColor(ColorTokens.textPrimary)
+                    }
+
                     Link(destination: URL(string: "https://petscans.app/support")!) {
                         HStack {
                             Image(systemName: "envelope.fill")

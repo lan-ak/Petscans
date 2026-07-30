@@ -18,7 +18,7 @@ export interface CatalogRow {
   species: 'dog' | 'cat';
   category: 'food' | 'treat';
   nIngredients: number;
-  tier: 'A' | 'B' | 'C';
+  tier: 'A' | 'B' | 'C' | 'S';
 }
 
 export type RejectReason =
@@ -26,6 +26,9 @@ export type RejectReason =
   | 'not_retail_barcode'
   | 'junk_brand'
   | 'thin_ingredients'
+  | 'word_split'
+  | 'placeholder_ingredients'
+  | 'empty_ingredients'
   | 'non_english'
   | 'vague_labelling'
   | 'unknown_species'
@@ -82,8 +85,11 @@ function ingredientBlocks(raw: unknown): string[] {
  * blurbs. Everything from the first of these markers onward is never an ingredient, so we
  * truncate there. Matched case-insensitively.
  */
+// No leading \b: HTML stripping regularly welds the heading onto the last ingredient with no
+// separator ("…Rosemary ExtractGuaranteed Analysis:"), and a leading word boundary cannot match
+// there. These are distinctive multi-word phrases, so matching mid-word is safe and intended.
 const TABLE_MARKER =
-  /\b(guaranteed analysis|crude protein|crude fat|crude fib|metabolizable energy|calorie content|calorie information)\b/i;
+  /(guaranteed analysis|crude protein|crude fat|crude fib|metabolizable energy|calorie content|calorie information|feeding instructions?|feeding guidelines?|feeding directions?|storage instructions?|intended as a chew)\b/i;
 
 /** A token that is marketing prose or a contact/URL blurb rather than an ingredient. */
 const PROSE_TOKEN =
@@ -144,6 +150,75 @@ export function tokenizeIngredients(rawText: string): string[] {
 }
 
 /**
+ * Words that are never an ingredient on their own — they only ever appear inside one
+ * ("preserved with mixed tocopherols", "chicken meal"). Seeing one standing alone as its own
+ * token means the list was split on the wrong character.
+ */
+const FRAGMENT_WORD =
+  /^(with|and|or|of|from|preserved|added|natural|dried|ground|whole|mixed|other|less|than|for|in|the|plus|source|contains|free|fresh|raw|pure|organic|meal|oil|extract|powder|flour|protein|starch|fiber|fibre)$/i;
+
+/** Template text that reached production instead of real data. 87 such rows are already shipped. */
+const PLACEHOLDER_TOKEN = /^ingredient\s*\d+$/i;
+
+/**
+ * Did the source split this list on spaces rather than commas?
+ *
+ * Ren's Pets serves ~57% of its ingredient strings word-shredded — "Wheat flour, glycerin,
+ * wheat gluten" arrives as "Wheat, flour, glycerin, wheat, gluten," — and inconsistently, so
+ * the same product in two sizes can be clean in one and shredded in the other. The token count
+ * stays high, so a length threshold waves it straight through and the app ends up scoring
+ * "Wheat" and "flour" as separate ingredients.
+ *
+ * A real list of any length carries multi-word ingredients ("chicken by-product meal",
+ * "mixed tocopherols"). Requiring a lone fragment word as well spares the rare genuine
+ * all-single-word list — a Temptations variety pack really is "Chicken, Salmon, Beef, Pork".
+ * Measured against the 27,053 shipped rows: zero false positives.
+ */
+function looksWordSplit(tokens: string[]): boolean {
+  if (tokens.length < 8) return false;
+  const singleWord = tokens.filter((t) => !t.includes(' ')).length / tokens.length;
+  return singleWord >= 0.9 && tokens.some((t) => FRAGMENT_WORD.test(t));
+}
+
+/** The failure modes that are provably corruption rather than merely thin data. */
+export type CorruptionReason = 'placeholder_ingredients' | 'word_split' | 'empty_ingredients';
+
+/**
+ * Judge an already-stored ingredient string, so `clean` audits the shipped catalog with the
+ * exact rules `extract` applies at the front door — one definition, no drift between them.
+ */
+export function auditIngredients(text: string): CorruptionReason | null {
+  const tokens = tokenizeIngredients(text);
+  // A stored row with nothing left to parse scores off an empty list — worse than absent,
+  // because the product looks known. Six such rows predate this check.
+  if (!tokens.length) return 'empty_ingredients';
+  if (tokens.filter((t) => PLACEHOLDER_TOKEN.test(t)).length >= 3) return 'placeholder_ingredients';
+  if (looksWordSplit(tokens)) return 'word_split';
+  return null;
+}
+
+/**
+ * A short list that is genuinely the whole label, not a truncated one.
+ *
+ * Single-ingredient treats are a real and popular category — bully sticks, freeze-dried
+ * liver, sweet potato chews, chicken feet — and "Canadian Beef Lung" or "Sweet Potato" is the
+ * complete, correct ingredient statement. Rejecting them means the user scans a bag we could
+ * have scored and gets nothing.
+ *
+ * Complete foods are different: AAFCO complete-and-balanced requires a vitamin and mineral
+ * package, so a *food* claiming two ingredients has been truncated. Hence treats only.
+ *
+ * The trailing comma is the tell for the shredded-source case ("Sweet,  Potato,"), which at
+ * this length is otherwise indistinguishable from a real two-ingredient label.
+ */
+function isCompleteShortLabel(tokens: string[], rawText: string, category: 'food' | 'treat'): boolean {
+  if (category !== 'treat') return false;
+  if (tokens.length < 1 || tokens.length > 4) return false;
+  if (rawText.trim().endsWith(',')) return false;
+  return !tokens.some((t) => FRAGMENT_WORD.test(t));
+}
+
+/**
  * The vendor's own extractor left ingredients behind in other fields on ~7,280 rows.
  * Recovering them is free yield.
  */
@@ -171,13 +246,21 @@ export function extract(row: Record<string, unknown>): CatalogRow | RejectReason
   // Tokenize the way IngredientMatcher does (parenthesis-aware) after stripping scrape debris,
   // so what we store is what it will parse.
   const tokens = tokenizeIngredients(rawText);
-  if (tokens.length < 5) return 'thin_ingredients';
+
+  // Corruption checks run before the length gate: a shredded list has a *high* token count, so
+  // testing length first lets the worst data through as tier A.
+  const corrupt = auditIngredients(rawText);
+  if (corrupt) return corrupt;
 
   const name = String(row.product_name ?? '').trim();
   if (SPANISH.test(name) || SPANISH.test(rawText)) return 'non_english';
   if (VAGUE.test(rawText)) return 'vague_labelling';
 
   const blob = `${name} ${row.category_path ?? ''} ${row.breadcrumb_text ?? ''}`;
+  const category: 'food' | 'treat' = TREAT.test(blob) ? 'treat' : 'food';
+
+  // A 1-4 ingredient treat can be a complete label; a 1-4 ingredient food cannot.
+  if (tokens.length < 5 && !isCompleteShortLabel(tokens, rawText, category)) return 'thin_ingredients';
 
   // Species drives which rules ScoreCalculator applies, so a wrong guess is a wrong score.
   // The product name is the most specific signal; fall back to the category path only when
@@ -195,8 +278,17 @@ export function extract(row: Record<string, unknown>): CatalogRow | RejectReason
     imageUrl: imageUrl.slice(0, 300),
     ingredients: tokens.join(', '),
     species,
-    category: TREAT.test(blob) ? 'treat' : 'food',
+    category,
     nIngredients,
-    tier: nIngredients >= 20 && imageUrl ? 'A' : nIngredients >= 10 ? 'B' : 'C',
+    // 'S' = short but complete (a single-ingredient chew). Distinct from 'C' so the two stay
+    // separable in the DB: C is a list we suspect is truncated and never ship, S is a whole
+    // label that happens to be one line. The app reads `tier` but does not branch on it.
+    tier: isCompleteShortLabel(tokens, rawText, category)
+      ? 'S'
+      : nIngredients >= 20 && imageUrl
+        ? 'A'
+        : nIngredients >= 10
+          ? 'B'
+          : 'C',
   };
 }

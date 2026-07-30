@@ -3,17 +3,55 @@ name: iOS CI
 on:
   push:
     branches: ["**"]
+    # `tools/matchkit/**` is here because it compiles the app's own matching and
+    # scoring sources via symlink — a change there can only be validated by
+    # running its tests. The data files matter for the same reason: they are
+    # hand-maintained, have no schema, and `matchkit`'s data-validation tests are
+    # the only thing that catches a dangling synonym or rule before it ships.
     paths:
       - "PetScans/**"
       - "PetScans.xcodeproj/**"
+      - "tools/matchkit/**"
+      - "tools/validate-ingredient-content.py"
       - ".github/workflows/ios.yml"
   pull_request:
     paths:
       - "PetScans/**"
       - "PetScans.xcodeproj/**"
+      - "tools/matchkit/**"
+      - "tools/validate-ingredient-content.py"
       - ".github/workflows/ios.yml"
 
 jobs:
+  core:
+    name: Matching, scoring & data tests
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      # Guards the one failure mode matchkit's design creates: a file added to the
+      # app's matching core but never symlinked into Sources/matchkit/Shared. The
+      # tool would still compile and still print confident numbers, computed by a
+      # matcher missing a rule. Also fails if anything in the core imports a UI
+      # framework, which is what would force a reimplementation instead.
+      - name: Check shared-source symlinks
+        working-directory: tools/matchkit
+        run: swift run matchkit doctor
+
+      # Covers persistence decoding (saved scans must survive schema changes),
+      # matcher determinism and the specific wrong matches that reached production,
+      # scoring invariants, and integrity of the four hand-maintained data files.
+      - name: Test
+        working-directory: tools/matchkit
+        run: swift test
+
+      # ingredient-content.json is model-authored and ships without human review.
+      # This script is that review: it enforces that an entry may only restate what
+      # the ingredient's own record already asserts — no invented numbers, no
+      # medical claims, no safety verdict that contradicts the record's riskLevel.
+      - name: Validate ingredient content
+        run: python3 tools/validate-ingredient-content.py --coverage
+
   build:
     name: Build (iOS Simulator)
     runs-on: macos-15

@@ -71,15 +71,6 @@ actor PetScansAPIClient {
         return request
     }
 
-    /// Drop the cached token (e.g. after a 401) so the next call re-mints.
-    func invalidateToken() {
-        cachedToken = nil
-        cachedExpiry = nil
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: Self.tokenKey)
-        defaults.removeObject(forKey: Self.expiryKey)
-    }
-
     // MARK: - Token management
 
     private func validToken() async throws -> String {

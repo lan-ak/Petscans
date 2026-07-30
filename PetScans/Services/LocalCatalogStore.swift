@@ -1,29 +1,25 @@
 import Foundation
-import Compression
 import GRDB
 
-/// Inflate the `ingredients` column, stored as a raw-DEFLATE blob to keep the bundled
-/// `catalog.sqlite` small (the ingredient text is ~60% of the file). Raw DEFLATE decodes
-/// natively via Apple's Compression framework — `COMPRESSION_ZLIB` is raw DEFLATE, matching
-/// the build tool's `zlib.deflateRawSync`. `meta.ingredients_codec` records the format.
-private func inflateIngredients(_ data: Data) -> String {
-    if data.isEmpty { return "" }
-    // Ingredient lists are a few hundred bytes to ~2 KB decompressed; 64 KB is ample headroom.
-    let capacity = 64 * 1024
-    let dst = UnsafeMutablePointer<UInt8>.allocate(capacity: capacity)
-    defer { dst.deallocate() }
-    let written = data.withUnsafeBytes { (raw: UnsafeRawBufferPointer) -> Int in
-        guard let src = raw.bindMemory(to: UInt8.self).baseAddress else { return 0 }
-        return compression_decode_buffer(dst, capacity, src, data.count, nil, COMPRESSION_ZLIB)
-    }
-    guard written > 0 else { return "" }
-    return String(bytes: UnsafeBufferPointer(start: dst, count: written), encoding: .utf8) ?? ""
+/// Read and inflate the `ingredients` blob from a catalog row.
+/// The codec itself lives in `IngredientsBlob.swift`, shared with `matchkit`.
+private func ingredientsText(_ row: Row) -> String {
+    if let data = row["ingredients"] as Data? { return inflateIngredientsBlob(data) }
+    return ""
 }
 
-/// Read and inflate the `ingredients` blob from a catalog row.
-private func ingredientsText(_ row: Row) -> String {
-    if let data = row["ingredients"] as Data? { return inflateIngredients(data) }
-    return ""
+/// Fold typed text into the shape `product_groups.search_text` is stored in: no accents, no
+/// apostrophes, punctuation reduced to spaces. That is what makes "hills" match "Hill's" and
+/// "grain free" match "Grain-Free" — people don't type the punctuation.
+///
+/// This is the Swift half of `foldForSearch` in `tools/petcatalog/scripts/petcatalog/group.ts`
+/// and must stay identical to it. The two run on opposite sides of the same comparison, so any
+/// difference shows up as products that can't be found rather than as an error.
+func foldForSearch(_ s: String) -> String {
+    s.folding(options: [.diacriticInsensitive, .caseInsensitive], locale: nil)
+        .replacingOccurrences(of: "['’`]", with: "", options: .regularExpression)
+        .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+        .joined(separator: " ")
 }
 
 /// A product resolved from the bundled catalog: barcode → ingredients, plus the metadata
@@ -37,6 +33,11 @@ struct CatalogProduct: Equatable {
     let species: Species
     let category: Category
     let tier: String
+
+    /// How many catalog rows this listing stands for — the pack sizes of the same recipe
+    /// that search folds into one result (see `product_groups` in the catalog, built by
+    /// `petcatalog group`). 1 for a scanned product, which is always a single GTIN.
+    var variantCount: Int = 1
 }
 
 /// Read-only accessor over `catalog.sqlite`, the barcode index bundled in the app.
@@ -74,12 +75,29 @@ actor LocalCatalogStore {
     /// somewhere in the name OR brand (AND across words, order-independent). So
     /// "purina chicken" matches "Purina Pro Plan Chicken & Rice" even though those
     /// words aren't adjacent and the exact product name was never typed. A plain
-    /// LIKE per term is fine over ~24k rows — no FTS index or DB rebuild needed.
+    /// LIKE per term is fine over ~23k listings — no FTS index or DB rebuild needed.
     ///
-    /// Rows without ingredient text are pushed to the bottom rather than dropped: a
-    /// hit the user recognises but can't be scored is still worth showing over
-    /// silence, but a scoreable hit is preferred so the results reveal isn't empty.
-    /// Shorter names rank first so canonical products beat long variant SKUs.
+    /// One row per *recipe*, not per SKU: the catalog lists every pack size separately, so
+    /// an ungrouped search spends most of a screen on "…, 4 lb / 11 lb / 24 lb" of the same
+    /// food. This reads `product_groups` instead, which names one representative row per
+    /// group. Terms match `search_text`, which already carries the sibling names, so typing
+    /// "24 lb" still finds the listing when the 4 lb row is the one shown — and because the
+    /// filter touches only that narrow table, `products` is joined for the survivors rather
+    /// than for every group (~4 ms a query against ~13 ms if the LIKE reads `products`).
+    /// Grouping is built by `petcatalog group`; a catalog predating it falls back to a flat
+    /// row search.
+    ///
+    /// Results are ranked by how well the row matches what was actually typed: the whole
+    /// folded query as a leading phrase first, then as a phrase anywhere, then rows that
+    /// only matched term-by-term. Catalog tier breaks the tie, and shorter names break
+    /// that, so canonical products beat long variant SKUs.
+    ///
+    /// The previous ordering led with `(ingredients IS NULL OR length(ingredients) = 0)`,
+    /// which reads as "unscoreable rows last" but is constant 0 across all 31,142 rows —
+    /// `ingredients` is `NOT NULL` and holds a DEFLATE blob whose minimum length is 6. So
+    /// the whole ORDER BY collapsed to `length(name) ASC`, i.e. shortest name wins, with
+    /// no relevance term at all: "purina" returned `FF PTE 12CT WF` and "Nutro" returned
+    /// `Merchandise`.
     func search(query: String, limit: Int = 30) -> [CatalogProduct] {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard trimmed.count >= 2, let db = database() else { return [] }
@@ -91,31 +109,75 @@ actor LocalCatalogStore {
                 .replacingOccurrences(of: "_", with: "\\_")
         }
 
-        // Cap the term count so a pathological paste can't build a huge WHERE clause.
-        let terms = trimmed.split(whereSeparator: { $0.isWhitespace }).prefix(6).map(String.init)
-        guard !terms.isEmpty else { return [] }
+        let grouped = groupingAvailable(db)
 
+        // Cap the term count so a pathological paste can't build a huge WHERE clause. On the
+        // grouped path the query travels through the same fold that built `search_text`, which
+        // is what lets "hills" find "Hill's" and "puree" find "Purée"; the fallback keeps the
+        // literal terms, because an ungrouped catalog stores names unfolded.
+        let terms = (grouped ? foldForSearch(trimmed) : trimmed)
+            .split(whereSeparator: { $0.isWhitespace })
+            .prefix(6)
+            .map(String.init)
+        guard !terms.isEmpty else { return [] }
+        let fields = grouped ? ["g.search_text"] : ["name", "brand"]
         let clause = terms
-            .map { _ in "(name LIKE ? ESCAPE '\\' OR brand LIKE ? ESCAPE '\\')" }
+            .map { _ in "(" + fields.map { "\($0) LIKE ? ESCAPE '\\'" }.joined(separator: " OR ") + ")" }
             .joined(separator: " AND ")
+        // The whole query as one phrase, matched against the same haystack the WHERE clause
+        // filters on. `instr` rather than LIKE, so the phrase needs no wildcard escaping.
+        //
+        // Both sides are padded with a space so the phrase can only match whole words.
+        // Without the padding "beef" matches the start of "beefeaters" and a peanut-butter
+        // biscuit outranks every actual beef product; `search_text` is already folded to
+        // single-space-separated tokens, so padding is all a word boundary needs.
+        //
+        // `tier` is TEXT 'S' | 'A' | 'B' with S best, so it cannot be sorted directly —
+        // plain `ASC` would rank the 306 best-described products last.
+        let phrase = " " + (grouped ? foldForSearch(trimmed) : trimmed.lowercased()) + " "
+        let haystack = grouped
+            ? "' ' || g.search_text || ' '"
+            : "' ' || lower(name || ' ' || COALESCE(brand, '')) || ' '"
+        let nameColumn = grouped ? "p.name" : "name"
+        let tierColumn = grouped ? "p.tier" : "tier"
+        let ranking = """
+                      CASE WHEN instr(\(haystack), ?) = 1 THEN 0
+                           WHEN instr(\(haystack), ?) > 0 THEN 1
+                           ELSE 2 END ASC,
+                      CASE \(tierColumn) WHEN 'S' THEN 0 WHEN 'A' THEN 1 ELSE 2 END ASC,
+                      length(\(nameColumn)) ASC
+                      """
+
         var arguments: [DatabaseValueConvertible] = terms.flatMap { term -> [String] in
             let pattern = "%\(escape(term))%"
-            return [pattern, pattern]
+            return Array(repeating: pattern, count: fields.count)
         }
+        // Positional binding: these two sit between the WHERE patterns and LIMIT in the
+        // statement below, so they must be appended in exactly that order.
+        arguments.append(phrase)
+        arguments.append(phrase)
         arguments.append(limit)
 
+        let sql = grouped
+            ? """
+              SELECT p.gtin, p.name, p.brand, p.image_url, p.ingredients, p.species, p.category, p.tier,
+                     g.variant_count
+              FROM product_groups g
+              JOIN products p ON p.gtin = g.gtin
+              WHERE \(clause)
+              ORDER BY \(ranking)
+              LIMIT ?
+              """
+            : """
+              SELECT gtin, name, brand, image_url, ingredients, species, category, tier
+              FROM products
+              WHERE \(clause)
+              ORDER BY \(ranking)
+              LIMIT ?
+              """
+
         let rows = (try? db.read { dbc -> [Row] in
-            try Row.fetchAll(
-                dbc,
-                sql: """
-                SELECT gtin, name, brand, image_url, ingredients, species, category, tier
-                FROM products
-                WHERE \(clause)
-                ORDER BY (ingredients IS NULL OR length(ingredients) = 0) ASC, length(name) ASC
-                LIMIT ?
-                """,
-                arguments: StatementArguments(arguments)
-            )
+            try Row.fetchAll(dbc, sql: sql, arguments: StatementArguments(arguments))
         }) ?? []
 
         return rows.compactMap { row in
@@ -131,7 +193,8 @@ actor LocalCatalogStore {
                 ingredients: ingredientsText(row),
                 species: species,
                 category: category,
-                tier: row["tier"]
+                tier: row["tier"],
+                variantCount: grouped ? (row["variant_count"] ?? 1) : 1
             )
         }
     }
@@ -168,6 +231,18 @@ actor LocalCatalogStore {
     }
 
     // MARK: - Private
+
+    /// Whether this catalog carries size-variant grouping. Older bundled catalogs predate
+    /// `petcatalog group`, and search has to keep working against them rather than throwing
+    /// "no such table" on every keystroke. Resolved once and cached.
+    private var hasGrouping: Bool?
+
+    private func groupingAvailable(_ db: DatabaseQueue) -> Bool {
+        if let hasGrouping { return hasGrouping }
+        let exists = (try? db.read { try $0.tableExists("product_groups") }) ?? false
+        hasGrouping = exists
+        return exists
+    }
 
     private func database() -> DatabaseQueue? {
         if let queue { return queue }

@@ -38,7 +38,7 @@ struct OnboardingView: View {
                     title: "Let's check your pet's food",
                     titleFont: TypographyTokens.displayMedium,
                     onLeading: { navigate(to: groupsPage) },
-                    onSkip: { completeAfterAHA(presentedResultPaywall: false) },
+                    onSkip: { completeAfterAHA(viewedResult: false) },
                     onSelect: { product in
                         selectedProduct = product
                         withStandardAnimation { currentPage = resultPage }
@@ -73,7 +73,7 @@ struct OnboardingView: View {
             // the first paint instead of contending with it — onboarding lasts
             // several seconds, so this still preloads well before the paywall shows.
             try? await Task.sleep(for: .seconds(1))
-            SuperwallSafe.preload(placements: ["onboarding_complete", "onboarding_finished", "aha_food_result"])
+            SuperwallSafe.preload(placements: ["onboarding_complete", "onboarding_finished"])
         }
     }
 
@@ -124,12 +124,12 @@ struct OnboardingView: View {
                 allergens: selectedAllergens,
                 groups: selectedGroups,
                 onBack: { withStandardAnimation { currentPage = searchPage } },
-                onSkip: { completeAfterAHA(presentedResultPaywall: false) },
+                onSkip: { completeAfterAHA(viewedResult: false) },
                 onScored: { summary in
                     searchedFood = summary
                     SuperwallUserAttributes.setSearchedFood(summary)
                 },
-                onContinue: { completeAfterAHA(presentedResultPaywall: true) }
+                onContinue: { completeAfterAHA(viewedResult: true) }
             )
         } else {
             Color.clear.onAppear { withStandardAnimation { currentPage = searchPage } }
@@ -324,12 +324,18 @@ struct OnboardingView: View {
         }
     }
 
-    /// Exit from the AHA payoff page. When the user taps the result CTA the
-    /// paywall fires at the peak-intent moment on `aha_food_result`; when they
-    /// skip the payoff it falls back to the standard `onboarding_complete` gate.
-    /// Only one of the two campaigns should be active in the dashboard so a user
-    /// never sees two paywalls back to back.
-    private func completeAfterAHA(presentedResultPaywall: Bool) {
+    /// Single exit from the AHA pages. Everyone leaves onboarding through
+    /// `onboarding_complete` whether they walked the food search or skipped it;
+    /// which paywall they see is a campaign-audience decision, not a placement
+    /// decision.
+    ///
+    /// The AHA paywall is selected by an audience on `user.searched_food`, set by
+    /// `SuperwallUserAttributes.setSearchedFood` when the result screen scores —
+    /// seconds before this register, so it is always in place by evaluation time.
+    /// Gating the payoff CTA on its own `aha_food_result` placement instead meant
+    /// the paywall could only ever reach users whose downloaded config already
+    /// carried that placement, which silently excluded everyone else.
+    private func completeAfterAHA(viewedResult: Bool) {
         guard !isSubmitting else { return }
         isSubmitting = true
         isNameFocused = false
@@ -338,21 +344,16 @@ struct OnboardingView: View {
         // leaving the profile page), so a pet is always created here.
         persistAndSync(createdPet: petName.isNotBlank)
 
-        if presentedResultPaywall {
-            SuperwallSafe.register(
-                placement: "aha_food_result",
-                params: [
-                    "verdict": searchedFood?.verdict.rawValue ?? "",
-                    "score": Int((searchedFood?.score ?? 0).rounded()),
-                    "flag_count": searchedFood?.flagCount ?? 0
-                ]
-            ) {
-                onComplete()
-            }
-        } else {
-            SuperwallSafe.register(placement: "onboarding_complete") {
-                onComplete()
-            }
+        SuperwallSafe.register(
+            placement: "onboarding_complete",
+            params: [
+                "viewed_food_result": viewedResult,
+                "verdict": searchedFood?.verdict.rawValue ?? "",
+                "score": Int((searchedFood?.score ?? 0).rounded()),
+                "flag_count": searchedFood?.flagCount ?? 0
+            ]
+        ) {
+            onComplete()
         }
     }
 

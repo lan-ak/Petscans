@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 /// Pet-Adapted NOVA Classification for food processing levels
 /// Based on NOVA food classification system adapted for pet food context
@@ -65,15 +65,6 @@ enum ProcessingLevel: Int, Codable, CaseIterable, Identifiable {
         case .culinaryIngredient: return "flame.fill"
         case .processed: return "gearshape.fill"
         case .ultraProcessed: return "sparkles"
-        }
-    }
-
-    var color: Color {
-        switch self {
-        case .unprocessed: return ColorTokens.scoreExcellent
-        case .culinaryIngredient: return ColorTokens.scoreGood
-        case .processed: return ColorTokens.scoreModerate
-        case .ultraProcessed: return ColorTokens.scorePoor
         }
     }
 

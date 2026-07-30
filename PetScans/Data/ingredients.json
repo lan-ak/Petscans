@@ -665,32 +665,6 @@
     ]
   },
   {
-    "id": "ing_ascorbic_acid",
-    "commonName": "Ascorbic acid",
-    "scientificName": "Vitamin C",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "synthetic",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Antioxidant, collagen synthesis",
-    "notes": "Dogs and cats produce their own; supplementation optional",
-    "processingLevel": 4,
-    "processingLevelNotes": "Synthesized vitamin",
-    "source": "AAFCO 2024, Section 9.12",
-    "sources": [
-      "AAFCO 2024, Section 9.12"
-    ]
-  },
-  {
     "id": "ing_ascorbic_acid_preservative",
     "commonName": "Ascorbic acid (preservative)",
     "scientificName": null,
@@ -1877,32 +1851,6 @@
     ]
   },
   {
-    "id": "ing_brewers_yeast",
-    "commonName": "Brewer's yeast",
-    "scientificName": "Saccharomyces cerevisiae",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "B vitamins, palatability, flea repellent",
-    "notes": "By-product of beer brewing",
-    "processingLevel": 3,
-    "processingLevelNotes": "Brewing by-product",
-    "source": "AAFCO 2024, Section 9.16",
-    "sources": [
-      "AAFCO 2024, Section 9.16"
-    ]
-  },
-  {
     "id": "ing_brewers_rice",
     "commonName": "Brewers rice",
     "scientificName": "Oryza sativa fragments",
@@ -1930,7 +1878,7 @@
   },
   {
     "id": "ing_brewer's_yeast",
-    "commonName": "Brewer\u2019s yeast",
+    "commonName": "Brewer’s yeast",
     "scientificName": "Saccharomyces cerevisiae",
     "species": [
       "dog",
@@ -1947,12 +1895,14 @@
     },
     "allergenOrSensitizationRisk": "Low to Medium",
     "typicalFunction": "B vitamins, flavor",
-    "notes": null,
+    "notes": "By-product of beer brewing",
     "processingLevel": 1,
     "source": "AAFCO 2024",
     "sources": [
-      "AAFCO 2024"
-    ]
+      "AAFCO 2024",
+      "AAFCO 2024, Section 9.16"
+    ],
+    "processingLevelNotes": "Brewing by-product"
   },
   {
     "id": "ing_broccoli",
@@ -3192,32 +3142,6 @@
     ]
   },
   {
-    "id": "ing_chicken_meal_aafco",
-    "commonName": "Chicken meal",
-    "scientificName": "Gallus domesticus (rendered)",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Medium dog|High cat",
-    "typicalFunction": "Concentrated protein",
-    "notes": null,
-    "processingLevel": 3,
-    "processingLevelNotes": "Rendered and dried",
-    "source": "AAFCO 2024, Section 9.2",
-    "sources": [
-      "AAFCO 2024, Section 9.2"
-    ]
-  },
-  {
     "id": "ing_chicken_meal",
     "commonName": "Chicken meal",
     "scientificName": "Gallus domesticus (rendered)",
@@ -3239,8 +3163,10 @@
     "processingLevel": 3,
     "source": "AAFCO 2024, Section 9.3",
     "sources": [
+      "AAFCO 2024, Section 9.2",
       "AAFCO 2024, Section 9.3"
-    ]
+    ],
+    "processingLevelNotes": "Rendered and dried"
   },
   {
     "id": "ing_chickpea_flour",
@@ -9784,40 +9710,16 @@
       "dog": "safe",
       "cat": "safe"
     },
-    "allergenOrSensitizationRisk": null,
+    "allergenOrSensitizationRisk": "Low",
     "typicalFunction": "Antioxidant preservative",
-    "notes": null,
+    "notes": "Vitamin E compounds; preferred natural preservative",
     "processingLevel": 1,
     "source": "AAFCO 2024",
     "sources": [
-      "AAFCO 2024"
-    ]
-  },
-  {
-    "id": "ing_mixed_tocopherols_preservative",
-    "commonName": "Mixed tocopherols (preservative)",
-    "scientificName": null,
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Natural antioxidant preservative",
-    "notes": "Vitamin E compounds; preferred natural preservative",
-    "processingLevel": 3,
-    "processingLevelNotes": "Extracted from vegetable oils",
-    "source": "AAFCO 2024, Section 9.17",
-    "sources": [
+      "AAFCO 2024",
       "AAFCO 2024, Section 9.17"
-    ]
+    ],
+    "processingLevelNotes": "Extracted from vegetable oils"
   },
   {
     "id": "ing_modified_food_starch",
@@ -11077,7 +10979,7 @@
   {
     "id": "ing_peppermint",
     "commonName": "Peppermint",
-    "scientificName": "Mentha \u00d7 piperita",
+    "scientificName": "Mentha × piperita",
     "species": [
       "dog"
     ],
@@ -12966,32 +12868,6 @@
     ]
   },
   {
-    "id": "ing_sodium_chloride",
-    "commonName": "Salt",
-    "scientificName": "NaCl",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Sodium source, palatability",
-    "notes": "Essential mineral; excess can be harmful",
-    "processingLevel": 2,
-    "processingLevelNotes": "Refined mineral",
-    "source": "AAFCO 2024, Section 9.11",
-    "sources": [
-      "AAFCO 2024, Section 9.11"
-    ]
-  },
-  {
     "id": "ing_salt",
     "commonName": "Salt",
     "scientificName": "Sodium chloride",
@@ -13008,14 +12884,16 @@
       "dog": "safe_in_moderation",
       "cat": "safe_in_moderation"
     },
-    "allergenOrSensitizationRisk": null,
+    "allergenOrSensitizationRisk": "Low",
     "typicalFunction": "Electrolytes, flavor",
-    "notes": null,
+    "notes": "Essential mineral; excess can be harmful",
     "processingLevel": 2,
     "source": "AAFCO 2024",
     "sources": [
-      "AAFCO 2024"
-    ]
+      "AAFCO 2024",
+      "AAFCO 2024, Section 9.11"
+    ],
+    "processingLevelNotes": "Refined mineral"
   },
   {
     "id": "ing_sardine",
@@ -15469,14 +15347,16 @@
       "dog": "safe",
       "cat": "safe"
     },
-    "allergenOrSensitizationRisk": null,
+    "allergenOrSensitizationRisk": "Low",
     "typicalFunction": "Antioxidant",
     "notes": "Dogs and cats produce their own - supplementation rarely needed",
     "processingLevel": 1,
     "source": "AAFCO 2024",
     "sources": [
-      "AAFCO 2024"
-    ]
+      "AAFCO 2024",
+      "AAFCO 2024, Section 9.12"
+    ],
+    "processingLevelNotes": "Synthesized vitamin"
   },
   {
     "id": "ing_vitamin_d",

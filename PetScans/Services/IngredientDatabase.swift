@@ -1,7 +1,11 @@
 import Foundation
 
-/// Singleton that loads and provides access to the bundled ingredient database
-/// Uses background loading to avoid blocking app startup
+/// Loads the bundled ingredient database in the background and publishes it.
+///
+/// This is now a thin observable wrapper: the data itself, and every operation on
+/// it, lives in `IngredientData`. Keeping the singleton free of logic is what lets
+/// `IngredientMatcher`, `ScoreCalculator` and the `matchkit` offline harness run
+/// against the same code with no shared global.
 ///
 /// `@Observable` so views reading the collections below re-render when the load
 /// lands. Since removing the splash screen, a view can be on screen before the
@@ -11,25 +15,29 @@ import Foundation
 final class IngredientDatabase {
     static let shared = IngredientDatabase()
 
-    private(set) var ingredients: [String: Ingredient] = [:]
-    private(set) var rules: [Rule] = []
-    private(set) var synonyms: [String: String] = [:]
+    /// The decoded database. Empty until the background load lands.
+    private(set) var data: IngredientData = .empty
+
+    /// Whether the bundled JSON has been decoded and published. False for the first
+    /// few hundred milliseconds of a launch, so anything rendering the collections
+    /// below should show a loading state rather than an empty one until it flips.
+    private(set) var isLoaded = false
+
+    // Pass-throughs, so existing call sites read the same way they always have.
+    var ingredients: [String: Ingredient] { data.ingredients }
+    var rules: [Rule] { data.rules }
+    var synonyms: [String: String] { data.synonyms }
 
     /// Curated map of ingredient ID -> the avoidance groups it belongs to, from
     /// `avoidance-groups.json`. Consumed by `ScoreCalculator` to raise warning flags
     /// for the groups an owner selected. Empty until the load lands.
-    private(set) var avoidanceGroups: [String: Set<AvoidanceGroup>] = [:]
+    var avoidanceGroups: [String: Set<AvoidanceGroup>] { data.avoidanceGroups }
 
     /// Pre-sorted ingredient list (sorted once on load, not on every access)
-    private(set) var sortedIngredients: [Ingredient] = []
+    var sortedIngredients: [Ingredient] { data.sortedIngredients }
 
     /// Rules indexed by ingredient ID for O(1) lookup
-    private(set) var rulesByIngredient: [String: [Rule]] = [:]
-
-    /// Whether the bundled JSON has been decoded and published. False for the first
-    /// few hundred milliseconds of a launch, so anything rendering the collections
-    /// above should show a loading state rather than an empty one until it flips.
-    private(set) var isLoaded = false
+    var rulesByIngredient: [String: [Rule]] { data.rulesByIngredient }
 
     /// Assigned exactly once, in `init`, before any other reference to the instance
     /// exists — so `waitForLoad()` can never observe it as nil.
@@ -43,129 +51,33 @@ final class IngredientDatabase {
     private init() {
         // Start loading immediately in background - doesn't block main thread
         loadingTask = Task.detached(priority: .userInitiated) { [weak self] in
-            let ingredients = Self.loadIngredients()
-            let rules = Self.loadRules()
-            let synonyms = Self.loadSynonyms()
-            let avoidanceGroups = Self.loadAvoidanceGroups()
-
-            // Pre-sort ingredients once (expensive operation done in background)
-            let sorted = Array(ingredients.values)
-                .sorted { $0.commonName.localizedCaseInsensitiveCompare($1.commonName) == .orderedAscending }
-
-            // Pre-index rules by ingredient ID for O(1) lookup
-            let ruleIndex = Dictionary(grouping: rules) { $0.ingredientId }
+            let loaded = IngredientData.load(from: .bundle(.main))
 
             await MainActor.run { [weak self] in
                 guard let self else { return }
-                self.ingredients = ingredients
-                self.rules = rules
-                self.synonyms = synonyms
-                self.sortedIngredients = sorted
-                self.rulesByIngredient = ruleIndex
-                self.avoidanceGroups = avoidanceGroups
+                self.data = loaded
                 self.isLoaded = true
             }
 
             LaunchMetrics.mark("ingredientDBLoaded")
             #if DEBUG
-            print("IngredientDatabase loaded: \(ingredients.count) ingredients, \(rules.count) rules, \(synonyms.count) synonyms")
+            print("IngredientDatabase loaded: \(loaded.ingredients.count) ingredients, \(loaded.rules.count) rules, \(loaded.synonyms.count) synonyms")
             #endif
         }
     }
 
-    /// Wait for database to finish loading (call before accessing data)
-    func waitForLoad() async {
+    /// Wait for the database to finish loading, then hand back the data.
+    ///
+    /// Returning it rather than making callers read `.shared` afterwards means the
+    /// matcher and scorer take their input as a parameter and stay pure.
+    @discardableResult
+    func waitForLoad() async -> IngredientData {
         await loadingTask.value
-    }
-
-    private static func loadIngredients() -> [String: Ingredient] {
-        guard let url = Bundle.main.url(forResource: "ingredients", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
-            #if DEBUG
-            print("Failed to load ingredients.json")
-            #endif
-            return [:]
-        }
-
-        do {
-            let list = try JSONDecoder().decode([Ingredient].self, from: data)
-            return Dictionary(uniqueKeysWithValues: list.map { ($0.id, $0) })
-        } catch {
-            #if DEBUG
-            print("Failed to decode ingredients.json: \(error)")
-            #endif
-            return [:]
-        }
-    }
-
-    private static func loadRules() -> [Rule] {
-        guard let url = Bundle.main.url(forResource: "rules", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
-            #if DEBUG
-            print("Failed to load rules.json")
-            #endif
-            return []
-        }
-
-        do {
-            return try JSONDecoder().decode([Rule].self, from: data)
-        } catch {
-            #if DEBUG
-            print("Failed to decode rules.json: \(error)")
-            #endif
-            return []
-        }
-    }
-
-    private static func loadSynonyms() -> [String: String] {
-        guard let url = Bundle.main.url(forResource: "synonyms", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
-            #if DEBUG
-            print("Failed to load synonyms.json")
-            #endif
-            return [:]
-        }
-
-        do {
-            return try JSONDecoder().decode([String: String].self, from: data)
-        } catch {
-            #if DEBUG
-            print("Failed to decode synonyms.json: \(error)")
-            #endif
-            return [:]
-        }
-    }
-
-    private static func loadAvoidanceGroups() -> [String: Set<AvoidanceGroup>] {
-        guard let url = Bundle.main.url(forResource: "avoidance-groups", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else {
-            #if DEBUG
-            print("Failed to load avoidance-groups.json")
-            #endif
-            return [:]
-        }
-
-        do {
-            // File is id -> [group rawValue]; unknown group strings are ignored so a
-            // future group added to the JSON can't break decode on an older build.
-            let raw = try JSONDecoder().decode([String: [String]].self, from: data)
-            return raw.reduce(into: [:]) { result, pair in
-                let groups = Set(pair.value.compactMap(AvoidanceGroup.init(rawValue:)))
-                if !groups.isEmpty { result[pair.key] = groups }
-            }
-        } catch {
-            #if DEBUG
-            print("Failed to decode avoidance-groups.json: \(error)")
-            #endif
-            return [:]
-        }
+        return data
     }
 
     /// Get rules that apply to a specific species and category
     func rules(for species: Species, category: Category) -> [Rule] {
-        rules.filter { rule in
-            rule.appliesTo.species.contains(species) &&
-            rule.appliesTo.categories.contains(category)
-        }
+        data.rules(for: species, category: category)
     }
 }

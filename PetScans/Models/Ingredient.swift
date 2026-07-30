@@ -75,6 +75,32 @@ struct Ingredient: Codable, Identifiable {
         toxicDose?[species.rawValue]
     }
 
+    /// Allergen risk for one species.
+    ///
+    /// Most entries are a plain level ("Low", "Medium to High"), but 12 encode a
+    /// per-species split as `"Medium dog|High cat"`. That raw string was being
+    /// rendered verbatim in the detail sheet — "Medium dog|High cat" shown to
+    /// someone who has already told us they own a dog. The sheet knows the species,
+    /// so it should say only the half that applies.
+    ///
+    /// Unrecognised shapes fall back to the whole string rather than dropping it:
+    /// showing something slightly awkward beats showing nothing.
+    func allergenRisk(for species: Species) -> String? {
+        guard let raw = allergenOrSensitizationRisk?.trimmingCharacters(in: .whitespaces),
+              !raw.isEmpty else { return nil }
+        guard raw.contains("|") else { return raw }
+
+        let wanted = species.rawValue.lowercased()
+        for part in raw.split(separator: "|") {
+            let piece = part.trimmingCharacters(in: .whitespaces)
+            guard piece.lowercased().hasSuffix(wanted) else { continue }
+            // "Medium dog" -> "Medium"
+            let level = piece.dropLast(wanted.count).trimmingCharacters(in: .whitespaces)
+            return level.isEmpty ? piece : level
+        }
+        return raw
+    }
+
     /// Get all sources (combines legacy `source` with new `sources` array)
     var allSources: [String] {
         var result = sources ?? []

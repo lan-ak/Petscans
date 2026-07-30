@@ -8,6 +8,8 @@ struct IngredientDetailSheet: View {
     let species: Species
     let pet: Pet?
 
+    @State private var appearancesInHistory: Int?
+
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @State private var isInAvoidList: Bool
@@ -34,7 +36,9 @@ struct IngredientDetailSheet: View {
                 VStack(alignment: .leading, spacing: SpacingTokens.lg) {
                     headerSection
 
-                    if currentRiskLevel != "safe" {
+                    aboutSection
+
+                    if RiskTier(currentRiskLevel) != .safe {
                         riskSection
                     }
 
@@ -46,11 +50,19 @@ struct IngredientDetailSheet: View {
                         toxicDoseSection(dose)
                     }
 
-                    if let notes = ingredient.notes, !notes.isEmpty {
+                    // Only when there is no authored content. The About section is
+                    // written *from* `notes`, so showing both repeats the same
+                    // sentence twice in a row — visible on Sweet potato, where the
+                    // About text and the Notes card said the same thing.
+                    if !hasAuthoredContent, let notes = ingredient.notes, !notes.isEmpty {
                         notesSection(notes)
                     }
 
+                    rulesSection
+
                     detailsSection
+
+                    historySection
 
                     if !ingredient.allSources.isEmpty {
                         sourcesSection
@@ -63,6 +75,7 @@ struct IngredientDetailSheet: View {
                 .padding(SpacingTokens.screenPadding)
             }
             .background(ColorTokens.backgroundPrimary)
+            .task { await countAppearancesInHistory() }
             .navigationTitle("Ingredient Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -103,42 +116,80 @@ struct IngredientDetailSheet: View {
         }
     }
 
-    @ViewBuilder
+    /// Badge text and colour both come from `RiskTier`, the classification
+    /// `ScoreCalculator` scores against.
+    ///
+    /// This used to run its own ladder that lumped "safe_in_moderation" in with
+    /// "caution" — so 40 ingredients wore a warning badge while the score treated
+    /// them as a 6-point deduction rather than 15. The badge was overstating the
+    /// concern relative to the number beside it.
     private var riskBadge: some View {
-        let risk = currentRiskLevel.lowercased()
-        if risk.contains("caution") || risk.contains("moderation") {
-            HStack(spacing: SpacingTokens.xxxs) {
-                Image(systemName: "exclamationmark.triangle.fill")
-                Text("Caution")
+        let tier = RiskTier(currentRiskLevel)
+        return HStack(spacing: SpacingTokens.xxxs) {
+            Image(systemName: tier.icon)
+            Text(tier.displayName)
+        }
+        .labelSmall()
+        .foregroundColor(.white)
+        .padding(.horizontal, SpacingTokens.xxs)
+        .padding(.vertical, SpacingTokens.xxxs)
+        .background(tier.color)
+        .cornerRadius(SpacingTokens.radiusSmall)
+    }
+
+    // MARK: - About
+
+    /// Plain-language explanation, always present.
+    ///
+    /// Prefers the authored entry from `ingredient-content.json`; falls back to
+    /// `composedSummary()`, assembled from fields every record has. The point of the
+    /// fallback is that no ingredient is ever a dead tap — before this, 69 of the
+    /// most common ingredients in the catalog opened a sheet with nothing in it.
+    ///
+    /// Authored content is display-only and model-written; it deliberately carries
+    /// no severity colouring, so it reads as description rather than as a verdict.
+    /// Verdicts live in the risk section and in "What the research says".
+    private var authoredContent: IngredientContent? {
+        let entry = IngredientDatabase.shared.data.content[ingredient.id]
+        return (entry?.isEmpty == false) ? entry : nil
+    }
+
+    private var hasAuthoredContent: Bool { authoredContent != nil }
+
+    @ViewBuilder
+    private var aboutSection: some View {
+        if let authored = authoredContent {
+            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                Text(authored.whatItIs)
+                    .bodyText()
+                    .foregroundColor(ColorTokens.textPrimary)
+
+                if !authored.whyItsHere.isEmpty {
+                    Text(authored.whyItsHere)
+                        .bodySmall()
+                        .foregroundColor(ColorTokens.textSecondary)
+                }
+
+                if let watch = authored.whatToWatchFor, !watch.isEmpty {
+                    VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
+                        Text("What to watch for")
+                            .heading3()
+                            .foregroundColor(ColorTokens.textSecondary)
+                        Text(watch)
+                            .bodySmall()
+                            .foregroundColor(ColorTokens.textPrimary)
+                    }
+                    .padding(.top, SpacingTokens.xxs)
+                }
             }
-            .labelSmall()
-            .foregroundColor(.white)
-            .padding(.horizontal, SpacingTokens.xxs)
-            .padding(.vertical, SpacingTokens.xxxs)
-            .background(ColorTokens.warning)
-            .cornerRadius(SpacingTokens.radiusSmall)
-        } else if risk.contains("toxic") || risk.contains("avoid") {
-            HStack(spacing: SpacingTokens.xxxs) {
-                Image(systemName: "xmark.circle.fill")
-                Text("Avoid")
-            }
-            .labelSmall()
-            .foregroundColor(.white)
-            .padding(.horizontal, SpacingTokens.xxs)
-            .padding(.vertical, SpacingTokens.xxxs)
-            .background(ColorTokens.error)
-            .cornerRadius(SpacingTokens.radiusSmall)
-        } else {
-            HStack(spacing: SpacingTokens.xxxs) {
-                Image(systemName: "checkmark.circle.fill")
-                Text("Safe")
-            }
-            .labelSmall()
-            .foregroundColor(.white)
-            .padding(.horizontal, SpacingTokens.xxs)
-            .padding(.vertical, SpacingTokens.xxxs)
-            .background(ColorTokens.success)
-            .cornerRadius(SpacingTokens.radiusSmall)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
+        } else if let composed = ingredient.composedSummary() {
+            Text(composed)
+                .bodyText()
+                .foregroundColor(ColorTokens.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
         }
     }
 
@@ -183,32 +234,22 @@ struct IngredientDetailSheet: View {
         HStack(spacing: SpacingTokens.xxxs) {
             Image(systemName: species.icon)
                 .font(.system(size: 12))
-            Text(riskLevel.capitalized)
+            // The tier's own wording, not the raw database string: `.capitalized` printed
+            // "Toxic" where every other badge says "Avoid", and would render the stored
+            // `safe_in_moderation` family as "Safe_In_Moderation". The colour on the next
+            // line already routes through `RiskTier`.
+            Text(RiskTier(riskLevel).displayName)
                 .caption()
         }
         .foregroundColor(riskColorFor(riskLevel))
     }
 
     private func riskColorFor(_ riskLevel: String) -> Color {
-        let risk = riskLevel.lowercased()
-        if risk.contains("toxic") || risk.contains("avoid") {
-            return ColorTokens.error
-        } else if risk.contains("caution") || risk.contains("moderation") {
-            return ColorTokens.warning
-        } else {
-            return ColorTokens.success
-        }
+        RiskTier(riskLevel).color
     }
 
     private var riskIcon: String {
-        let risk = currentRiskLevel.lowercased()
-        if risk.contains("caution") || risk.contains("moderation") {
-            return "exclamationmark.triangle.fill"
-        } else if risk.contains("toxic") || risk.contains("avoid") {
-            return "xmark.circle.fill"
-        } else {
-            return "checkmark.circle.fill"
-        }
+        RiskTier(currentRiskLevel).icon
     }
 
     private var riskColor: Color {
@@ -216,13 +257,16 @@ struct IngredientDetailSheet: View {
     }
 
     private var riskExplanation: String {
-        let risk = currentRiskLevel.lowercased()
-        if risk.contains("caution") || risk.contains("moderation") {
-            return "This ingredient may not be suitable for all \(species.displayName.lowercased())s. Some animals may have sensitivities or there may be concerns with certain formulations. Check the notes below for specific information."
-        } else if risk.contains("toxic") || risk.contains("avoid") {
-            return "This ingredient is not recommended for \(species.displayName.lowercased())s. It may cause adverse health effects. Please review the information below for details."
-        } else {
-            return "This ingredient is generally considered safe for \(species.displayName.lowercased())s when used appropriately."
+        let animal = species.displayName.lowercased() + "s"
+        switch RiskTier(currentRiskLevel) {
+        case .toxic:
+            return "This ingredient is not recommended for \(animal). It may cause adverse health effects. Please review the information below for details."
+        case .caution:
+            return "This ingredient may not be suitable for all \(animal). Some animals may have sensitivities or there may be concerns with certain formulations. Check the notes below for specific information."
+        case .moderation, .mostlySafe:
+            return "This ingredient is generally fine for \(animal) in normal amounts. A few animals are sensitive to it — the notes below cover what to watch for."
+        case .safe:
+            return "This ingredient is generally considered safe for \(animal) when used appropriately."
         }
     }
 
@@ -288,6 +332,120 @@ struct IngredientDetailSheet: View {
         .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
     }
 
+    // MARK: - Safety Rules
+
+    /// The curated rules that apply to this ingredient, with the strength of the
+    /// evidence behind each.
+    ///
+    /// `rules.json` carries an `evidence` field on all 47 rules and nothing
+    /// displayed it. Saying "strong evidence" or "limited evidence" out loud is
+    /// what separates a warning a reader can act on from one they have to take on
+    /// faith — and admitting when a concern is debated builds more trust than a
+    /// uniformly confident tone.
+    @ViewBuilder
+    private var rulesSection: some View {
+        let rules = (IngredientDatabase.shared.rulesByIngredient[ingredient.id] ?? [])
+            .filter { $0.appliesTo.species.contains(species) }
+            .sorted { $0.severity.sortOrder < $1.severity.sortOrder }
+
+        if !rules.isEmpty {
+            VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+                HStack(spacing: SpacingTokens.xxs) {
+                    Image(systemName: "checklist")
+                        .foregroundColor(ColorTokens.textSecondary)
+                    Text("What the research says")
+                        .heading2()
+                }
+
+                ForEach(rules, id: \.id) { rule in
+                    VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
+                        HStack(spacing: SpacingTokens.xxs) {
+                            Image(systemName: rule.severity.icon)
+                                .foregroundColor(rule.severity.color)
+                            Text(rule.severity.displayName)
+                                .labelSmall()
+                                .foregroundColor(rule.severity.color)
+
+                            let evidence = evidenceLabel(rule.evidence)
+                            if !evidence.isEmpty {
+                                Text("· \(evidence)")
+                                    .caption()
+                                    .foregroundColor(ColorTokens.textTertiary)
+                            }
+                        }
+
+                        Text(rule.explain)
+                            .bodySmall()
+                            .foregroundColor(ColorTokens.textPrimary)
+
+                        if let source = rule.source {
+                            Text(source)
+                                .caption()
+                                .foregroundColor(ColorTokens.textTertiary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .cardStyle(backgroundColor: ColorTokens.surfacePrimary)
+        }
+    }
+
+    /// Turns the raw `evidence` value into something a reader can weigh.
+    ///
+    /// The shipped vocabulary is only "strong" (29 rules) and "medium" (18); the
+    /// rest are here so a future value renders sensibly rather than as a bare word,
+    /// and anything unrecognised falls through to the raw string instead of being
+    /// dropped — silently hiding the strength of a safety claim is the one outcome
+    /// worth avoiding.
+    private func evidenceLabel(_ evidence: String) -> String {
+        switch evidence.lowercased() {
+        case "strong": return "Strong evidence"
+        case "medium", "moderate": return "Moderate evidence"
+        case "limited", "weak": return "Limited evidence"
+        case "debated", "mixed": return "Debated"
+        default: return evidence.isEmpty ? "" : evidence.capitalized
+        }
+    }
+
+    // MARK: - History
+
+    /// How often this ingredient shows up in the user's own scans.
+    ///
+    /// Connects an abstract ingredient to what they actually buy, which is more
+    /// use to them than another adjective about the ingredient itself.
+    @ViewBuilder
+    private var historySection: some View {
+        if let count = appearancesInHistory, count > 0 {
+            HStack(spacing: SpacingTokens.xxs) {
+                Image(systemName: "clock.arrow.circlepath")
+                    .foregroundColor(ColorTokens.textSecondary)
+                Text(count == 1
+                     ? "Found in 1 of your saved scans"
+                     : "Found in \(count) of your saved scans")
+                    .bodySmall()
+                    .foregroundColor(ColorTokens.textSecondary)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    /// Counts saved scans containing this ingredient.
+    ///
+    /// Runs off the main render pass and caps the fetch: `matchedIngredients`
+    /// decodes JSON per scan, so this stays cheap at realistic history sizes and
+    /// bounded at unrealistic ones.
+    private func countAppearancesInHistory() async {
+        guard appearancesInHistory == nil else { return }
+        var descriptor = FetchDescriptor<Scan>(sortBy: [SortDescriptor(\.scannedAt, order: .reverse)])
+        descriptor.fetchLimit = 500
+        let scans = (try? modelContext.fetch(descriptor)) ?? []
+        appearancesInHistory = scans.count { scan in
+            scan.matchedIngredients.contains { $0.ingredientId == ingredient.id }
+        }
+    }
+
     // MARK: - Details Section
 
     private var detailsSection: some View {
@@ -310,7 +468,7 @@ struct IngredientDetailSheet: View {
                     }
                 }
 
-                if let allergenRisk = ingredient.allergenOrSensitizationRisk, !allergenRisk.isEmpty {
+                if let allergenRisk = ingredient.allergenRisk(for: species) {
                     detailItem(label: "Allergen Risk", value: allergenRisk)
                 }
 

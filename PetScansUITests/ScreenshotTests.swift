@@ -205,19 +205,17 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(firstResult.waitForExistence(timeout: 8), "a search result")
         firstResult.tap()
 
-        // Result page: wait for the tour's Next button (tour auto-starts).
-        let tourNext = app.buttons["tour-next"]
-        XCTAssertTrue(tourNext.waitForExistence(timeout: 12), "tour started")
-        takeScreenshot(named: "aha-03-result-tour1")
-        tourNext.tap()
-        Thread.sleep(forTimeInterval: 0.8)
-        takeScreenshot(named: "aha-04-result-tour2")
-        app.buttons["tour-next"].tap()
-        Thread.sleep(forTimeInterval: 0.8)
-        takeScreenshot(named: "aha-05-result-tour3")
-        app.buttons["tour-next"].tap()   // "Got it" — ends tour
-        Thread.sleep(forTimeInterval: 0.8)
-        takeScreenshot(named: "aha-06-result-full")
+        // Result page. This used to wait on a coach-mark tour's "tour-next" button, but no
+        // such button exists — `OnboardingFoodResultView` documents that the reveal is
+        // "deliberately left to land on its own — no coach-mark tour". The tour was dropped
+        // from the design and the assertion was never updated, so this test has failed at
+        // this line since it was written, taking the whole flow below it with it.
+        //
+        // Arrival is now asserted on the result screen's own CTA, which is what actually
+        // ships.
+        let ahaContinue = app.buttons["aha-continue"]
+        XCTAssertTrue(ahaContinue.waitForExistence(timeout: 12), "AHA result page rendered")
+        takeScreenshot(named: "aha-03-result-full")
 
         // Tap an ingredient to open its detail sheet.
         let infoRow = app.buttons.containing(

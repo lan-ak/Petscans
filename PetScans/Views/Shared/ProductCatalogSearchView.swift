@@ -144,10 +144,20 @@ struct ProductCatalogSearchView: View {
                     .foregroundColor(ColorTokens.textPrimary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
-                if let brand = product.brand, !brand.isEmpty {
-                    Text(brand)
-                        .font(TypographyTokens.caption)
-                        .foregroundColor(ColorTokens.textSecondary)
+                // One row per recipe, so say when it stands for more than one pack size —
+                // otherwise the sizes the catalog does carry look missing.
+                let brand = product.brand.map { $0.trimmingCharacters(in: .whitespaces) } ?? ""
+                HStack(spacing: 4) {
+                    if !brand.isEmpty {
+                        Text(brand)
+                            .font(TypographyTokens.caption)
+                            .foregroundColor(ColorTokens.textSecondary)
+                    }
+                    if product.variantCount > 1 {
+                        Text(brand.isEmpty ? "\(product.variantCount) sizes" : "· \(product.variantCount) sizes")
+                            .font(TypographyTokens.caption)
+                            .foregroundColor(ColorTokens.textTertiary)
+                    }
                 }
             }
             Spacer()
@@ -199,6 +209,18 @@ struct ProductCatalogSearchView: View {
                 .foregroundColor(ColorTokens.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, SpacingTokens.xxl)
+
+            // A food genuinely missing from the catalog otherwise ends onboarding on a
+            // screen with nothing to press but the de-emphasised corner "Skip". Only
+            // offered where a skip handler exists — the scanner presents this same view
+            // as a sheet and already has its own dismiss.
+            if let onSkip {
+                Button("Scan the label instead", action: onSkip)
+                    .font(TypographyTokens.body)
+                    .foregroundColor(ColorTokens.brandPrimary)
+                    .padding(.top, SpacingTokens.sm)
+            }
+
             Spacer()
             Spacer()
         }

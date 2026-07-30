@@ -94,3 +94,7 @@ Walmart Data/
 # Catalog backups taken before a rebuild/enrich (large binaries)
 PetScans/Data/*.bak
 .asc/artifacts/
+
+# Retailer harvest sidecars (JSONL records, resume ledgers, logs). Large and regenerable —
+# the catalog they produce is the committed artifact, not these.
+tools/petcatalog/harvest/

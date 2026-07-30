@@ -1,0 +1,52 @@
+{
+  "_comment": [
+    "A saved scan's persisted JSON in the shape written by PetScans 1.4.3 and earlier.",
+    "Captured before the decoder hardening of 2026-07-30. This file must NEVER be",
+    "edited to accommodate a schema change — its whole purpose is to prove that a",
+    "scan saved by a shipped build still decodes correctly after one. If a change",
+    "breaks it, the change breaks History on every device that has these rows.",
+    "Note what is absent: matchConfidence, scoresAreMissing, and any processing",
+    "explanation. Those postdate this shape."
+  ],
+  "matchedIngredients": [
+    { "ingredientId": "ing_chicken", "labelName": "Chicken", "rank": 1, "processingLevel": 1 },
+    { "ingredientId": "ing_brown_rice", "labelName": "Brown Rice", "rank": 2, "processingLevel": 2 },
+    { "labelName": "Natural Flavoring Blend", "rank": 3 },
+    { "ingredientId": "ing_garlic", "labelName": "Garlic", "rank": 4, "processingLevel": 1 }
+  ],
+  "scoreBreakdown": {
+    "total": 72.5,
+    "safety": 80.0,
+    "suitability": 65.0,
+    "nutrition": 50.0,
+    "flags": [
+      {
+        "severity": "high",
+        "title": "Possible allergen",
+        "explain": "Chicken may conflict with Max's allergen profile.",
+        "ingredientId": "ing_chicken",
+        "type": "allergen"
+      },
+      {
+        "severity": "warn",
+        "title": "Ingredient warning",
+        "explain": "Garlic in large quantities may be harmful.",
+        "ingredientId": "ing_garlic",
+        "source": "ASPCA",
+        "type": "safety"
+      }
+    ],
+    "unmatched": ["Natural Flavoring Blend"],
+    "matchedCount": 3,
+    "totalCount": 4,
+    "scoreSource": "databaseVerified",
+    "safetyExplanation": {
+      "factors": [
+        { "id": "ing_chicken", "description": "Safe ingredient", "impact": "positive", "ingredientName": "Chicken" },
+        { "id": "ing_garlic", "description": "Use with caution", "impact": "negative", "ingredientName": "Garlic" }
+      ],
+      "summary": "One ingredient requires attention.",
+      "labelOverride": "Caution"
+    }
+  }
+}

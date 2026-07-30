@@ -21,6 +21,12 @@ struct ProductScoreView: View {
     let mode: Mode
     let scannedAt: Date?
 
+    /// This scan's stored JSON could not be read, so `scoreBreakdown` is the zeroed
+    /// fallback rather than a real result. Suppresses the rating and score cards —
+    /// a total of 0 renders as "Avoid", and telling someone their food is dangerous
+    /// because we failed to parse our own file is worse than telling them nothing.
+    let dataUnavailable: Bool
+
     @Environment(\.requestReview) private var requestReview
 
     @State private var notes: String = ""
@@ -37,6 +43,8 @@ struct ProductScoreView: View {
     private let actualMatchRate: Double
     private let actualMatchPercentage: Int
     private let unmatchedIngredientNames: [String]
+    /// Matched, but by inference rather than a dictionary lookup.
+    private let inferredMatchCount: Int
 
     // For saved scans - need bindable access
     private var scan: Scan? {
@@ -58,8 +66,10 @@ struct ProductScoreView: View {
         petName: String?,
         selectedPet: Pet? = nil,
         mode: Mode,
-        scannedAt: Date? = nil
+        scannedAt: Date? = nil,
+        dataUnavailable: Bool = false
     ) {
+        self.dataUnavailable = dataUnavailable
         self.productName = productName
         self.brand = brand
         self.imageUrl = imageUrl
@@ -79,6 +89,9 @@ struct ProductScoreView: View {
         self.actualMatchRate = actualTotalCount > 0 ? Double(actualMatchedCount) / Double(actualTotalCount) : 0
         self.actualMatchPercentage = Int(actualMatchRate * 100)
         self.unmatchedIngredientNames = matchedIngredients.filter { !$0.isMatched }.map { $0.labelName }
+        self.inferredMatchCount = matchedIngredients.filter {
+            $0.matchConfidence.isDatabaseMatch && !$0.matchConfidence.isCertain
+        }.count
     }
 
     var body: some View {
@@ -90,57 +103,63 @@ struct ProductScoreView: View {
                 // Product header
                 productHeader
 
-                // Allergen alert banner (only shown when allergens found)
-                allergenAlertBanner
+                if dataUnavailable {
+                    unreadableScanBanner
+                } else {
+                    // Allergen alert banner (only shown when allergens found)
+                    allergenAlertBanner
 
-                // Rating label — bounces in once when a fresh result appears.
-                RatingLabelView(label: scoreBreakdown.ratingLabel)
-                    .scaleEffect(ratingRevealed ? 1 : 0.85)
-                    .opacity(ratingRevealed ? 1 : 0)
+                    // Rating label — bounces in once when a fresh result appears.
+                    RatingLabelView(label: scoreBreakdown.ratingLabel)
+                        .scaleEffect(ratingRevealed ? 1 : 0.85)
+                        .opacity(ratingRevealed ? 1 : 0)
 
-                // Score breakdown with explanations
-                VStack(spacing: SpacingTokens.xs) {
-                    // Suitability first - highest priority (allergen matching)
-                    ScoreExplanationCard(
-                        title: "Suitability",
-                        score: scoreBreakdown.suitability,
-                        explanation: scoreBreakdown.suitabilityExplanation
-                    )
-
-                    ScoreExplanationCard(
-                        title: "Safety",
-                        score: scoreBreakdown.safety,
-                        explanation: scoreBreakdown.safetyExplanation
-                    )
-
-                    // Processing score (only shown for food/treats)
-                    if let processingScore = scoreBreakdown.processing {
+                    // Score breakdown with explanations
+                    VStack(spacing: SpacingTokens.xs) {
+                        // Suitability first - highest priority (allergen matching)
                         ScoreExplanationCard(
-                            title: "Processing",
-                            score: processingScore,
-                            explanation: scoreBreakdown.processingExplanation
+                            title: "Suitability",
+                            score: scoreBreakdown.suitability,
+                            explanation: scoreBreakdown.suitabilityExplanation
                         )
+
+                        ScoreExplanationCard(
+                            title: "Safety",
+                            score: scoreBreakdown.safety,
+                            explanation: scoreBreakdown.safetyExplanation
+                        )
+
+                        // Processing score (only shown for food/treats)
+                        if let processingScore = scoreBreakdown.processing {
+                            ScoreExplanationCard(
+                                title: "Processing",
+                                score: processingScore,
+                                explanation: scoreBreakdown.processingExplanation
+                            )
+                        }
                     }
                 }
 
-                // OCR info banner (scan results only)
-                if scoreBreakdown.scoreSource == .ocrEstimated {
-                    ocrInfoBanner
+                if !dataUnavailable {
+                    // OCR info banner (scan results only)
+                    if scoreBreakdown.scoreSource == .ocrEstimated {
+                        ocrInfoBanner
+                    }
+
+                    // Split warnings section
+                    warningsSection
+
+                    // Ingredient recognition section
+                    ingredientRecognitionSection
+
+                    // Processing profile section (NOVA-style classification)
+                    if matchedIngredients.contains(where: { $0.processingLevel != nil }) {
+                        ProcessingSummaryCard(ingredients: matchedIngredients)
+                    }
+
+                    // Ingredients list
+                    ingredientsListSection
                 }
-
-                // Split warnings section
-                warningsSection
-
-                // Ingredient recognition section
-                ingredientRecognitionSection
-
-                // Processing profile section (NOVA-style classification)
-                if matchedIngredients.contains(where: { $0.processingLevel != nil }) {
-                    ProcessingSummaryCard(ingredients: matchedIngredients)
-                }
-
-                // Ingredients list
-                ingredientsListSection
 
                 // Mode-specific sections
                 switch mode {
@@ -229,6 +248,8 @@ struct ProductScoreView: View {
 
     private func renderShareCard() {
         guard renderedShareCard == nil else { return }
+        // Never let a fabricated 0 escape the device as a shareable "Avoid" card.
+        guard !dataUnavailable else { return }
         guard let image = ShareCardRenderer.render(
             productName: productName,
             brand: brand,
@@ -258,6 +279,26 @@ struct ProductScoreView: View {
         guard ReviewPrompt.consumePending() else { return }
 
         requestReview()
+    }
+
+    // MARK: - Unreadable Scan Banner
+
+    private var unreadableScanBanner: some View {
+        VStack(alignment: .leading, spacing: SpacingTokens.xs) {
+            HStack(spacing: SpacingTokens.xxs) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .foregroundColor(ColorTokens.warning)
+                Text("This scan couldn't be loaded")
+                    .heading2()
+                Spacer()
+            }
+
+            Text("Its saved results are unreadable, so we can't show a score for it. Scanning the product again will give you a fresh result.")
+                .bodySmall()
+                .foregroundColor(ColorTokens.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .cardStyle(backgroundColor: ColorTokens.warning.opacity(0.1))
     }
 
     // MARK: - Allergen Alert Banner
@@ -409,11 +450,20 @@ struct ProductScoreView: View {
                         Spacer()
                     }
 
+                    // Break out the ones we inferred rather than looked up. The
+                    // headline figure counts both, so without this line a product
+                    // held together by guesses reads exactly like one we know cold.
+                    if inferredMatchCount > 0 {
+                        Text("\(inferredMatchCount) identified by closest match")
+                            .caption()
+                            .foregroundColor(ColorTokens.info)
+                    }
+
                     if !unmatchedIngredientNames.isEmpty {
                         Text("Unrecognized: \(unmatchedIngredientNames.prefix(3).joined(separator: ", "))\(unmatchedIngredientNames.count > 3 ? "..." : "")")
                             .caption()
                             .foregroundColor(ColorTokens.textSecondary)
-                    } else {
+                    } else if inferredMatchCount == 0 {
                         Text("All ingredients in our database")
                             .caption()
                             .foregroundColor(ColorTokens.success)
@@ -463,13 +513,49 @@ struct ProductScoreView: View {
                 .padding(.top, SpacingTokens.xxs)
             }
 
-            if !scoreBreakdown.unmatched.isEmpty {
-                Text("Unrecognized ingredients are marked with a question mark")
-                    .caption()
-                    .foregroundColor(ColorTokens.textSecondary)
-            }
         }
         .cardStyle(backgroundColor: ColorTokens.surfaceSecondary)
+    }
+
+    /// The only row marker: an ingredient we could not identify at all.
+    ///
+    /// There used to be a marker for every state, including a solid green check on
+    /// every recognised ingredient. That check appeared on ~90% of rows, so it
+    /// carried no information — it was a decoration that made the genuinely useful
+    /// markers harder to spot. What's left is the exception: a token we don't know.
+    ///
+    /// *How* a known ingredient was matched still matters, but it belongs in the
+    /// detail sheet next to the evidence, not as an icon the user has to decode.
+    @ViewBuilder
+    private func unknownIndicator(for matchedIngredient: MatchedIngredient) -> some View {
+        if !matchedIngredient.isMatched {
+            Image(systemName: "questionmark.circle")
+                .foregroundColor(ColorTokens.warning)
+                .accessibilityLabel("Not in our database yet")
+        }
+    }
+
+    /// Species-specific risk, shown inline so a concerning ingredient is visible
+    /// without tapping every row in a 27-item list.
+    ///
+    /// Uses `RiskTier`, the same classification `ScoreCalculator` scores against,
+    /// so the row and the score can't disagree.
+    @ViewBuilder
+    private func riskIndicator(for ingredient: Ingredient) -> some View {
+        // Symbol and colour come from the tier rather than being restated here. Restating
+        // them is exactly what made this row draw a purple `severityCritical` octagon for
+        // an ingredient the detail sheet, one tap away, badges red via `tier.color` —
+        // while the comment above claimed the two could not disagree. Purple is otherwise
+        // reserved for `RuleSeverity.critical`.
+        //
+        // Only the concerning tiers draw; a marker on a fine ingredient is the clutter
+        // this replaced.
+        let tier = RiskTier(ingredient.riskLevel(for: species))
+        if tier.isConcerning {
+            Image(systemName: tier.icon)
+                .foregroundColor(tier.color)
+                .accessibilityLabel(tier.displayName)
+        }
     }
 
     private func ingredientRow(_ matchedIngredient: MatchedIngredient) -> some View {
@@ -490,18 +576,17 @@ struct ProductScoreView: View {
 
                 Spacer()
 
-                // Processing level badge (if available)
-                if let level = matchedIngredient.processingLevel {
+                // Processing level badge (if available). Resolved live rather than
+                // read from the snapshot, so a database update improves old scans.
+                if let level = matchedIngredient.resolvedProcessingLevel(IngredientDatabase.shared.ingredients) {
                     ProcessingBadgeView(level: level, size: .small, showLabel: false)
                 }
 
-                if matchedIngredient.isMatched {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(ColorTokens.success)
-                } else {
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(ColorTokens.warning)
+                if let ingredient = fullIngredient {
+                    riskIndicator(for: ingredient)
                 }
+
+                unknownIndicator(for: matchedIngredient)
 
                 // Show chevron for tappable ingredients
                 if fullIngredient != nil {
@@ -602,7 +687,9 @@ extension ProductScoreView {
             petName: nil,
             selectedPet: nil,
             mode: .savedScan(scan: scan, onDelete: onDelete),
-            scannedAt: scan.scannedAt
+            scannedAt: scan.scannedAt,
+            // Read after the two accessors above, which is what sets the flag.
+            dataUnavailable: scan.decodeFailed
         )
     }
 }
