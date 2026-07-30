@@ -24,12 +24,14 @@ Five-angle creative test to find the winning message. Ran live ~Jul 22–29, 202
 
 ---
 
-## 🟢 Round 2 — Allergen Winner — SCHEDULED (starts Jul 29)
+## ⏸️ Round 2 — Allergen Winner — PAUSED (pending new app release)
 
 Iterate on the Round 1 winner: 3 statics + 1 UGC video, all on the allergen angle.
 
-- **Status:** LIVE-SCHEDULED. Campaign `120248427667800056` created + all 4 ad sets/ads ACTIVE, holding on a future start_time (no spend yet).
-- **Schedule:** starts **2026-07-29 16:52 EDT** (exactly when Round 1 ends — no overlap) → ends **2026-08-05 16:52 EDT**. ~$385 total.
+- **Status:** PAUSED 2026-07-30 pending a new app release. Campaign `120248427667800056` — ran Jul 29 4:52 PM → paused Jul 30, ~$28 spent.
+- **Early read (small sample, directional):** V1 UGC Video led hard at **15.8% CTR**; statics 6.7–8.1%. 0 installs yet (too early). Video format looks like the winner.
+- **End dates extended to 2027-06-30** (open-ended) so it's resumable whenever the release ships. start_time is in the past, so on resume it delivers immediately.
+- **To relaunch:** resume campaign **+ all 4 ad sets + all 4 ads** (resume does NOT cascade). Mind the $100/day account cap if Round 1/PickleGo are live then. Judge on install→scan activation, not just CPI.
 - **Spec:** [campaign-allergen-2026-08.json](campaign-allergen-2026-08.json) · runKey `petscans-allergen-winner-2026-08b`
 - **Creative brief:** [Allergen-Winner-Creative-Brief.md](briefs/v2/Allergen-Winner-Creative-Brief.md) · UGC marketplace brief: [Allergen-UGC-Marketplace-Brief.md](Allergen-UGC-Marketplace-Brief.md)
 - **Build params:** OUTCOME_APP_PROMOTION · ABO · CA+US · age 25+ (Advantage drops the 65 cap) · **CAD $13.75/ad set × 4 = $55/day**
