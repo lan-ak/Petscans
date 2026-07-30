@@ -107,6 +107,10 @@ struct OnboardingView: View {
                     }
                 }
         }
+        // Anchor the CTA to the bottom so the auto-focused name field's keyboard
+        // can't lift "Continue" into the thumb zone next to the allergen chips —
+        // users were tapping it before adding allergens.
+        .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
     /// The AHA payoff page. Recovers to search if the product was somehow lost

@@ -67,6 +67,9 @@ struct IngredientSearchSheet: View {
 
                 actionBar
             }
+            // Keep the "Done" action bar pinned to the bottom instead of riding
+            // up over the keyboard, matching the onboarding CTA behavior.
+            .ignoresSafeArea(.keyboard, edges: .bottom)
             .background(ColorTokens.backgroundPrimary)
             .navigationTitle("Search Ingredients")
             .navigationBarTitleDisplayMode(.inline)
