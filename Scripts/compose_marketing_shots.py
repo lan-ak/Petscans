@@ -23,7 +23,7 @@ SHOTS = [
     ("02_UnsafeIngredients", "See what's\nactually harmful"),
     ("03_AllergenAlert",    "Know what your\npet should avoid"),
     ("04_IngredientDetail", "Every ingredient,\nexplained"),
-    ("05_Library",          "10,000+ foods\nbuilt in"),
+    ("05_Library",          "30,000+ foods\nbuilt in"),
     ("06_Sources",          "Backed by AAFCO,\nFDA & ASPCA"),
 ]
 

@@ -57,11 +57,18 @@ final class ScreenshotTests: XCTestCase {
         takeScreenshot(named: "03_AllergenAlert")
     }
 
-    /// Shot 4 — an ingredient explained. Opens the detail sheet from a tappable
-    /// ingredient row on the Merrick result.
+    /// Shot 4 — an ingredient explained. Opens the detail sheet from the BHA/BHT
+    /// row on the Milk-Bone result.
+    ///
+    /// It used to open "Deboned Beef" on the Merrick result, which is rated safe
+    /// for both species and carries only a function and an origin — so the sheet
+    /// rendered a name, a green Safe badge and two lines, leaving most of the shot
+    /// blank under a caption reading "Every ingredient, explained". BHA is rated
+    /// caution for both species and its record carries notes, rules and a source,
+    /// so the sheet actually fills with the per-ingredient content 1.4.4 added.
     func test04_IngredientDetail() throws {
         launchSeeded()
-        openScan(brandOrName: "Merrick")
+        openScan(brandOrName: "Milk-Bone")
 
         let scoreView = app.scrollViews["product-score-view"]
         // The ingredients card is below the fold; scroll it into reach.
@@ -70,14 +77,14 @@ final class ScreenshotTests: XCTestCase {
         Thread.sleep(forTimeInterval: 0.5)
 
         // Ingredient rows are buttons whose label combines the rank and name
-        // ("1. Deboned Beef …"), so match on CONTAINS rather than equality. Only
-        // rows backed by a real catalog record are enabled, which is why the
-        // seeder points these at real ingredient IDs.
-        let beef = app.buttons.containing(
-            NSPredicate(format: "label CONTAINS[c] 'Deboned Beef'")
+        // ("5. BHA/BHT …"), so match on CONTAINS rather than equality. Only rows
+        // backed by a real catalog record are enabled, which is why the seeder
+        // points these at real ingredient IDs.
+        let bha = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] 'BHA'")
         ).firstMatch
-        XCTAssertTrue(beef.waitForExistence(timeout: 5))
-        beef.tap()
+        XCTAssertTrue(bha.waitForExistence(timeout: 5))
+        bha.tap()
 
         // IngredientDetailSheet has a Done button — proof the sheet presented.
         let done = app.buttons["Done"].firstMatch

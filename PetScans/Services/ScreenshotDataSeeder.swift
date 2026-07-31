@@ -135,7 +135,7 @@ enum ScreenshotDataSeeder {
                     severity: .warn,
                     title: "Plant protein filler",
                     explain: "Corn gluten meal raises the protein number on the label without contributing the amino acid profile a dog gets from meat.",
-                    ingredientId: "ing_corn_gluten",
+                    ingredientId: "ing_corn_gluten_meal",
                     source: "AAFCO 2024",
                     type: .safety
                 )
@@ -189,11 +189,11 @@ enum ScreenshotDataSeeder {
     private static func createAvoidScan() -> Scan {
         let matchedIngredients = [
             MatchedIngredient(ingredientId: "ing_wheat", labelName: "Wheat Flour", rank: 1),
-            MatchedIngredient(ingredientId: "ing_meat_bone_meal", labelName: "Meat and Bone Meal", rank: 2),
+            MatchedIngredient(ingredientId: "ing_meat_and_bone_meal", labelName: "Meat and Bone Meal", rank: 2),
             MatchedIngredient(ingredientId: "ing_sorbitol", labelName: "Sugar", rank: 3),
             MatchedIngredient(ingredientId: "ing_poultry_digest", labelName: "Poultry Digest", rank: 4),
             MatchedIngredient(ingredientId: "ing_bha", labelName: "BHA/BHT", rank: 5),
-            MatchedIngredient(ingredientId: "ing_added_color", labelName: "Added Color", rank: 6)
+            MatchedIngredient(ingredientId: "ing_artificial_colors", labelName: "Added Color", rank: 6)
         ]
 
         let scoreBreakdown = ScoreBreakdown(
@@ -230,7 +230,7 @@ enum ScreenshotDataSeeder {
                     severity: .warn,
                     title: "Artificial coloring",
                     explain: "Added color does nothing for the dog. It's there so the treat looks like meat to the person buying it.",
-                    ingredientId: "ing_added_color",
+                    ingredientId: "ing_artificial_colors",
                     source: nil,
                     type: .safety
                 ),
@@ -238,7 +238,7 @@ enum ScreenshotDataSeeder {
                     severity: .warn,
                     title: "Unnamed meat source",
                     explain: "\"Meat and bone meal\" doesn't identify a species, so the protein quality can't be assessed.",
-                    ingredientId: "ing_meat_bone_meal",
+                    ingredientId: "ing_meat_and_bone_meal",
                     source: "AAFCO 2024",
                     type: .safety
                 )
