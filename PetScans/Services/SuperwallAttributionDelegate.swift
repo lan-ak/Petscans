@@ -22,6 +22,15 @@ final class SuperwallAttributionDelegate: SuperwallDelegate {
 
     func handleSuperwallEvent(withInfo eventInfo: SuperwallEventInfo) {
         switch eventInfo.event {
+        case .paywallOpen:
+            // The rating prompt's paywall cooldown, recorded where a paywall is
+            // actually shown. It used to be recorded in `SuperwallSafe.register`,
+            // which fires for every placement whether or not a campaign matches —
+            // and `analysis_complete` registers on every scan, ~2.5s before the
+            // result screen drains the armed prompt. The 60s cooldown therefore
+            // cancelled the ask every single time, which is why the app has shipped
+            // five versions without ever showing a rating request.
+            Task { @MainActor in ReviewPrompt.notePaywallPresented() }
         case let .freeTrialStart(product, _):
             AttributionService.logStartTrial(
                 amount: product.price,

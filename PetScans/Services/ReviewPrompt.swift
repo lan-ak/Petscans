@@ -51,9 +51,16 @@ enum ReviewPrompt {
         UserDefaults.standard.set(count + 1, forKey: Key.sessionCount)
     }
 
-    /// Called from `SuperwallSafe` on every `register`, since any placement can
-    /// present a paywall depending on what is attached to it on the dashboard.
-    static func noteSuperwallRegister() {
+    /// Called from `SuperwallAttributionDelegate` on `paywallOpen` — a paywall the
+    /// user actually saw.
+    ///
+    /// This used to be called from `SuperwallSafe.register` instead, on the theory
+    /// that any placement *might* present a paywall. It does not: `register` fires
+    /// for every placement regardless of whether a campaign matches. Since
+    /// `analysis_complete` registers on every scan immediately after the prompt is
+    /// armed, `lastPaywallAt` was always ~2.5s old by the time the result screen
+    /// drained it, and `consumePending` cancelled the ask every time.
+    static func notePaywallPresented() {
         UserDefaults.standard.set(Date(), forKey: Key.lastPaywallAt)
     }
 
