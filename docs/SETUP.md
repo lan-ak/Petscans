@@ -120,4 +120,4 @@ To make changes:
 
 ## Support
 
-If you need help, contact: petscansapp@gmail.com
+If you need help, contact: support@petscans.app
