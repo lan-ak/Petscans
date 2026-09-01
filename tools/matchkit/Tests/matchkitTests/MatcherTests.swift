@@ -50,6 +50,60 @@ final class MatcherTests: XCTestCase {
 
     // MARK: - The wrong matches that shipped
 
+    // MARK: - Negated claims
+
+    /// The mirror of the miss-list failure: a warning where the label promises the opposite.
+    ///
+    /// Marketing copy runs through the same comma split as the ingredients, and the negation
+    /// only attaches to the first item, so "NO grains, legumes, corn, wheat, soy" left `corn`,
+    /// `wheat` and `soy` looking like plain tokens — and all three are exact synonyms. A
+    /// single-ingredient beef liver treat matched four ingredients it advertises having none
+    /// of, which then fed the allergen check.
+    func testNegatedClaimListIsNotMatchedAsIngredients() {
+        let label = "Beef liver. NO grains, legumes, sugar, fillers, corn, wheat, soy, potato, preservatives"
+        let ids = matcher.match(rawIngredients: label, data: data).compactMap { $0.ingredientId }
+        XCTAssertFalse(ids.contains("ing_corn"), "corn came from a NO list")
+        XCTAssertFalse(ids.contains("ing_wheat"), "wheat came from a NO list")
+        XCTAssertFalse(ids.contains("ing_soy"), "soy came from a NO list")
+        XCTAssertTrue(ids.contains { $0.contains("liver") }, "the real ingredient was dropped")
+    }
+
+    func testTrailingFreeClaimIsNotMatched() {
+        // "Meat, Dairy, and Poultry Free - Skip fillers, carrageenan, corn" on a plant-based
+        // pate reported poultry, carrageenan and corn.
+        let label = "Water, Pea Protein. Meat, Dairy, and Poultry Free - Skip fillers, carrageenan, corn"
+        let ids = matcher.match(rawIngredients: label, data: data).compactMap { $0.ingredientId }
+        XCTAssertFalse(ids.contains("ing_poultry"), "poultry came from a 'Poultry Free' claim")
+        XCTAssertFalse(ids.contains("ing_corn"), "corn came from a Skip list")
+    }
+
+    /// The dangerous direction. Suppressing too much is worse than suppressing too little,
+    /// because a dropped ingredient is an allergen nobody is warned about.
+    func testClaimSuppressionStopsAtASectionBoundary() {
+        // Without a boundary the claim ran on into the real list and took salt with it.
+        let label = "Made without corn, wheat, soy. INGREDIENTS: Chicken, Tapioca Flour, Lactic Acid, Salt, Gelatin"
+        let ids = matcher.match(rawIngredients: label, data: data).compactMap { $0.ingredientId }
+        XCTAssertTrue(ids.contains("ing_salt"), "salt was suppressed by a claim in a previous section")
+        XCTAssertFalse(ids.contains("ing_corn"), "corn survived its claim")
+    }
+
+    func testColourIndexIsNotANegation() {
+        // "FD&C Yellow No. 5" fired the bare `no` opener on 95 labels and then ate the rest of
+        // each ingredient list, dropping `peanuts` and `dried whey` — both allergens.
+        let label = "Sugar, FD&C Yellow No. 5, FD&C Blue No. 1, Peanuts, Dried Whey, Coconut"
+        let ids = matcher.match(rawIngredients: label, data: data).compactMap { $0.ingredientId }
+        XCTAssertTrue(ids.contains { $0.contains("peanut") }, "peanuts dropped after a colour index")
+        XCTAssertTrue(ids.contains { $0.contains("whey") }, "dried whey dropped after a colour index")
+    }
+
+    func testHyphenatedFreeIsAModifierNotAClaim() {
+        // "cage-free eggs" and "gluten free oats" are ingredients; only `<noun> free` with
+        // nothing after it is a claim.
+        let ids = matcher.match(rawIngredients: "Cage-Free Eggs, Gluten Free Oats", data: data)
+            .compactMap { $0.ingredientId }
+        XCTAssertTrue(ids.contains { $0.contains("egg") }, "cage-free eggs was read as a claim")
+    }
+
     func testPreservedWithMixedTocopherolsIsNotChickenFat() {
         // Observed 895 times. The synonym key "chicken fat preserved with mixed
         // tocopherols" *contained* the token, and the old reverse-containment

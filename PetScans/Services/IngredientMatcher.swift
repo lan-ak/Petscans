@@ -88,7 +88,129 @@ struct IngredientMatcher {
     /// happen here rather than at the call sites — every ingredient list in the app
     /// arrives through `match`, and the offline harness measures this same function.
     static func tokenize(_ raw: String, data: IngredientData) -> [String] {
-        splitTopLevel(raw).flatMap { expandGroup($0, data: data, depth: 0) }
+        droppingNegatedClaims(splitTopLevel(raw)).flatMap { expandGroup($0, data: data, depth: 0) }
+    }
+
+    /// Longest a token can be and still read as a list member rather than prose. A negated
+    /// run ends at the first token longer than this.
+    private static let negatedRunMaxWords = 4
+
+    /// Hard ceiling on a claim list, so a missed boundary cannot eat a whole label.
+    private static let negatedRunMaxTokens = 12
+
+    /// Emitted by `splitTopLevel` where a section ends — a sentence break, a pipe, or the
+    /// colon after a heading. `droppingNegatedClaims` closes any open claim on it and drops
+    /// it; nothing downstream ever sees it.
+    ///
+    /// This exists because a claim and a real ingredient list look identical once split: both
+    /// are runs of short comma-separated nouns. Without a boundary, "…without the use of corn,
+    /// wheat, soy or other artificial colors or flavors. PACKAGE INCLUDES: 1 pack…" leaks past
+    /// the claim and suppresses the ingredients that follow — measured, it was dropping `salt`,
+    /// `gelatin`, `carrageenan` and `cane sugar` out of ordinary lists.
+    static let sectionBreak = "\u{1}"
+
+    /// Words that open a negated run. `skip` earns its place from real labels
+    /// ("Poultry Free - Skip fillers, carrageenan, corn").
+    private static let negationOpeners: [[String]] = [
+        ["no"], ["without"], ["skip"],
+        ["free", "of"], ["free", "from"], ["contains", "no"], ["never", "any"], ["not", "made", "with"],
+    ]
+
+    /// Drop the members of a negated claim.
+    ///
+    /// A label's marketing copy runs through the same comma split as its ingredients, and the
+    /// negation only attaches to the first item. "NO grains, legumes, sugar, fillers, corn,
+    /// wheat, soy, potato" becomes nine tokens of which eight look like plain ingredients, and
+    /// `corn`, `wheat` and `soy` are all exact synonyms — so a single-ingredient beef liver
+    /// treat matched four ingredients it advertises having none of. That is not just a wrong
+    /// row: a matched ingredient feeds risk level and the allergen check, so the app warned a
+    /// wheat-allergic dog's owner off a food whose label promises no wheat.
+    ///
+    /// This is the mirror of the failure the expansion guide is about. That one is silence
+    /// where a warning is owed; this one is a warning where the label promises the opposite.
+    /// Both make the allergen answer untrustworthy, so both have to be wrong-in-the-safe-
+    /// direction — and here the safe direction is to suppress **less**, because a dropped real
+    /// ingredient is the dangerous kind of mistake. Hence the deliberately narrow rules:
+    ///
+    /// - Only an explicit opener starts a run. A trailing "-free" is left alone entirely,
+    ///   because "cage-free eggs" and "gluten free oats" are ingredients, not claims — the
+    ///   only trailing form treated as a claim is `<noun> free` with nothing but punctuation
+    ///   after it ("and Poultry Free - Skip fillers"), which cannot be an ingredient name.
+    /// - A run ends at the first token over `negatedRunMaxWords`, since claim lists are bare
+    ///   nouns and the copy that follows them is a sentence.
+    /// - Anything before the opener inside its own token is kept.
+    private static func droppingNegatedClaims(_ tokens: [String]) -> [String] {
+        var kept: [String] = []
+        var negating = false
+
+        var runLength = 0
+
+        for token in tokens {
+            if token == Self.sectionBreak {
+                negating = false
+                continue
+            }
+            if negating {
+                // A sentence's worth of words means the claim list is over. Fall through so
+                // this token can still open a run of its own.
+                if wordCount(token) > negatedRunMaxWords || runLength >= negatedRunMaxTokens {
+                    negating = false
+                } else {
+                    runLength += 1
+                    continue
+                }
+            }
+            if let cut = negationCut(in: token) {
+                negating = true
+                runLength = 0
+                let head = String(token[token.startIndex..<cut]).trimmingCharacters(in: .whitespacesAndNewlines)
+                if !head.isEmpty { kept.append(head) }
+            } else {
+                kept.append(token)
+            }
+        }
+        return kept
+    }
+
+    private static func wordCount(_ token: String) -> Int {
+        token.split(whereSeparator: { $0.isWhitespace }).count
+    }
+
+    /// Where a token stops being an ingredient and starts being a negative claim, or nil.
+    ///
+    /// Returns the token's start index when the whole token is the claim.
+    private static func negationCut(in token: String) -> String.Index? {
+        let words = token.split(whereSeparator: { $0.isWhitespace })
+        guard !words.isEmpty else { return nil }
+        let lower = words.map { $0.lowercased().trimmingCharacters(in: .punctuationCharacters) }
+
+        for (i, _) in words.enumerated() {
+            for opener in negationOpeners where i + opener.count <= lower.count {
+                if Array(lower[i..<(i + opener.count)]) == opener {
+                    // "FD&C Yellow No. 5" is a colour index, not a negation. Left alone this
+                    // fired on 95 labels and then ate the rest of each ingredient list —
+                    // dropping `peanuts` and `dried whey`, which are allergens. A bare "no"
+                    // only negates when a word follows it.
+                    if opener == ["no"] {
+                        let next = i + 1 < lower.count ? lower[i + 1] : ""
+                        if next.isEmpty || !next.contains(where: { $0.isLetter }) { continue }
+                    }
+                    // An opener that is also the last word governs the tokens that follow,
+                    // not this one, so cut at the opener either way.
+                    return words[i].startIndex
+                }
+            }
+            // `<noun> free` with only punctuation after it is a claim ("Poultry Free -").
+            // `free` followed by another word is a modifier ("gluten free oats") and is left
+            // alone; a hyphenated "cage-free" never appears as its own word here.
+            if lower[i] == "free", i > 0 {
+                let next = i + 1 < lower.count ? lower[i + 1] : ""
+                if next.isEmpty || !next.contains(where: { $0.isLetter }) {
+                    return token.startIndex
+                }
+            }
+        }
+        return nil
     }
 
     /// Split on commas and semicolons, but only those outside every bracket.
@@ -147,6 +269,17 @@ struct IngredientMatcher {
             case ".":
                 if open.isEmpty && isSentenceBreak(at: i, in: chars) {
                     tokens.append(current)
+                    tokens.append(Self.sectionBreak)
+                    current = ""
+                } else {
+                    current.append(ch)
+                }
+            case "|":
+                // Retailer copy pastes sections together with pipes. Not a separator for
+                // ingredients, but it is a hard end to whatever claim preceded it.
+                if open.isEmpty {
+                    tokens.append(current)
+                    tokens.append(Self.sectionBreak)
                     current = ""
                 } else {
                     current.append(ch)
@@ -160,6 +293,7 @@ struct IngredientMatcher {
                 // whitefish row.
                 if open.isEmpty {
                     current = ""
+                    tokens.append(Self.sectionBreak)
                 } else {
                     current.append(ch)
                 }
