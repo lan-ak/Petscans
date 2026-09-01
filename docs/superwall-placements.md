@@ -26,10 +26,9 @@ Source of truth in code:
 
 | Placement | Params | Gated? | Fired from | Current campaign |
 |---|---|---|---|---|
-| `onboarding_step` | `step` (Int, page index) | No | Every onboarding page change (`logStep`) | — (diagnostic only; keep OUT of campaigns) |
+| `onboarding_step` | `step` (Int, page index), `step_name` (String) | No | Every onboarding page change (`logStep`) | — (diagnostic only; keep OUT of campaigns) |
 | `onboarding_finished` | `created_pet` (Bool), `avoid_group_count` (Int) | No | `persistAndSync` — both onboarding exit paths | — |
-| `onboarding_complete` | none | **Yes** (feature block → enters app) | Skip / early-exit and the AHA-skip fallback | ✅ **Onboarding** (64348) |
-| `aha_food_result` | `verdict` (String), `score` (Int 0–100), `flag_count` (Int) | **Yes** | Onboarding AHA result CTA (peak intent) | ❌ **not attached** — CTA shows no paywall until wired |
+| `onboarding_complete` | `viewed_food_result` (Bool), `personalized` (Bool), `verdict` (String), `score` (Int), `flag_count` (Int) | **Yes** (feature block → enters app) | Every onboarding exit — the personalised result CTA and the pet-setup "Not now" | ✅ **Onboarding** (64348) |
 | `analysis_complete` | none | No (register w/o feature block) | After a scan analysis resolves (`ScannerViewModel`) | ✅ **In-App** (65702) |
 | `session_start` | — (Superwall built-in) | — | Automatic (SDK) | ✅ **Testing** (97284) |
 
@@ -38,12 +37,32 @@ proceeds even if the SDK/paywall can't load — they never strand the user. Non-
 placements are pure signals; attaching a paywall to one still works but there's no
 completion callback.
 
-**Onboarding exit logic** (`OnboardingView`): a user hits exactly one gating path —
-- taps the AHA result CTA → `aha_food_result`
-- skips the AHA search, or skips pet setup entirely → `onboarding_complete`
+**Onboarding flow** (`OnboardingView`) — reordered to demo-first. `step_name` is the stable
+key; the `step` index changed meaning at this release, so anything keyed on the number
+silently changes at the cutover:
 
-Because the two paths are mutually exclusive, both campaigns can be active at once
-without a user seeing two paywalls back-to-back.
+| `step` | `step_name` | screen |
+|---|---|---|
+| 0 | `promise` | welcome |
+| 1 | `search` | catalog search (the demo) |
+| 2 | `demo_result` | the food scored with no pet yet |
+| 3 | `pet_setup` | name, species, allergens |
+| 4 | `watch_list` | avoidance groups |
+| 5 | `personalized_result` | same food re-scored against the profile |
+
+**Exit logic:** **every** exit routes through `onboarding_complete` — the personalised result CTA,
+and the pet-setup "Not now" for users who stop before building a profile. There is no
+longer an `aha_food_result` placement in code (removed in 1.4.4): gating the payoff CTA on
+its own placement meant the paywall could only reach users whose downloaded config already
+carried that name, silently excluding everyone else. Which paywall a user sees is an
+audience decision on the persisted `user.searched_food*` attributes.
+
+`viewed_food_result` is true when the user saw the demo verdict; `personalized` is true when
+they also reached the personalised result screen, where `verdict`/`score`/`flag_count` are the **re-scored**
+values. A user who took "Not now" reports the demo's general verdict instead.
+
+> ⚠️ The `aha_food_result` **placement 127396 is still enabled on campaign 64348** in the
+> dashboard. It is dead — nothing fires it — and should be disabled.
 
 ---
 
@@ -81,9 +100,10 @@ Boolean key = `avoids_<rawValue in snake_case>`. `avoid_groups` rawValues (camel
 `ultraProcessed, artificialColours, artificialPreservatives, commonAllergens, addedSugars, meatByproducts, grainFillers, gumsThickeners`.
 
 ### Searched food (onboarding AHA) — `SuperwallUserAttributes.setSearchedFood`
-Set the instant the AHA food is scored, so it's available on `aha_food_result` **and**
-persists to any later placement (e.g. `onboarding_complete`). Absence ⇒ user skipped
-the search.
+Written **twice**: once when the demo scores the food with no pet, then again on the personalised
+result screen with the re-score. Audiences therefore read the verdict the user was
+actually left looking at, while a user who drops out mid-flow still carries the general one.
+Absence ⇒ user skipped the search.
 
 | Key | Type | Notes |
 |---|---|---|
@@ -122,13 +142,18 @@ force `Avoid` regardless of the number.
 
 ## Targeting examples
 
-- **Harder paywall when the AHA scared them** — on `aha_food_result`, audience
+- **Harder paywall when the AHA scared them** — on `onboarding_complete`, audience
   `params.flag_count > 0` or `params.verdict == "Avoid"`.
 - **Peace-of-mind paywall on a clean result** — `params.flag_count == 0`.
 - **Branch a later placement on the AHA outcome** — `onboarding_complete` (or any
   post-onboarding placement) can read the persisted `user.searched_food_verdict`.
 - **Segment by engagement** — `user.avoid_group_count > 0`, or specific concerns via
   `user.avoids_artificial_colours == true`.
+
+> ⚠️ **Do not write audiences against `searched_food_score`.** Measured over the full
+> catalog, 99.72% of products score ≥ 75 (p50 = 95.3), so `score < 60` addresses ~0.7% of
+> possible foods. Use `verdict`/`flag_count`, which still discriminate via the allergen and
+> toxic overrides.
 - **Returning / power users** — `user.scan_count >= N` or `user.analysis_count >= N`.
 
 ## Paywall copy examples
