@@ -31,6 +31,12 @@ import {
   type Storefront,
 } from './petcatalog/petsmart';
 import { fetchPetvalu, firecrawlCredits, petvaluBrandSlugs, petvaluTargets } from './petcatalog/petvalu';
+import { fetchPetbarn, fetchPetsathome, petbarnTargets, petsathomeTargets } from './petcatalog/intl';
+import { fetchPetco, petcoTargets } from './petcatalog/petco';
+import { collectRecalls, matchBrands } from './petcatalog/recalls';
+import { applyImages, fetchImage, imagelessProducts } from './petcatalog/images';
+import { applyAnalysis, fetchAnalysis, productsWithoutAnalysis } from './petcatalog/analysis-backfill';
+import { ensureAnalysisColumns } from './petcatalog/analysis';
 import { ingest } from './petcatalog/ingest';
 import { cleanCatalog } from './petcatalog/clean';
 import { groupCatalog, ungroupedCount } from './petcatalog/group';
@@ -102,6 +108,33 @@ petcatalog — build the bundled product catalog
                               Batch a full sweep: discover once, then loop this with --limit chunks
     --out <path>              JSON for enrich to read (default: /tmp/chewy-new.json)
     --db <path>               catalog to diff against (default: PetScans/Data/catalog.sqlite)
+
+  backfill-analysis  Find guaranteed analysis for rows that have none (search -> markdown ->
+                     parse). Biggest brands first; ~3 credits/product. Resumable.
+    --budget <n>          products to attempt this run (required)
+    --no-migrate          never write to the catalog, not even to add its columns
+  apply-analysis   Write that harvest onto the catalog. Never overwrites a filled column.
+
+  backfill-images  Find a picture for catalog rows that have none (search -> og:image).
+                   Resumable; writes harvest/image-backfill.jsonl. ~3 credits/product.
+    --limit <n>           only the first n imageless products
+  apply-images     Write that harvest onto the catalog. Only ever fills a blank.
+
+  collect-recalls  FDA animal & veterinary recalls -> recalls.json, matched to catalog brands.
+    --out <path>          artifact path (default: harvest/recalls.json)
+
+  collect-petco  Petco (US) via Firecrawl rawHtml, ~1 credit/product. The only US source
+                 carrying guaranteed analysis, and the only one with the house brands
+                 (WholeHearted, Good Lovin', Reddy).
+    --budget <n>          cap the number of products fetched this run
+
+  collect-petsathome  Pets at Home (UK) via Firecrawl rawHtml, ~1 credit/product. Carries
+                      analytical constituents alongside ingredients.
+    --budget <n>          cap the number of products fetched this run
+    --concurrency <n>     parallel fetches (default: 4)
+
+  collect-petbarn  Petbarn (AU). Same shape; discovery is free (sitemap).
+    --budget <n>          cap the number of products fetched this run
 
   collect-shopify  Reach specialty brands Chewy-search never surfaces, via their Shopify
                  storefronts — variant.barcode gives a real UPC for free (no Firecrawl).
@@ -454,6 +487,201 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (cmd === 'backfill-analysis' || cmd === 'apply-analysis') {
+    const work = resolve(process.cwd(), arg(argv, 'work') ?? DEFAULT_WORK);
+    const dbPath = resolve(process.cwd(), arg(argv, 'db') ?? DEFAULT_OUT);
+    const name = arg(argv, 'name') ?? 'analysis-backfill';
+    const jsonl = resolve(work, `${name}.jsonl`);
+
+    if (cmd === 'apply-analysis') {
+      const r = applyAnalysis(jsonl, dbPath);
+      console.log('');
+      console.log(`records read      : ${r.read.toLocaleString()}`);
+      console.log(`macros written    : ${r.updated.toLocaleString()}`);
+      console.log(`unusable          : ${r.unusable.toLocaleString()}`);
+      console.log('');
+      return;
+    }
+
+    const budget = Number(arg(argv, 'budget') ?? '0');
+    if (!budget) {
+      console.error('backfill-analysis requires --budget <products> — a full sweep would cost more than a month of credits');
+      process.exitCode = 2;
+      return;
+    }
+
+    const key = firecrawlKey();
+    const before = await firecrawlCredits(key);
+    process.stderr.write(`firecrawl credits: ${before}\n`);
+
+    // The columns normally arrive with the first ingest, but the backfill can legitimately be
+    // the first thing run against a catalog, and productsWithoutAnalysis reads them.
+    // --no-migrate keeps this a pure reader, for when someone else is using the catalog.
+    if (!argv.includes('--no-migrate')) {
+      const migrateDb = new DatabaseSync(dbPath);
+      if (ensureAnalysisColumns(migrateDb)) process.stderr.write('added guaranteed-analysis columns to products\n');
+      migrateDb.close();
+    }
+
+    const targets = productsWithoutAnalysis(dbPath, budget);
+    process.stderr.write(`${targets.length} products without macros, biggest brands first\n`);
+
+    const r = await harvest({
+      name,
+      workDir: work,
+      targets,
+      idOf: (t) => t.gtin,
+      fetchOne: fetchAnalysis(key),
+      concurrency: Number(arg(argv, 'concurrency') ?? '4'),
+      onLog: (s) => process.stderr.write(s + '\n'),
+    });
+    reportHarvest('Guaranteed-analysis backfill', r);
+    console.log(`  credits: ${before} -> ${await firecrawlCredits(key)}`);
+    console.log(`  next: npm run petcatalog -- apply-analysis`);
+    console.log('');
+    return;
+  }
+
+  if (cmd === 'backfill-images' || cmd === 'apply-images') {
+    const work = resolve(process.cwd(), arg(argv, 'work') ?? DEFAULT_WORK);
+    const dbPath = resolve(process.cwd(), arg(argv, 'db') ?? DEFAULT_OUT);
+    const name = arg(argv, 'name') ?? 'image-backfill';
+    const jsonl = resolve(work, `${name}.jsonl`);
+
+    if (cmd === 'apply-images') {
+      const r = applyImages(jsonl, dbPath);
+      console.log('');
+      console.log(`records read      : ${r.read.toLocaleString()}`);
+      console.log(`images written    : ${r.updated.toLocaleString()}`);
+      console.log(`already had one   : ${r.missingRow.toLocaleString()}`);
+      console.log('');
+      return;
+    }
+
+    const key = firecrawlKey();
+    const before = await firecrawlCredits(key);
+    process.stderr.write(`firecrawl credits: ${before}\n`);
+
+    const limit = Number(arg(argv, 'limit') ?? '0');
+    const targets = imagelessProducts(dbPath, limit || undefined);
+    process.stderr.write(`${targets.length} products have no image\n`);
+
+    const r = await harvest({
+      name,
+      workDir: work,
+      targets,
+      idOf: (t) => t.gtin,
+      fetchOne: fetchImage(key),
+      concurrency: Number(arg(argv, 'concurrency') ?? '4'),
+      onLog: (s) => process.stderr.write(s + '\n'),
+    });
+    reportHarvest('Image backfill', r);
+    console.log(`  credits: ${before} -> ${await firecrawlCredits(key)}`);
+    console.log(`  next: npm run petcatalog -- apply-images`);
+    console.log('');
+    return;
+  }
+
+  if (cmd === 'collect-recalls') {
+    const key = firecrawlKey();
+    const outPath = resolve(process.cwd(), arg(argv, 'out') ?? resolve(DEFAULT_WORK, 'recalls.json'));
+    const recalls = await collectRecalls(key);
+
+    const db = new DatabaseSync(resolve(process.cwd(), arg(argv, 'db') ?? DEFAULT_OUT), { readOnly: true });
+    const brands = (db.prepare('SELECT DISTINCT brand FROM products').all() as { brand: string }[]).map((r) => r.brand);
+    const counts = new Map<string, number>();
+    for (const r of db.prepare('SELECT brand, COUNT(*) n FROM products GROUP BY 1').all() as { brand: string; n: number }[]) {
+      counts.set(r.brand, r.n);
+    }
+    db.close();
+
+    const hits = matchBrands(recalls, brands);
+    const affected = [...hits.entries()]
+      .map(([brand, rs]) => ({ brand, products: counts.get(brand) ?? 0, recalls: rs }))
+      .sort((a, b) => b.products - a.products);
+
+    writeFileSync(outPath, JSON.stringify({ fetchedAt: new Date().toISOString(), source: 'fda.gov animal-veterinary recalls-withdrawals', recalls, affected }, null, 2));
+
+    const years = new Set(recalls.map((r) => r.date.slice(-4)));
+    console.log('');
+    console.log(`recalls collected : ${recalls.length}  (${[...years].sort()[0]}-${[...years].sort().pop()})`);
+    console.log(`catalog brands hit: ${affected.length}`);
+    console.log(`products affected : ${affected.reduce((n, a) => n + a.products, 0).toLocaleString()}`);
+    console.log('');
+    for (const a of affected.slice(0, 15)) {
+      console.log(`  ${a.brand.padEnd(24)} ${String(a.products).padStart(5)} products  ${a.recalls[0].date}  ${a.recalls[0].reason.slice(0, 52)}`);
+    }
+    console.log('');
+    console.log(`written: ${outPath}`);
+    console.log('');
+    return;
+  }
+
+  if (cmd === 'collect-petco') {
+    const work = resolve(process.cwd(), arg(argv, 'work') ?? DEFAULT_WORK);
+    const key = firecrawlKey();
+    const before = await firecrawlCredits(key);
+    process.stderr.write(`firecrawl credits: ${before}\n`);
+
+    let targets = await petcoTargets(key);
+    process.stderr.write(`Petco: ${targets.length} product urls discovered\n`);
+
+    const budget = Number(arg(argv, 'budget') ?? '0');
+    if (budget && targets.length > budget) {
+      process.stderr.write(`budget ${budget}: taking the first ${budget} of ${targets.length}\n`);
+      targets = targets.slice(0, budget);
+    }
+
+    const r = await harvest({
+      name: arg(argv, 'name') ?? 'petco',
+      workDir: work,
+      targets,
+      idOf: (t) => t.id,
+      fetchOne: fetchPetco(key),
+      concurrency: Number(arg(argv, 'concurrency') ?? '4'),
+      onLog: (s) => process.stderr.write(s + '\n'),
+    });
+    reportHarvest('Petco (US)', r);
+    console.log(`  credits: ${before} -> ${await firecrawlCredits(key)}`);
+    console.log('');
+    return;
+  }
+
+  if (cmd === 'collect-petsathome' || cmd === 'collect-petbarn') {
+    const uk = cmd === 'collect-petsathome';
+    const work = resolve(process.cwd(), arg(argv, 'work') ?? DEFAULT_WORK);
+    const key = firecrawlKey();
+    const before = await firecrawlCredits(key);
+    process.stderr.write(`firecrawl credits: ${before}\n`);
+
+    // Discovery differs by site and neither cost is per-product: Petbarn publishes a sitemap
+    // index (free), Pets at Home declares none, so /map runs once per search term.
+    let targets = uk ? await petsathomeTargets(key) : await petbarnTargets();
+    process.stderr.write(`${uk ? 'Pets at Home' : 'Petbarn'}: ${targets.length} product urls discovered\n`);
+
+    // Every PDP is one credit, so a budget is a hard cap on spend, not a suggestion. Items
+    // already in the ledger cost nothing and are not counted against it.
+    const budget = Number(arg(argv, 'budget') ?? '0');
+    if (budget && targets.length > budget) {
+      process.stderr.write(`budget ${budget}: taking the first ${budget} of ${targets.length}\n`);
+      targets = targets.slice(0, budget);
+    }
+
+    const r = await harvest({
+      name: arg(argv, 'name') ?? (uk ? 'petsathome' : 'petbarn'),
+      workDir: work,
+      targets,
+      idOf: (t) => t.id,
+      fetchOne: uk ? fetchPetsathome(key) : fetchPetbarn(key),
+      concurrency: Number(arg(argv, 'concurrency') ?? '4'),
+      onLog: (s) => process.stderr.write(s + '\n'),
+    });
+    reportHarvest(uk ? 'Pets at Home (UK)' : 'Petbarn (AU)', r);
+    console.log(`  credits: ${before} -> ${await firecrawlCredits(key)}`);
+    console.log('');
+    return;
+  }
+
   if (cmd === 'ingest') {
     const work = resolve(process.cwd(), arg(argv, 'work') ?? DEFAULT_WORK);
     const names = (arg(argv, 'names') ?? '')
@@ -493,6 +721,8 @@ async function main(): Promise<void> {
     console.log(`brand spellings folded: ${r.brandsFolded.toLocaleString()}`);
     console.log(`tier C (too thin) : ${r.tierC.toLocaleString()}  (net-new but not shippable)`);
     console.log(`${argv.includes('--dry-run') ? 'WOULD INSERT' : 'INSERTED    '}      : ${r.inserted.toLocaleString()}`);
+    if (r.analysisMigrated) console.log('analysis columns    : added to products');
+    if (!argv.includes('--dry-run')) console.log(`macros written    : ${r.analysisWritten.toLocaleString()}  (new + existing rows)`);
     console.log(`  by source       : ${JSON.stringify(r.bySource)}`);
     console.log(`  new brands      : ${r.topNewBrands.map(([b, n]) => `${b}(${n})`).join(', ') || '—'}`);
     console.log('');

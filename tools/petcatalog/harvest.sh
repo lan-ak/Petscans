@@ -19,11 +19,23 @@
 #                               anything lost is re-fetched on the next run. Re-running is
 #                               always safe and never duplicates work.
 #
+# BEFORE YOU RUN THIS: docs/catalog-expansion.md
+#
+#   A catalog expansion can silently remove allergen protection from pets without failing a
+#   build or changing a score. Allergen checking only runs on ingredients the matcher
+#   resolves, so a new label spelling that resolves to nothing is invisible to it — the app
+#   then reports "No known allergens detected" over a food whose label says fish. Take a
+#   matchkit baseline first, and walk steps 4-7 of that doc afterwards.
+#
 # Usage:
 #   ./harvest.sh all            rens -> petsmart -> petvalu -> ingest -> pack -> group  (detached)
+#   ./harvest.sh expand         pets at home (UK) -> petbarn (AU) -> petco (US) -> ingest -> pack -> group
+#   ./harvest.sh intl           the two international legs only
 #   ./harvest.sh rens           one stage, detached
 #   ./harvest.sh petsmart
 #   ./harvest.sh petvalu
+#   ./harvest.sh uk             one international leg, detached
+#   ./harvest.sh au
 #   ./harvest.sh ingest         merge harvested JSONL into catalog.sqlite (foreground)
 #   ./harvest.sh status         progress of the running job
 #   ./harvest.sh logs           follow the live log
@@ -36,6 +48,17 @@ WORK="$PWD/harvest"
 LOG="$WORK/harvest.log"
 PIDFILE="$WORK/harvest.pid"
 PETVALU_BUDGET="${PETVALU_BUDGET:-1200}"
+# Pets at Home ~1,771 products, Petbarn ~1,663; one credit each. 4000 covers both with room.
+INTL_BUDGET="${INTL_BUDGET:-4000}"
+
+# Ingest reads every *.jsonl in the work dir when it is not told which. That dir now also holds
+# harvests that are not catalog rows at all — the image and guaranteed-analysis backfills carry
+# an empty `ingredients` on purpose and are applied by their own commands. They are rejected
+# rather than inserted, so the glob is harmless today, but naming the retailer harvests keeps it
+# that way once a non-catalog harvest does have ingredients.
+RETAILER_HARVESTS="rens,petsmart-ca,petsmart-us,petvalu,petvalu-performatrin,petsathome,petbarn,petco"
+# Petco lists ~5,400 dog/cat consumable pages, ~2 barcodes each (size variants).
+PETCO_BUDGET="${PETCO_BUDGET:-6000}"
 
 mkdir -p "$WORK"
 
@@ -84,9 +107,33 @@ stages() {
     run collect-petvalu --budget "$PETVALU_BUDGET" --work "$WORK"
   fi
 
+  if [[ "$STAGE" == "expand" || "$STAGE" == "intl" || "$STAGE" == "uk" ]]; then
+    echo; echo "--- Pets at Home UK (Firecrawl, ~1 credit/product) ---"
+    run collect-petsathome --budget "$INTL_BUDGET" --work "$WORK"
+  fi
+
+  if [[ "$STAGE" == "expand" || "$STAGE" == "intl" || "$STAGE" == "au" ]]; then
+    echo; echo "--- Petbarn AU (Firecrawl, ~1 credit/product) ---"
+    run collect-petbarn --budget "$INTL_BUDGET" --work "$WORK"
+  fi
+
+  if [[ "$STAGE" == "expand" || "$STAGE" == "petco" ]]; then
+    echo; echo "--- Petco US (Firecrawl, ~1 credit/product) ---"
+    run collect-petco --budget "$PETCO_BUDGET" --work "$WORK"
+  fi
+
+  # Every leg merges on the same terms as the domestic sweep, so they finish the way a full
+  # run does rather than leaving rows stranded outside search.
+  if [[ "$STAGE" == "expand" || "$STAGE" == "intl" ]]; then
+    echo; echo "--- ingest + pack + group ---"
+    run ingest --work "$WORK" --names "$RETAILER_HARVESTS"
+    run pack
+    run group --apply
+  fi
+
   if [[ "$STAGE" == "all" ]]; then
     echo; echo "--- ingest + pack + group ---"
-    run ingest --work "$WORK"
+    run ingest --work "$WORK" --names "$RETAILER_HARVESTS"
     run pack
     # New rows arrive ungrouped and pack rebuilds products, so regroup last or search
     # silently loses the sizes this sweep just added.
@@ -97,14 +144,14 @@ stages() {
 }
 
 case "${1:-all}" in
-  all|rens|petsmart|petvalu)
+  all|rens|petsmart|petvalu|expand|intl|uk|au|petco)
     if running; then
       echo "already running (pid $(cat "$PIDFILE")) — ./harvest.sh logs, or ./harvest.sh stop"
       exit 1
     fi
-    export STAGE="$1"
+    export STAGE="${1:-all}"
     export -f stages run
-    export WORK PETVALU_BUDGET
+    export WORK PETVALU_BUDGET INTL_BUDGET PETCO_BUDGET RETAILER_HARVESTS
     echo "starting '$1' detached; holding the machine awake for the duration."
     echo "  log:    $LOG"
     echo "  status: ./harvest.sh status"
@@ -161,7 +208,7 @@ PY
     ;;
 
   *)
-    echo "usage: ./harvest.sh [all|rens|petsmart|petvalu|ingest|status|logs|stop]"
+    echo "usage: ./harvest.sh [all|rens|petsmart|petvalu|expand|intl|uk|au|petco|ingest|status|logs|stop]"
     exit 2
     ;;
 esac

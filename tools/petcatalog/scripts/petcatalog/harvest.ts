@@ -33,6 +33,15 @@ export interface HarvestRecord {
   /** Feeds species/treat inference in extract(). Must contain the words 'dog' or 'cat'. */
   categoryPath?: string;
   source: string;
+  /**
+   * Guaranteed analysis / analytical constituents, verbatim from the retailer
+   * (`{"Protein":"30%","Crude Fibres":"3%"}`). Nothing downstream reads this yet — `ingest`
+   * ignores unknown keys — but it costs nothing to carry and the alternative is re-fetching
+   * every page a second time once the catalog grows columns for it.
+   */
+  analysis?: Record<string, string>;
+  /** Life stage as the retailer states it ("Adult Dogs aged 1-7 years"). Same rationale. */
+  lifeStage?: string;
 }
 
 /** Throw from a fetcher to park the entire run — the host is refusing everyone, not this item. */

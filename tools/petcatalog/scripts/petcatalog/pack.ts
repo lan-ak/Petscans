@@ -50,6 +50,21 @@ export function packInPlace(dbPath: string, onLog: (s: string) => void = () => {
     return { migrated: false, rows: before, before, after: before, mismatches: 0 };
   }
 
+  /**
+   * The rebuild below names its columns, so anything added to `products` after this file was
+   * written (the guaranteed-analysis columns) would be silently dropped by a migration. This
+   * path only ever runs on a catalog that has not been packed yet, and `build` does not create
+   * those columns — but the failure would be a silent data loss on a shipped artifact, so it
+   * refuses rather than guesses.
+   */
+  const cols = new Set((db.prepare('PRAGMA table_info(products)').all() as { name: string }[]).map((r) => r.name));
+  const KNOWN = ['gtin', 'name', 'brand', 'image_url', 'ingredients', 'species', 'category', 'tier', 'group_id', 'n_ingredients'];
+  const unknown = [...cols].filter((c) => !KNOWN.includes(c));
+  if (unknown.length) {
+    db.close();
+    throw new Error(`pack would drop columns it does not know about: ${unknown.join(', ')} — update pack.ts before packing this catalog`);
+  }
+
   db.exec('PRAGMA foreign_keys=OFF; BEGIN');
   db.exec(`CREATE TABLE products_packed (
     gtin TEXT NOT NULL, name TEXT NOT NULL, brand TEXT, image_url TEXT,

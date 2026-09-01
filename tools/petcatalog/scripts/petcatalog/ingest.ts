@@ -16,6 +16,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { extract, type CatalogRow, type RejectReason } from './extract';
 import { packIngredients } from './pack';
 import { readHarvest, type HarvestRecord } from './harvest';
+import { ANALYSIS_COLUMNS, ensureAnalysisColumns, parseAnalysis, type Analysis } from './analysis';
 
 export interface IngestResult {
   read: number;
@@ -31,6 +32,10 @@ export interface IngestResult {
   /** Rows with no group_id — scannable, but invisible to search until `group --apply`. */
   ungrouped: number;
   inserted: number;
+  /** Rows given macros they did not have — new inserts and existing rows both count. */
+  analysisWritten: number;
+  /** True when this run had to add the analysis columns. */
+  analysisMigrated: boolean;
   bySource: Record<string, number>;
   topNewBrands: [string, number][];
   countBefore: number;
@@ -101,7 +106,7 @@ export function ingest(opts: {
   const log = opts.onLog ?? (() => {});
 
   const rejected: Record<string, number> = {};
-  const best = new Map<string, { row: CatalogRow; source: string }>();
+  const best = new Map<string, { row: CatalogRow; source: string; analysis: Analysis | null }>();
   let read = 0;
 
   // Existing spellings, keyed by their normalised form, so harvested brands can fold onto them.
@@ -135,11 +140,16 @@ export function ingest(opts: {
       const held = best.get(result.gtin);
       // Deepest ingredient list wins — see the file header.
       if (held && held.row.nIngredients >= result.nIngredients) continue;
-      best.set(result.gtin, { row: result, source: rec.source });
+      best.set(result.gtin, { row: result, source: rec.source, analysis: parseAnalysis(rec.analysis) });
     }
   }
 
   const db = new DatabaseSync(opts.dbPath);
+  // The columns have to exist before anything tries to write them, and a dry run must not
+  // alter the schema it is only reporting on.
+  const analysisMigrated = opts.dryRun ? false : ensureAnalysisColumns(db);
+  if (analysisMigrated) log('added guaranteed-analysis columns to products');
+  let analysisWritten = 0;
   const countBefore = (db.prepare('SELECT count(*) c FROM products').get() as { c: number }).c;
   const existing = new Set<string>(
     (db.prepare('SELECT gtin FROM products').all() as { gtin: string }[]).map((r) => r.gtin),
@@ -187,6 +197,25 @@ export function ingest(opts: {
       );
     }
     db.exec('COMMIT');
+
+    /**
+     * Macros are written for every harvested row that states them, not only the newly inserted
+     * ones. Most of what a US sweep returns is a product the catalog already holds — the row is
+     * skipped by INSERT OR IGNORE, and its guaranteed analysis would be thrown away with it,
+     * even though that is the field the catalog is missing and the page has already been paid
+     * for. Each column is filled only when it is still NULL, so a later, thinner source can
+     * never overwrite a value an earlier one supplied.
+     */
+    const sets = ANALYSIS_COLUMNS.map(([, col]) => `${col} = COALESCE(${col}, ?)`).join(', ');
+    const updateAnalysis = db.prepare(`UPDATE products SET ${sets} WHERE gtin = ?`);
+    db.exec('BEGIN');
+    for (const { row, analysis } of best.values()) {
+      if (!analysis) continue;
+      const values = ANALYSIS_COLUMNS.map(([field]) => analysis[field] ?? null);
+      const r = updateAnalysis.run(...values, row.gtin);
+      if (r.changes) analysisWritten++;
+    }
+    db.exec('COMMIT');
     const setMeta = db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)');
     setMeta.run('ingested_at', new Date().toISOString());
     if (inserted) {
@@ -230,6 +259,8 @@ export function ingest(opts: {
     brandsFolded,
     tierC,
     inserted,
+    analysisWritten,
+    analysisMigrated,
     bySource,
     topNewBrands: Object.entries(newBrandCounts)
       .sort((a, b) => b[1] - a[1])
