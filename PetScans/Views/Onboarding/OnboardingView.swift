@@ -9,7 +9,11 @@ struct OnboardingView: View {
     @State private var selectedAllergens: Set<String> = []
     @State private var selectedGroups: Set<AvoidanceGroup> = []
     @State private var selectedProduct: CatalogProduct?
-    @State private var searchedFood: OnboardingFoodResult?
+    /// The demo verdict, scored before we know anything about the pet. Kept so the
+    /// personalised result can show what changed once the profile is in.
+    @State private var demoFood: OnboardingFoodResult?
+    /// The same food re-scored against the finished profile.
+    @State private var personalizedFood: OnboardingFoodResult?
     @State private var isSubmitting = false
     @State private var showNameValidation = false
     @State private var isForward = true
@@ -18,14 +22,20 @@ struct OnboardingView: View {
 
     let onComplete: () -> Void
 
-    // Only the standard-chrome pages (0–3) carry the dot indicator; the search
-    // and result pages are full-screen takeovers. `totalPages` counts just the
-    // tracked portion so the dots don't promise steps the tracker never shows.
-    private let totalPages = 4
-    private let profilePage = 2
-    private let groupsPage = 3
-    private let searchPage = 4
-    private let resultPage = 5
+    // Demo first. The measured funnel said everything placed ahead of the food search is
+    // paid for at a brutal rate — the old pet-setup page alone lost 48% of arrivals, and
+    // only 21% of users ever reached the payoff screen at all. Questions now sit *after*
+    // the moment that earns them, and the profile is played back on the personalised result screen.
+    private let searchPage = 1
+    private let resultPage = 2
+    private let profilePage = 3
+    private let groupsPage = 4
+    private let personalizedPage = 5
+
+    /// The dots cover the question block only (profile → groups). The promise, the demo and
+    /// its payoff are discovery, not a form, and a tracker over them read as paperwork; a
+    /// bounded "2 steps" after the payoff is a promise that can actually be kept.
+    private var questionStepCount: Int { 2 }
 
     var body: some View {
         ZStack {
@@ -35,18 +45,34 @@ struct OnboardingView: View {
             switch currentPage {
             case searchPage:
                 ProductCatalogSearchView(
-                    title: "Let's check your pet's food",
+                    title: "Let's check a pet food",
                     titleFont: TypographyTokens.displayMedium,
-                    onLeading: { navigate(to: groupsPage) },
-                    onSkip: { completeAfterAHA(viewedResult: false) },
+                    subtitle: "Pick any food you have at home — we'll show you what's really inside.",
+                    speciesPicker: $petSpecies,
+                    onLeading: { navigate(to: 0) },
+                    onSkip: { navigate(to: profilePage) },
                     onSelect: { product in
+                        // Backing out and choosing a different food used to leave the first
+                        // one in History for good — the de-dupe on save only covers the
+                        // same gtin, so the abandoned pick survived with its pre-profile
+                        // verdict.
+                        discardDemoScan(keeping: product.gtin)
                         selectedProduct = product
+                        // Deliberately does *not* set `petSpecies` from the product. The
+                        // picker above the search field is the owner's own answer, and
+                        // `speciesFirst` orders rather than filters, so a mislabelled row —
+                        // or a deliberate look at the other species — would otherwise
+                        // silently rewrite their profile, their allergen chips and how
+                        // every later scan is scored.
                         withStandardAnimation { currentPage = resultPage }
                     }
                 )
                 .transition(.opacity)
             case resultPage:
                 resultPageContent
+                    .transition(.opacity)
+            case personalizedPage:
+                personalizedPageContent
                     .transition(.opacity)
             default:
                 standardChrome
@@ -77,7 +103,7 @@ struct OnboardingView: View {
         }
     }
 
-    /// The shared centered layout used by the welcome/benefit/profile/groups pages.
+    /// The shared centered layout used by the welcome/profile/groups pages.
     private var standardChrome: some View {
         VStack(spacing: 0) {
             backButton
@@ -90,8 +116,13 @@ struct OnboardingView: View {
 
             Spacer()
 
-            PageIndicator(totalPages: totalPages, currentPage: currentPage)
+            if currentPage == profilePage || currentPage == groupsPage {
+                PageIndicator(
+                    totalPages: questionStepCount,
+                    currentPage: currentPage - profilePage
+                )
                 .padding(.bottom, SpacingTokens.lg)
+            }
 
             navigationButtons
                 .padding(.horizontal, SpacingTokens.screenPadding)
@@ -113,27 +144,45 @@ struct OnboardingView: View {
         .ignoresSafeArea(.keyboard, edges: .bottom)
     }
 
-    /// The AHA payoff page. Recovers to search if the product was somehow lost
-    /// (e.g. state reset), so the user is never stranded on a blank screen.
+    /// The demo payoff — scored before there is a pet, so it carries the general verdict
+    /// and points forward at personalisation. Recovers to search if the product was lost.
     @ViewBuilder
     private var resultPageContent: some View {
         if let product = selectedProduct {
             OnboardingFoodResultView(
                 product: product,
-                petName: petName.isNotBlank ? petName.trimmed : nil,
-                allergens: selectedAllergens,
-                groups: selectedGroups,
+                species: petSpecies,
                 onBack: { withStandardAnimation { currentPage = searchPage } },
-                onSkip: { completeAfterAHA(viewedResult: false) },
                 onScored: { summary in
-                    searchedFood = summary
+                    demoFood = summary
+                    // Set now as well as after the re-score: a user who drops out between
+                    // here and the personalised result screen still reaches the paywall with a verdict
+                    // attached for targeting.
                     SuperwallUserAttributes.setSearchedFood(summary)
                 },
-                onContinue: { completeAfterAHA(viewedResult: true) }
+                onContinue: { navigate(to: profilePage) }
             )
         } else {
             Color.clear.onAppear { withStandardAnimation { currentPage = searchPage } }
         }
+    }
+
+    /// The same food re-scored against the finished profile, so the last thing before the
+    /// paywall is an answer about the user's own pet rather than a generic offer.
+    private var personalizedPageContent: some View {
+        OnboardingPersonalizedResultView(
+            product: selectedProduct,
+            demoResult: demoFood,
+            petName: petName.isNotBlank ? petName.trimmed : nil,
+            species: petSpecies,
+            allergens: selectedAllergens,
+            groups: selectedGroups,
+            onScored: { summary in
+                personalizedFood = summary
+                SuperwallUserAttributes.setSearchedFood(summary)
+            },
+            onContinue: { finishOnboarding(createdPet: petName.isNotBlank) }
+        )
     }
 
     @ViewBuilder
@@ -142,13 +191,6 @@ struct OnboardingView: View {
         case 0:
             OnboardingWelcomePage()
                 .transition(pageTransition)
-        case 1:
-            OnboardingBenefitsPage(
-                icon: "checkmark.shield.fill",
-                headline: "Know if it's safe before you buy",
-                subheadline: "Every product gets a score for your pet, with the ingredients behind it explained in plain language."
-            )
-            .transition(pageTransition)
         case profilePage:
             OnboardingPetSetupPage(
                 petName: $petName,
@@ -219,7 +261,7 @@ struct OnboardingView: View {
     private var navigationButtons: some View {
         if currentPage == groupsPage {
             Button("Continue") {
-                navigate(to: searchPage)
+                navigate(to: personalizedPage)
             }
             .primaryButtonStyle()
         } else if currentPage == profilePage {
@@ -236,24 +278,28 @@ struct OnboardingView: View {
     }
 
     /// Plain text rather than a second full-width button: as an equal-width
-    /// button beside the CTA it read as an equal choice. What skipping means
-    /// depends on the page — no pet at all on the profile page, just no
-    /// avoidance groups on the (optional) groups page.
+    /// button beside the CTA it read as an equal choice.
+    ///
+    /// The label is page-specific because the consequence is. On the groups page skipping
+    /// costs the watch list and nothing else. On the profile page it ends onboarding — 39%
+    /// of finishers took that exit under the old label "Skip for now", which reads like it
+    /// skips a step rather than the rest of the flow.
     private var skipButton: some View {
-        Button("Skip for now") {
+        Button(currentPage == profilePage ? "Not now — finish setup" : "Skip for now") {
             if currentPage == groupsPage {
-                // Skipping here only skips the optional groups — the pet is
-                // already set up, so continue to the "check your food" moment
-                // rather than finishing onboarding early.
-                navigate(to: searchPage)
+                navigate(to: personalizedPage)
             } else {
-                completeOnboarding(createdPet: false)
+                // `createdPet:` off what was actually entered, not a flat false. The label
+                // invites pressing this *after* filling the form in, and hardcoding false
+                // threw away a name, species and allergen list the user had already given.
+                finishOnboarding(createdPet: petName.isNotBlank)
             }
         }
         .font(TypographyTokens.labelLarge)
         .foregroundColor(ColorTokens.textSecondary)
         .disabled(isSubmitting)
         .opacity(isSubmitting ? 0.6 : 1)
+        .accessibilityIdentifier("onboarding-skip")
     }
 
     /// Gets the keyboard up on arrival at the setup page — the only page asking
@@ -277,11 +323,25 @@ struct OnboardingView: View {
     /// submit — by the time the groups page finishes, the name is already valid.
     private func continueFromProfile() {
         if petName.isNotBlank {
-            navigate(to: currentPage + 1)
+            navigate(to: groupsPage)
         } else {
             showNameValidation = true
             isNameFocused = true
         }
+    }
+
+    /// Deletes a previously demoed food from History when the user picks a different one.
+    ///
+    /// The demo saves as soon as it scores so that a user who leaves mid-flow still lands in
+    /// an app with something in it. That means every food they *try* gets written, and only
+    /// the one they carry to the personalised result screen gets replaced.
+    private func discardDemoScan(keeping gtin: String) {
+        guard let previous = selectedProduct?.gtin, previous != gtin else { return }
+        let stale = try? modelContext.fetch(
+            FetchDescriptor<Scan>(predicate: #Predicate<Scan> { $0.barcode == previous })
+        )
+        stale?.forEach(modelContext.delete)
+        try? modelContext.save()
     }
 
     /// Persists the pet and pushes every Superwall targeting attribute. Shared by
@@ -307,65 +367,44 @@ struct OnboardingView: View {
         )
     }
 
-    /// Exit used when the user skips the AHA search entirely (or skipped the pet
-    /// setup). The paywall is gated on `onboarding_complete`, the long-standing
-    /// end-of-onboarding trigger.
-    private func completeOnboarding(createdPet: Bool) {
+    /// The single exit. Everyone leaves through `onboarding_complete` — off the personalised
+    /// result, or off the profile page's "Not now". Which paywall they see is a campaign
+    /// audience decision on the persisted `user.searched_food*` attributes, not a
+    /// placement decision: gating on a separate placement name could only ever reach users
+    /// whose downloaded config already carried it, silently excluding everyone else.
+    private func finishOnboarding(createdPet: Bool) {
         guard !isSubmitting else { return }
         isSubmitting = true
         isNameFocused = false
 
         persistAndSync(createdPet: createdPet)
 
+        // The searched food reported here is the personalised score when there is one, so
+        // audiences and paywall copy see the verdict the user was actually left looking at.
+        let food = personalizedFood ?? demoFood
+
+        // Armed, not presented. `onboarding_complete` below is the gated placement that
+        // shows the paywall, and iOS drops a review request while another sheet owns the
+        // slot — silently, still spending one of three per year. `MainTabView` drains this
+        // once the user has actually landed in the app, and defers past the paywall.
+        ReviewPrompt.recordOnboardingCompleted(sawPersonalizedResult: personalizedFood != nil)
+
         // The gated register runs the feature block even when the SDK is
         // unavailable, so a paywall that cannot load never strands the user.
-        SuperwallSafe.register(placement: "onboarding_complete") {
-            onComplete()
-        }
-    }
-
-    /// Single exit from the AHA pages. Everyone leaves onboarding through
-    /// `onboarding_complete` whether they walked the food search or skipped it;
-    /// which paywall they see is a campaign-audience decision, not a placement
-    /// decision.
-    ///
-    /// The AHA paywall is selected by an audience on `user.searched_food`, set by
-    /// `SuperwallUserAttributes.setSearchedFood` when the result screen scores —
-    /// seconds before this register, so it is always in place by evaluation time.
-    /// Gating the payoff CTA on its own `aha_food_result` placement instead meant
-    /// the paywall could only ever reach users whose downloaded config already
-    /// carried that placement, which silently excluded everyone else.
-    private func completeAfterAHA(viewedResult: Bool) {
-        guard !isSubmitting else { return }
-        isSubmitting = true
-        isNameFocused = false
-
-        // Name is guaranteed present by the time the AHA is reached (it gates
-        // leaving the profile page), so a pet is always created here.
-        persistAndSync(createdPet: petName.isNotBlank)
-
         SuperwallSafe.register(
             placement: "onboarding_complete",
             params: [
-                "viewed_food_result": viewedResult,
-                "verdict": searchedFood?.verdict.rawValue ?? "",
-                "score": Int((searchedFood?.score ?? 0).rounded()),
-                "flag_count": searchedFood?.flagCount ?? 0
+                "viewed_food_result": demoFood != nil,
+                "personalized": personalizedFood != nil,
+                "verdict": food?.verdict.rawValue ?? "",
+                "score": Int((food?.score ?? 0).rounded()),
+                "flag_count": food?.flagCount ?? 0
             ]
         ) {
             onComplete()
         }
     }
 
-    /// Per-page events, so drop-off inside onboarding is visible rather than
-    /// showing up only as a gap between installs and `onboarding_complete`.
-    /// Without this there is no way to tell paid-traffic quality apart from
-    /// friction on a specific screen.
-    ///
-    /// One placement carrying a `step` param rather than a placement per page:
-    /// registering a placement can present a paywall if one is ever attached to
-    /// that name on the dashboard, and a single name is far easier to keep out
-    /// of campaigns than four.
     #if DEBUG
     /// Debug affordance: `-OnboardingStartPage <n>` jumps straight to a page with
     /// demo profile/allergen/group state seeded, so the AHA screens can be driven
@@ -379,11 +418,28 @@ struct OnboardingView: View {
         petName = "Max"
         selectedAllergens = ["chicken"]
         selectedGroups = [.artificialColours, .meatByproducts, .commonAllergens]
-        if page == resultPage {
+        if page == resultPage || page == personalizedPage {
             Task {
                 if let product = await ProductCatalogService().search(query: "chicken", limit: 1).first {
                     selectedProduct = product
-                    currentPage = resultPage
+                    petSpecies = product.species
+                    // The personalised result screen's whole point is the before/after, and that needs the
+                    // demo's *general* verdict to compare against. Jumping straight here
+                    // would otherwise always render the single-verdict fallback, which is
+                    // the one case the screen isn't built to show off.
+                    if page == personalizedPage {
+                        let cold = await OnboardingFoodScorer.score(
+                            product: product, petName: nil, allergens: [], groups: []
+                        )
+                        demoFood = OnboardingFoodResult(
+                            name: product.name,
+                            brand: product.brand,
+                            verdict: cold.breakdown.ratingLabel,
+                            score: cold.breakdown.total,
+                            flagCount: cold.breakdown.flags.count
+                        )
+                    }
+                    currentPage = page
                 }
             }
         } else {
@@ -392,11 +448,34 @@ struct OnboardingView: View {
     }
     #endif
 
+    /// Per-page events, so drop-off inside onboarding is visible rather than
+    /// showing up only as a gap between installs and `onboarding_complete`.
+    ///
+    /// One placement carrying a `step` param rather than a placement per page:
+    /// registering a placement can present a paywall if one is ever attached to
+    /// that name on the dashboard, and a single name is far easier to keep out
+    /// of campaigns than four.
+    ///
+    /// `step_name` travels alongside the index because the index is not stable — this
+    /// release reorders the flow, so any funnel keyed on `step` alone silently changes
+    /// meaning at the cutover. Query on the name.
     private func logStep(_ page: Int) {
         SuperwallSafe.register(
             placement: "onboarding_step",
-            params: ["step": page]
+            params: ["step": page, "step_name": Self.stepName(page)]
         )
+    }
+
+    private static func stepName(_ page: Int) -> String {
+        switch page {
+        case 0: return "promise"
+        case 1: return "search"
+        case 2: return "demo_result"
+        case 3: return "pet_setup"
+        case 4: return "watch_list"
+        case 5: return "personalized_result"
+        default: return "unknown_\(page)"
+        }
     }
 }
 
@@ -414,7 +493,7 @@ struct PageIndicator: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Page \(currentPage + 1) of \(totalPages)")
+        .accessibilityLabel("Step \(currentPage + 1) of \(totalPages)")
     }
 }
 

@@ -90,6 +90,16 @@ struct PetScansApp: App {
             // by the onboarding→app end-to-end test.
             if ProcessInfo.processInfo.arguments.contains("-ResetOnboarding") {
                 UserDefaults.standard.set(false, forKey: "hasCompletedOnboarding")
+                // A first run also means a user who has never been asked to rate, so the
+                // post-scan review prompt behaves as it would on a real install rather than
+                // staying suppressed by a cooldown a previous session on this simulator
+                // left behind.
+                UserDefaults.standard.removeObject(forKey: "reviewPrompt.lastPromptedAt")
+                UserDefaults.standard.removeObject(forKey: "reviewPrompt.lastPaywallAt")
+                // sessionCount too. `isGoodMoment` gates on >= 2, so clearing only the
+                // cooldowns made a re-used simulator *more* likely to raise the StoreKit
+                // alert than a real install — mid screenshot run.
+                UserDefaults.standard.removeObject(forKey: "reviewPrompt.sessionCount")
             }
         }
 

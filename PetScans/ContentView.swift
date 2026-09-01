@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
@@ -53,6 +54,8 @@ struct ContentView: View {
 }
 
 struct MainTabView: View {
+    @Environment(\.requestReview) private var requestReview
+
     var body: some View {
         TabView {
             ScannerView()
@@ -70,6 +73,28 @@ struct MainTabView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
         }
+        .task { await askForReviewIfArmed() }
+    }
+
+    /// Presents the App Store rating sheet when onboarding armed one.
+    ///
+    /// `pending` lives in memory, so this can only fire in the session that armed it — a
+    /// later cold launch lands here with nothing to drain.
+    ///
+    /// The delay is not cosmetic. This runs as the tab bar appears, which is the moment the
+    /// `onboarding_complete` paywall is dismissing, and iOS drops a review request made
+    /// while another sheet still owns the slot — silently, and it still counts against the
+    /// three-per-year budget. `consumePending` re-checks the paywall cooldown and keeps the
+    /// arm if it is still inside it, so a user who saw a paywall is asked at their first
+    /// scan result instead of not at all.
+    private func askForReviewIfArmed() async {
+        try? await Task.sleep(for: .seconds(2.5))
+        guard !Task.isCancelled, ReviewPrompt.consumePending() else { return }
+        // The decision above still runs under UI testing; only the sheet is withheld. It is
+        // a system alert, and onboarding arms this on the exact flow `testAHA_OnboardingFlow`
+        // walks — presenting it would steal whichever tap landed 2.5s after the tab bar.
+        guard !PetScansApp.isUITesting else { return }
+        requestReview()
     }
 }
 

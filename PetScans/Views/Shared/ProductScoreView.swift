@@ -277,6 +277,7 @@ struct ProductScoreView: View {
         try? await Task.sleep(for: .seconds(2.5))
         guard !Task.isCancelled else { return }
         guard ReviewPrompt.consumePending() else { return }
+        guard !PetScansApp.isUITesting else { return }
 
         requestReview()
     }

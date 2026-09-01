@@ -99,6 +99,7 @@ struct ScannerView: View {
                 ProductCatalogSearchView(
                     title: "Search by name",
                     subtitle: "Find any food in our catalog by brand or product name.",
+                    species: rosterSpecies,
                     leadingIcon: "xmark",
                     onLeading: { showingCatalogSearch = false },
                     onSelect: { product in
@@ -108,6 +109,15 @@ struct ScannerView: View {
                 )
             }
         }
+    }
+
+    /// The species to bias catalog search toward, inferred from the roster rather than
+    /// `viewModel.selectedSpecies` — that defaults to `.dog` with no pet chosen, which
+    /// would quietly push a cat household's search the wrong way. A mixed household
+    /// returns nil and keeps plain relevance order.
+    private var rosterSpecies: Species? {
+        let species = Set(pets.map(\.speciesEnum))
+        return species.count == 1 ? species.first : nil
     }
 
     // MARK: - Subviews

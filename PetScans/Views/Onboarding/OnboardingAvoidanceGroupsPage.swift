@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Onboarding page dedicated to the avoidance groups. Split off the pet-setup
 /// page so the name/species/ingredients form has room and the categories get a
-/// screen of their own. Collected only — see `AvoidanceGroup`.
+/// screen of their own. These feed scoring on every scan — see `AvoidanceGroup`.
 struct OnboardingAvoidanceGroupsPage: View {
     @Binding var selectedGroups: Set<AvoidanceGroup>
 

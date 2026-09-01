@@ -174,28 +174,9 @@ final class ScreenshotTests: XCTestCase {
         app.launchArguments = ["-UITesting", "-ResetOnboarding"]
         app.launch()
 
-        // Welcome → two benefit pages.
+        // Promise → straight into the demo. The flow is demo-first: nothing is asked
+        // before the user has seen the app score a real food.
         tapButton("Get Started")
-        tapButton("Continue")
-        tapButton("Continue")
-
-        // Pet setup: name (required) + a common allergen so the result flags it.
-        // The trailing \n fires the field's Done action, dismissing the keyboard so
-        // the allergen chips below it become hittable.
-        let nameField = app.textFields["pet-name-field"]
-        XCTAssertTrue(nameField.waitForExistence(timeout: 5), "pet name field")
-        nameField.tap()
-        nameField.typeText("Max\n")
-        // Chip / row accessibility labels include example text, so match on CONTAINS.
-        tapIfExists(containingButton("chicken"))
-        takeScreenshot(named: "aha-00-petsetup")
-        tapButton("Continue")
-
-        // Avoidance groups: pick a couple (labels carry their example lists).
-        tapIfExists(containingButton("Artificial colours"))
-        tapIfExists(containingButton("Meat by-products"))
-        takeScreenshot(named: "aha-01-groups")
-        tapButton("Continue")
 
         // Search page (shared ProductCatalogSearchView). Multi-term query exercises
         // the fuzzy brand+protein matching.
@@ -221,7 +202,7 @@ final class ScreenshotTests: XCTestCase {
         // Arrival is now asserted on the result screen's own CTA, which is what actually
         // ships.
         let ahaContinue = app.buttons["aha-continue"]
-        XCTAssertTrue(ahaContinue.waitForExistence(timeout: 12), "AHA result page rendered")
+        XCTAssertTrue(ahaContinue.waitForExistence(timeout: 12), "demo result page rendered")
         takeScreenshot(named: "aha-03-result-full")
 
         // Tap an ingredient to open its detail sheet.
@@ -237,11 +218,33 @@ final class ScreenshotTests: XCTestCase {
             if sheetDone.waitForExistence(timeout: 2) { sheetDone.tap() }
         }
 
-        // Finish onboarding (top-bar Skip always visible), then confirm the searched
-        // food was auto-saved to History.
-        let resultSkip = app.buttons["aha-result-skip"].firstMatch
-        XCTAssertTrue(resultSkip.waitForExistence(timeout: 3), "result skip")
-        resultSkip.tap()
+        // Into the question block, which now sits *after* the payoff rather than in
+        // front of it.
+        ahaContinue.tap()
+
+        // Pet setup: name (required) + a common allergen, so the re-score on the plan
+        // reveal has something to flip. The trailing \n fires the field's Done action,
+        // dismissing the keyboard so the allergen chips below become hittable.
+        let nameField = app.textFields["pet-name-field"]
+        XCTAssertTrue(nameField.waitForExistence(timeout: 6), "pet name field")
+        nameField.tap()
+        nameField.typeText("Max\n")
+        // Chip / row accessibility labels include example text, so match on CONTAINS.
+        tapIfExists(containingButton("chicken"))
+        takeScreenshot(named: "aha-04-petsetup")
+        tapButton("Continue")
+
+        // Watch list (labels carry their example lists).
+        tapIfExists(containingButton("Artificial colours"))
+        tapIfExists(containingButton("Meat by-products"))
+        takeScreenshot(named: "aha-05-groups")
+        tapButton("Continue")
+
+        // Plan reveal: the same food, re-scored against Max.
+        let personalizedContinue = app.buttons["personalized-continue"]
+        XCTAssertTrue(personalizedContinue.waitForExistence(timeout: 15), "personalised result screen rendered")
+        takeScreenshot(named: "aha-06-personalized-result")
+        personalizedContinue.tap()
 
         let historyTab = app.tabBars.buttons["History"]
         XCTAssertTrue(historyTab.waitForExistence(timeout: 10), "reached main app after onboarding")

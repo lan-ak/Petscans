@@ -77,13 +77,36 @@ enum ReviewPrompt {
     /// result screen that gets re-rendered does not ask twice.
     static func consumePending() -> Bool {
         guard pending else { return false }
-        pending = false
         // Re-check the paywall cooldown here rather than only at arming time:
         // `analysis_complete` registers after the score is computed, so the
         // paywall this scan may trigger lands *between* arming and presenting.
+        //
+        // The arm is deliberately **not** cleared when this is what blocks it. The moment
+        // was already judged worth asking on, and burning it because a paywall happened to
+        // land first spends the arm on nothing — the next result screen is a better place
+        // for it. This is also what lets an onboarding arm survive the paywall that
+        // `onboarding_complete` itself presents.
         guard !isWithinPaywallCooldown else { return false }
+        pending = false
         UserDefaults.standard.set(Date(), forKey: Key.lastPromptedAt)
         return true
+    }
+
+    /// Arms the ask for a user who has just finished onboarding.
+    ///
+    /// No pre-prompt: the system sheet is the ask. What stands in for sentiment is that they
+    /// walked the whole flow — named their pet, picked what to avoid, and stayed for the
+    /// personalised verdict on a food they chose themselves. Someone who skipped to the end
+    /// is not asked.
+    ///
+    /// The volume gates in `isGoodMoment` (three analyses, two cold launches) deliberately do
+    /// not apply. They exist to prove intent before spending one of Apple's three prompts a
+    /// year, and finishing onboarding proves it a different way — but they are also why the
+    /// app shipped four versions with one rating, since most users never reach a second
+    /// session. The cooldowns still apply, and the paywall interlock above still defers.
+    static func recordOnboardingCompleted(sawPersonalizedResult: Bool) {
+        guard sawPersonalizedResult, !isWithinPromptCooldown else { return }
+        pending = true
     }
 
     // MARK: - Rules
