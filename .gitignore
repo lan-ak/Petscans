@@ -98,3 +98,6 @@ PetScans/Data/*.bak
 # Retailer harvest sidecars (JSONL records, resume ledgers, logs). Large and regenerable —
 # the catalog they produce is the committed artifact, not these.
 tools/petcatalog/harvest/
+
+# Python virtualenv for the creator-agreement generator (regenerable)
+PetScans-Meta-Campaign/venv/

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PetScans — Creator Account Setup SOP (Internal)</title>
+<style>
+  @page { size: letter; margin: 0.5in 0.58in 0.5in 0.58in; }
+
+  :root {
+    --ink: #1a1a1a;
+    --muted: #6b6b6b;
+    --accent: #c1442e;
+    --rule: #dcdcdc;
+    --wash: #faf6f4;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    font-family: "Calibri", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    font-size: 8.9pt;
+    line-height: 1.4;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1 { font-size: 17pt; margin: 0 0 3pt; letter-spacing: -0.2pt; }
+
+  .kicker {
+    font-size: 8.4pt;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0 0 3pt;
+    text-transform: uppercase;
+    letter-spacing: 0.6pt;
+  }
+
+  .filemap {
+    background: #f6f6f6;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 7pt 10pt;
+    margin: 9pt 0 4pt;
+    font-size: 8.4pt;
+  }
+  .filemap p { margin: 0 0 3pt; }
+  .filemap p:last-child { margin-bottom: 0; }
+  code {
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 7.9pt;
+    background: #ececec;
+    padding: 0.5pt 2.5pt;
+    border-radius: 2px;
+  }
+
+  h2 {
+    font-size: 10.6pt;
+    margin: 14pt 0 4pt;
+    padding-bottom: 2.5pt;
+    border-bottom: 1px solid var(--rule);
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+  h2 .num { color: var(--accent); margin-right: 5pt; }
+
+  h3 {
+    font-size: 9.4pt;
+    margin: 9pt 0 3pt;
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  p { margin: 0 0 5pt; }
+  ol, ul { margin: 0 0 5pt; padding-left: 14pt; }
+  li { margin-bottom: 3pt; }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 5pt 0 7pt;
+    font-size: 8.4pt;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  th {
+    text-align: left;
+    background: var(--wash);
+    font-weight: 700;
+    border-bottom: 1.5px solid var(--rule);
+  }
+  th, td {
+    padding: 4pt 6pt;
+    border-bottom: 1px solid #ececec;
+    vertical-align: top;
+  }
+  td:first-child { width: 32%; }
+  table.narrow td:first-child { width: 26%; }
+
+  .callout {
+    background: var(--wash);
+    border-left: 3px solid var(--accent);
+    padding: 7pt 9pt 6pt;
+    margin: 8pt 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .callout p { margin: 0; }
+
+  .check { list-style: none; padding-left: 0; margin: 5pt 0 6pt; }
+  .check li {
+    padding-left: 15pt;
+    position: relative;
+    margin-bottom: 3.5pt;
+  }
+  .check li:before {
+    content: "☐";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 9.5pt;
+  }
+
+  pre {
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 7.4pt;
+    line-height: 1.5;
+    background: #f6f6f6;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 8pt 10pt;
+    margin: 5pt 0;
+    white-space: pre-wrap;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  pre code { background: none; padding: 0; font-size: 7.4pt; }
+
+  hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+    margin: 12pt 0;
+  }
+
+  .foot {
+    margin-top: 12pt;
+    padding-top: 6pt;
+    border-top: 1px solid var(--rule);
+    font-size: 8.2pt;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<p class="kicker">Internal — not for creators</p>
+<h1>Creator Account Setup — SOP</h1>
+
+<div class="filemap">
+  <p><strong>Send the creator:</strong> <code>PetScans-Account-Setup-Quickstart.pdf</code></p>
+  <p><strong>Edit that PDF via:</strong> <code>creator-account-setup-quickstart.html</code> → re-print with Chrome (command at the end). <code>creator-account-setup-quickstart.md</code> is the readable copy of the same text.</p>
+  <p><strong>Not in use yet:</strong> <code>account-register-template.csv</code> — see §7.</p>
+</div>
+
+<p>Four platforms: <strong>Instagram, TikTok, YouTube, Snapchat.</strong> No Facebook. All four are ordinary personal accounts, created by the creator, owned by us.</p>
+
+<h2><span class="num">1</span>Why it's built this way</h2>
+<p>Three decisions drive everything below.</p>
+<p><strong>Company-owned accounts.</strong> Clause 8.6: accounts the creator already had stay theirs, anything set up for this program is ours — handle, login, following. Ownership comes almost entirely from one thing: <em>the accounts are registered to an email we control.</em> That's the spine.</p>
+<p><strong>Personal-type accounts, not Business or Professional.</strong> TikTok Business loses the full audio library outright, and no platform's feed treats a business account the way it treats a person. We buy reach and pay for it in ownership hedges — §9 is the honest bill.</p>
+<p><strong>The creator creates them, on their own phone, on their own wifi.</strong> Every platform weighs where an account was created against where it's used. An account born on our IP and then opened on their phone in another country is the signature of a bought or farmed account. We lose nothing by having them do it: the ownership levers are all in the email and the vault, which are ours either way.</p>
+
+<h2><span class="num">2</span>One-time setup — about an hour, once</h2>
+<p><strong>Google Workspace on a domain you own.</strong> Not consumer Gmail. As super-admin you can reset any password and reclaim any mailbox from the console immediately, which is what makes the rest of this survivable. ~$7/user/month.</p>
+<p><strong>A password manager with shared vaults</strong> — 1Password or Bitwarden, either. You need two, and the split matters more than the product:</p>
+<table>
+  <tr><th>Vault</th><th>Contains</th><th>Creator access</th></tr>
+  <tr><td><code>PetScans — Ops</code></td><td>Mailbox A, and anything else that controls other things</td><td><strong>Never</strong></td></tr>
+  <tr><td><code>PetScans — [creator]</code></td><td>The four account logins, mailbox B</td><td>Shared</td></tr>
+</table>
+<div class="callout">
+  <p><strong>If you remember one thing from this document:</strong> the creator must not be able to read the mailbox that Instagram, TikTok and Snapchat send password resets to. Whoever reads that inbox controls every account registered to it, regardless of what any contract says.</p>
+</div>
+
+<h2><span class="num">3</span>Two mailboxes, and why it isn't one</h2>
+<table class="narrow">
+  <tr><th></th><th>A — control mailbox</th><th>B — YouTube account</th></tr>
+  <tr><td>Example</td><td><code>ops.molly@yourdomain</code></td><td><code>molly@yourdomain</code></td></tr>
+  <tr><td>Registers</td><td>Instagram, TikTok, Snapchat</td><td>YouTube only</td></tr>
+  <tr><td>Creator holds the password?</td><td><strong>Never</strong></td><td><strong>Yes</strong> — it's how they sign in to post</td></tr>
+  <tr><td>Vault</td><td>Ops</td><td>Shared</td></tr>
+</table>
+<p>The split exists because YouTube has no Brand Account here, so the creator needs a real Google password to upload. One mailbox for everything plus a creator who holds it means they can reset all four accounts at will. Two mailboxes costs you $7/month and removes the problem.</p>
+<p>Workspace admin is the backstop on both. You don't need recovery-address ceremony on top of it.</p>
+
+<h2><span class="num">4</span>Per creator — about 20 minutes of your time</h2>
+<ol>
+  <li><strong>Create mailboxes A and B</strong> as Workspace users. Put A in Ops, B in the shared vault. Check twice that A is not in the shared one.</li>
+  <li><strong>Generate the four account passwords</strong> into the shared vault now, so the creator pastes rather than invents.</li>
+  <li><strong>Agree the handle.</strong> They post 3 candidates; you check for trademark collisions and pick one. Confirm it's free on all four platforms <em>before</em> claiming any, then claim everywhere the same day. Lowercase, one separator at most, under 20 characters, reads like a person — <code>mollys.kibble.check</code>, not <code>petscans_ugc_02</code>. Display names can vary; the handle shouldn't.</li>
+  <li><strong>Send the quickstart PDF and the vault invite</strong>, and open their Discord setup thread.</li>
+  <li><strong>Relay verification codes</strong> from mailbox A while they work. That's your only live involvement.</li>
+  <li><strong>Fill in Exhibit B</strong> with the four handles once they're live, and countersign.</li>
+</ol>
+
+<h2><span class="num">5</span>What they do, and the gotcha on each platform</h2>
+<p>They have the step-by-step. These are the four things that go wrong:</p>
+<p><strong>YouTube</strong> — sign into mailbox B, create the channel from the avatar. An ordinary channel. <strong>Not a Brand Account</strong>, and don't migrate it into one later.</p>
+<p><strong>Instagram</strong> — created at <strong>instagram.com in a browser</strong>, not the app, and never "log in with Facebook". Left <strong>personal</strong>; don't switch to Professional. Skip any prompt to connect a Page.</p>
+<p><strong>TikTok</strong> — email and password, not phone-first. Left <strong>personal</strong>; Business accounts are limited to the Commercial Music Library. Turn on ad authorization under Settings → Creator tools, which works on a personal account and doesn't change its type — that's what clause 8.3's Spark Ad codes run through.</p>
+<p><strong>Snapchat</strong> — a <strong>Public Profile</strong> is required; without it there's no public Spotlight posting at all. Snapchat also usually demands a phone number and usually rejects VoIP.</p>
+<p><strong>On all four:</strong> 2FA via authenticator app, not SMS. On the QR screen there's a "can't scan?" link with a <strong>setup key</strong> — that string goes into the vault item before setup is finished, along with the <strong>backup codes</strong>. It's the most-skipped step and the most expensive one to miss.</p>
+<p><strong>Phone numbers:</strong> use theirs, record it in the thread. See §7 for when that changes.</p>
+
+<h2><span class="num">6</span>The five things that must be true when they're done</h2>
+<p>Run this before the first script ships.</p>
+<ul class="check">
+  <li>Instagram, TikTok and Snapchat are registered to <strong>mailbox A</strong>, which the creator cannot read.</li>
+  <li>YouTube is on <strong>mailbox B</strong>, an ordinary channel, and you're Workspace admin over it.</li>
+  <li>Every account has 2FA on, with the <strong>setup key and recovery codes in the shared vault</strong>.</li>
+  <li>All four are personal. No Professional, no Business, no Brand Account, no Facebook Page.</li>
+  <li><strong>Exhibit B is filled in and countersigned</strong> with the four handles.</li>
+</ul>
+<p>Pass all five and you own the accounts in every way that matters. Fail one and fix it now — each is far cheaper today than in month four.</p>
+<p>Then, per account, have them post the handle, the profile link, a screenshot of the live profile and the date into the thread. Thirty seconds, and it's your only dated proof of when an account started and for whom.</p>
+
+<h2><span class="num">7</span>What you're deliberately not doing yet</h2>
+<p>Not "never" — just not at one creator. Each has a trigger.</p>
+<table>
+  <tr><th>Skipped</th><th>Start when</th></tr>
+  <tr><td>The Account Register CSV</td><td><strong>3+ creators.</strong> Below that it duplicates the vault and Exhibit B</td></tr>
+  <tr><td>TikTok Business Center claim</td><td>An account has real value — a video past <strong>100k</strong>, or recurring Spark Ads</td></tr>
+  <tr><td>Snapchat Business Manager claim</td><td>Same, or Snapchat starts actually producing</td></tr>
+  <tr><td>A company-controlled phone number</td><td>An account is valuable enough that SMS recovery on their handset is a live risk. Until then TOTP does the real work</td></tr>
+  <tr><td>Instagram Business Portfolio claim</td><td>You switch that account to Creator for Partnership Ads — claim it in the same sitting</td></tr>
+  <tr><td>Monthly vault spot-checks</td><td>You have more accounts than you can hold in your head</td></tr>
+</table>
+
+<h2><span class="num">8</span>The rules the creator actually has to follow</h2>
+<p><strong>The one rule: never change the email, password, phone number, or 2FA.</strong> Changes go through Discord and get done together. Everything else is recoverable; this isn't.</p>
+<p>Then, from the agreement: <code>#ad</code> at the <strong>start</strong> of every caption plus spoken or on-screen in the first 3 seconds (clause 6.1 — personal accounts have no paid-partnership toggle, so the caption is carrying the entire FTC obligation); no bought views or engagement pods (clause 7.4 voids the bonus and risks the ban); posts stay up 12 months (clause 4.3); single-purpose accounts, no other brands (clause 8.6).</p>
+<p><strong>Discord carries everything except credentials.</strong> No passwords, setup keys or recovery codes — not in a channel, not in a DM, not in a screenshot. Six-digit verification codes are fine; they expire in minutes. One setup thread per creator, kept for the life of the accounts, is the audit trail.</p>
+<p><strong>When something breaks:</strong> they post in #help within 24 hours and don't act alone. No retrying a lockout, no replacement account on the same device after a ban, no password change mid-compromise.</p>
+
+<h2><span class="num">9</span>The honest risks you're carrying</h2>
+<p><strong>Instagram has no platform-level backstop</strong> while it's personal — it can't be claimed into the Business Portfolio the way a professional account can. Ownership there is the vault credentials plus email recovery through mailbox A. That's why the setup key and recovery codes are non-negotiable on that one specifically.</p>
+<p><strong>On YouTube the creator holds a full Google password</strong>, so there's no version where they can post but can't damage the channel. Workspace admin is what makes it survivable — you take the account back in one click. It's the reason to use Workspace rather than reaching for a quick Gmail address.</p>
+<p><strong>Dropping Facebook has two contract knock-ons.</strong> Clause 4.1 names five platforms including Facebook, and Exhibit A defines bonus views as the total across all five. Dropping one reduces what the creator owes, so nothing breaks — but it shrinks the pool their 100k/1M bonuses count against. Facebook Reels on a cold Page contributes close to nothing in practice, so the real effect is small. Say it at onboarding rather than letting them find out at bonus time, note the four-platform list in the thread, and issue Exhibit B with four rows.</p>
+<p>Clause 7.2 is unaffected: personal accounts still show per-post view counts, which is what you count.</p>
+
+<h2><span class="num">10</span>Handover, when it ends</h2>
+<ul class="check">
+  <li>Rotate mailbox B's password and all four account passwords; revoke their vault access.</li>
+  <li>Confirm you can still log into all four afterwards.</li>
+  <li>Any account verifying to their phone number: swap it, or accept it and note the date.</li>
+  <li>Posts stay up per clause 4.3 — handover is not deletion.</li>
+  <li>Final statement per clause 7.5, less anything genuinely outstanding.</li>
+</ul>
+<p>Their portfolio rights under clause 8.2 survive it — they keep the videos as examples of their work.</p>
+
+<h2>Rebuilding the PDFs</h2>
+<pre><code>cd "PetScans UGC"
+CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+"$CHROME" --headless --disable-gpu --no-pdf-header-footer \
+  --print-to-pdf="PetScans-Account-Setup-Quickstart.pdf" \
+  "file://$PWD/creator-account-setup-quickstart.html"
+"$CHROME" --headless --disable-gpu --no-pdf-header-footer \
+  --print-to-pdf="PetScans-Account-Setup-SOP-INTERNAL.pdf" \
+  "file://$PWD/creator-account-setup-sop.html"</code></pre>
+
+<p class="foot">The <code>.html</code> files are the source of truth for both PDFs. The matching <code>.md</code> files are parallel copies of the same text — edit both or neither.</p>
+
+</body>
+</html>
