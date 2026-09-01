@@ -212,6 +212,9 @@
  "ing_ethoxyquin": [
   "artificialPreservatives"
  ],
+ "ing_fish": [
+  "commonAllergens"
+ ],
  "ing_fish_digest": [
   "commonAllergens"
  ],
@@ -302,6 +305,9 @@
  "ing_methylcellulose": [
   "gumsThickeners"
  ],
+ "ing_milk": [
+  "commonAllergens"
+ ],
  "ing_milk_protein": [
   "commonAllergens"
  ],
@@ -344,13 +350,22 @@
  "ing_pork_meal": [
   "commonAllergens"
  ],
+ "ing_poultry": [
+  "commonAllergens"
+ ],
  "ing_poultry_by_product_meal": [
+  "commonAllergens",
   "meatByproducts"
  ],
  "ing_poultry_by_products": [
+  "commonAllergens",
   "meatByproducts"
  ],
+ "ing_poultry_digest": [
+  "commonAllergens"
+ ],
  "ing_poultry_meal": [
+  "commonAllergens",
   "meatByproducts"
  ],
  "ing_powdered_cellulose": [
@@ -411,6 +426,10 @@
   "grainFillers"
  ],
  "ing_sorghum_flour": [
+  "grainFillers"
+ ],
+ "ing_soy": [
+  "commonAllergens",
   "grainFillers"
  ],
  "ing_soy_flour": [

@@ -1,36 +1,5 @@
 import SwiftUI
 
-/// The most common food allergens per species, offered as one-tap quick-pick
-/// chips. Ranked from Mueller & Olivry, "Critically appraised topic on adverse
-/// food reactions of companion animals (2)", BMC Vet Res 2016 — beef/dairy/
-/// chicken/wheat dominate dogs; beef/fish/chicken/wheat dominate cats. IDs are
-/// lowercased to match how allergens are persisted and how ingredient rows
-/// compute their selected state.
-enum QuickPickAllergens {
-    static func list(for species: Species) -> [(id: String, name: String)] {
-        switch species {
-        case .dog:
-            return [
-                ("beef", "Beef"),
-                ("dairy", "Dairy"),
-                ("chicken", "Chicken"),
-                ("wheat", "Wheat"),
-                ("soy", "Soy"),
-                ("lamb", "Lamb")
-            ]
-        case .cat:
-            return [
-                ("beef", "Beef"),
-                ("fish", "Fish"),
-                ("chicken", "Chicken"),
-                ("wheat", "Wheat"),
-                ("dairy", "Dairy"),
-                ("corn", "Corn")
-            ]
-        }
-    }
-}
-
 /// Shared allergen selection component used by PetFormView (add-pet form).
 struct AllergenSelectionView: View {
     @Binding var selectedAllergens: Set<String>

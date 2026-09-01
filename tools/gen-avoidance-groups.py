@@ -71,7 +71,7 @@ def tokens(i):
 
 # commonAllergens: the base protein/grain sources behind most pet sensitivities.
 ALLERGEN_TOKENS = {
-    "chicken", "beef", "lamb", "pork", "egg", "eggs",
+    "chicken", "poultry", "beef", "lamb", "pork", "egg", "eggs",
     "milk", "dairy", "cheese", "whey", "casein", "lactose", "buttermilk",
     "soy", "soybean", "soybeans", "corn", "wheat",
     "salmon", "fish",  # fish as a class + salmon; named single-species handled below
@@ -81,7 +81,15 @@ ALLERGEN_EXCLUDE_IDS = {
     "ing_soy_lecithin", "ing_soy_hulls", "ing_soybean_oil", "ing_corn_oil",
     "ing_corn_starch", "ing_cornstarch", "ing_salmon_oil", "ing_fish_oil",
     "ing_eggshell_calcium", "ing_beef_fat", "ing_beef_tallow", "ing_chicken_fat",
-    "ing_lamb_fat", "ing_pork_fat",
+    "ing_lamb_fat", "ing_pork_fat", "ing_poultry_fat",
+    # Not dairy: a botanical that only shares the word. Present as an ingredient so that
+    # "milk thistle" resolves exactly instead of falling through the matcher's fuzzy
+    # containment onto "milk" — the same reason it is excluded from the dairy allergen
+    # family in ScoreCalculator.
+    "ing_milk_thistle",
+    # Not a fish. Shellfish allergy is a different allergen (tropomyosin, not the
+    # parvalbumin of finned fish), so it does not belong in the fish class here either.
+    "ing_shellfish",
     # Named single-species fish: deliberately-chosen / novel proteins, not the
     # generic "fish" allergen class — flagging them would penalise novel-protein diets.
     "ing_catfish", "ing_menhaden", "ing_menhaden_fish_meal",

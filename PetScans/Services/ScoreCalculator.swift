@@ -232,31 +232,32 @@ struct ScoreCalculator {
                 continue
             }
 
-            let ingNameNorm = ing.commonName.lowercased()
+            for allergen in allergens where AllergenFamily.matches(allergen: allergen, ingredient: ing) {
+                // Higher penalty for allergens in top positions
+                let penalty = mi.rank <= 5 ?
+                    Self.allergenPenaltyTop5 : Self.allergenPenaltyOthers
+                suitability -= penalty
 
-            for allergen in allergens {
-                if !allergen.isEmpty && (ingNameNorm == allergen || ingNameNorm.contains(allergen)) {
-                    // Higher penalty for allergens in top positions
-                    let penalty = mi.rank <= 5 ?
-                        Self.allergenPenaltyTop5 : Self.allergenPenaltyOthers
-                    suitability -= penalty
+                flags.append(WarningFlag(
+                    severity: .high,
+                    title: "Possible allergen",
+                    explain: "\(ing.commonName) may conflict with \(petDisplayName)'s allergen profile.",
+                    ingredientId: ing.id,
+                    source: nil,
+                    type: .allergen
+                ))
 
-                    flags.append(WarningFlag(
-                        severity: .high,
-                        title: "Possible allergen",
-                        explain: "\(ing.commonName) may conflict with \(petDisplayName)'s allergen profile.",
-                        ingredientId: ing.id,
-                        source: nil,
-                        type: .allergen
-                    ))
+                factors.append(ExplanationFactor(
+                    id: "allergen-\(ing.id)",
+                    description: "Matches \(petDisplayName)'s allergen profile",
+                    impact: .negative,
+                    ingredientName: ing.commonName
+                ))
 
-                    factors.append(ExplanationFactor(
-                        id: "allergen-\(ing.id)",
-                        description: "Matches \(petDisplayName)'s allergen profile",
-                        impact: .negative,
-                        ingredientName: ing.commonName
-                    ))
-                }
+                // One ingredient, one flag. Families overlap at the edges (a fish oil is
+                // both "fish" and, for some owners, a named species), and without this the
+                // same row was listed twice and penalised twice.
+                break
             }
         }
 
@@ -595,5 +596,323 @@ struct ScoreCalculator {
         let limitedFactors = Array(factors.prefix(5))
 
         return ScoreExplanation(factors: limitedFactors, summary: summary)
+    }
+}
+
+/// Ingredient families for the quick-pick allergens.
+///
+/// **Adding ingredients or expanding the catalog? Follow `docs/catalog-expansion.md`.**
+/// `DataValidationTests` fails and names the ingredient if this table drifts from
+/// `ingredients.json`, but it cannot see a family member that was never added to the
+/// database at all — that is what step 5 of the doc is for.
+///
+/// The allergen check was a plain substring test on the ingredient's display name, and it
+/// failed in both directions:
+///
+/// - **It missed whole families silently.** No ingredient is named "dairy", so the Dairy
+///   chip matched *nothing* — a dairy-allergic pet was told "No known allergens detected"
+///   over a food containing Dried whey. Fish was nearly as bad: of 43 fish ingredients only
+///   14 carry "fish" in the name, so Salmon, Tuna, Cod, Herring, Sardine, Anchovy, Mackerel,
+///   Trout, Krill, Pollock and Tilapia were all invisible to a fish allergy.
+/// - **It fired on words that merely contain the allergen.** "wheat" matched **Buckwheat**,
+///   a gluten-free seed that is not a wheat, and "corn" matched **Acorn squash**.
+///
+/// Membership is by ingredient id, so it cannot drift when a display name is edited.
+/// Generated from `ingredients.json`. Anything not listed still falls back to a whole-word
+/// match on the name, so a later "Chicken thigh" is caught without touching this table.
+///
+/// Four deliberate calls:
+/// - **Shellfish is not fish.** Clam, Crab, Lobster, Mussel, Shrimp and Squid are left out
+///   of the fish family: shellfish allergy is a different allergen (tropomyosin, not the
+///   parvalbumin of finned fish) and cross-reactivity is low, so folding them in would
+///   over-flag the owner who picked "Fish". **Krill is shellfish too** — a crustacean, not
+///   a fish — and was caught by the generating regex before this rule was written down.
+/// - **Bison is not beef.** It is the novel protein owners are most often switched *to* for
+///   a beef allergy; flagging it would condemn the food they were told to buy.
+/// - **Refined fish oils count as fish.** Salmon oil, menhaden oil and cod liver oil stay in
+///   the family, so a declared fish allergy forces "Avoid" on them. This is the widest call
+///   here and was made deliberately: measured over the catalog it means **52.7% of cat foods
+///   fail the Fish chip** (40.9% name a fish outright, a further 11.8% only ever name a
+///   species oil). Refining removes most of the parvalbumin, so this over-warns — but
+///   veterinary elimination diets exclude fish oil when fish is the suspected allergen, and
+///   an allergen match is all-or-nothing here: there is no warn-only tier, so the
+///   alternative is silence. Revisit this if a warn-only allergen flag is ever added.
+/// - **Other refined derivatives follow the same rule, and cost almost nothing.** Soy
+///   lecithin, soybean oil and corn oil stay in their families for consistency with the
+///   call above. Unlike fish oil the practical impact is negligible: measured over the
+///   catalog, soy lecithin and soybean oil appear in **0** products that do not already
+///   carry another soy signal, and corn oil alone accounts for **27** products (0.1%). They
+///   change almost no verdicts — the fish-oil decision is the only wide one here.
+/// - **Poultry counts as chicken.** "Poultry by-product meal" and "Poultry fat" may be
+///   turkey, but they are overwhelmingly chicken and the owner has explicitly declared the
+///   allergy. In a safety app an over-warning is the cheaper error.
+/// - **Spelt counts as wheat** (it is a wheat species and shares the gluten), while
+///   buckwheat does not.
+enum AllergenFamily {
+    static let ingredientIds: [String: Set<String>] = [
+        "beef": [
+            "ing_beef",
+            "ing_beef_by_products",
+            "ing_beef_digest",
+            "ing_beef_fat",
+            "ing_beef_fresh",
+            "ing_beef_heart",
+            "ing_beef_kidney",
+            "ing_beef_liver",
+            "ing_beef_lung",
+            "ing_beef_meal",
+            "ing_beef_tallow",
+            "ing_beef_tripe"
+        ],
+        "chicken": [
+            "ing_chicken",
+            "ing_chicken_by_product_meal",
+            "ing_chicken_by_products",
+            "ing_chicken_digest",
+            "ing_chicken_fat",
+            "ing_chicken_fresh",
+            "ing_chicken_gizzard",
+            "ing_chicken_heart",
+            "ing_chicken_liver",
+            "ing_chicken_meal",
+            "ing_hydrolyzed_chicken",
+            "ing_hydrolyzed_poultry_protein",
+            "ing_poultry_by_product_meal",
+            "ing_poultry",
+            "ing_poultry_by_products",
+            "ing_poultry_digest",
+            "ing_poultry_fat",
+            "ing_poultry_meal"
+        ],
+        "corn": [
+            "ing_corn",
+            "ing_corn_bran",
+            "ing_corn_flour",
+            "ing_corn_germ_meal",
+            "ing_corn_gluten_meal",
+            "ing_corn_meal",
+            "ing_corn_oil",
+            "ing_corn_starch",
+            "ing_cornstarch"
+        ],
+        "dairy": [
+            "ing_buttermilk",
+            "ing_casein",
+            "ing_cheese",
+            "ing_cheese_powder",
+            "ing_cottage_cheese",
+            "ing_cream",
+            "ing_dried_buttermilk",
+            "ing_dried_casein",
+            "ing_dried_goat_milk",
+            "ing_dried_milk",
+            "ing_dried_skim_milk",
+            "ing_dried_whey",
+            "ing_butter",
+            "ing_dried_yogurt",
+            "ing_milk",
+            "ing_goat_milk",
+            "ing_kefir",
+            "ing_lactose",
+            "ing_milk_protein",
+            "ing_skim_milk",
+            "ing_whey",
+            "ing_whey_protein_concentrate",
+            "ing_whey_protein_isolate",
+            "ing_whole_milk",
+            "ing_yogurt"
+        ],
+        "fish": [
+            "ing_anchovy",
+            "ing_anchovy_meal",
+            "ing_anchovy_oil",
+            "ing_catfish",
+            "ing_cod",
+            "ing_cod_liver_oil",
+            "ing_cod_meal",
+            "ing_fish_digest",
+            "ing_fish",
+            "ing_haddock",
+            "ing_fish_meal",
+            "ing_fish_oil",
+            "ing_fish_protein_concentrate",
+            "ing_herring",
+            "ing_herring_meal",
+            "ing_herring_oil",
+            "ing_hydrolyzed_fish_protein",
+            "ing_hydrolyzed_salmon",
+            "ing_mackerel",
+            "ing_mackerel_meal",
+            "ing_menhaden",
+            "ing_menhaden_fish_meal",
+            "ing_menhaden_oil",
+            "ing_ocean_fish",
+            "ing_ocean_fish_meal",
+            "ing_pollock",
+            "ing_salmon",
+            "ing_salmon_fresh",
+            "ing_salmon_meal",
+            "ing_salmon_oil",
+            "ing_sardine",
+            "ing_sardine_meal",
+            "ing_sardine_oil",
+            "ing_sardines",
+            "ing_tilapia",
+            "ing_trout",
+            "ing_trout_meal",
+            "ing_tuna",
+            "ing_tuna_fresh",
+            "ing_whitefish",
+            "ing_whitefish_fresh",
+            "ing_whitefish_meal"
+        ],
+        "lamb": [
+            "ing_lamb",
+            "ing_lamb_fat",
+            "ing_lamb_fresh",
+            "ing_lamb_heart",
+            "ing_lamb_liver",
+            "ing_lamb_meal"
+        ],
+        // Its own family, not a corner of `fish`. Shellfish allergy is a distinct allergen
+        // (tropomyosin, not the parvalbumin of finned fish), which is why these ids are kept
+        // out of `fish` — but "Shellfish" is pickable from the ingredient search, and
+        // without a family of its own it would whole-word-match only the literal word and
+        // leave Shrimp, Crab, Lobster, Mussel, Squid and Krill unflagged. That is the same
+        // silent gap the Dairy chip had.
+        "shellfish": [
+            "ing_clam",
+            "ing_crab",
+            "ing_crab_meal",
+            "ing_green_lipped_mussel",
+            "ing_krill",
+            "ing_krill_meal",
+            "ing_krill_oil",
+            "ing_lobster",
+            "ing_mussel",
+            "ing_shellfish",
+            "ing_shrimp",
+            "ing_shrimp_meal",
+            "ing_squid"
+        ],
+        "soy": [
+            "ing_edamame",
+            "ing_hydrolyzed_soy",
+            "ing_soy_flour",
+            "ing_soy",
+            "ing_soy_hulls",
+            "ing_soy_lecithin",
+            "ing_soy_protein",
+            "ing_soy_protein_concentrate",
+            "ing_soy_protein_isolate",
+            "ing_soybean_meal",
+            "ing_soybean_oil",
+            "ing_soybeans",
+            "ing_tofu"
+        ],
+        "wheat": [
+            "ing_spelt",
+            "ing_wheat",
+            "ing_wheat_bran",
+            "ing_wheat_flour",
+            "ing_wheat_germ",
+            "ing_wheat_gluten",
+            "ing_wheat_middlings",
+            "ing_whole_wheat"
+        ],
+    ]
+
+    /// True when `ingredient` belongs to `allergen`'s family, or its name contains the
+    /// allergen as a whole word.
+    ///
+    /// The name check tokenises both sides rather than using `contains`, which is what let
+    /// "wheat" match "Buckwheat".
+    static func matches(allergen: String, ingredient: Ingredient) -> Bool {
+        guard !allergen.isEmpty else { return false }
+
+        // A curated family is **authoritative**: when the allergen has one, membership is
+        // the whole answer and the name fallback is not consulted. Falling through re-admits
+        // every ingredient the family deliberately leaves out — allergen "milk" matched
+        // *Milk thistle* by whole word, and "butter" matched *Peanut butter* and *Shea
+        // butter*, each forcing score 0 and "Avoid". The exclusions are medical calls; a
+        // string test must not be able to overrule them.
+        if let family = family(namedBy: allergen) {
+            return family.contains(ingredient.id)
+        }
+
+        // Only for allergens with no family — a specific ingredient picked from the search.
+        return containsWholeWord(allergen, in: ingredient.commonName)
+    }
+
+    /// Ingredient names that mean *the whole family* rather than one member of it.
+    ///
+    /// Custom allergens come from the full ingredient search and are stored as the
+    /// ingredient's own name, so "milk" and "salmon" arrive in exactly the same shape — and
+    /// only the first should widen. Someone who picked Salmon means salmon; expanding it to
+    /// the fish family would force "Avoid" on Tuna, Cod, Whitefish and 39 others they never
+    /// asked about. Someone who picked Milk means dairy, and whole-word matching cannot
+    /// reach inside **Buttermilk** on its own.
+    ///
+    /// Keyed on the generic terms only, so the widening is enumerable rather than inferred.
+    private static let genericNames: [String: String] = [
+        "milk": "dairy",
+        "butter": "dairy",
+        "fish": "fish",
+        "poultry": "chicken",
+        "soy": "soy",
+    ]
+
+    /// The family an allergen widens to, if it is a generic term. `nil` for a specific
+    /// ingredient, which then matches only itself.
+    static func family(namedBy allergen: String) -> Set<String>? {
+        if let ids = ingredientIds[allergen] { return ids }
+        guard let key = genericNames[allergen] else { return nil }
+        return ingredientIds[key]
+    }
+
+    /// Whole-word containment with light plural folding.
+    ///
+    /// Word-level rather than `contains`, which is what let "wheat" match "Buckwheat". The
+    /// plural fold is what keeps the *narrowing* honest: the old substring test happened to
+    /// catch "potato" in "Potatoes" and "sardine" in "Sardines", and dropping that would
+    /// have quietly un-protected every custom allergen picked from the ingredient search
+    /// whose stored singular differs from the label's plural.
+    static func containsWholeWord(_ needle: String, in haystack: String) -> Bool {
+        let needleWords = words(needle)
+        let hayWords = words(haystack)
+        guard !needleWords.isEmpty, hayWords.count >= needleWords.count else { return false }
+
+        for start in 0...(hayWords.count - needleWords.count) {
+            let window = hayWords[start..<(start + needleWords.count)]
+            if zip(needleWords, window).allSatisfy(sameWord) { return true }
+        }
+        return false
+    }
+
+    private static func words(_ s: String) -> [String] {
+        s.lowercased()
+            .split(whereSeparator: { !$0.isLetter && !$0.isNumber })
+            .map(String.init)
+    }
+
+    private static func sameWord(_ a: String, _ b: String) -> Bool {
+        a == b || !singularForms(a).isDisjoint(with: singularForms(b))
+    }
+
+    /// Every plausible singular of a word, not one chosen singular.
+    ///
+    /// Picking one is ambiguous and gets it wrong: "sardines" could drop "s" to "sardine"
+    /// or "es" to "sardin", and a stemmer that committed to the "es" rule stopped matching
+    /// the ingredient literally named "Sardine". Collecting the candidates and intersecting
+    /// costs nothing at this size and cannot pick the wrong branch.
+    ///
+    /// Crude on purpose — it only has to reconcile an ingredient name with itself, not be a
+    /// general stemmer.
+    private static func singularForms(_ word: String) -> Set<String> {
+        var forms: Set<String> = [word]
+        if word.hasSuffix("ies"), word.count > 4 { forms.insert(String(word.dropLast(3)) + "y") }
+        if word.hasSuffix("es"), word.count > 3 { forms.insert(String(word.dropLast(2))) }
+        if word.hasSuffix("s"), !word.hasSuffix("ss"), word.count > 3 { forms.insert(String(word.dropLast())) }
+        return forms
     }
 }

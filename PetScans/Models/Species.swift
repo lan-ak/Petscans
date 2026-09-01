@@ -24,3 +24,41 @@ enum Species: String, Codable, CaseIterable, Identifiable {
         }
     }
 }
+
+/// The most common food allergens per species.
+///
+/// Lives beside `Species` rather than in the picker that draws it: these ids are the keys
+/// of `AllergenFamily`, so the scorer's data-validation tests have to be able to see them.
+/// A chip with no family silently falls back to bare name matching, which is how "dairy" —
+/// matching no ingredient at all — shipped for four versions.
+///
+/// The most common food allergens per species, offered as one-tap quick-pick
+/// chips. Ranked from Mueller & Olivry, "Critically appraised topic on adverse
+/// food reactions of companion animals (2)", BMC Vet Res 2016 — beef/dairy/
+/// chicken/wheat dominate dogs; beef/fish/chicken/wheat dominate cats. IDs are
+/// lowercased to match how allergens are persisted and how ingredient rows
+/// compute their selected state.
+enum QuickPickAllergens {
+    static func list(for species: Species) -> [(id: String, name: String)] {
+        switch species {
+        case .dog:
+            return [
+                ("beef", "Beef"),
+                ("dairy", "Dairy"),
+                ("chicken", "Chicken"),
+                ("wheat", "Wheat"),
+                ("soy", "Soy"),
+                ("lamb", "Lamb")
+            ]
+        case .cat:
+            return [
+                ("beef", "Beef"),
+                ("fish", "Fish"),
+                ("chicken", "Chicken"),
+                ("wheat", "Wheat"),
+                ("dairy", "Dairy"),
+                ("corn", "Corn")
+            ]
+        }
+    }
+}

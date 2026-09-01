@@ -9,11 +9,13 @@ import Foundation
 /// `IngredientSearchSheet` stays available in Settings for anyone with a
 /// specific diagnosed allergy.
 ///
-/// These are **collected only**. Nothing reads them for scoring — they are
-/// persisted by `AvoidancePreferences` and pushed to Superwall for paywall
-/// targeting and copy. Wiring them into `ScoreCalculator` is a separate change
-/// and is not as simple as filtering on `processingLevel` or `origin`; see the
-/// notes on each case below.
+/// These **do** affect scoring. `Matching+SharedDatabase` defaults its
+/// `avoidanceGroups` argument to `AvoidancePreferences.groups`, so every scan in the
+/// app picks them up: `ScoreCalculator` applies a rank-weighted penalty (8.0 for a
+/// top-five ingredient, 4.0 otherwise, capped at 40) and emits `.avoidanceGroup`
+/// warning flags. They never force an "Avoid" — only allergens and toxics do that.
+/// They are also persisted by `AvoidancePreferences` and pushed to Superwall for
+/// paywall targeting and copy.
 enum AvoidanceGroup: String, Codable, CaseIterable, Identifiable {
     /// Industrial formulations: hydrolyzed proteins, artificial flavours.
     ///
@@ -41,16 +43,16 @@ enum AvoidanceGroup: String, Codable, CaseIterable, Identifiable {
     /// The proteins and grains behind most food sensitivities.
     case commonAllergens
 
-    /// Collected-only, like the rest — added sugars and sweeteners.
+    /// Added sugars and sweeteners.
     case addedSugars
 
-    /// Collected-only — vaguely-named rendered proteins.
+    /// Vaguely-named rendered proteins.
     case meatByproducts
 
-    /// Collected-only — grains and cheap carbohydrate bulk.
+    /// Grains and cheap carbohydrate bulk.
     case grainFillers
 
-    /// Collected-only — texture agents, mostly in wet food.
+    /// Texture agents, mostly in wet food.
     case gumsThickeners
 
     var id: String { rawValue }

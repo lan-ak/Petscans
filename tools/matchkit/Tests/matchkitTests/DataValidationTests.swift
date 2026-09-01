@@ -25,6 +25,91 @@ final class DataValidationTests: XCTestCase {
           + dangling.prefix(10).map { "\($0.key) -> \($0.value)" }.joined(separator: ", "))
     }
 
+    // MARK: - Allergen families
+    //
+    // `AllergenFamily` is a hand-maintained snapshot of `ingredients.json`, and the failure
+    // mode when it drifts is silent and safety-relevant: an ingredient that belongs to a
+    // family but isn't listed falls back to a whole-word name match, so a newly added
+    // "Ricotta" or "Barramundi" would simply never trip a dairy or fish allergy. That is
+    // exactly the bug these families were introduced to fix, and adding ingredients is the
+    // one thing guaranteed to reintroduce it. These two tests make growth fail loudly.
+
+    func testEveryAllergenFamilyIdStillExists() {
+        let dangling = AllergenFamily.ingredientIds
+            .flatMap { family, ids in ids.filter { data.ingredients[$0] == nil }.map { (family, $0) } }
+            .sorted { $0.1 < $1.1 }
+        XCTAssertTrue(dangling.isEmpty,
+            "\(dangling.count) allergen-family ids no longer exist in ingredients.json. "
+          + "Those ingredients silently drop out of the family and stop tripping the allergy: "
+          + dangling.prefix(10).map { "\($0.0) -> \($0.1)" }.joined(separator: ", "))
+    }
+
+    func testNoIngredientLooksLikeAFamilyMemberWithoutBeingClassified() {
+        // Names that read like a family member. Anything matching has to be either in the
+        // family or in `deliberatelyExcluded` below, with a reason.
+        let looksLike: [String: String] = [
+            "dairy": "milk|whey|cheese|casein|lactose|yogurt|kefir|curd|ghee|butter|cream",
+            "fish":  "fish|salmon|tuna|herring|anchov|sardine|menhaden|mackerel|trout|pollock|tilapia|haddock|cod|capelin|smelt|whiting|halibut",
+            // \b on the short words: bare "hen" also matches p-hen-ylalanine, pant-hen-ol,
+            // pantot-hen-ic and p-hen-oxyethanol.
+            "chicken": "chicken|poultry|\\bhen\\b|\\bbroiler\\b",
+            "beef":  "beef|\\bveal\\b|tallow",
+            "lamb":  "lamb|mutton",
+            "wheat": "wheat|spelt|semolina|durum|farina",
+            "corn":  "\\bcorn|maize|hominy",
+            "soy":   "soy|tofu|edamame",
+            "shellfish": "shellfish|shrimp|prawn|crab|lobster|crayfish|clam|mussel|oyster|scallop|squid|octopus|krill",
+        ]
+        // Each of these reads like a family member and is deliberately not one.
+        let deliberatelyExcluded: Set<String> = [
+            "ing_buckwheat",        // a seed, not a wheat, and gluten-free
+            "ing_acorn_squash",     // not corn
+            "ing_butternut_squash", // not dairy
+            "ing_peanut_butter",    // not dairy
+            "ing_shea_butter",      // not dairy
+            // Excluded from `fish` only — its *name* contains "fish" but shellfish allergy is
+            // a different allergen. It is a full member of the `shellfish` family, and
+            // membership is checked before this set, so listing it here does not weaken it.
+            "ing_shellfish",
+            // Krill needs no entry: it is in the `shellfish` family and its name never
+            // matches the fish pattern.
+            "ing_milk_thistle",     // a plant; shares only the word
+        ]
+
+        var unclassified: [String] = []
+        for (family, pattern) in looksLike {
+            let regex = try! NSRegularExpression(pattern: pattern, options: .caseInsensitive)
+            let listed = AllergenFamily.ingredientIds[family] ?? []
+            for (id, ingredient) in data.ingredients {
+                guard !listed.contains(id), !deliberatelyExcluded.contains(id) else { continue }
+                let name = ingredient.commonName
+                let range = NSRange(name.startIndex..., in: name)
+                guard regex.firstMatch(in: name, range: range) != nil else { continue }
+                // The name fallback still protects these, so only flag the ones it cannot
+                // reach — where the family word does not appear as a whole word.
+                guard !AllergenFamily.containsWholeWord(family, in: name) else { continue }
+                unclassified.append("\(family): \(id) (\(name))")
+            }
+        }
+
+        XCTAssertTrue(unclassified.isEmpty,
+            "\(unclassified.count) ingredient(s) look like an allergen family member but are "
+          + "neither in the family nor deliberately excluded. Left alone they will never trip "
+          + "that allergy. Add them to `AllergenFamily`, or to `deliberatelyExcluded` here "
+          + "with a reason: " + unclassified.sorted().joined(separator: ", "))
+    }
+
+    func testEveryQuickPickChipHasAFamily() {
+        // A chip with no family falls back to bare name matching — which is how "dairy",
+        // matching nothing at all, shipped for four versions.
+        for species in [Species.dog, .cat] {
+            for chip in QuickPickAllergens.list(for: species) {
+                XCTAssertNotNil(AllergenFamily.ingredientIds[chip.id],
+                                "quick-pick '\(chip.id)' has no ingredient family")
+            }
+        }
+    }
+
     func testEveryRuleTargetsARealIngredient() {
         let dangling = data.rules
             .filter { data.ingredients[$0.ingredientId] == nil }

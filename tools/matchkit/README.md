@@ -17,6 +17,11 @@ swift run matchkit score-delta --baseline reports/baseline-<catalog>.json
 swift run matchkit doctor          # CI guard: shared-source symlinks intact
 ```
 
+**Expanding the catalog?** Follow `docs/catalog-expansion.md`. `coverage` and `score-delta`
+are steps 5 and 6 of it, and the step they exist for is reading the miss list for allergen
+terms: allergen checking only runs on ingredients the matcher resolves, so an unmatched
+label spelling is a pet that does not get warned.
+
 ## Why it shares the app's source
 
 `Sources/matchkit/Shared/` contains **symlinks** to the app's model and service

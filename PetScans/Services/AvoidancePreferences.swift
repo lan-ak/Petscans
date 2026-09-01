@@ -7,8 +7,10 @@ import Foundation
 /// addressing on the paywall. Hanging the answer off `Pet` would drop it for
 /// every user who skipped.
 ///
-/// Nothing reads this for scoring yet — see `AvoidanceGroup`. Moving it onto
-/// `Pet` later is cheap precisely because nothing depends on it.
+/// Read on every scan: `Matching+SharedDatabase` defaults its `avoidanceGroups`
+/// argument to this value, so changing it changes scores app-wide. See
+/// `AvoidanceGroup`. Note there is currently no edit surface in Settings — once set
+/// in onboarding a user cannot change their watch list.
 enum AvoidancePreferences {
     private static let key = "avoidanceGroups"
 

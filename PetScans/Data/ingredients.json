@@ -963,33 +963,6 @@
     ]
   },
   {
-    "id": "ing_beef_fresh",
-    "commonName": "Beef",
-    "scientificName": "Bos taurus",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Medium dog|High cat",
-    "typicalFunction": "Primary protein",
-    "notes": null,
-    "processingLevel": 1,
-    "processingLevelNotes": null,
-    "source": "AAFCO 2024, Section 9.1",
-    "sources": [
-      "AAFCO 2024, Section 9.1"
-    ]
-  },
-  {
     "id": "ing_beef",
     "commonName": "Beef",
     "scientificName": "Bos taurus",
@@ -1092,6 +1065,33 @@
     "source": "AAFCO 2024, Section 9.6",
     "sources": [
       "AAFCO 2024, Section 9.6"
+    ]
+  },
+  {
+    "id": "ing_beef_fresh",
+    "commonName": "Beef",
+    "scientificName": "Bos taurus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium dog|High cat",
+    "typicalFunction": "Primary protein",
+    "notes": null,
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.1",
+    "sources": [
+      "AAFCO 2024, Section 9.1"
     ]
   },
   {
@@ -1851,32 +1851,6 @@
     ]
   },
   {
-    "id": "ing_brewers_rice",
-    "commonName": "Brewers rice",
-    "scientificName": "Oryza sativa fragments",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": null,
-    "typicalFunction": "Easily digestible carbohydrate",
-    "notes": "Small rice fragments; highly digestible but less fiber than whole rice per AAFCO",
-    "processingLevel": 3,
-    "source": "AAFCO 2024",
-    "sources": [
-      "AAFCO 2024"
-    ]
-  },
-  {
     "id": "ing_brewer's_yeast",
     "commonName": "Brewer’s yeast",
     "scientificName": "Saccharomyces cerevisiae",
@@ -1903,6 +1877,32 @@
       "AAFCO 2024, Section 9.16"
     ],
     "processingLevelNotes": "Brewing by-product"
+  },
+  {
+    "id": "ing_brewers_rice",
+    "commonName": "Brewers rice",
+    "scientificName": "Oryza sativa fragments",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Easily digestible carbohydrate",
+    "notes": "Small rice fragments; highly digestible but less fiber than whole rice per AAFCO",
+    "processingLevel": 3,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
+    ]
   },
   {
     "id": "ing_broccoli",
@@ -2904,33 +2904,6 @@
     ]
   },
   {
-    "id": "ing_chicken_fresh",
-    "commonName": "Chicken",
-    "scientificName": "Gallus domesticus",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Medium dog|High cat",
-    "typicalFunction": "Primary protein",
-    "notes": null,
-    "processingLevel": 1,
-    "processingLevelNotes": null,
-    "source": "AAFCO 2024, Section 9.2",
-    "sources": [
-      "AAFCO 2024, Section 9.2"
-    ]
-  },
-  {
     "id": "ing_chicken",
     "commonName": "Chicken",
     "scientificName": "Gallus domesticus",
@@ -3058,6 +3031,33 @@
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_chicken_fresh",
+    "commonName": "Chicken",
+    "scientificName": "Gallus domesticus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium dog|High cat",
+    "typicalFunction": "Primary protein",
+    "notes": null,
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.2",
+    "sources": [
+      "AAFCO 2024, Section 9.2"
     ]
   },
   {
@@ -4666,32 +4666,6 @@
     ]
   },
   {
-    "id": "ing_pantothenic_acid",
-    "commonName": "d-Calcium pantothenate",
-    "scientificName": "Vitamin B5",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "synthetic",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Energy metabolism, hormone synthesis",
-    "notes": null,
-    "processingLevel": 4,
-    "processingLevelNotes": "Synthesized vitamin",
-    "source": "AAFCO 2024, Section 9.12",
-    "sources": [
-      "AAFCO 2024, Section 9.12"
-    ]
-  },
-  {
     "id": "ing_dark_chocolate",
     "commonName": "Dark chocolate",
     "scientificName": null,
@@ -6041,9 +6015,9 @@
     ]
   },
   {
-    "id": "ing_iron_sulfate",
-    "commonName": "Ferrous sulfate",
-    "scientificName": "FeSO4",
+    "id": "ing_fish",
+    "commonName": "Fish",
+    "scientificName": "Various",
     "species": [
       "dog",
       "cat"
@@ -6051,19 +6025,19 @@
     "categories": [
       "food"
     ],
-    "origin": "synthetic",
+    "origin": "natural",
     "riskLevel": {
       "dog": "safe",
       "cat": "safe"
     },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Iron source",
-    "notes": "For red blood cell production",
-    "processingLevel": 4,
-    "processingLevelNotes": "Synthesized supplement",
-    "source": "AAFCO 2024, Section 9.11",
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Protein",
+    "notes": "Generic term; the species is not identified on the label",
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.3",
     "sources": [
-      "AAFCO 2024, Section 9.11"
+      "AAFCO 2024, Section 9.3"
     ]
   },
   {
@@ -6743,6 +6717,32 @@
     ]
   },
   {
+    "id": "ing_green_lipped_mussel",
+    "commonName": "Green-lipped mussel",
+    "scientificName": "Perna canaliculus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Joint support, omega-3 source",
+    "notes": "Contains natural glucosamine and chondroitin; supports joint health per veterinary research",
+    "processingLevel": 1,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
+    ]
+  },
+  {
     "id": "ing_green_peas",
     "commonName": "Green peas",
     "scientificName": "Pisum sativum",
@@ -6790,32 +6790,6 @@
     "typicalFunction": "Natural antioxidant, preservative",
     "notes": "Rich in polyphenols; used as natural preservative per FDA GRAS",
     "processingLevel": 2,
-    "source": "AAFCO 2024",
-    "sources": [
-      "AAFCO 2024"
-    ]
-  },
-  {
-    "id": "ing_green_lipped_mussel",
-    "commonName": "Green-lipped mussel",
-    "scientificName": "Perna canaliculus",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Joint support, omega-3 source",
-    "notes": "Contains natural glucosamine and chondroitin; supports joint health per veterinary research",
-    "processingLevel": 1,
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
@@ -7609,6 +7583,32 @@
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_iron_sulfate",
+    "commonName": "Ferrous sulfate",
+    "scientificName": "FeSO4",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Iron source",
+    "notes": "For red blood cell production",
+    "processingLevel": 4,
+    "processingLevelNotes": "Synthesized supplement",
+    "source": "AAFCO 2024, Section 9.11",
+    "sources": [
+      "AAFCO 2024, Section 9.11"
     ]
   },
   {
@@ -8441,33 +8441,6 @@
     ]
   },
   {
-    "id": "ing_lamb_fresh",
-    "commonName": "Lamb",
-    "scientificName": "Ovis aries",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low to Medium",
-    "typicalFunction": "Novel protein option",
-    "notes": null,
-    "processingLevel": 1,
-    "processingLevelNotes": null,
-    "source": "AAFCO 2024, Section 9.1",
-    "sources": [
-      "AAFCO 2024, Section 9.1"
-    ]
-  },
-  {
     "id": "ing_lamb",
     "commonName": "Lamb",
     "scientificName": "Ovis aries",
@@ -8517,6 +8490,33 @@
     "source": "AAFCO 2024, Section 9.6",
     "sources": [
       "AAFCO 2024, Section 9.6"
+    ]
+  },
+  {
+    "id": "ing_lamb_fresh",
+    "commonName": "Lamb",
+    "scientificName": "Ovis aries",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Novel protein option",
+    "notes": null,
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.1",
+    "sources": [
+      "AAFCO 2024, Section 9.1"
     ]
   },
   {
@@ -9591,6 +9591,33 @@
     ]
   },
   {
+    "id": "ing_milk",
+    "commonName": "Milk",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe_in_moderation",
+      "cat": "safe_in_moderation"
+    },
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Protein, fat, calcium source",
+    "notes": "Many adult pets are lactose intolerant; the source animal is not identified on the label",
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.5",
+    "sources": [
+      "AAFCO 2024, Section 9.5"
+    ]
+  },
+  {
     "id": "ing_milk_protein",
     "commonName": "Milk protein",
     "scientificName": "Bos taurus",
@@ -9614,6 +9641,32 @@
     "source": "AAFCO 2024, Section 9.5",
     "sources": [
       "AAFCO 2024, Section 9.5"
+    ]
+  },
+  {
+    "id": "ing_milk_thistle",
+    "commonName": "Milk thistle",
+    "scientificName": "Silybum marianum",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Botanical supplement",
+    "notes": "A plant, unrelated to dairy",
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
     ]
   },
   {
@@ -10431,6 +10484,32 @@
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_pantothenic_acid",
+    "commonName": "d-Calcium pantothenate",
+    "scientificName": "Vitamin B5",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Energy metabolism, hormone synthesis",
+    "notes": null,
+    "processingLevel": 4,
+    "processingLevelNotes": "Synthesized vitamin",
+    "source": "AAFCO 2024, Section 9.12",
+    "sources": [
+      "AAFCO 2024, Section 9.12"
     ]
   },
   {
@@ -11414,33 +11493,6 @@
     ]
   },
   {
-    "id": "ing_pork_fresh",
-    "commonName": "Pork",
-    "scientificName": "Sus scrofa domesticus",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Medium",
-    "typicalFunction": "Primary protein",
-    "notes": null,
-    "processingLevel": 1,
-    "processingLevelNotes": null,
-    "source": "AAFCO 2024, Section 9.1",
-    "sources": [
-      "AAFCO 2024, Section 9.1"
-    ]
-  },
-  {
     "id": "ing_pork",
     "commonName": "Pork",
     "scientificName": "Sus scrofa domesticus",
@@ -11490,6 +11542,33 @@
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_pork_fresh",
+    "commonName": "Pork",
+    "scientificName": "Sus scrofa domesticus",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Primary protein",
+    "notes": null,
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.1",
+    "sources": [
+      "AAFCO 2024, Section 9.1"
     ]
   },
   {
@@ -11776,6 +11855,32 @@
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_poultry",
+    "commonName": "Poultry",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Protein",
+    "notes": "Generic term; the bird species is not identified on the label",
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.2",
+    "sources": [
+      "AAFCO 2024, Section 9.2"
     ]
   },
   {
@@ -12763,6 +12868,32 @@
     ]
   },
   {
+    "id": "ing_salmon",
+    "commonName": "Salmon",
+    "scientificName": "Salmo salar",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low dog|High cat",
+    "typicalFunction": "Protein, omega 3 source",
+    "notes": null,
+    "processingLevel": 1,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
+    ]
+  },
+  {
     "id": "ing_salmon_fresh",
     "commonName": "Salmon",
     "scientificName": "Salmo salar",
@@ -12787,32 +12918,6 @@
     "source": "AAFCO 2024, Section 9.3",
     "sources": [
       "AAFCO 2024, Section 9.3"
-    ]
-  },
-  {
-    "id": "ing_salmon",
-    "commonName": "Salmon",
-    "scientificName": "Salmo salar",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low dog|High cat",
-    "typicalFunction": "Protein, omega 3 source",
-    "notes": null,
-    "processingLevel": 1,
-    "source": "AAFCO 2024",
-    "sources": [
-      "AAFCO 2024"
     ]
   },
   {
@@ -13135,6 +13240,33 @@
     "typicalFunction": "Paw and nose balm",
     "notes": null,
     "processingLevel": 2,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_shellfish",
+    "commonName": "Shellfish",
+    "scientificName": null,
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Protein, flavor",
+    "notes": "Generic term; the species is not identified on the label. Not a fish",
+    "processingLevel": 1,
+    "processingLevelNotes": null,
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
@@ -13578,6 +13710,32 @@
     "source": "AAFCO 2024, Section 9.7",
     "sources": [
       "AAFCO 2024, Section 9.7"
+    ]
+  },
+  {
+    "id": "ing_soy",
+    "commonName": "Soy",
+    "scientificName": "Glycine max",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Plant protein",
+    "notes": "A common allergen",
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.8",
+    "sources": [
+      "AAFCO 2024, Section 9.8"
     ]
   },
   {
@@ -14446,31 +14604,6 @@
     ]
   },
   {
-    "id": "ing_vitamin_b1",
-    "commonName": "Thiamine",
-    "scientificName": "Vitamin B1",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "synthetic",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": null,
-    "typicalFunction": "Nerve function, energy metabolism",
-    "notes": "Critical for cats - deficiency causes neurological issues",
-    "processingLevel": 1,
-    "source": "AAFCO 2024",
-    "sources": [
-      "AAFCO 2024"
-    ]
-  },
-  {
     "id": "ing_thiamine_mononitrate",
     "commonName": "Thiamine mononitrate",
     "scientificName": "Vitamin B1",
@@ -14757,33 +14890,6 @@
     ]
   },
   {
-    "id": "ing_tuna_fresh",
-    "commonName": "Tuna",
-    "scientificName": "Thunnus spp.",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe_in_moderation",
-      "cat": "safe_in_moderation"
-    },
-    "allergenOrSensitizationRisk": "Low dog|High cat",
-    "typicalFunction": "Palatability, protein",
-    "notes": "Limit exposure due to mercury concerns",
-    "processingLevel": 1,
-    "processingLevelNotes": null,
-    "source": "AAFCO 2024, Section 9.3",
-    "sources": [
-      "AAFCO 2024, Section 9.3"
-    ]
-  },
-  {
     "id": "ing_tuna",
     "commonName": "Tuna",
     "scientificName": "Thunnus spp.",
@@ -14810,9 +14916,9 @@
     ]
   },
   {
-    "id": "ing_turkey_fresh",
-    "commonName": "Turkey",
-    "scientificName": "Meleagris gallopavo",
+    "id": "ing_tuna_fresh",
+    "commonName": "Tuna",
+    "scientificName": "Thunnus spp.",
     "species": [
       "dog",
       "cat"
@@ -14823,17 +14929,17 @@
     ],
     "origin": "natural",
     "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
+      "dog": "safe_in_moderation",
+      "cat": "safe_in_moderation"
     },
-    "allergenOrSensitizationRisk": "Medium",
-    "typicalFunction": "Primary protein",
-    "notes": null,
+    "allergenOrSensitizationRisk": "Low dog|High cat",
+    "typicalFunction": "Palatability, protein",
+    "notes": "Limit exposure due to mercury concerns",
     "processingLevel": 1,
     "processingLevelNotes": null,
-    "source": "AAFCO 2024, Section 9.2",
+    "source": "AAFCO 2024, Section 9.3",
     "sources": [
-      "AAFCO 2024, Section 9.2"
+      "AAFCO 2024, Section 9.3"
     ]
   },
   {
@@ -14886,6 +14992,33 @@
     "source": "AAFCO 2024, Section 9.6",
     "sources": [
       "AAFCO 2024, Section 9.6"
+    ]
+  },
+  {
+    "id": "ing_turkey_fresh",
+    "commonName": "Turkey",
+    "scientificName": "Meleagris gallopavo",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Medium",
+    "typicalFunction": "Primary protein",
+    "notes": null,
+    "processingLevel": 1,
+    "processingLevelNotes": null,
+    "source": "AAFCO 2024, Section 9.2",
+    "sources": [
+      "AAFCO 2024, Section 9.2"
     ]
   },
   {
@@ -15203,6 +15336,31 @@
     ]
   },
   {
+    "id": "ing_vitamin_b1",
+    "commonName": "Thiamine",
+    "scientificName": "Vitamin B1",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": null,
+    "typicalFunction": "Nerve function, energy metabolism",
+    "notes": "Critical for cats - deficiency causes neurological issues",
+    "processingLevel": 1,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
+    ]
+  },
+  {
     "id": "ing_vitamin_b12",
     "commonName": "Vitamin B12",
     "scientificName": "Cyanocobalamin",
@@ -15461,32 +15619,6 @@
     ]
   },
   {
-    "id": "ing_vitamin_k_supplement",
-    "commonName": "Vitamin K supplement",
-    "scientificName": "Menadione",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food"
-    ],
-    "origin": "synthetic",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low",
-    "typicalFunction": "Blood clotting",
-    "notes": "Essential for coagulation",
-    "processingLevel": 4,
-    "processingLevelNotes": "Synthesized vitamin",
-    "source": "AAFCO 2024, Section 9.12",
-    "sources": [
-      "AAFCO 2024, Section 9.12"
-    ]
-  },
-  {
     "id": "ing_vitamin_k1",
     "commonName": "Vitamin K1",
     "scientificName": "Phytonadione",
@@ -15510,6 +15642,32 @@
     "source": "AAFCO 2024",
     "sources": [
       "AAFCO 2024"
+    ]
+  },
+  {
+    "id": "ing_vitamin_k_supplement",
+    "commonName": "Vitamin K supplement",
+    "scientificName": "Menadione",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food"
+    ],
+    "origin": "synthetic",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low",
+    "typicalFunction": "Blood clotting",
+    "notes": "Essential for coagulation",
+    "processingLevel": 4,
+    "processingLevelNotes": "Synthesized vitamin",
+    "source": "AAFCO 2024, Section 9.12",
+    "sources": [
+      "AAFCO 2024, Section 9.12"
     ]
   },
   {
@@ -15850,6 +16008,32 @@
     ]
   },
   {
+    "id": "ing_whitefish",
+    "commonName": "Whitefish",
+    "scientificName": "Various",
+    "species": [
+      "dog",
+      "cat"
+    ],
+    "categories": [
+      "food",
+      "treat"
+    ],
+    "origin": "natural",
+    "riskLevel": {
+      "dog": "safe",
+      "cat": "safe"
+    },
+    "allergenOrSensitizationRisk": "Low to Medium",
+    "typicalFunction": "Protein",
+    "notes": null,
+    "processingLevel": 1,
+    "source": "AAFCO 2024",
+    "sources": [
+      "AAFCO 2024"
+    ]
+  },
+  {
     "id": "ing_whitefish_fresh",
     "commonName": "Whitefish",
     "scientificName": "Various",
@@ -15874,32 +16058,6 @@
     "source": "AAFCO 2024, Section 9.3",
     "sources": [
       "AAFCO 2024, Section 9.3"
-    ]
-  },
-  {
-    "id": "ing_whitefish",
-    "commonName": "Whitefish",
-    "scientificName": "Various",
-    "species": [
-      "dog",
-      "cat"
-    ],
-    "categories": [
-      "food",
-      "treat"
-    ],
-    "origin": "natural",
-    "riskLevel": {
-      "dog": "safe",
-      "cat": "safe"
-    },
-    "allergenOrSensitizationRisk": "Low to Medium",
-    "typicalFunction": "Protein",
-    "notes": null,
-    "processingLevel": 1,
-    "source": "AAFCO 2024",
-    "sources": [
-      "AAFCO 2024"
     ]
   },
   {
