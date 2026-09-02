@@ -7,7 +7,8 @@
   "paywalls": {
     "onboarding": {
       "ios": {
-        "paywallId": "263121"
+        "paywallId": "263121",
+        "snapshot": "0b6324c01b8c79e553029366aeefbd5509113a4873f908f87eb3f65eb21843b7"
       }
     }
   },
