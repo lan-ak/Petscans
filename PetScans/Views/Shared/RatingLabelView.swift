@@ -3,6 +3,11 @@ import SwiftUI
 /// Displays a rating label (Excellent/Good/Caution/Avoid) with icon and color
 struct RatingLabelView: View {
     let label: RatingLabel
+    /// The 0-100 total, rendered above the word. Supplied only when the word is the
+    /// one this score implies — see `ProductScoreView.heroScore`. A suitability
+    /// override can drop the word to "Avoid" while the total stays high, and
+    /// "82/100 / Avoid" reads as a bug rather than as a warning.
+    var score: Double? = nil
     var showIcon: Bool = true
     var size: RatingSize = .large
 
@@ -42,8 +47,16 @@ struct RatingLabelView: View {
                     .foregroundColor(label.color)
             }
 
+            if let score {
+                Text("\(Int(score.rounded()))/100")
+                    .font(scoreFont)
+                    .monospacedDigit()
+                    .foregroundColor(label.color)
+                    .accessibilityLabel("\(Int(score.rounded())) out of 100")
+            }
+
             Text(label.rawValue)
-                .font(labelFont)
+                .font(score == nil ? labelFont : wordFont)
                 .foregroundColor(label.color)
         }
         .padding(.vertical, size.verticalPadding)
@@ -59,13 +72,32 @@ struct RatingLabelView: View {
         case .large: return TypographyTokens.displayMedium
         }
     }
+
+    /// With a number present the number carries the emphasis, so it takes the size
+    /// the word used to have and the word steps down one level rather than
+    /// competing with it.
+    private var scoreFont: Font {
+        switch size {
+        case .small: return TypographyTokens.labelLarge
+        case .medium: return TypographyTokens.displaySmall
+        case .large: return TypographyTokens.displayLarge
+        }
+    }
+
+    private var wordFont: Font {
+        switch size {
+        case .small: return TypographyTokens.labelSmall
+        case .medium: return TypographyTokens.heading2
+        case .large: return TypographyTokens.heading1
+        }
+    }
 }
 
 #Preview {
     VStack(spacing: SpacingTokens.lg) {
-        RatingLabelView(label: .excellent)
-        RatingLabelView(label: .good)
-        RatingLabelView(label: .caution)
+        RatingLabelView(label: .excellent, score: 92)
+        RatingLabelView(label: .good, score: 68)
+        RatingLabelView(label: .caution, score: 34)
         RatingLabelView(label: .avoid)
 
         HStack(spacing: SpacingTokens.md) {

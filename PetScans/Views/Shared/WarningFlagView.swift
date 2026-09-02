@@ -35,6 +35,11 @@ struct WarningFlagView: View {
             backgroundColor: flag.severity.color.opacity(0.1),
             cornerRadius: SpacingTokens.radiusMedium
         )
+        // Groups the icon, title, badge and explanation into one addressable element
+        // so the screenshot suite can read the card's frame and float it out of the
+        // device shot. `.contain` keeps the children individually navigable.
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("warning-flag")
     }
 }
 

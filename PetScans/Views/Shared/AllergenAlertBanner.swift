@@ -2,7 +2,9 @@ import SwiftUI
 
 /// Expandable banner showing allergen warnings prominently at the top of results
 struct AllergenAlertBanner: View {
-    let petName: String
+    /// Nil on a saved scan, which does not persist which pet it was run for. The
+    /// headline drops the name rather than the warning.
+    let petName: String?
     let allergenFlags: [WarningFlag]
     let allergenNames: [String]
     @State private var isExpanded = false
@@ -21,7 +23,7 @@ struct AllergenAlertBanner: View {
                         .foregroundColor(ColorTokens.severityHigh)
 
                     VStack(alignment: .leading, spacing: SpacingTokens.xxxs) {
-                        Text("Contains Ingredients \(petName) Should Avoid")
+                        Text(headline)
                             .heading2()
                             .foregroundColor(ColorTokens.textPrimary)
 
@@ -53,6 +55,11 @@ struct AllergenAlertBanner: View {
         }
         .background(ColorTokens.severityHigh.opacity(0.12))
         .cornerRadius(SpacingTokens.radiusMedium)
+    }
+
+    private var headline: String {
+        guard let petName else { return "Contains Ingredients To Avoid" }
+        return "Contains Ingredients \(petName) Should Avoid"
     }
 }
 

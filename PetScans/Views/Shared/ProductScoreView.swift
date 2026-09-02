@@ -110,7 +110,9 @@ struct ProductScoreView: View {
                     allergenAlertBanner
 
                     // Rating label — bounces in once when a fresh result appears.
-                    RatingLabelView(label: scoreBreakdown.ratingLabel)
+                    RatingLabelView(label: scoreBreakdown.ratingLabel, score: heroScore)
+                        .accessibilityElement(children: .contain)
+                        .accessibilityIdentifier("hero-rating")
                         .scaleEffect(ratingRevealed ? 1 : 0.85)
                         .opacity(ratingRevealed ? 1 : 0)
 
@@ -302,21 +304,46 @@ struct ProductScoreView: View {
         .cardStyle(backgroundColor: ColorTokens.warning.opacity(0.1))
     }
 
+    /// The number to print on the hero badge, or nil to print the word alone.
+    ///
+    /// `ratingLabel` is not a pure function of `total`: a suitability or safety
+    /// explanation can carry a `labelOverride` that drags the word down to a worse
+    /// rating than the number implies. Printing both in that case produces a badge
+    /// reading "82/100" over "Avoid", which reads as a rendering bug rather than as
+    /// the deliberate warning it is — so the number is suppressed and the word,
+    /// which is the safer of the two, stands alone.
+    ///
+    /// Also suppressed when the scan's stored scores were missing entirely, where
+    /// `total` is a zero standing in for absence and "0/100" would be a lie about a
+    /// product we failed to read rather than one we judged.
+    private var heroScore: Double? {
+        guard !scoreBreakdown.scoresAreMissing else { return nil }
+        guard scoreBreakdown.ratingLabel == RatingLabel.from(score: scoreBreakdown.total) else { return nil }
+        return scoreBreakdown.total
+    }
+
     // MARK: - Allergen Alert Banner
 
     @ViewBuilder
     private var allergenAlertBanner: some View {
         let allergenFlags = scoreBreakdown.allergenFlags
-        if !allergenFlags.isEmpty, let petDisplayName = petName {
+        // Gated on `petName` until 1.4.5, which meant a saved scan — where petName is
+        // always nil, because a Scan does not persist which pet it was run for —
+        // rendered no allergen warning anywhere on the screen. `warningsSection`
+        // deliberately skips allergen flags ("shown in the hero banner"), so every
+        // allergen the app found was dropped silently once the scan reached History.
+        if !allergenFlags.isEmpty {
             let allergenNames = scoreBreakdown.suitabilityExplanation?.factors
                 .filter { $0.impact == .negative }
                 .compactMap { $0.ingredientName } ?? []
 
             AllergenAlertBanner(
-                petName: petDisplayName,
+                petName: petName,
                 allergenFlags: allergenFlags,
                 allergenNames: allergenNames
             )
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("allergen-banner")
         }
     }
 
