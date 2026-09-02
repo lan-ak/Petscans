@@ -27,11 +27,18 @@ final class ScreenshotTests: XCTestCase {
     // across the three device sizes.
 
     /// Shot 1 — the hero. A recognizable brand scored well, pack shot visible.
+    ///
+    /// The float is the rating badge, which carries the number as of 1.4.5. It is the
+    /// only thing on this screen that has to survive being shrunk to a search-results
+    /// thumbnail, so it is what gets lifted out of the frame.
     func test01_HeroScore() throws {
         launchSeeded()
-        openScan(brandOrName: "Merrick")
+        // "Merrick" alone is no longer unique — the catalog-depth rows added for shot 5
+        // include a Merrick chew scoring 46, and matching on the brand picked that up
+        // instead of the hero. Pin to the product.
+        openScan(brandOrName: "Texas Beef")
         Thread.sleep(forTimeInterval: 1.0)
-        takeScreenshot(named: "01_HeroScore")
+        takeScreenshot(named: "01_HeroScore", floats: ["card": floatTarget("hero-rating")])
     }
 
     /// Shot 2 — the verdict that sells the app: a treat marked Avoid, with the
@@ -45,16 +52,31 @@ final class ScreenshotTests: XCTestCase {
         let scoreView = app.scrollViews["product-score-view"]
         scoreView.swipeUp()
         Thread.sleep(forTimeInterval: 0.8)
-        takeScreenshot(named: "02_UnsafeIngredients")
+
+        // First card under "Other Warnings" is the BHA/BHT preservative flag — the
+        // one carrying an FDA citation, and the most recognisable of the three.
+        takeScreenshot(named: "02_UnsafeIngredients", floats: ["card": warningCard(at: 0)])
     }
 
     /// Shot 3 — the pet-specific allergen banner, the thing a generic scanner
-    /// can't do. Top of the same Milk-Bone result, before any scrolling.
+    /// can't do. Top of the same Milk-Bone result.
+    ///
+    /// Before 1.4.5 this shot showed a generic "Avoid" badge and nothing else: the
+    /// banner was gated on a pet name that a saved scan never carries, so the two
+    /// allergens the app had found rendered nowhere. It renders now, and the banner
+    /// is expanded here so the float can be the card that actually names the
+    /// ingredient and the pet.
     func test03_AllergenAlert() throws {
         launchSeeded()
         openScan(brandOrName: "Milk-Bone")
         Thread.sleep(forTimeInterval: 1.0)
-        takeScreenshot(named: "03_AllergenAlert")
+
+        let banner = floatTarget("allergen-banner")
+        XCTAssertTrue(banner.waitForExistence(timeout: 5), "allergen banner missing on a scan with allergen flags")
+        banner.tap()
+        Thread.sleep(forTimeInterval: 0.6)
+
+        takeScreenshot(named: "03_AllergenAlert", floats: ["card": warningCard(at: 0, in: banner)])
     }
 
     /// Shot 4 — an ingredient explained. Opens the detail sheet from the BHA/BHT
@@ -93,8 +115,12 @@ final class ScreenshotTests: XCTestCase {
         takeScreenshot(named: "04_IngredientDetail")
     }
 
-    /// Shot 5 — the library. The seeded History list stands in for "10,000+
-    /// foods built in": three real products, each with a score dial.
+    /// Shot 5 — the shelf behind "30,000+ foods built in".
+    ///
+    /// This used to be three seeded rows under a caption claiming thirty thousand,
+    /// which is a picture arguing against its own headline. The seeder now carries
+    /// nine real catalog products scoring from 94 down to 0, so the list shows both
+    /// depth and a spread rather than a near-empty screen.
     func test05_Library() throws {
         launchSeeded()
         app.tabBars.buttons["History"].tap()
@@ -102,11 +128,20 @@ final class ScreenshotTests: XCTestCase {
         let historyView = app.collectionViews["history-view"]
         XCTAssertTrue(historyView.waitForExistence(timeout: 5))
         Thread.sleep(forTimeInterval: 0.6)
-        takeScreenshot(named: "05_Library")
+
+        let topRow = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] 'ORIJEN'")
+        ).firstMatch
+        XCTAssertTrue(topRow.waitForExistence(timeout: 5), "catalog rows missing from History")
+        takeScreenshot(named: "05_Library", floats: ["card": topRow])
     }
 
-    /// Shot 6 — the trust shot, mirroring Yuka's independence screen. The
-    /// Scientific References screen lists AAFCO, FDA, ASPCA, Merck.
+    /// Shot 6 — the independence claim. Yuka spends its last two slots on who it
+    /// answers to rather than on what it does; this is the same slot, and the
+    /// Scientific References screen is the evidence under it.
+    ///
+    /// The caption is supplied by the framing step. What this test has to guarantee
+    /// is that the named sources are on screen and that one of them can be floated.
     func test06_Sources() throws {
         launchSeeded()
         app.tabBars.buttons["Settings"].tap()
@@ -115,7 +150,12 @@ final class ScreenshotTests: XCTestCase {
         XCTAssertTrue(references.waitForExistence(timeout: 5))
         references.tap()
         Thread.sleep(forTimeInterval: 0.6)
-        takeScreenshot(named: "06_Sources")
+
+        let aafco = app.buttons.containing(
+            NSPredicate(format: "label CONTAINS[c] 'AAFCO'")
+        ).firstMatch
+        XCTAssertTrue(aafco.waitForExistence(timeout: 5), "AAFCO source row missing")
+        takeScreenshot(named: "06_Sources", floats: ["card": aafco])
     }
 
     /// Smoke — Settings → My Pets → Luna → Add Ingredient → tap a chip → Done.
@@ -336,7 +376,25 @@ final class ScreenshotTests: XCTestCase {
 
     // MARK: - Helper Methods
 
-    private func takeScreenshot(named name: String) {
+    /// An element tagged with `accessibilityIdentifier` on a container. SwiftUI
+    /// exposes those as `otherElements`, not as any of the leaf types.
+    private func floatTarget(_ identifier: String) -> XCUIElement {
+        app.otherElements[identifier].firstMatch
+    }
+
+    /// The nth `WarningFlagView` inside `container`, or inside the whole screen when
+    /// no container is given.
+    ///
+    /// Scoping matters: an expanded allergen banner and the "Other Warnings" section
+    /// both render `WarningFlagView`, and an unscoped query does not reliably return
+    /// them in screen order — the first unscoped match on the Milk-Bone result is a
+    /// card a full screen below the fold.
+    private func warningCard(at index: Int, in container: XCUIElement? = nil) -> XCUIElement {
+        let scope: XCUIElement = container ?? app
+        return scope.otherElements.matching(identifier: "warning-flag").element(boundBy: index)
+    }
+
+    private func takeScreenshot(named name: String, floats: [String: XCUIElement] = [:]) {
         let screenshot = app.screenshot()
         let attachment = XCTAttachment(screenshot: screenshot)
         attachment.name = name
@@ -345,6 +403,60 @@ final class ScreenshotTests: XCTestCase {
 
         // Also save to file system for easy access
         saveScreenshotToFile(screenshot: screenshot, name: name)
+        saveFloatRects(floats, for: name)
+    }
+
+    /// Writes where each floatable card sits, normalised to the window, next to the
+    /// PNG it came from.
+    ///
+    /// The framing step lifts one card out of the device shot and floats it over the
+    /// composition — the move every Yuka screenshot makes, and the reason their
+    /// screenshots stay readable at the 320x480 thumbnail the store serves in search
+    /// results. Cropping happens in `Scripts/compose_marketing_shots.py` rather than
+    /// here so that all image work lives in one place; this test only has to say
+    /// *where*. Normalising to the window is what lets one set of coordinates serve
+    /// every device size.
+    private func saveFloatRects(_ floats: [String: XCUIElement], for name: String) {
+        guard !floats.isEmpty else { return }
+
+        let window = app.windows.firstMatch.frame
+        guard window.width > 0, window.height > 0 else {
+            XCTFail("no window frame to normalise \(name) against")
+            return
+        }
+
+        var payload: [String: [String: CGFloat]] = [:]
+        for (key, element) in floats {
+            guard element.exists else {
+                XCTFail("float target '\(key)' is not on screen for \(name)")
+                continue
+            }
+            let frame = element.frame
+            let x = (frame.minX - window.minX) / window.width
+            let y = (frame.minY - window.minY) / window.height
+            let w = frame.width / window.width
+            let h = frame.height / window.height
+
+            // An element that exists is not necessarily on screen — a card below the
+            // fold reports a frame in the scroll view's coordinate space, and floating
+            // a crop of empty pixels is the kind of thing that ships quietly.
+            XCTAssertTrue(
+                x >= -0.02 && y >= -0.02 && x + w <= 1.02 && y + h <= 1.02,
+                "float target '\(key)' for \(name) is off screen: x=\(x) y=\(y) w=\(w) h=\(h)"
+            )
+
+            payload[key] = ["x": x, "y": y, "w": w, "h": h]
+        }
+        guard !payload.isEmpty else { return }
+
+        let projectDir = ProcessInfo.processInfo.environment["PROJECT_DIR"] ?? FileManager.default.currentDirectoryPath
+        let path = "\(projectDir)/Screenshots/\(name).floats.json"
+        guard let data = try? JSONSerialization.data(withJSONObject: payload, options: [.prettyPrinted, .sortedKeys]) else {
+            XCTFail("could not encode float rects for \(name)")
+            return
+        }
+        try? data.write(to: URL(fileURLWithPath: path))
+        print("Float rects saved: \(path)")
     }
 
     private func saveScreenshotToFile(screenshot: XCUIScreenshot, name: String) {

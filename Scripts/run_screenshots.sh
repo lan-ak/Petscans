@@ -1,16 +1,23 @@
 #!/bin/bash
 
-# App Store Screenshot Automation Script for PetScans
+# App Store screenshot pipeline for PetScans.
 # Usage: ./Scripts/run_screenshots.sh
 #
-# The PetScansUITests target and ScreenshotTests.swift already exist in the
-# project and scheme — ScreenshotTests seeds real catalog products (Merrick,
-# Purina ONE, Milk-Bone) and captures the six App Store shots.
+# Two passes per device size:
+#   1. PetScansUITests/ScreenshotTests stages each screen and writes a raw capture
+#      plus, for the shots that have one, a `<shot>.floats.json` naming the card the
+#      framing step should lift out. Raws land in Screenshots/<size>-inch/.
+#   2. Scripts/compose_marketing_shots.py frames those into Screenshots/<size>-framed/,
+#      which is what gets uploaded.
 #
-# Prerequisites:
-# 1. Install the simulators named in DEVICES below (Xcode > Settings > Platforms),
-#    or edit the names to simulators you have. The three sizes map to
-#    6.9" / 6.7" / 6.5", which is what App Store Connect asks for.
+# The tests write through $PROJECT_DIR. xcodebuild does not pass build settings into
+# the test runner's environment, so it has to arrive as TEST_RUNNER_PROJECT_DIR —
+# passing PROJECT_DIR= writes the captures to /Screenshots and silently drops them.
+#
+# Prerequisites: the simulators named in DEVICES below. Create a missing one with
+#   xcrun simctl create "iPhone 14 Plus" \
+#     com.apple.CoreSimulator.SimDeviceType.iPhone-14-Plus \
+#     com.apple.CoreSimulator.SimRuntime.iOS-26-5
 
 set -e
 
@@ -19,105 +26,86 @@ PROJECT="PetScans.xcodeproj"
 SCHEME="PetScans"
 OUTPUT_DIR="$PROJECT_DIR/Screenshots"
 
-# Device configurations for App Store requirements
-declare -a DEVICES=(
-    "iPhone 16 Pro Max"
-    "iPhone 15 Plus"
-    "iPhone 11 Pro Max"
+# Device, App Store size class, and the pixel dimensions that size expects.
+declare -a DEVICES=("iPhone 17 Pro Max" "iPhone 14 Plus")
+declare -a SIZES=("6.9" "6.5")
+declare -a WIDTHS=(1320 1284)
+declare -a HEIGHTS=(2868 2778)
+
+# The App Store shot list. Other tests in the suite (onboarding, smoke) are not part
+# of the listing and are not run here.
+declare -a SHOTS=(
+    test01_HeroScore
+    test02_UnsafeIngredients
+    test03_AllergenAlert
+    test04_IngredientDetail
+    test05_Library
+    test06_Sources
 )
 
-declare -a SIZES=(
-    "6.9"
-    "6.7"
-    "6.5"
-)
+ONLY_TESTING=()
+for shot in "${SHOTS[@]}"; do
+    ONLY_TESTING+=("-only-testing:PetScansUITests/ScreenshotTests/$shot")
+done
 
-echo "============================================"
-echo "PetScans App Store Screenshot Generator"
-echo "============================================"
-echo ""
 echo "Project: $PROJECT_DIR"
 echo "Output:  $OUTPUT_DIR"
-echo ""
 
-# Clean output directory
-rm -rf "$OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
-
-# Track overall success
 ALL_PASSED=true
 
 for i in "${!DEVICES[@]}"; do
     DEVICE="${DEVICES[$i]}"
     SIZE="${SIZES[$i]}"
+    W="${WIDTHS[$i]}"
+    H="${HEIGHTS[$i]}"
+
+    RAW_DIR="$OUTPUT_DIR/${SIZE}-inch"
+    FRAMED_DIR="$OUTPUT_DIR/${SIZE}-framed"
 
     echo ""
     echo "=========================================="
-    echo "Device: $DEVICE ($SIZE inch)"
+    echo "$DEVICE — ${SIZE}\" (${W}x${H})"
     echo "=========================================="
 
-    # Create device-specific output folder
-    DEVICE_DIR="$OUTPUT_DIR/${SIZE}-inch"
-    mkdir -p "$DEVICE_DIR"
+    rm -rf "$RAW_DIR" "$FRAMED_DIR"
+    mkdir -p "$RAW_DIR" "$FRAMED_DIR"
+    rm -f "$OUTPUT_DIR"/*.png "$OUTPUT_DIR"/*.floats.json
 
-    # Run UI tests on this device
     set +e
-    xcodebuild test \
+    TEST_RUNNER_PROJECT_DIR="$PROJECT_DIR" xcodebuild test \
         -project "$PROJECT_DIR/$PROJECT" \
         -scheme "$SCHEME" \
         -destination "platform=iOS Simulator,name=$DEVICE" \
-        -only-testing:PetScansUITests/ScreenshotTests \
-        -resultBundlePath "$DEVICE_DIR/TestResults.xcresult" \
-        PROJECT_DIR="$PROJECT_DIR" \
-        2>&1 | tee "$DEVICE_DIR/build.log"
-
-    BUILD_RESULT=${PIPESTATUS[0]}
+        "${ONLY_TESTING[@]}" \
+        > "$RAW_DIR/build.log" 2>&1
+    BUILD_RESULT=$?
     set -e
 
-    if [ $BUILD_RESULT -eq 0 ]; then
-        echo "✅ Tests passed for $DEVICE"
-
-        # Extract screenshots from test results
-        if [ -d "$DEVICE_DIR/TestResults.xcresult" ]; then
-            echo "Extracting screenshots from test results..."
-
-            # List attachments in the xcresult bundle
-            xcrun xcresulttool get --path "$DEVICE_DIR/TestResults.xcresult" \
-                --format json 2>/dev/null > "$DEVICE_DIR/results.json" || true
-
-            # Screenshots are typically in Attachments folder within xcresult
-            ATTACHMENTS_DIR="$DEVICE_DIR/TestResults.xcresult"
-
-            # Use xcresulttool to export attachments
-            # Note: Screenshots are attached to test cases and can be found in the xcresult
-            echo "Screenshots are available in: $DEVICE_DIR/TestResults.xcresult"
-            echo "Open in Xcode: open \"$DEVICE_DIR/TestResults.xcresult\""
-        fi
-    else
-        echo "❌ Tests failed for $DEVICE"
-        echo "Check build log: $DEVICE_DIR/build.log"
+    if [ $BUILD_RESULT -ne 0 ]; then
+        echo "FAILED — see $RAW_DIR/build.log"
         ALL_PASSED=false
+        continue
     fi
+
+    # The tests write flat into Screenshots/; sort them into the size's folder.
+    mv "$OUTPUT_DIR"/*.png "$RAW_DIR/"
+    mv "$OUTPUT_DIR"/*.floats.json "$RAW_DIR/"
+
+    ACTUAL="$(sips -g pixelWidth "$RAW_DIR/01_HeroScore.png" | awk '/pixelWidth/ {print $2}')x$(sips -g pixelHeight "$RAW_DIR/01_HeroScore.png" | awk '/pixelHeight/ {print $2}')"
+    if [ "$ACTUAL" != "${W}x${H}" ]; then
+        echo "FAILED — $DEVICE captured at $ACTUAL, expected ${W}x${H}"
+        ALL_PASSED=false
+        continue
+    fi
+
+    python3 "$PROJECT_DIR/Scripts/compose_marketing_shots.py" "$RAW_DIR" "$FRAMED_DIR" "$W" "$H"
+    echo "Framed -> $FRAMED_DIR"
 done
 
 echo ""
-echo "=========================================="
-echo "Screenshot Generation Complete"
-echo "=========================================="
-echo ""
-echo "Output directory: $OUTPUT_DIR"
-echo ""
-
 if [ "$ALL_PASSED" = true ]; then
-    echo "✅ All devices completed successfully!"
-    echo ""
-    echo "To view screenshots:"
-    echo "  1. Open each .xcresult in Xcode"
-    echo "  2. Navigate to the test results"
-    echo "  3. Expand test cases to see attached screenshots"
-    echo ""
-    echo "Or find PNG files saved by the tests in $OUTPUT_DIR"
+    echo "All sizes complete. Upload from the *-framed folders."
 else
-    echo "⚠️  Some devices had failures. Check the build logs."
+    echo "Some sizes failed. Check the build logs above."
     exit 1
 fi
