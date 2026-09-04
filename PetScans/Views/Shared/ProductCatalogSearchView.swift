@@ -30,8 +30,6 @@ struct ProductCatalogSearchView: View {
     /// as a sheet from the scanner.
     var leadingIcon: String = "chevron.left"
     let onLeading: () -> Void
-    /// Optional trailing "Skip" (onboarding only).
-    var onSkip: (() -> Void)? = nil
     let onSelect: (CatalogProduct) -> Void
 
     @State private var query = ""
@@ -108,14 +106,6 @@ struct ProductCatalogSearchView: View {
             }
             .accessibilityLabel(leadingIcon == "xmark" ? "Close" : "Back")
             Spacer()
-            if let onSkip {
-                // Quiet, matching the demoted Skip on the result page — the
-                // search + payoff should feel like the main path, not a fork.
-                Button("Skip", action: onSkip)
-                    .font(TypographyTokens.caption)
-                    .foregroundColor(ColorTokens.textTertiary)
-                    .accessibilityIdentifier("catalog-search-skip")
-            }
         }
         .padding(.horizontal, SpacingTokens.screenPadding)
     }
@@ -371,21 +361,19 @@ struct ProductCatalogSearchView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, SpacingTokens.xxl)
 
-            // A food genuinely missing from the catalog otherwise leaves the user on a
-            // screen with nothing to press but the de-emphasised corner "Skip". Only
-            // offered where a skip handler exists — the scanner presents this same view
-            // as a sheet and already has its own dismiss.
-            //
-            // The label says what the button now does. It used to read "Scan the label
-            // instead", which was true when skipping dropped the user into the scanner;
-            // under the demo-first flow the same handler moves them on to pet setup, and
-            // the scanner is several screens away.
-            if let onSkip {
-                Button("Skip for now", action: onSkip)
-                    .font(TypographyTokens.body)
-                    .foregroundColor(ColorTokens.brandPrimary)
-                    .padding(.top, SpacingTokens.sm)
+            // A food genuinely missing from the catalog would otherwise leave the user on
+            // a screen whose only forward action is retyping the thing that just failed.
+            // This used to be a "Skip for now" that jumped past the demo entirely; with no
+            // skip in onboarding any more, the recovery has to keep them inside the flow
+            // rather than around it — so it clears the query and puts the brand grid back.
+            Button("Browse popular brands") {
+                query = ""
+                isFieldFocused = false
             }
+            .font(TypographyTokens.body)
+            .foregroundColor(ColorTokens.brandPrimary)
+            .padding(.top, SpacingTokens.sm)
+            .accessibilityIdentifier("catalog-empty-browse")
 
             Spacer()
             Spacer()

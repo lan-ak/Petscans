@@ -66,7 +66,6 @@ struct OnboardingView: View {
                     subtitle: "Pick any food you have at home — we'll show you what's really inside.",
                     speciesSelection: $chosenSpecies,
                     onLeading: { navigate(to: 0) },
-                    onSkip: { navigate(to: profilePage) },
                     onSelect: { product in
                         // Backing out and choosing a different food used to leave the first
                         // one in History for good — the de-dupe on save only covers the
@@ -147,16 +146,6 @@ struct OnboardingView: View {
             navigationButtons
                 .padding(.horizontal, SpacingTokens.screenPadding)
                 .padding(.bottom, SpacingTokens.xxl)
-                // The skip link hangs inside the bottom padding instead of
-                // stacking under the CTA, so the primary button lands at the
-                // same height on every page rather than riding up on the
-                // one page that has a secondary action.
-                .overlay(alignment: .bottom) {
-                    if currentPage == profilePage || currentPage == groupsPage {
-                        skipButton
-                            .padding(.bottom, SpacingTokens.xxs)
-                    }
-                }
         }
         // Anchor the CTA to the bottom so the auto-focused name field's keyboard
         // can't lift "Continue" into the thumb zone next to the allergen chips —
@@ -298,31 +287,17 @@ struct OnboardingView: View {
         }
     }
 
-    /// Plain text rather than a second full-width button: as an equal-width
-    /// button beside the CTA it read as an equal choice.
+    /// There is no skip. Onboarding is now a single path: pick a food, see the verdict,
+    /// name the pet, and get the personalised answer.
     ///
-    /// The label is page-specific because the consequence is. On the groups page skipping
-    /// costs the watch list and nothing else. On the profile page it ends onboarding — 39%
-    /// of finishers took that exit under the old label "Skip for now", which reads like it
-    /// skips a step rather than the rest of the flow.
-    private var skipButton: some View {
-        Button(currentPage == profilePage ? "Not now — finish setup" : "Skip for now") {
-            if currentPage == groupsPage {
-                navigate(to: personalizedPage)
-            } else {
-                // `createdPet:` off what was actually entered, not a flat false. The label
-                // invites pressing this *after* filling the form in, and hardcoding false
-                // threw away a name, species and allergen list the user had already given.
-                finishOnboarding(createdPet: petName.isNotBlank)
-            }
-        }
-        .font(TypographyTokens.labelLarge)
-        .foregroundColor(ColorTokens.textSecondary)
-        .disabled(isSubmitting)
-        .opacity(isSubmitting ? 0.6 : 1)
-        .accessibilityIdentifier("onboarding-skip")
-    }
-
+    /// The exits that used to be here were load-bearing in both directions. The profile
+    /// page's "Not now — finish setup" ended onboarding outright, and 39% of finishers
+    /// took it; the groups page's "Skip for now" jumped straight to the personalised
+    /// result. Removing them means the pet's name is now genuinely required, and since
+    /// onboarding gates the app, a user who will not enter one cannot get in. That is the
+    /// intended trade — but it is the reason `continueFromProfile` has to keep surfacing
+    /// a clear validation message rather than silently refusing to advance.
+    ///
     /// Gets the keyboard up on arrival at the setup page — the only page asking
     /// for input, and the highest-friction one.
     ///

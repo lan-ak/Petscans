@@ -231,6 +231,40 @@ final class CompanionOnboardingTests: XCTestCase {
                        "the same food scored differently on a second run — scoring must be deterministic")
     }
 
+    /// The pet's name is the one required answer, and since the skip was removed it is
+    /// the only way past this page — onboarding gates the whole app, so a Continue that
+    /// silently refuses to advance would be a dead end rather than a validation.
+    func testProfileRefusesToAdvanceWithoutANameAndSaysWhy() throws {
+        app.buttons["Get Started"].tap()
+        app.buttons["companion-pick-dog"].firstMatch.tap()
+        app.buttons["Pedigree"].tap()
+        let first = app.scrollViews.buttons.firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 20))
+        first.tap()
+        XCTAssertTrue(app.buttons["aha-continue"].waitForExistence(timeout: 30))
+        app.buttons["aha-continue"].tap()
+
+        let name = app.textFields["pet-name-field"]
+        XCTAssertTrue(name.waitForExistence(timeout: 10), "profile page")
+
+        // No skip anywhere on this page any more.
+        XCTAssertFalse(app.buttons["onboarding-skip"].exists, "the skip is meant to be gone")
+
+        // Continue with an empty name must hold the page and explain itself.
+        app.buttons["Continue"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["Please enter your pet's name"].waitForExistence(timeout: 5),
+                      "an empty name must produce a visible reason, not a silent refusal")
+        XCTAssertTrue(name.exists, "must still be on the profile page")
+        capture("audit-4b-profile-name-required")
+
+        // And a name still gets you through.
+        name.tap()
+        name.typeText("Rufus\n")
+        app.buttons["Continue"].firstMatch.tap()
+        XCTAssertTrue(app.staticTexts["What should we watch out for?"].waitForExistence(timeout: 10),
+                      "a named pet must advance")
+    }
+
     /// Captures every screen in order so the set can be reviewed side by side. Its value
     /// is the artefacts, not the assertions.
     func testCaptureEveryScreenInOrder() throws {
