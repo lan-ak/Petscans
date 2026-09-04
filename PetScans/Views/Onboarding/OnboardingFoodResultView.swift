@@ -359,6 +359,7 @@ struct OnboardingPersonalizedResultView: View {
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.requestReview) private var requestReview
     @State private var rescored: OnboardingFoodScorer.Result?
     @State private var revealed = false
     @State private var didScore = false
@@ -410,7 +411,10 @@ struct OnboardingPersonalizedResultView: View {
                 .accessibilityIdentifier("personalized-continue")
         }
         .background(ColorTokens.backgroundPrimary.ignoresSafeArea())
-        .task { await rescore() }
+        .task {
+            await rescore()
+            await askForReviewAtThePeak()
+        }
         // No identifier on this container. An `accessibilityIdentifier` on a SwiftUI
         // parent wins over the ones its children set, which would make `personalized-continue`
         // unaddressable — to XCUITest and to VoiceOver alike.
@@ -634,6 +638,36 @@ struct OnboardingPersonalizedResultView: View {
             try? await Task.sleep(for: .milliseconds(60))
             withAnimation(AnimationTokens.celebrationBounce) { revealed = true }
         }
+    }
+
+    /// Asks for a rating here, on the payoff screen, rather than after onboarding ends.
+    ///
+    /// The ask used to be armed at `finishOnboarding` and drained by `ContentView`. That
+    /// never worked: finishing onboarding registers `onboarding_complete`, which presents
+    /// a paywall, which stamps a 60-second cooldown — and `ContentView` waits 2.5 seconds
+    /// before trying. The drain was refused every single time for anyone who saw a
+    /// paywall, which is nearly everyone.
+    ///
+    /// So the ask moves ahead of the paywall, to the one moment the whole flow was built
+    /// to reach: a generic verdict has just become one about *their* animal, by name. No
+    /// other sheet owns the slot here.
+    ///
+    /// Three seconds is long enough to read the verdict card and the reason beneath it,
+    /// and short enough to land before most people tap Continue. Someone who taps sooner
+    /// cancels this task with the arm still set — and the arm now survives the session,
+    /// so they are asked at their first scan result instead of never.
+    private func askForReviewAtThePeak() async {
+        guard rescored != nil else { return }
+        ReviewPrompt.recordOnboardingCompleted(sawPersonalizedResult: true)
+
+        try? await Task.sleep(for: .seconds(3))
+        guard !Task.isCancelled else { return }
+        // Re-checks the paywall interlock, so a paywall that somehow lands first still
+        // wins and keeps the arm rather than burning it on a request iOS would swallow.
+        guard ReviewPrompt.consumePending() else { return }
+        // The decision above still runs under UI testing; only the sheet is withheld.
+        guard !PetScansApp.isUITesting else { return }
+        requestReview()
     }
 
     /// Replaces the row the demo saved with the personalised one.

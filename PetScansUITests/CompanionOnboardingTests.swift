@@ -144,7 +144,7 @@ final class CompanionOnboardingTests: XCTestCase {
             return
         }
         // Let the re-score land so the companion is in its final mood, not attending.
-        Thread.sleep(forTimeInterval: 2.5)
+        Thread.sleep(forTimeInterval: 3)
         capture("companion-07-personalised")
     }
 

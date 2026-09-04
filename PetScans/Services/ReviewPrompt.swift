@@ -31,15 +31,47 @@ enum ReviewPrompt {
     /// read as a shakedown, and the rating is the one that gets dismissed.
     private static let paywallCooldown: TimeInterval = 60
 
+    /// How long an armed-but-unasked moment stays worth honouring.
+    ///
+    /// The arm used to live in memory, so it died with the session that made it. That
+    /// was the single largest leak in the whole mechanism: onboarding ends by presenting
+    /// a paywall, `consumePending` defers for `paywallCooldown` — and by the time the
+    /// deferral lifts, most users have closed the app. The arm evaporated and they were
+    /// never asked at all.
+    ///
+    /// It persists now, but not forever. Inside a week the onboarding is still what the
+    /// user remembers about this app; past that a real scan result is a better moment
+    /// than a cold launch with no context, and `isGoodMoment` is already watching for one.
+    private static let armLifetime: TimeInterval = 7 * 24 * 60 * 60
+
     // MARK: - Storage
 
     private enum Key {
         static let lastPromptedAt = "reviewPrompt.lastPromptedAt"
         static let lastPaywallAt = "reviewPrompt.lastPaywallAt"
         static let sessionCount = "reviewPrompt.sessionCount"
+        static let armedAt = "reviewPrompt.armedAt"
     }
 
-    private static var pending = false
+    /// Whether a moment worth asking on is currently armed.
+    ///
+    /// Stored as the *time* it was armed rather than a flag, so persistence and expiry
+    /// are the same field: an arm older than `armLifetime` simply stops reading as one.
+    private static var pending: Bool {
+        get {
+            guard let armed = UserDefaults.standard.object(forKey: Key.armedAt) as? Date else {
+                return false
+            }
+            return Date().timeIntervalSince(armed) < armLifetime
+        }
+        set {
+            if newValue {
+                UserDefaults.standard.set(Date(), forKey: Key.armedAt)
+            } else {
+                UserDefaults.standard.removeObject(forKey: Key.armedAt)
+            }
+        }
+    }
 
     // MARK: - Signals in
 

@@ -78,8 +78,14 @@ struct MainTabView: View {
 
     /// Presents the App Store rating sheet when onboarding armed one.
     ///
-    /// `pending` lives in memory, so this can only fire in the session that armed it — a
-    /// later cold launch lands here with nothing to drain.
+    /// The arm persists now, so this can also fire on a later cold launch — which is the
+    /// point. It used to live in memory and die with the session that made it, and since
+    /// onboarding ends on a paywall that defers this drain, the arm was usually gone
+    /// before it could be spent.
+    ///
+    /// The first ask is made earlier, on the personalised result screen itself
+    /// (`askForReviewAtThePeak`), ahead of the paywall. This is the fallback for a user
+    /// who tapped through that screen too fast to be asked there.
     ///
     /// The delay is not cosmetic. This runs as the tab bar appears, which is the moment the
     /// `onboarding_complete` paywall is dismissing, and iOS drops a review request made
