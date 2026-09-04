@@ -86,7 +86,19 @@ struct ScannerView: View {
                 if [.scanning, .error, .productNotFound].contains(viewModel.step) {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            showingCatalogSearch = true
+                            // Gated: with no campaign attached (or Superwall
+                            // unavailable) the feature block runs immediately and
+                            // the sheet opens as before, so the search is never
+                            // stranded behind a paywall that can't load.
+                            SuperwallSafe.register(
+                                placement: "search_by_name",
+                                params: [
+                                    "from_step": viewModel.step.superwallName,
+                                    "pet_count": pets.count
+                                ]
+                            ) {
+                                showingCatalogSearch = true
+                            }
                         } label: {
                             Image(systemName: "magnifyingglass")
                         }

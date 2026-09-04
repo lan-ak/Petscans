@@ -16,7 +16,8 @@ campaign audiences / paywall copy in the dashboard.
 Source of truth in code:
 `Services/SuperwallSafe.swift` (wrapper), `Services/SuperwallUserAttributes.swift`
 (pet / groups / searched-food / focused-pet), `Views/Onboarding/OnboardingView.swift`
-(onboarding placements), `ViewModels/ScannerViewModel.swift` (scan placements/attrs).
+(onboarding placements), `ViewModels/ScannerViewModel.swift` (scan placements/attrs),
+`Views/Scanner/ScannerView.swift` (search-by-name placement).
 
 > Keep this file in sync when adding or renaming a placement/attribute.
 
@@ -28,14 +29,21 @@ Source of truth in code:
 |---|---|---|---|---|
 | `onboarding_step` | `step` (Int, page index), `step_name` (String) | No | Every onboarding page change (`logStep`) | — (diagnostic only; keep OUT of campaigns) |
 | `onboarding_finished` | `created_pet` (Bool), `avoid_group_count` (Int) | No | `persistAndSync` — both onboarding exit paths | — |
-| `onboarding_complete` | `viewed_food_result` (Bool), `personalized` (Bool), `verdict` (String), `score` (Int), `flag_count` (Int) | **Yes** (feature block → enters app) | Every onboarding exit — the personalised result CTA and the pet-setup "Not now" | ✅ **Onboarding** (64348) |
+| `onboarding_complete` | `viewed_food_result` (Bool), `personalized` (Bool), `verdict` (String), `score` (Int), `flag_count` (Int) | **Yes** (feature block → enters app) | The only onboarding exit — the personalised result CTA | ✅ **Onboarding** (64348) |
 | `analysis_complete` | none | No (register w/o feature block) | After a scan analysis resolves (`ScannerViewModel`) | ✅ **In-App** (65702) |
+| `search_by_name` | `from_step` (String), `pet_count` (Int) | **Yes** (feature block → opens the catalog search sheet) | The magnifying-glass toolbar button on Identify Product (`ScannerView`) | — (no campaign yet) |
 | `session_start` | — (Superwall built-in) | — | Automatic (SDK) | ✅ **Testing** (97284) |
 
 **Gated vs not:** gated placements register with a `feature { }` block, so the app
 proceeds even if the SDK/paywall can't load — they never strand the user. Non-gated
 placements are pure signals; attaching a paywall to one still works but there's no
 completion callback.
+
+**`search_by_name`** fires when the user reaches for text search instead of the camera —
+the barcode won't scan, the camera is unavailable, or they'd rather look the food up by
+name. `from_step` says which of those it was: `scanning`, `error`, or `product_not_found`
+(`ScannerViewModel.Step.superwallName`, spelled out in code so a Swift rename can't move
+the value an audience keys on). `pet_count` is 0 for a user who never built a profile.
 
 **Onboarding flow** (`OnboardingView`) — reordered to demo-first. `step_name` is the stable
 key; the `step` index changed meaning at this release, so anything keyed on the number
@@ -50,8 +58,10 @@ silently changes at the cutover:
 | 4 | `watch_list` | avoidance groups |
 | 5 | `personalized_result` | same food re-scored against the profile |
 
-**Exit logic:** **every** exit routes through `onboarding_complete` — the personalised result CTA,
-and the pet-setup "Not now" for users who stop before building a profile. There is no
+**Exit logic:** there is now exactly one exit, the personalised result CTA, and it routes
+through `onboarding_complete`. The skips were removed in favour of a single path, so the
+pet-setup "Not now" no longer exists — every finisher has named a pet and seen the
+personalised verdict. There is no
 longer an `aha_food_result` placement in code (removed in 1.4.4): gating the payoff CTA on
 its own placement meant the paywall could only reach users whose downloaded config already
 carried that name, silently excluding everyone else. Which paywall a user sees is an
@@ -59,10 +69,16 @@ audience decision on the persisted `user.searched_food*` attributes.
 
 `viewed_food_result` is true when the user saw the demo verdict; `personalized` is true when
 they also reached the personalised result screen, where `verdict`/`score`/`flag_count` are the **re-scored**
-values. A user who took "Not now" reports the demo's general verdict instead.
+values. Both are now true for everyone who completes onboarding: with the skips gone
+there is no route to `onboarding_complete` that bypasses the demo or the personalised
+result. Treat a `personalized: false` in the data as a signal worth investigating rather
+than an expected cohort.
 
-> ⚠️ The `aha_food_result` **placement 127396 is still enabled on campaign 64348** in the
-> dashboard. It is dead — nothing fires it — and should be disabled.
+> **`aha_food_result` (placement 127396) stays enabled on campaign 64348** — a deliberate
+> call, not an oversight. Nothing in the app fires it since 1.4.4, so it presents nothing
+> today; leaving it attached keeps its audience (166983 "Got Aha Moment" → paywall 245894,
+> matching `user.searched_food == true`) intact, so re-firing the placement in code is the
+> only step needed to bring that paywall back. Don't disable it during a dashboard tidy-up.
 
 ---
 

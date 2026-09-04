@@ -20,6 +20,23 @@ final class ScannerViewModel: ObservableObject {
         case productIdentification
         case confirmProduct
         case productSearching
+
+        /// Stable string for Superwall params. Spelled out rather than derived
+        /// from the case name so a Swift-side rename can't silently rewrite the
+        /// value a dashboard audience is keyed on.
+        var superwallName: String {
+            switch self {
+            case .scanning: return "scanning"
+            case .error: return "error"
+            case .productNotFound: return "product_not_found"
+            case .selectOptions: return "select_options"
+            case .results: return "results"
+            case .productPhotoCapture: return "product_photo_capture"
+            case .productIdentification: return "product_identification"
+            case .confirmProduct: return "confirm_product"
+            case .productSearching: return "product_searching"
+            }
+        }
     }
 
     /// Why the "not found" screen is being shown, so it can tailor its copy.
