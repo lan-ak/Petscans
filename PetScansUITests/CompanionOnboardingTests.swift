@@ -250,7 +250,20 @@ final class CompanionOnboardingTests: XCTestCase {
         // No skip anywhere on this page any more.
         XCTAssertFalse(app.buttons["onboarding-skip"].exists, "the skip is meant to be gone")
 
+        // The page auto-focuses the name field, so the keyboard is up and Continue is
+        // anchored beneath it. Dismissing has to be possible without typing anything —
+        // with the skip gone, a user who cannot find their way out of the keyboard has
+        // no way forward at all.
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 5),
+                      "the profile page is expected to raise the keyboard on arrival")
+        let done = app.buttons["keyboard-done"].firstMatch
+        XCTAssertTrue(done.waitForExistence(timeout: 3),
+                      "no visible way to dismiss the keyboard")
+        done.tap()
+
         // Continue with an empty name must hold the page and explain itself.
+        XCTAssertTrue(app.buttons["Continue"].firstMatch.isHittable,
+                      "Continue must be reachable once the keyboard is down")
         app.buttons["Continue"].firstMatch.tap()
         XCTAssertTrue(app.staticTexts["Please enter your pet's name"].waitForExistence(timeout: 5),
                       "an empty name must produce a visible reason, not a silent refusal")
@@ -301,6 +314,60 @@ final class CompanionOnboardingTests: XCTestCase {
         XCTAssertTrue(app.buttons["personalized-continue"].waitForExistence(timeout: 30))
         Thread.sleep(forTimeInterval: 2.5)
         capture("audit-6-personalised")
+    }
+
+    /// The primary button must land in the same place on every page, and the keyboard
+    /// must never be able to strand the user.
+    ///
+    /// Both were measured rather than assumed. The result screens padded their CTA to
+    /// `md` where the shared chrome uses `xxl`, so the button jumped 20pt as the user
+    /// moved between pages. And with the software keyboard up — which the profile page
+    /// raises on arrival — Continue sits beneath it and is not hittable; that was
+    /// survivable while onboarding had a skip and is not now.
+    func testCTAHeightIsStableAndTheKeyboardCannotStrandTheUser() throws {
+        func ctaY(_ e: XCUIElement) -> CGFloat {
+            XCTAssertTrue(e.waitForExistence(timeout: 30), "CTA missing")
+            return e.frame.origin.y
+        }
+
+        let welcomeY = ctaY(app.buttons["Get Started"])
+        app.buttons["Get Started"].tap()
+
+        // The search page must not raise the keyboard on arrival — the brand grid is
+        // the point of the screen and a keyboard covers it.
+        XCTAssertTrue(app.buttons["companion-pick-dog"].waitForExistence(timeout: 10))
+        XCTAssertFalse(app.keyboards.element.exists,
+                       "the search page must not auto-raise the keyboard")
+
+        app.buttons["companion-pick-dog"].firstMatch.tap()
+        app.buttons["Pedigree"].firstMatch.tap()
+        let first = app.scrollViews.buttons.firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 20)); first.tap()
+
+        let resultY = ctaY(app.buttons["aha-continue"])
+        app.buttons["aha-continue"].tap()
+
+        XCTAssertTrue(app.textFields["pet-name-field"].waitForExistence(timeout: 10))
+        let profileY = ctaY(app.buttons["Continue"].firstMatch)
+
+        // Profile does raise it, and Done is the way back out.
+        XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 5))
+        XCTAssertFalse(app.buttons["Continue"].firstMatch.isHittable,
+                       "Continue is anchored below the keyboard by design")
+        app.buttons["keyboard-done"].firstMatch.tap()
+        XCTAssertTrue(app.buttons["Continue"].firstMatch.isHittable,
+                      "Done must make Continue reachable again")
+
+        app.textFields["pet-name-field"].tap()
+        app.textFields["pet-name-field"].typeText("Rufus\n")
+        app.buttons["Continue"].firstMatch.tap()
+
+        XCTAssertTrue(app.staticTexts["What should we watch out for?"].waitForExistence(timeout: 10))
+        let groupsY = ctaY(app.buttons["Continue"].firstMatch)
+
+        XCTAssertEqual(welcomeY, profileY, accuracy: 1, "welcome vs profile CTA height")
+        XCTAssertEqual(welcomeY, groupsY, accuracy: 1, "welcome vs groups CTA height")
+        XCTAssertEqual(welcomeY, resultY, accuracy: 1, "welcome vs result CTA height")
     }
 
     private func capture(_ name: String) {

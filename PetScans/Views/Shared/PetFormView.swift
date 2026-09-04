@@ -101,6 +101,25 @@ struct PetFormView: View {
                     .stroke(nameError == nil ? Color.clear : ColorTokens.error, lineWidth: 1)
             )
             .accessibilityIdentifier("pet-name-field")
+            // A visible way out of the keyboard.
+            //
+            // The onboarding chrome deliberately anchors "Continue" *below* the keyboard
+            // so it cannot ride up into the thumb zone beside the allergen chips. The
+            // cost is that while the keyboard is up — and this page auto-focuses, so it
+            // is up on arrival — Continue is off screen and unhittable, as is the second
+            // row of allergen chips and the "Search for more" field.
+            //
+            // That was survivable while onboarding had a skip. It is not now: the return
+            // key dismisses, but only if the user is in the field and thinks to press it,
+            // and nothing on screen says so. This makes the exit explicit.
+            .toolbar {
+                ToolbarItemGroup(placement: .keyboard) {
+                    Spacer()
+                    Button("Done") { onSubmitName() }
+                        .font(TypographyTokens.labelLarge)
+                        .accessibilityIdentifier("keyboard-done")
+                }
+            }
     }
 }
 

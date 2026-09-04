@@ -83,7 +83,10 @@ struct OnboardingFoodResultView: View {
                 continueButton(result)
                     .padding(.horizontal, SpacingTokens.screenPadding)
                     .padding(.top, SpacingTokens.sm)
-                    .padding(.bottom, SpacingTokens.md)
+                    // xxl, matching `standardChrome`. At md the CTA sat 20pt lower than
+                    // on every other page, so the primary button visibly jumped as the
+                    // user moved between screens.
+                    .padding(.bottom, SpacingTokens.xxl)
             }
         } else {
             Spacer()
@@ -407,7 +410,7 @@ struct OnboardingPersonalizedResultView: View {
                 .disabled(isScoring)
                 .padding(.horizontal, SpacingTokens.screenPadding)
                 .padding(.top, SpacingTokens.sm)
-                .padding(.bottom, SpacingTokens.md)
+                .padding(.bottom, SpacingTokens.xxl)
                 .accessibilityIdentifier("personalized-continue")
         }
         .background(ColorTokens.backgroundPrimary.ignoresSafeArea())
