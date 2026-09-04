@@ -12,6 +12,12 @@ struct OnboardingPetSetupPage: View {
     var body: some View {
         ScrollView {
             VStack(spacing: SpacingTokens.lg) {
+                // The animal they chose two screens ago, now waiting to be named. This
+                // is the page that used to lose 48% of arrivals, and it was pure form —
+                // the companion is the only thing on it that says who the form is about.
+                CompanionView(species: petSpecies, height: CompanionSize.standard.points)
+                    .padding(.top, SpacingTokens.xxs)
+
                 PetFormView(
                     petName: $petName,
                     petSpecies: $petSpecies,

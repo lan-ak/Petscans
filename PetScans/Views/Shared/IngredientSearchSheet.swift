@@ -122,8 +122,7 @@ struct IngredientSearchSheet: View {
             }
         }
         .padding(SpacingTokens.sm)
-        .background(ColorTokens.surfacePrimary)
-        .cornerRadius(SpacingTokens.radiusMedium)
+        .insetSurface()
         .overlay(
             RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
                 .stroke(ColorTokens.border, lineWidth: 1)

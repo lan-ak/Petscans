@@ -1,5 +1,49 @@
 import SwiftUI
 
+// MARK: - Surfaces
+//
+// The app has exactly two filled-surface roles, and every filled surface in it should
+// be one of them. Before this existed, six views used `cardStyle()` while roughly
+// twenty hand-rolled `.background(surfacePrimary).cornerRadius(...)` — so the app ran
+// two visual languages at once: elevated, continuous-cornered cards in a handful of
+// places and flat, circular-cornered panels everywhere else. That inconsistency reads
+// as carelessness long before anyone can name what is wrong.
+
+extension View {
+    /// A panel that sits **above** the page: cards, sheets' content blocks, tiles.
+    /// Continuous corners and two shadows — a tight contact shade plus a wider ambient
+    /// one. A single mid-blur shadow is the look of a default.
+    /// - Parameter glow: when a surface is *selected*, its ambient shade takes the
+    ///   accent hue and lifts further, so choosing reads as the card rising rather than
+    ///   as a rule appearing around it. Passing nil gives the resting elevation.
+    func raisedSurface(
+        cornerRadius: CGFloat = SpacingTokens.radiusLarge,
+        fill: Color = ColorTokens.surfacePrimary,
+        glow: Color? = nil
+    ) -> some View {
+        background(
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(fill)
+                .shadow(color: ColorTokens.elevationShadow, radius: 1, x: 0, y: 1)
+                .shadow(color: glow ?? ColorTokens.elevationShadow.opacity(0.55),
+                        radius: glow == nil ? 10 : 16,
+                        x: 0, y: glow == nil ? 4 : 7)
+        )
+    }
+
+    /// A surface that sits **in** the page: text fields, image wells, chips. Same corner
+    /// geometry, no elevation — a drop shadow on a text field says the field is floating
+    /// above the card it is written on, which is never what is meant.
+    func insetSurface(
+        cornerRadius: CGFloat = SpacingTokens.radiusMedium,
+        fill: Color = ColorTokens.surfacePrimary
+    ) -> some View {
+        background(
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous).fill(fill)
+        )
+    }
+}
+
 // MARK: - Card Styles
 
 /// Modifier for standard card styling with background and corner radius
@@ -21,8 +65,7 @@ struct CardModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(padding)
-            .background(backgroundColor)
-            .cornerRadius(cornerRadius)
+            .raisedSurface(cornerRadius: cornerRadius, fill: backgroundColor)
     }
 }
 
@@ -41,9 +84,16 @@ struct PrimaryButtonStyle: ButtonStyle {
             .font(TypographyTokens.labelLarge)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(isDestructive ? ColorTokens.error : ColorTokens.brandPrimary)
+            .background(
+                RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium, style: .continuous)
+                    .fill(isDestructive ? ColorTokens.error : ColorTokens.brandPrimary)
+                    // Restrained on purpose. At 0.28/12 this read as a neon bloom on a
+                    // white ground rather than as a button with weight — the tell of a
+                    // shadow chosen for effect instead of for elevation.
+                    .shadow(color: (isDestructive ? ColorTokens.error : ColorTokens.brandPrimary).opacity(0.20),
+                            radius: 8, x: 0, y: 4)
+            )
             .foregroundColor(.white)
-            .cornerRadius(SpacingTokens.radiusMedium)
             .opacity(configuration.isPressed ? 0.9 : 1.0)
             .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
             .animation(AnimationTokens.buttonTap, value: configuration.isPressed)

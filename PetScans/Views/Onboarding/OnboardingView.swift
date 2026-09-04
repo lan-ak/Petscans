@@ -5,7 +5,23 @@ struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var currentPage = 0
     @State private var petName = ""
-    @State private var petSpecies: Species = .dog
+    /// Nil until the owner actually taps one of the two animals on the search screen.
+    ///
+    /// This was `Species = .dog`. A default is not an answer: a dog owner never noticed
+    /// the control and a cat owner had to correct it, so the species every demo was
+    /// scored against was an assumption. Downstream still needs a concrete value, which
+    /// `petSpecies` supplies — but the picker, the brand grid and the result ordering
+    /// can now tell "chose dog" from "has not chosen".
+    @State private var chosenSpecies: Species?
+
+    /// The species to score and persist against. Falls back to `.dog` for the user who
+    /// skips the question entirely, which is exactly what shipped before.
+    private var petSpecies: Species { chosenSpecies ?? .dog }
+
+    /// For the profile page, which asks the question again as a plain form control.
+    private var petSpeciesBinding: Binding<Species> {
+        Binding(get: { chosenSpecies ?? .dog }, set: { chosenSpecies = $0 })
+    }
     @State private var selectedAllergens: Set<String> = []
     @State private var selectedGroups: Set<AvoidanceGroup> = []
     @State private var selectedProduct: CatalogProduct?
@@ -48,7 +64,7 @@ struct OnboardingView: View {
                     title: "Let's check a pet food",
                     titleFont: TypographyTokens.displayMedium,
                     subtitle: "Pick any food you have at home — we'll show you what's really inside.",
-                    speciesPicker: $petSpecies,
+                    speciesSelection: $chosenSpecies,
                     onLeading: { navigate(to: 0) },
                     onSkip: { navigate(to: profilePage) },
                     onSelect: { product in
@@ -110,11 +126,15 @@ struct OnboardingView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, SpacingTokens.screenPadding)
 
-            Spacer()
+            Spacer(minLength: 0)
 
             pageContent
 
-            Spacer()
+            Spacer(minLength: 0)
+            // A hair more room below than above. Content centred on the true vertical
+            // midpoint reads as sitting low, because the eye weights the top of a
+            // screen more heavily — this is the optical centre, not the arithmetic one.
+            Spacer(minLength: 0).frame(maxHeight: SpacingTokens.xxl)
 
             if currentPage == profilePage || currentPage == groupsPage {
                 PageIndicator(
@@ -191,10 +211,11 @@ struct OnboardingView: View {
         case 0:
             OnboardingWelcomePage()
                 .transition(pageTransition)
+                .accessibilityIdentifier("onboarding-welcome-page")
         case profilePage:
             OnboardingPetSetupPage(
                 petName: $petName,
-                petSpecies: $petSpecies,
+                petSpecies: petSpeciesBinding,
                 selectedAllergens: $selectedAllergens,
                 nameError: nameError,
                 isNameFocused: $isNameFocused,
@@ -422,7 +443,7 @@ struct OnboardingView: View {
             Task {
                 if let product = await ProductCatalogService().search(query: "chicken", limit: 1).first {
                     selectedProduct = product
-                    petSpecies = product.species
+                    chosenSpecies = product.species
                     // The personalised result screen's whole point is the before/after, and that needs the
                     // demo's *general* verdict to compare against. Jumping straight here
                     // would otherwise always render the single-verdict fallback, which is

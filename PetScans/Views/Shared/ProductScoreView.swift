@@ -333,14 +333,10 @@ struct ProductScoreView: View {
         // deliberately skips allergen flags ("shown in the hero banner"), so every
         // allergen the app found was dropped silently once the scan reached History.
         if !allergenFlags.isEmpty {
-            let allergenNames = scoreBreakdown.suitabilityExplanation?.factors
-                .filter { $0.impact == .negative }
-                .compactMap { $0.ingredientName } ?? []
-
             AllergenAlertBanner(
                 petName: petName,
                 allergenFlags: allergenFlags,
-                allergenNames: allergenNames
+                allergenNames: scoreBreakdown.allergenIngredientNames
             )
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("allergen-banner")
@@ -666,8 +662,8 @@ struct ProductScoreView: View {
             TextEditor(text: $notes)
                 .frame(minHeight: 80)
                 .padding(SpacingTokens.xxs)
-                .background(ColorTokens.surfaceSecondary)
-                .cornerRadius(SpacingTokens.radiusSmall)
+                .insetSurface(cornerRadius: SpacingTokens.radiusSmall,
+                              fill: ColorTokens.surfaceSecondary)
                 .onChange(of: notes) { _, newValue in
                     scan.notes = newValue.isEmpty ? nil : newValue
                     scan.updatedAt = Date()
@@ -690,8 +686,7 @@ struct ProductScoreView: View {
             .font(.system(size: SpacingTokens.iconXLarge * 0.67))
             .foregroundColor(ColorTokens.textSecondary)
             .frame(width: SpacingTokens.iconOnboarding, height: SpacingTokens.iconOnboarding)
-            .background(ColorTokens.surfacePrimary)
-            .cornerRadius(SpacingTokens.radiusMedium)
+            .insetSurface()
     }
 
     private var matchRateColor: Color {

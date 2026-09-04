@@ -75,8 +75,14 @@ private struct AvoidanceGroupRow: View {
                     .foregroundColor(isSelected ? .white : ColorTokens.textSecondary)
             }
             .padding(SpacingTokens.xs)
-            .background(isSelected ? ColorTokens.brandPrimary : ColorTokens.surfaceSecondary)
-            .cornerRadius(SpacingTokens.radiusMedium)
+            // The same raised card every other tappable row in the flow uses. These were
+            // flat inset panels, which put the one screen made entirely of choices into a
+            // different visual language from every other screen of choices.
+            .raisedSurface(
+                cornerRadius: SpacingTokens.radiusMedium,
+                fill: isSelected ? ColorTokens.brandPrimary : ColorTokens.surfacePrimary,
+                glow: isSelected ? ColorTokens.brandPrimary.opacity(0.22) : nil
+            )
         }
         .buttonStyle(.plain)
         .animateSnappy(value: isSelected)

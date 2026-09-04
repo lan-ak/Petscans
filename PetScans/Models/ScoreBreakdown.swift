@@ -157,6 +157,24 @@ struct ScoreBreakdown: Codable {
         flags.filter { $0.type != .allergen }
     }
 
+    /// The ingredients that tripped the pet's allergen profile, named once each.
+    ///
+    /// Lives here rather than in a view because two screens need it — the scan result
+    /// and the onboarding demo — and when it was derived independently in both, only
+    /// one of them got de-duplicated. Every real scan lands on the other one.
+    ///
+    /// `ScoreCalculator` already collapses repeated spellings of the same ingredient,
+    /// so this guards the remaining case: two genuinely different ingredient rows that
+    /// share a display name (`ing_chicken` and `ing_chicken_fresh` are both "Chicken").
+    /// "Chicken, Chicken" reads as a bug whatever produced it.
+    var allergenIngredientNames: [String] {
+        var seen = Set<String>()
+        return (suitabilityExplanation?.factors ?? [])
+            .filter { $0.impact == .negative }
+            .compactMap(\.ingredientName)
+            .filter { seen.insert($0.lowercased()).inserted }
+    }
+
     /// Empty breakdown for fallback cases
     static let empty = ScoreBreakdown(
         total: 0,

@@ -3,11 +3,26 @@ import SwiftUI
 struct OnboardingWelcomePage: View {
     var body: some View {
         VStack(spacing: SpacingTokens.xl) {
-            Image("AppIconImage")
-                .resizable()
-                .scaledToFit()
-                .frame(width: SpacingTokens.iconOnboarding, height: SpacingTokens.iconOnboarding)
-                .cornerRadius(SpacingTokens.radiusXLarge)
+            // The highest-attention slot in the product used to hold our own app icon,
+            // which promised nothing. The pair carries the promise instead — and says
+            // this app is about an animal before the headline says anything at all.
+            //
+            // Both animals, deliberately. The species question belongs on the search
+            // screen where it costs no extra step; asking it here would put a decision
+            // ahead of the demo, which is the ordering the funnel rebuild removed.
+            // Anchored on a soft brand-tinted halo rather than floating in the middle
+            // of an empty screen. The first pass centred a 120pt pair in roughly 600pt
+            // of nothing, which is what a VStack with two Spacers gives you if nobody
+            // composes the page — the hero has to hold the top half of the screen.
+            CompanionPair(height: CompanionSize.hero.points)
+                .background(
+                    RadialGradient(
+                        colors: [ColorTokens.brandPrimary.opacity(0.14), .clear],
+                        center: .center, startRadius: 8, endRadius: 168
+                    )
+                    .frame(width: 340, height: 340)
+                    .blur(radius: 8)
+                )
 
             VStack(spacing: SpacingTokens.sm) {
                 // The first screen gets one job: name the outcome the user came for.

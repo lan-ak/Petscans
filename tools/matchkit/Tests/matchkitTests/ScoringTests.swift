@@ -53,6 +53,57 @@ final class ScoringTests: XCTestCase {
         XCTAssertFalse(breakdown.allergenFlags.isEmpty)
     }
 
+    // MARK: - One ingredient, one warning
+    //
+    // `synonyms.json` maps several label spellings onto a single ingredient id — both
+    // "chicken" and "chicken broth" resolve to `ing_chicken`. Wellness Complete Health
+    // Chicken & Sweet Potato lists "Chicken, Chicken Broth, Chicken Liver", so an owner
+    // avoiding chicken was shown "Chicken, Chicken" in the banner, the same watch-list
+    // sentence twice, and — the part that actually mattered — the food was penalised
+    // once per spelling rather than once per ingredient.
+
+    func testOneIngredientSpelledTwoWaysFlagsOnce() {
+        let breakdown = score("Chicken, Chicken Broth, Sweet Potatoes",
+                              allergens: ["chicken"], petName: "Luna")
+        XCTAssertEqual(breakdown.allergenFlags.count, 1,
+                       "chicken and chicken broth are one ingredient, so one warning")
+
+        let names = breakdown.suitabilityExplanation?.factors
+            .filter { $0.impact == .negative }
+            .compactMap(\.ingredientName) ?? []
+        XCTAssertEqual(names, ["Chicken"], "the banner must not read \"Chicken, Chicken\"")
+    }
+
+    func testRepeatedIngredientDoesNotDoublePenaliseTheWatchList() {
+        // Avoidance groups are the warning-only path, so unlike an allergen the penalty
+        // is visible in the number rather than being flattened to zero — which is what
+        // makes the double-count observable here and not in the allergen test above.
+        let once = score("Chicken, Sweet Potatoes, Barley",
+                         groups: [.commonAllergens])
+        let twice = score("Chicken, Chicken Broth, Sweet Potatoes, Barley",
+                          groups: [.commonAllergens])
+
+        let onceFlags = once.flags.filter { $0.type == .avoidanceGroup }
+        let twiceFlags = twice.flags.filter { $0.type == .avoidanceGroup }
+        XCTAssertEqual(onceFlags.count, 1)
+        XCTAssertEqual(twiceFlags.count, 1,
+                       "the same ingredient named twice is still one thing to warn about")
+        XCTAssertEqual(Set(twiceFlags.map(\.explain)).count, twiceFlags.count,
+                       "no two warnings may carry identical text")
+    }
+
+    func testDeDupeKeepsTheEarliestPositionOnTheLabel() {
+        // Rank drives both the decay weight and the top-5 penalty tier. Collapsing to the
+        // later occurrence would soften the penalty for exactly the products that name
+        // the allergen most prominently, so the earliest position has to win.
+        let early = score("Chicken, Rice, Barley, Peas, Carrots, Chicken Broth",
+                          groups: [.commonAllergens])
+        let late = score("Rice, Barley, Peas, Carrots, Beet Pulp, Chicken",
+                         groups: [.commonAllergens])
+        XCTAssertLessThan(early.total, late.total,
+                          "an allergen listed first must cost more than one listed sixth")
+    }
+
     func testNoAllergensMeansFullSuitability() {
         let breakdown = score("Brown Rice, Barley", allergens: ["chicken"], petName: "Max")
         XCTAssertEqual(breakdown.suitability, 100)

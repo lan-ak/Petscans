@@ -17,10 +17,15 @@ struct ProductCatalogSearchView: View {
     /// anything, so this screen is where species gets chosen. One tap, no keyboard — it
     /// costs far less than a form page and it keeps the demo from showing a dog owner a
     /// page of cat food that then gets scored as cat food.
-    var speciesPicker: Binding<Species>? = nil
+    ///
+    /// Optional, deliberately. It used to be a non-optional `Species` defaulting to
+    /// `.dog`, which meant the species every demo was scored against was an assumption
+    /// nobody had made. Unselected is now a real state, and the nil path below already
+    /// handled it.
+    var speciesSelection: Binding<Species?>? = nil
 
     /// The species actually in effect for chips and result ordering.
-    private var effectiveSpecies: Species? { speciesPicker?.wrappedValue ?? species }
+    private var effectiveSpecies: Species? { speciesSelection?.wrappedValue ?? species }
     /// Leading control glyph — a back chevron in onboarding, an "x" when presented
     /// as a sheet from the scanner.
     var leadingIcon: String = "chevron.left"
@@ -53,15 +58,20 @@ struct ProductCatalogSearchView: View {
             .padding(.horizontal, SpacingTokens.screenPadding)
             .padding(.top, SpacingTokens.sm)
 
-            if let speciesPicker {
-                Picker("Species", selection: speciesPicker) {
-                    ForEach(Species.allCases) { species in
-                        Text(species.displayName).tag(species)
-                    }
+            if let speciesSelection {
+                // The screen has to ask the species question out loud. The headline
+                // above only talks about food, so a user could — and did — walk past
+                // the control without registering that a choice was on offer.
+                VStack(alignment: .leading, spacing: SpacingTokens.xxs) {
+                    Text("Who are we checking for?")
+                        .font(TypographyTokens.labelLarge)
+                        .foregroundColor(ColorTokens.textPrimary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    CompanionSpeciesPicker(selection: speciesSelection)
                 }
-                .pickerStyle(.segmented)
                 .padding(.horizontal, SpacingTokens.screenPadding)
-                .padding(.top, SpacingTokens.md)
+                .padding(.top, SpacingTokens.sm)
                 .accessibilityIdentifier("catalog-species-picker")
             }
 
@@ -75,13 +85,17 @@ struct ProductCatalogSearchView: View {
         // Keyed on the species too: flipping Dog/Cat has to re-rank the results that are
         // already on screen, not just the next query.
         .task(id: "\(query)|\(effectiveSpecies?.rawValue ?? "")") { await runSearch() }
-        .onAppear {
-            // Small delay so focus lands after the presentation transition settles.
-            Task {
-                try? await Task.sleep(for: .milliseconds(350))
-                isFieldFocused = true
-            }
-        }
+        // Deliberately does not raise the keyboard on arrival.
+        //
+        // The brand grid below was added because 17 of 21 users who reached this screen
+        // left in a median of 12 seconds without typing a character — and then the view
+        // auto-focused the field 350ms in, so the grid that fixed the drop-off rendered
+        // underneath a keyboard. The screen was still telling people to type. Focus now
+        // moves to the field when someone taps it, which is what "search as a backup"
+        // means in practice.
+        //
+        // The scanner sheet keeps the same behaviour: a sheet that opens with a keyboard
+        // already up hides its own suggestions just as effectively.
     }
 
     private var topBar: some View {
@@ -106,11 +120,29 @@ struct ProductCatalogSearchView: View {
         .padding(.horizontal, SpacingTokens.screenPadding)
     }
 
+    /// The backup path, and it has to *look* like one — an input, not another card.
+    ///
+    /// Three things were working against that. Every other white rounded rectangle on
+    /// this screen is a tappable card, so a white field with grey placeholder text read
+    /// as one more of them. Removing the auto-focus fixed the keyboard covering the
+    /// brand grid but took away the blinking caret, which was the only unambiguous
+    /// signal the row was editable. And only the `TextField` itself accepted a tap, so
+    /// most of a 56pt row — the magnifier, the padding — was dead to touch.
+    ///
+    /// It is now recessed rather than raised and outlined rather than floating: the
+    /// tiles sit *on* the page and this sits *in* it. The placeholder names the action
+    /// instead of showing an example, because an example does not tell you the row is
+    /// a control.
     private var searchField: some View {
         HStack(spacing: SpacingTokens.xs) {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(ColorTokens.textTertiary)
-            TextField("e.g. Blue Buffalo salmon", text: $query)
+                .foregroundColor(isFieldFocused ? ColorTokens.brandPrimary : ColorTokens.textSecondary)
+            // An explicit prompt rather than the default placeholder: SwiftUI renders
+            // the default at tertiary weight, which on a tinted ground reads as a
+            // disabled row rather than an empty one.
+            TextField("", text: $query,
+                      prompt: Text("Search any food or brand")
+                        .foregroundColor(ColorTokens.textSecondary))
                 .font(TypographyTokens.bodyLarge)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.words)
@@ -128,8 +160,19 @@ struct ProductCatalogSearchView: View {
             }
         }
         .padding()
-        .background(ColorTokens.surfacePrimary)
-        .cornerRadius(SpacingTokens.radiusMedium)
+        .insetSurface(fill: ColorTokens.surfaceSecondary)
+        .overlay(
+            RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium, style: .continuous)
+                .strokeBorder(isFieldFocused ? ColorTokens.brandPrimary
+                                             : ColorTokens.textTertiary.opacity(0.45),
+                              lineWidth: isFieldFocused ? 2 : 1.5)
+        )
+        // The whole row is the target, not just the glyphs inside it.
+        .contentShape(Rectangle())
+        .onTapGesture { isFieldFocused = true }
+        .animation(AnimationTokens.springStandard, value: isFieldFocused)
+        .accessibilityElement(children: .contain)
+        .accessibilityHint("Search the full catalog by name or brand")
     }
 
     @ViewBuilder
@@ -143,20 +186,26 @@ struct ProductCatalogSearchView: View {
         } else if query.trimmed.count < 2 {
             popularBrands
         } else {
+            // Cards with the same treatment as the brand tiles above, not bare rows
+            // with hairline dividers. Both answer the same question — *which food?* —
+            // and this screen was answering it in two different visual languages
+            // depending on whether the user had tapped a brand or typed into the field.
             ScrollView {
-                LazyVStack(spacing: 0) {
+                LazyVStack(spacing: SpacingTokens.xxs) {
                     ForEach(results, id: \.gtin) { product in
                         Button {
                             isFieldFocused = false
                             onSelect(product)
                         } label: {
                             resultRow(product)
+                                .raisedSurface(cornerRadius: SpacingTokens.radiusMedium)
                         }
                         .buttonStyle(.plain)
-                        Divider().padding(.leading, SpacingTokens.screenPadding)
                     }
                 }
+                .padding(.horizontal, SpacingTokens.screenPadding)
                 .padding(.top, SpacingTokens.sm)
+                .padding(.bottom, SpacingTokens.md)
             }
             .scrollDismissesKeyboard(.immediately)
         }
@@ -172,17 +221,41 @@ struct ProductCatalogSearchView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: SpacingTokens.sm) {
                 Text("Popular brands")
-                    .font(TypographyTokens.labelLarge)
-                    .foregroundColor(ColorTokens.textSecondary)
+                    .font(TypographyTokens.labelMedium)
+                    .textCase(.uppercase)
+                    .kerning(0.6)
+                    .foregroundColor(ColorTokens.textTertiary)
 
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: SpacingTokens.xxs) {
+                // Two even columns of equal-width tiles rather than an adaptive grid of
+                // variable-width pills. The pills packed 3/3/2 at three different widths
+                // with a ragged right edge and no shared alignment — the layout read as
+                // unplaced, which is exactly the impression a first screen cannot afford.
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: SpacingTokens.xxs),
+                        GridItem(.flexible(), spacing: SpacingTokens.xxs)
+                    ],
+                    spacing: SpacingTokens.xxs
+                ) {
                     ForEach(popularBrandNames, id: \.self) { brand in
                         Button {
                             query = brand
                         } label: {
-                            Text(brand)
-                                .lineLimit(1)
-                                .chipStyle()
+                            HStack(spacing: SpacingTokens.xxxs) {
+                                Text(brand)
+                                    .font(TypographyTokens.labelLarge)
+                                    .foregroundColor(ColorTokens.textPrimary)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.8)
+                                Spacer(minLength: 0)
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 11, weight: .semibold))
+                                    .foregroundColor(ColorTokens.textTertiary)
+                            }
+                            .padding(.horizontal, SpacingTokens.xs)
+                            .padding(.vertical, SpacingTokens.xs)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .raisedSurface(cornerRadius: SpacingTokens.radiusMedium)
                         }
                         .buttonStyle(.plain)
                         .accessibilityIdentifier("catalog-brand-chip")
@@ -211,8 +284,12 @@ struct ProductCatalogSearchView: View {
             return ["Fancy Feast", "Friskies", "Blue Buffalo", "Temptations",
                     "Purina", "Hill's", "Wellness", "Royal Canin"]
         case .none:
-            return ["Blue Buffalo", "Purina", "Hill's",
-                    "Royal Canin", "Wellness", "IAMS"]
+            // Eight, matching the chosen-species lists. This case returned six, which
+            // meant making species optional would have quietly handed everyone who
+            // skips a shorter grid than the old `.dog` default gave them. Ordered by
+            // shelf recognition and spanning both species, since we do not yet know.
+            return ["Blue Buffalo", "Purina", "Hill's", "Royal Canin",
+                    "Fancy Feast", "Pedigree", "Wellness", "IAMS"]
         }
     }
 
@@ -246,8 +323,11 @@ struct ProductCatalogSearchView: View {
                 .font(TypographyTokens.caption)
                 .foregroundColor(ColorTokens.textTertiary)
         }
-        .padding(.horizontal, SpacingTokens.screenPadding)
-        .padding(.vertical, SpacingTokens.sm)
+        // Padded for the card it now sits in, not for a full-bleed list. Carrying the
+        // old screen padding inside a card stacked to 44pt a side and turned a 72pt row
+        // into a 135pt one — three results on screen where there had been five.
+        .padding(.horizontal, SpacingTokens.xs)
+        .padding(.vertical, SpacingTokens.xs)
         .contentShape(Rectangle())
     }
 
@@ -267,8 +347,8 @@ struct ProductCatalogSearchView: View {
             }
         }
         .frame(width: 48, height: 48)
-        .background(ColorTokens.surfaceSecondary)
-        .cornerRadius(SpacingTokens.radiusSmall)
+        .insetSurface(cornerRadius: SpacingTokens.radiusSmall,
+                      fill: ColorTokens.surfaceSecondary)
     }
 
     private var placeholderIcon: some View {

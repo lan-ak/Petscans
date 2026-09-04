@@ -214,6 +214,36 @@ struct ScoreCalculator {
         return (safetyPenalty, unmatched, factors, hasToxic, hasCaution)
     }
 
+    /// One entry per distinct ingredient, keeping its earliest position on the label.
+    ///
+    /// The two checks below ask an identity question — *does this food contain something
+    /// this pet must avoid* — which is a yes or no about the ingredient, not about how
+    /// many ways the label spells it. Wellness Complete Health lists "Chicken" and
+    /// "Chicken Broth", and `synonyms.json` resolves both to `ing_chicken`, so an owner
+    /// avoiding chicken saw the same warning twice, read "Chicken, Chicken" in the
+    /// banner, and had the food penalised twice for one ingredient.
+    ///
+    /// Rank collapses to the minimum because both the decay weight and the top-5 penalty
+    /// tier read it. Keeping the later position would quietly soften the penalty for
+    /// exactly the products that name the allergen most prominently.
+    ///
+    /// Deliberately *not* applied to the safety and processing paths: those score
+    /// composition, where three separate fillers really are three fillers.
+    private func distinctByIngredient(_ matched: [MatchedIngredient]) -> [MatchedIngredient] {
+        var best: [String: MatchedIngredient] = [:]
+        var order: [String] = []
+        for mi in matched {
+            guard let id = mi.ingredientId else { continue }
+            if let seen = best[id] {
+                if mi.rank < seen.rank { best[id] = mi }
+            } else {
+                best[id] = mi
+                order.append(id)
+            }
+        }
+        return order.compactMap { best[$0] }
+    }
+
     /// Check for allergen conflicts and return suitability score, flags, and explanation factors
     private func checkAllergenSuitability(
         matched: [MatchedIngredient],
@@ -226,7 +256,7 @@ struct ScoreCalculator {
         var factors: [ExplanationFactor] = []
         let petDisplayName = petName ?? "your pet"
 
-        for mi in matched {
+        for mi in distinctByIngredient(matched) {
             guard let ingredientId = mi.ingredientId,
                   let ing = ingredients[ingredientId] else {
                 continue
@@ -291,7 +321,7 @@ struct ScoreCalculator {
         var flags: [WarningFlag] = []
         var factors: [ExplanationFactor] = []
 
-        for mi in matched {
+        for mi in distinctByIngredient(matched) {
             guard let ingredientId = mi.ingredientId,
                   let ing = ingredients[ingredientId],
                   let ingredientGroups = groupMap[ingredientId] else {

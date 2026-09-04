@@ -29,8 +29,7 @@ struct SpeciesCategoryPicker: View {
                         .font(TypographyTokens.heading2)
                         .multilineTextAlignment(.center)
                         .padding(SpacingTokens.sm)
-                        .background(ColorTokens.surfaceSecondary)
-                        .cornerRadius(SpacingTokens.radiusMedium)
+                        .insetSurface(fill: ColorTokens.surfaceSecondary)
                         .overlay(
                             RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
                                 .stroke(ColorTokens.border, lineWidth: 1)

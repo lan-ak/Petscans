@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 import SwiftData
 
 /// Summary of a scored food, surfaced to the parent so it can set Superwall
@@ -87,7 +88,11 @@ struct OnboardingFoodResultView: View {
         } else {
             Spacer()
             VStack(spacing: SpacingTokens.sm) {
-                ProgressView()
+                // Replaces the ProgressView rather than sitting beside it. The attend
+                // pose turns the animal toward the result and keeps breathing and
+                // blinking throughout — a character that freezes while you wait is
+                // what a hung app looks like.
+                CompanionView(species: species, mood: .attending, height: CompanionSize.prominent.points)
                 Text("Checking \(product.name)…")
                     .font(TypographyTokens.caption)
                     .foregroundColor(ColorTokens.textSecondary)
@@ -101,6 +106,18 @@ struct OnboardingFoodResultView: View {
         let breakdown = result.breakdown
         return ScrollView {
             VStack(spacing: SpacingTokens.lg) {
+                // Settle on a clean verdict, wince on a flagged one. The mapping lives
+                // in Swift rather than in the rig: it is business logic, and it belongs
+                // where it can be tested.
+                CompanionView(
+                    species: species,
+                    mood: .forVerdict(
+                        score: Int(breakdown.total.rounded()),
+                        hasFlag: hasConcerns(breakdown),
+                        allergenHit: false
+                    ),
+                    height: CompanionSize.prominent.points
+                )
                 productHeader
                 scoreSection(breakdown)
                 flagsSection(breakdown)
@@ -173,8 +190,7 @@ struct OnboardingFoodResultView: View {
             }
             .padding(SpacingTokens.cardPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ColorTokens.surfacePrimary)
-            .cornerRadius(SpacingTokens.radiusLarge)
+            .raisedSurface()
         }
     }
 
@@ -203,8 +219,7 @@ struct OnboardingFoodResultView: View {
                     }
                 }
             }
-            .background(ColorTokens.surfacePrimary)
-            .cornerRadius(SpacingTokens.radiusLarge)
+            .raisedSurface()
         }
     }
 
@@ -253,6 +268,13 @@ struct OnboardingFoodResultView: View {
             species: species
         )
         result = scored
+        // The verdict is the payload of this screen; it should land in the hand as well
+        // as on the retina. Warning rather than error on a flag — this is information
+        // about a bag of food, not a failure the user caused.
+        if !reduceMotion {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(hasConcerns(scored.breakdown) ? .warning : .success)
+        }
         saveToHistory(scored)
         onScored(OnboardingFoodResult(
             name: product.name,
@@ -361,8 +383,11 @@ struct OnboardingPersonalizedResultView: View {
                             verdictCard(rescored)
                             reasonCards(rescored.breakdown)
                         } else {
-                            ProgressView()
-                                .padding(.vertical, SpacingTokens.xl)
+                            // The companion in the header is already holding the attend
+                            // pose while this runs, so a spinner beneath it would be two
+                            // things saying "waiting".
+                            Color.clear
+                                .frame(height: SpacingTokens.xxl)
                         }
                     }
                     monitoringCard
@@ -391,11 +416,24 @@ struct OnboardingPersonalizedResultView: View {
         // unaddressable — to XCUITest and to VoiceOver alike.
     }
 
+    /// The mood the re-score earns. An allergen match is the sharpest reaction in the
+    /// set, and it is the moment this whole flow is built to reach — the point where a
+    /// generic verdict becomes one about *their* animal.
+    private var companionMood: CompanionMood {
+        guard let rescored else { return .attending }
+        return .forVerdict(
+            score: Int(rescored.breakdown.total.rounded()),
+            hasFlag: rescored.breakdown.ratingLabel == .caution || rescored.breakdown.ratingLabel == .avoid,
+            allergenHit: !rescored.breakdown.allergenFlags.isEmpty
+        )
+    }
+
     private var header: some View {
         VStack(spacing: SpacingTokens.xs) {
-            Image(systemName: "checkmark.shield.fill")
-                .font(.system(size: SpacingTokens.iconXLarge, weight: .medium))
-                .foregroundColor(ColorTokens.brandPrimary)
+            // A generic shield glyph sat here. The screen's entire job is "this verdict
+            // is about *your* animal", and the animal saying so does that better than a
+            // checkmark ever could.
+            CompanionView(species: species, mood: companionMood, height: CompanionSize.prominent.points)
             Text(petName == nil ? "Now scored for your pet" : "Now scored for \(petDisplayName)")
                 .font(TypographyTokens.displayMedium)
                 .foregroundColor(ColorTokens.textPrimary)
@@ -470,8 +508,7 @@ struct OnboardingPersonalizedResultView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(SpacingTokens.cardPadding)
-        .background(ColorTokens.surfacePrimary)
-        .cornerRadius(SpacingTokens.radiusLarge)
+        .raisedSurface()
     }
 
     /// Names the ingredients that tripped the profile. Its own card, not nested inside the
@@ -479,14 +516,10 @@ struct OnboardingPersonalizedResultView: View {
     @ViewBuilder
     private func reasonCards(_ breakdown: ScoreBreakdown) -> some View {
         if !breakdown.allergenFlags.isEmpty {
-            let matchedNames = breakdown.suitabilityExplanation?.factors
-                .filter { $0.impact == .negative }
-                .compactMap { $0.ingredientName } ?? []
-
             AllergenAlertBanner(
                 petName: petDisplayName,
                 allergenFlags: breakdown.allergenFlags,
-                allergenNames: matchedNames
+                allergenNames: breakdown.allergenIngredientNames
             )
         }
 
@@ -512,8 +545,7 @@ struct OnboardingPersonalizedResultView: View {
             }
             .padding(SpacingTokens.cardPadding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(ColorTokens.surfacePrimary)
-            .cornerRadius(SpacingTokens.radiusLarge)
+            .raisedSurface()
         }
     }
 
@@ -545,8 +577,7 @@ struct OnboardingPersonalizedResultView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(SpacingTokens.cardPadding)
-        .background(ColorTokens.surfacePrimary)
-        .cornerRadius(SpacingTokens.radiusLarge)
+        .raisedSurface()
     }
 
     private func planRow(icon: String, text: String) -> some View {
@@ -579,6 +610,14 @@ struct OnboardingPersonalizedResultView: View {
             species: species
         )
         rescored = scored
+        // The sharpest moment in the flow: a generic verdict has just become one about
+        // this specific animal. An allergen match earns the heavier of the two.
+        if !reduceMotion {
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(
+                scored.breakdown.allergenFlags.isEmpty ? .success : .warning
+            )
+        }
         onScored(OnboardingFoodResult(
             name: product.name,
             brand: product.brand,

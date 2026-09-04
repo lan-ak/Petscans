@@ -61,8 +61,36 @@ struct RatingLabelView: View {
         }
         .padding(.vertical, size.verticalPadding)
         .padding(.horizontal, size.horizontalPadding)
-        .background(label.color.opacity(0.12))
-        .cornerRadius(SpacingTokens.radiusLarge)
+        // The verdict is the largest single element on the payoff screen, and it was
+        // the least finished: a flat 12% wash behind a sharp-cornered rectangle. It now
+        // carries the same depth language as every other surface — a gentle vertical
+        // fall in the tint, a hairline ring to define the edge against a tinted ground,
+        // and a shadow in its own hue rather than a neutral grey.
+        .background(
+            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [label.color.opacity(0.17), label.color.opacity(0.09)],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                        .strokeBorder(label.color.opacity(0.20), lineWidth: 1)
+                )
+                .shadow(color: label.color.opacity(size == .small ? 0 : 0.16),
+                        radius: 14, x: 0, y: 6)
+        )
+    }
+
+    /// Larger sizes get a proportionally larger radius. One fixed radius across a chip
+    /// and a hero block makes the hero look like a scaled-up chip.
+    private var cornerRadius: CGFloat {
+        switch size {
+        case .small:  return SpacingTokens.radiusMedium
+        case .medium: return SpacingTokens.radiusLarge
+        case .large:  return SpacingTokens.radiusXLarge + 4
+        }
     }
 
     private var labelFont: Font {

@@ -95,8 +95,7 @@ struct PetFormView: View {
             .submitLabel(.done)
             .onSubmit(onSubmitName)
             .padding()
-            .background(ColorTokens.surfacePrimary)
-            .cornerRadius(SpacingTokens.radiusMedium)
+            .insetSurface()
             .overlay(
                 RoundedRectangle(cornerRadius: SpacingTokens.radiusMedium)
                     .stroke(nameError == nil ? Color.clear : ColorTokens.error, lineWidth: 1)

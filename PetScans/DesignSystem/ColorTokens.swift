@@ -89,14 +89,40 @@ struct ColorTokens {
     static let backgroundPrimary = Color(light: Color(red: 0xF0/255, green: 0xF9/255, blue: 0xF4/255),
                                           dark: Color(red: 0x1A/255, green: 0x1F/255, blue: 0x1C/255))
 
-    /// Background for cards and containers
-    static let surfacePrimary = Color(.systemGray6)
+    /// Background for cards and containers.
+    ///
+    /// Not `systemGray6`. Apple's grey ramp is blue-violet (#F2F2F7 in light, and the
+    /// dark values carry the same cast), and this app's ground is a green-tinted
+    /// #F0F9F4 — so every card, chip, field and progress track in the app was sitting
+    /// on a hue that fought its own background. It reads as mauve on mint, which is
+    /// the single largest reason the UI felt cheap: nothing looked *chosen*.
+    ///
+    /// Cards are now near-white in light mode so they read as lifted off the tinted
+    /// ground, and a green-lifted charcoal in dark. Both are biased toward the brand
+    /// hue rather than away from it.
+    static let surfacePrimary = Color(light: Color(red: 0xFC/255, green: 0xFE/255, blue: 0xFD/255),
+                                      dark:  Color(red: 0x23/255, green: 0x2B/255, blue: 0x26/255))
 
-    /// Subtle background for nested content
-    static let surfaceSecondary = Color(.systemGray5)
+    /// Subtle background for nested content — one step down from a card, still on-hue.
+    static let surfaceSecondary = Color(light: Color(red: 0xE8/255, green: 0xF2/255, blue: 0xEB/255),
+                                        dark:  Color(red: 0x2C/255, green: 0x35/255, blue: 0x2F/255))
 
-    /// Dividers and borders
-    static let border = Color(.systemGray4)
+    /// Dividers and borders. Low-contrast on purpose: with real elevation on cards,
+    /// a hard grey rule around everything is belt-and-braces and reads as a wireframe.
+    static let border = Color(light: Color(red: 0xD9/255, green: 0xE6/255, blue: 0xDD/255),
+                              dark:  Color(red: 0x38/255, green: 0x43/255, blue: 0x3C/255))
+
+    // MARK: - Elevation
+
+    /// The shadow under a raised surface. Green-black rather than pure black, so the
+    /// shade under a card belongs to the same world as the ground it sits on.
+    static let elevationShadow = Color(light: Color(red: 0x12/255, green: 0x2B/255, blue: 0x1E/255).opacity(0.10),
+                                       dark:  Color.black.opacity(0.45))
+
+    /// The soft contact shadow under the companion. Slightly warmer and tighter than
+    /// card elevation — it is grounding an animal, not lifting a panel.
+    static let contactShadow = Color(light: Color(red: 0x2A/255, green: 0x33/255, blue: 0x24/255).opacity(0.16),
+                                     dark:  Color.black.opacity(0.38))
 
     // MARK: - Text Colors (Semantic)
 

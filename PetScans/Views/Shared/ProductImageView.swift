@@ -49,8 +49,7 @@ struct ProductImageView: View {
             .font(.system(size: SpacingTokens.iconXLarge * 0.67))
             .foregroundColor(ColorTokens.textSecondary)
             .frame(width: size, height: size)
-            .background(ColorTokens.surfacePrimary)
-            .cornerRadius(SpacingTokens.radiusMedium)
+            .insetSurface()
     }
 }
 
