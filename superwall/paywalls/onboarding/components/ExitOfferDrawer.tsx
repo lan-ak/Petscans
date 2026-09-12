@@ -9,15 +9,19 @@ type Props = {
 };
 
 /**
- * The one-shot fallback offer shown when a user tries to leave the plans page,
- * selling the tertiary slot rather than whichever plan is selected.
+ * The one-shot drawer shown when a user tries to leave the plans page.
+ *
+ * It sells the secondary slot — the monthly plan — as a lighter commitment
+ * rather than a discount. Month-to-month costs more over a year than the annual
+ * plan does, so nothing here may claim to be a saving or a "special offer": the
+ * only honest pitch is the shorter commitment, and that is the one we make.
  */
 export const ExitOfferDrawer = ({ onDismissOffer, onClosePaywall }: Props) => {
   const { getProduct } = useProducts();
   const { purchase } = usePurchase();
   const haptics = useHaptics();
 
-  const offer = getProduct("tertiary");
+  const offer = getProduct("secondary");
   const { price, period, periodly, trialPeriodDays, trialPeriodPrice } = offer?.variables ?? {};
   const kind = offerKind(offer);
 
@@ -25,12 +29,12 @@ export const ExitOfferDrawer = ({ onDismissOffer, onClosePaywall }: Props) => {
   const priced = has(price, period);
   const description =
     kind === "paid" && has(trialPeriodDays, trialPeriodPrice) && priced
-      ? `We'd hate to see you go. Try PetScans for ${trialPeriodDays} days for just ${trialPeriodPrice}, then ${price}/${period}.`
+      ? `Not ready to commit to a year? Try PetScans for ${trialPeriodDays} days for just ${trialPeriodPrice}, then ${price}/${period}.`
       : kind === "free" && has(trialPeriodDays) && priced
-        ? `We'd hate to see you go. Try PetScans free for ${trialPeriodDays} days, then ${price}/${period}.`
+        ? `Not ready to commit to a year? Try PetScans free for ${trialPeriodDays} days, then ${price}/${period}.`
         : priced
-          ? `We'd hate to see you go. Get PetScans for ${price}/${period}.`
-          : "We'd hate to see you go. Here's PetScans at our lowest price.";
+          ? `Not ready to commit to a year? Get PetScans for ${price}/${period} instead.`
+          : "Not ready to commit to a year? Take PetScans month to month instead.";
 
   const planName = `Your ${periodly ?? ""} plan`.replace("  ", " ");
   const planTitle =
@@ -48,15 +52,15 @@ export const ExitOfferDrawer = ({ onDismissOffer, onClosePaywall }: Props) => {
 
   const ctaLabel =
     kind === "paid" && has(trialPeriodDays, trialPeriodPrice)
-      ? `Claim offer — ${trialPeriodDays} days for ${trialPeriodPrice}`
+      ? `Switch to ${periodly ?? "monthly"} — ${trialPeriodDays} days for ${trialPeriodPrice}`
       : kind === "free" && has(trialPeriodDays)
-        ? `Claim offer — ${trialPeriodDays} days free`
+        ? `Switch to ${periodly ?? "monthly"} — ${trialPeriodDays} days free`
         : priced
-          ? `Claim offer — ${price}/${period}`
-          : "Claim offer";
+          ? `Switch to ${periodly ?? "monthly"} — ${price}/${period}`
+          : `Switch to ${periodly ?? "monthly"}`;
 
   return (
-    <div className="drawer" role="dialog" aria-label="Special offer">
+    <div className="drawer" role="dialog" aria-label="Month to month option">
       {/* Tapping outside is the same gesture as tapping the plan card. */}
       <button
         type="button"
@@ -66,7 +70,7 @@ export const ExitOfferDrawer = ({ onDismissOffer, onClosePaywall }: Props) => {
       />
       <div className="drawer__sheet">
         <div className="drawer__head">
-          <h2 className="drawer__title">Wait — here's a special offer</h2>
+          <h2 className="drawer__title">Wait — try it month to month</h2>
           <p className="drawer__sub">{description}</p>
         </div>
 
@@ -87,7 +91,7 @@ export const ExitOfferDrawer = ({ onDismissOffer, onClosePaywall }: Props) => {
           className="drawer__cta pressable"
           onClick={async () => {
             haptics.medium();
-            const result = await purchase("tertiary");
+            const result = await purchase("secondary");
             if (result.status === "completed") haptics.success();
           }}
         >

@@ -33,20 +33,51 @@ export default function Plans() {
 
   const petName = (user.pet_name as string | undefined) ?? "your pet";
 
+  /**
+   * `kind` describes the plan the user has tapped, so only footer copy — the
+   * magic words, the CTA, the fine print — may depend on it. `listKind`
+   * describes the annual plan and therefore the page itself.
+   *
+   * Keeping the two apart matters: the page above the footer must not rearrange
+   * under the user's thumb when they compare plans. Driving the headline,
+   * timeline and social proof off `kind` swapped all three the instant anyone
+   * tapped the monthly row.
+   */
   const kind = offerKind(selected);
   const listKind = offerKind(primary);
   const trialDays = selected?.variables.trialPeriodDays;
   const trialPrice = selected?.variables.trialPeriodPrice;
-  const trialEnd = selected?.variables.trialPeriodEndDate;
   const price = selected?.variables.price;
   const period = selected?.variables.period;
   const weekly = selected?.variables.weeklyPrice;
   const trialText = selected?.variables.trialPeriodText;
 
-  const reminderDay = num(trialDays) === undefined ? undefined : Number(trialDays) - 2;
+  /** Page-level copy describes the annual plan, whatever the user has tapped. */
+  const listTrialDays = primary?.variables.trialPeriodDays;
+  const listTrialPrice = primary?.variables.trialPeriodPrice;
+  const listTrialEnd = primary?.variables.trialPeriodEndDate;
+  const listPrice = primary?.variables.price;
+
+  const reminderDay = num(listTrialDays) === undefined ? undefined : Number(listTrialDays) - 2;
   const showReminderStep = reminderDay !== undefined && reminderDay >= 1;
 
+  /**
+   * The timeline explains the annual plan's intro period, so it is only honest
+   * while that plan is the one selected. On the monthly row it would count down
+   * to a charge the user has not chosen — so social proof takes the space.
+   */
+  const showTimeline = listKind !== "none" && selectedIndex === 0;
+
   const savings = savingsPercent(num(primary?.variables.rawPrice), num(secondary?.variables.rawPrice));
+
+  /**
+   * What a year on the monthly plan costs — the struck-through anchor the
+   * annual price is read against. The store hands us this already localised as
+   * `yearlyPrice`, so we never format currency ourselves.
+   */
+  const annualAnchor = has(secondary?.variables.yearlyPrice)
+    ? secondary?.variables.yearlyPrice
+    : undefined;
 
   const buy = async (reference: (typeof SELECTABLE)[number]) => {
     haptics.medium();
@@ -61,19 +92,19 @@ export default function Plans() {
 
   return (
     <main className="page page--plans">
-      {kind === "none" ? (
+      {listKind === "none" ? (
         <h1 className="plans__headline">Never guess what's in {petName}'s bowl again.</h1>
       ) : (
         <h1 className="plans__headline">
-          {kind === "paid" && has(trialDays, trialPrice)
-            ? `Protect every bowl ${petName} eats — ${trialDays} days for ${trialPrice}`
-            : has(trialDays)
-              ? `Protect every bowl ${petName} eats — free for ${trialDays} days`
+          {listKind === "paid" && has(listTrialDays, listTrialPrice)
+            ? `Protect every bowl ${petName} eats — ${listTrialDays} days for ${listTrialPrice}`
+            : has(listTrialDays)
+              ? `Protect every bowl ${petName} eats — free for ${listTrialDays} days`
               : `Protect every bowl ${petName} eats.`}
         </h1>
       )}
 
-      {kind === "none" ? null : (
+      {!showTimeline ? null : (
         <div className="timeline">
           <div className="timeline__item">
             <span className="timeline__rail" />
@@ -97,7 +128,7 @@ export default function Plans() {
               <div className="timeline__copy">
                 <span className="timeline__title">In {reminderDay} days - Reminder</span>
                 <p className="timeline__detail">
-                  {kind === "paid"
+                  {listKind === "paid"
                     ? "We'll send you a reminder before your intro price ends."
                     : "We'll send you a reminder that your trial is ending soon."}
                 </p>
@@ -112,16 +143,16 @@ export default function Plans() {
             </span>
             <div className="timeline__copy">
               <span className="timeline__title">
-                {has(trialDays) ? `In ${trialDays} Days - ` : ""}
-                {kind === "paid" ? "Full Price Starts" : "Billing Starts"}
+                {has(listTrialDays) ? `In ${listTrialDays} Days - ` : ""}
+                {listKind === "paid" ? "Full Price Starts" : "Billing Starts"}
               </span>
               <p className="timeline__detail">
-                {has(trialEnd)
-                  ? kind === "paid" && has(price)
-                    ? `You'll be charged ${price} on ${trialEnd} unless you cancel anytime before.`
-                    : `You'll be charged on ${trialEnd} unless you cancel anytime before.`
-                  : has(price)
-                    ? `You'll be charged ${price} unless you cancel anytime before.`
+                {has(listTrialEnd)
+                  ? listKind === "paid" && has(listPrice)
+                    ? `You'll be charged ${listPrice} on ${listTrialEnd} unless you cancel anytime before.`
+                    : `You'll be charged on ${listTrialEnd} unless you cancel anytime before.`
+                  : has(listPrice)
+                    ? `You'll be charged ${listPrice} unless you cancel anytime before.`
                     : "You'll be charged unless you cancel anytime before."}
               </p>
             </div>
@@ -129,7 +160,7 @@ export default function Plans() {
         </div>
       )}
 
-      {kind === "none" ? (
+      {showTimeline ? null : (
         <div className="bento">
           <div className="accolades">
             <div className="accolade">
@@ -165,7 +196,7 @@ export default function Plans() {
             </p>
           </div>
         </div>
-      ) : null}
+      )}
 
       <div className="footer">
         <div className="plan-list">
@@ -176,6 +207,7 @@ export default function Plans() {
             onSelect={select}
             listKind={listKind}
             savings={savings}
+            anchor={annualAnchor}
           />
           <PlanRow
             reference="secondary"
@@ -259,9 +291,19 @@ type PlanRowProps = {
   /** The primary slot decides which of the two selector layouts renders. */
   listKind: ReturnType<typeof offerKind>;
   savings?: number;
+  /** A year on the monthly plan, struck through beside the annual price. */
+  anchor?: string;
 };
 
-const PlanRow = ({ reference, index, selectedIndex, onSelect, listKind, savings }: PlanRowProps) => {
+const PlanRow = ({
+  reference,
+  index,
+  selectedIndex,
+  onSelect,
+  listKind,
+  savings,
+  anchor,
+}: PlanRowProps) => {
   const { getProduct } = useProducts();
   const product = getProduct(reference);
   const { periodly, price, period, weeklyPrice, trialPeriodDays, trialPeriodPrice, trialPeriodText } =
@@ -279,17 +321,13 @@ const PlanRow = ({ reference, index, selectedIndex, onSelect, listKind, savings 
           ? `Billed ${price} / ${period}`
           : undefined;
 
-  // Only the annual row in the no-trial layout carries the savings callout.
+  /**
+   * The annual row carries the savings callout in both layouts. Any intro
+   * offer is already spelled out in the caption, so the banner is free to do
+   * the one job the caption cannot: make annual-vs-monthly obvious at a glance.
+   */
   const callout =
-    listKind === "none" && reference === "primary"
-      ? kind === "paid" && has(trialPeriodDays, trialPeriodPrice)
-        ? `${trialPeriodDays} days for ${trialPeriodPrice}`
-        : kind === "free" && has(trialPeriodText)
-          ? `${trialPeriodText} free trial`
-          : savings === undefined
-            ? undefined
-            : `Save ${savings}%`
-      : undefined;
+    reference === "primary" && savings !== undefined ? `Save ${savings}% vs monthly` : undefined;
 
   return (
     <button
@@ -301,7 +339,12 @@ const PlanRow = ({ reference, index, selectedIndex, onSelect, listKind, savings 
       {callout ? <span className="plan__callout">{callout}</span> : null}
       <span className="plan__left">
         <span className="plan__label">{periodly ?? "Plan"}</span>
-        {caption ? <span className="plan__caption">{caption}</span> : null}
+        {caption ? (
+          <span className="plan__caption-row">
+            <span className="plan__caption">{caption}</span>
+            {anchor ? <s className="plan__anchor">{anchor}</s> : null}
+          </span>
+        ) : null}
       </span>
       {listKind === "none" ? (
         <span className="plan__price">

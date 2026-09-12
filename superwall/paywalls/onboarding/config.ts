@@ -10,13 +10,17 @@ export default definePaywall({
   name: "Onboarding — Design Your Trial",
 
   /**
+   * Two plans only. `primary` carries a paid intro offer — 30 days for $0.99,
+   * then $39.99/year — so `offerKind(primary)` is "paid" and the trial layout
+   * renders. `secondary` is the full-price monthly the savings maths anchors
+   * against: $4.99 x 12 = $59.88, so the annual saves 33%.
+   *
    * Slot names match the dashboard paywall's reference names, so audience
-   * rules and analytics keyed on primary/secondary/tertiary keep working.
+   * rules and analytics keyed on primary/secondary keep working.
    */
   products: {
-    primary: "yearly_5999_trial",
-    secondary: "monthly_899_intro",
-    tertiary: "annual_39.99",
+    primary: "annual_39.99",
+    secondary: "monthly_499",
   },
 
   presentation: { style: "fullscreen" },

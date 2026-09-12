@@ -834,3 +834,21 @@ button:focus {
   text-align: center;
   opacity: 0.45;
 }
+
+.plan__caption-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  width: 100%;
+}
+
+/* In the row the caption sizes to its text so the anchor can sit beside it. */
+.plan__caption-row .plan__caption {
+  width: auto;
+}
+
+.plan__anchor {
+  font-size: 14px;
+  opacity: 0.5;
+}
