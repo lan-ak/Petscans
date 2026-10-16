@@ -12,14 +12,10 @@ extension View {
     func keyboardToolbar() -> some View {
         self.toolbar {
             ToolbarItemGroup(placement: .keyboard) {
-                Button("Cancel") {
-                    dismissKeyboard()
-                }
+                Button("Cancel") { dismissKeyboard() }
                 Spacer()
-                Button("Done") {
-                    dismissKeyboard()
-                }
-                .fontWeight(.semibold)
+                Button("Done") { dismissKeyboard() }
+                    .fontWeight(.semibold)
             }
         }
     }

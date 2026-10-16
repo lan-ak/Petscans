@@ -32,6 +32,13 @@ struct ProductCatalogSearchView: View {
     let onLeading: () -> Void
     let onSelect: (CatalogProduct) -> Void
 
+    /// Reports every completed search: the folded query and how many rows it
+    /// returned. Optional because the scanner sheet shares this view and has
+    /// its own analytics; onboarding passes a closure so the funnel can tell
+    /// "typed nothing" from "typed, no match", which is the one distinction
+    /// `searched_food` has never been able to make.
+    var onSearchRun: ((String, Int) -> Void)? = nil
+
     @State private var query = ""
     @State private var results: [CatalogProduct] = []
     @State private var isSearching = false
@@ -239,7 +246,7 @@ struct ProductCatalogSearchView: View {
                                     .minimumScaleFactor(0.8)
                                 Spacer(minLength: 0)
                                 Image(systemName: "chevron.right")
-                                    .font(.system(size: 11, weight: .semibold))
+                                    .font(TypographyTokens.captionEmphasis)
                                     .foregroundColor(ColorTokens.textTertiary)
                             }
                             .padding(.horizontal, SpacingTokens.xs)
@@ -336,7 +343,7 @@ struct ProductCatalogSearchView: View {
                 placeholderIcon
             }
         }
-        .frame(width: 48, height: 48)
+        .frame(width: SpacingTokens.iconThumbnail, height: SpacingTokens.iconThumbnail)
         .insetSurface(cornerRadius: SpacingTokens.radiusSmall,
                       fill: ColorTokens.surfaceSecondary)
     }
@@ -410,6 +417,7 @@ struct ProductCatalogSearchView: View {
         results = Array(speciesFirst(found).prefix(30))
         isSearching = false
         hasSearched = true
+        onSearchRun?(trimmed, results.count)
     }
 
     /// Puts the owner's own species first, preserving relevance order within each half.

@@ -112,6 +112,13 @@ struct PetFormView: View {
             // That was survivable while onboarding had a skip. It is not now: the return
             // key dismisses, but only if the user is in the field and thinks to press it,
             // and nothing on screen says so. This makes the exit explicit.
+            //
+            // Not gated on keyboard height. An accessory bar that detaches
+            // and floats is what iOS does whenever the keyboard has no rows
+            // to draw — a hardware keyboard, or a simulator in that state —
+            // and it is standard platform behaviour, not a bug. Hiding Done
+            // there removes the only visible way out of the keyboard in
+            // exactly the case where the user may still need one.
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()

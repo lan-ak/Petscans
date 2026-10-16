@@ -197,3 +197,21 @@ extension View {
         self.buttonStyle(SecondaryButtonStyle())
     }
 }
+
+// MARK: - Pinned CTA
+
+extension View {
+    /// The standard placement for a primary action pinned to the bottom of a
+    /// full screen: screen padding either side, a little air above, and
+    /// `SpacingTokens.ctaBottomInset` below.
+    ///
+    /// Use this rather than repeating the paddings — the whole reason the
+    /// inset is a token is that hand-written copies drifted apart and the CTA
+    /// jumped between screens.
+    func pinnedCTA() -> some View {
+        self
+            .padding(.horizontal, SpacingTokens.screenPadding)
+            .padding(.top, SpacingTokens.sm)
+            .padding(.bottom, SpacingTokens.ctaBottomInset)
+    }
+}

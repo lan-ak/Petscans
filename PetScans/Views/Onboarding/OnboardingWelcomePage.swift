@@ -20,6 +20,8 @@ struct OnboardingWelcomePage: View {
                         colors: [ColorTokens.brandPrimary.opacity(0.14), .clear],
                         center: .center, startRadius: 8, endRadius: 168
                     )
+                    // One composed decorative measure with `endRadius` and `blur`
+                    // above — a halo canvas, not a laid-out box.
                     .frame(width: 340, height: 340)
                     .blur(radius: 8)
                 )

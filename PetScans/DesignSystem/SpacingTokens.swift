@@ -86,6 +86,10 @@ struct SpacingTokens {
     static let iconLarge: CGFloat = 32
 
     /// Small score circles (history list)
+    /// A product thumbnail in a list row. Between `iconLarge` and
+    /// `iconScoreSmall`, which is why call sites were writing a bare 48.
+    static let iconThumbnail: CGFloat = 48
+
     static let iconScoreSmall: CGFloat = 50
 
     /// Camera capture button inner
@@ -109,6 +113,17 @@ struct SpacingTokens {
     // MARK: - Minimum Touch Target
 
     /// Minimum touch target size (44x44 per Apple HIG)
+    /// The gap below a primary CTA pinned to the bottom of a full screen.
+    ///
+    /// One value, because the CTA must not move as the user walks the flow.
+    /// This was hardcoded per screen and drifted to four different values —
+    /// `OnboardingFoodResultView` still carries the comment from the last
+    /// time someone chased it ("at md the CTA sat 20pt lower than on every
+    /// other page, so the primary button visibly jumped"). The safe-area
+    /// inset sits underneath this, so it is a gap above the home indicator,
+    /// not the whole distance to the screen edge.
+    static let ctaBottomInset: CGFloat = lg
+
     static let minTouchTarget: CGFloat = 44
 }
 

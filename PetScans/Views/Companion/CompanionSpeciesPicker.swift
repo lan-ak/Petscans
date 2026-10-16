@@ -16,10 +16,31 @@ struct CompanionSpeciesPicker: View {
     @Binding var selection: Species?
     var onPick: ((Species) -> Void)? = nil
 
+    /// How tall each animal draws. The default is the form-adjacent size; the
+    /// food-check page passes `.prominent` because there the picker *is* the
+    /// content of the screen rather than a control beside something else.
+    var rigHeight: CGFloat = CompanionSize.standard.points
+
+    /// Let the cards grow into whatever vertical space is spare.
+    ///
+    /// On a screen whose only content is this picker and a pinned CTA, fixed
+    /// card heights leave ~150pt of nothing between them. Growing the cards
+    /// instead gives the space to the one decision the screen is asking
+    /// about, and it degrades the right way: an SE collapses them toward the
+    /// rig's natural size rather than clipping, a Pro Max gets a more
+    /// generous picker rather than more emptiness.
+    ///
+    /// Capped, because unbounded it only moves the problem: the cards grew
+    /// into towers with the rig adrift in the middle and the dead air now
+    /// *inside* each card rather than beneath it. The rig grows with the card
+    /// so the two stay in proportion.
+    var fillsHeight: Bool = false
+
+    /// Keeps a filling card from becoming a tower on a large phone.
+    private var maxCardHeight: CGFloat { rigHeight + SpacingTokens.xxxl * 1.6 }
+
     @State private var perkDog = 0
     @State private var perkCat = 0
-
-    private let rigHeight = CompanionSize.standard.points
 
     var body: some View {
         HStack(spacing: SpacingTokens.xs) {
@@ -43,6 +64,7 @@ struct CompanionSpeciesPicker: View {
             if !alreadyChosen { onPick?(species) }
         } label: {
             VStack(spacing: SpacingTokens.xxxs) {
+                if fillsHeight { Spacer(minLength: 0) }
                 CompanionView(
                     species: species,
                     perkToken: species == .dog ? perkDog : perkCat,
@@ -53,8 +75,10 @@ struct CompanionSpeciesPicker: View {
                 Text(species.displayName)
                     .font(TypographyTokens.labelLarge)
                     .foregroundColor(isChosen ? ColorTokens.textPrimary : ColorTokens.textSecondary)
+                if fillsHeight { Spacer(minLength: 0) }
             }
             .frame(maxWidth: .infinity)
+            .frame(maxHeight: fillsHeight ? maxCardHeight : nil)
             .padding(.vertical, SpacingTokens.xxs)
             // A resting card from the first frame. An unselected animal sitting on the
             // page ground with a caption under it is art, not a control.
