@@ -22,7 +22,9 @@ final class SuperwallAttributionDelegate: SuperwallDelegate {
 
     func handleSuperwallEvent(withInfo eventInfo: SuperwallEventInfo) {
         switch eventInfo.event {
-        case .paywallOpen:
+        case let .paywallOpen(paywallInfo):
+            // Opens the scan gate, from whichever placement showed it.
+            Task { @MainActor in PaywallGate.noteOpened(paywallInfo) }
             // The rating prompt's paywall cooldown, recorded where a paywall is
             // actually shown. It used to be recorded in `SuperwallSafe.register`,
             // which fires for every placement whether or not a campaign matches —

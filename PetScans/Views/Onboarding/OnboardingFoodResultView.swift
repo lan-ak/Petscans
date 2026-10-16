@@ -24,6 +24,8 @@ struct OnboardingFoodResultView: View {
     /// general verdict, the History row and the personalised result screen all describe the same animal —
     /// search orders rather than filters, so the product may be labelled for the other one.
     let species: Species
+    /// False for a `DemoFoods` pick. Their History is for food they feed.
+    var savesToHistory = true
     let onBack: () -> Void
     let onScored: (OnboardingFoodResult) -> Void
     let onContinue: () -> Void
@@ -81,12 +83,7 @@ struct OnboardingFoodResultView: View {
             VStack(spacing: 0) {
                 resultsScroll(result)
                 continueButton(result)
-                    .padding(.horizontal, SpacingTokens.screenPadding)
-                    .padding(.top, SpacingTokens.sm)
-                    // xxl, matching `standardChrome`. At md the CTA sat 20pt lower than
-                    // on every other page, so the primary button visibly jumped as the
-                    // user moved between screens.
-                    .padding(.bottom, SpacingTokens.xxl)
+                    .pinnedCTA()
             }
         } else {
             Spacer()
@@ -245,15 +242,10 @@ struct OnboardingFoodResultView: View {
     }
 
     /// Pinned below the scroll so it's reachable the instant the result renders.
-    /// The label is verdict-aware: a flagged food leans into loss aversion, a
-    /// clean food points at the rest of the cabinet — both move forward, neither
-    /// reads as regret.
+    /// "Continue", like every step before the paywall: the paywall is the first
+    /// screen that asks for anything.
     private func continueButton(_ result: OnboardingFoodScorer.Result) -> some View {
-        let breakdown = result.breakdown
-        let title = hasConcerns(breakdown)
-            ? "Check this against your pet"
-            : "See what this means for your pet"
-        return Button(title, action: onContinue)
+        Button("Continue", action: onContinue)
             .primaryButtonStyle()
             .accessibilityIdentifier("aha-continue")
     }
@@ -278,7 +270,7 @@ struct OnboardingFoodResultView: View {
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(hasConcerns(scored.breakdown) ? .warning : .success)
         }
-        saveToHistory(scored)
+        if savesToHistory { saveToHistory(scored) }
         onScored(OnboardingFoodResult(
             name: product.name,
             brand: product.brand,
@@ -357,6 +349,8 @@ struct OnboardingPersonalizedResultView: View {
     let species: Species
     let allergens: Set<String>
     let groups: Set<AvoidanceGroup>
+    /// False for a `DemoFoods` pick, matching `OnboardingFoodResultView`.
+    var savesToHistory = true
     let onScored: (OnboardingFoodResult) -> Void
     let onContinue: () -> Void
 
@@ -408,9 +402,7 @@ struct OnboardingPersonalizedResultView: View {
                 // on `rescored == nil` instead would have trapped the user in onboarding
                 // for good if the scoring task was ever cancelled.
                 .disabled(isScoring)
-                .padding(.horizontal, SpacingTokens.screenPadding)
-                .padding(.top, SpacingTokens.sm)
-                .padding(.bottom, SpacingTokens.xxl)
+                .pinnedCTA()
                 .accessibilityIdentifier("personalized-continue")
         }
         .background(ColorTokens.backgroundPrimary.ignoresSafeArea())
@@ -543,6 +535,7 @@ struct OnboardingPersonalizedResultView: View {
                         Image(systemName: "exclamationmark.circle.fill")
                             .foregroundColor(ColorTokens.severityWarning)
                             .font(TypographyTokens.caption)
+                            // Glyph baseline alignment, not layout spacing — below the scale on purpose.
                             .padding(.top, 2)
                         Text(flag.explain)
                             .font(TypographyTokens.bodySmall)
@@ -592,6 +585,7 @@ struct OnboardingPersonalizedResultView: View {
             Image(systemName: icon)
                 .font(TypographyTokens.caption)
                 .foregroundColor(ColorTokens.brandPrimary)
+                // Glyph baseline alignment, not layout spacing — below the scale on purpose.
                 .padding(.top, 2)
             Text(text)
                 .font(TypographyTokens.bodySmall)
@@ -600,9 +594,9 @@ struct OnboardingPersonalizedResultView: View {
         }
     }
 
-    private var continueTitle: String {
-        petName == nil ? "Start scanning" : "Start protecting \(petDisplayName)"
-    }
+    /// The next screen is the paywall, so this does not promise scanning or
+    /// protection the user has not been offered yet.
+    private var continueTitle: String { "Continue" }
 
     private func rescore() async {
         guard !didScore, let product else { return }
@@ -633,7 +627,7 @@ struct OnboardingPersonalizedResultView: View {
             flagCount: scored.breakdown.flags.count
         ))
 
-        saveToHistory(scored, product: product)
+        if savesToHistory { saveToHistory(scored, product: product) }
 
         if reduceMotion {
             revealed = true

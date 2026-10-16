@@ -31,9 +31,16 @@ struct ContentView: View {
         let _ = LaunchMetrics.markOnce("contentBody")
 
         if shouldShowOnboarding {
-            OnboardingView {
-                withStandardAnimation {
-                    hasCompletedOnboarding = true
+            // Step 1 of onboarding is a Superwall surface, and `register`
+            // cannot present one before config has downloaded. On a cold
+            // install that race is the common case, not the edge case, so the
+            // gate holds the first frame until config lands — or two seconds,
+            // whichever comes first.
+            ConfigReadyGate {
+                OnboardingView {
+                    withStandardAnimation {
+                        hasCompletedOnboarding = true
+                    }
                 }
             }
             // No keyboardToolbar() here: onboarding has one text field, and a

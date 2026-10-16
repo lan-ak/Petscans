@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import SuperwallKit
 
 struct OnboardingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -31,6 +32,13 @@ struct OnboardingView: View {
     /// The same food re-scored against the finished profile.
     @State private var personalizedFood: OnboardingFoodResult?
     @State private var isSubmitting = false
+    /// Whether the surface or the SwiftUI flow is serving onboarding.
+    @State private var flowMode: FlowMode = .idle
+    /// True when `selectedProduct` came from "See an example" rather than the
+    /// owner's own pick. Gates History, the targeting attributes and the
+    /// personalised re-score — none of which should describe a food they do
+    /// not feed.
+    @State private var isExampleFood = false
     @State private var showNameValidation = false
     @State private var isForward = true
     @FocusState private var isNameFocused: Bool
@@ -54,35 +62,34 @@ struct OnboardingView: View {
     private var questionStepCount: Int { 2 }
 
     var body: some View {
+        switch flowMode {
+        case .idle, .surface:
+            // The ground the surface presents over, and what the user sees for
+            // the few frames before it does — so it is the app background, not
+            // a spinner. `ConfigReadyGate` has already waited for config.
+            ColorTokens.backgroundPrimary
+                .ignoresSafeArea()
+                .onAppear(perform: presentFlowIfNeeded)
+        case .native:
+            nativeFlow
+        }
+    }
+
+    /// The 1.4.6 flow, unchanged, kept as the fallback.
+    ///
+    /// Not deleted, deliberately. If the placement has no campaign, the
+    /// audience doesn't match, config never landed or the webview fails,
+    /// `onSkip` fires and the user gets this instead of a blank screen. A
+    /// brand new user is the worst possible person to strand.
+    private var nativeFlow: some View {
         ZStack {
             ColorTokens.backgroundPrimary
                 .ignoresSafeArea()
 
             switch currentPage {
             case searchPage:
-                ProductCatalogSearchView(
-                    title: "Let's check a pet food",
-                    titleFont: TypographyTokens.displayMedium,
-                    subtitle: "Pick any food you have at home — we'll show you what's really inside.",
-                    speciesSelection: $chosenSpecies,
-                    onLeading: { navigate(to: 0) },
-                    onSelect: { product in
-                        // Backing out and choosing a different food used to leave the first
-                        // one in History for good — the de-dupe on save only covers the
-                        // same gtin, so the abandoned pick survived with its pre-profile
-                        // verdict.
-                        discardDemoScan(keeping: product.gtin)
-                        selectedProduct = product
-                        // Deliberately does *not* set `petSpecies` from the product. The
-                        // picker above the search field is the owner's own answer, and
-                        // `speciesFirst` orders rather than filters, so a mislabelled row —
-                        // or a deliberate look at the other species — would otherwise
-                        // silently rewrite their profile, their allergen chips and how
-                        // every later scan is scored.
-                        withStandardAnimation { currentPage = resultPage }
-                    }
-                )
-                .transition(.opacity)
+                nativeFoodSearch
+                    .transition(.opacity)
             case resultPage:
                 resultPageContent
                     .transition(.opacity)
@@ -92,6 +99,7 @@ struct OnboardingView: View {
             default:
                 standardChrome
             }
+
         }
         .onChange(of: petName) { _, _ in
             showNameValidation = false
@@ -116,6 +124,119 @@ struct OnboardingView: View {
             try? await Task.sleep(for: .seconds(1))
             SuperwallSafe.preload(placements: ["onboarding_complete", "onboarding_finished"])
         }
+    }
+
+    // MARK: - The onboarding surface
+
+    /// Whether onboarding is being served by the Superwall surface or the
+    /// SwiftUI flow it replaces.
+    private enum FlowMode {
+        /// Nothing attempted yet.
+        case idle
+        /// `register` fired; the surface is presenting or about to.
+        case surface
+        /// No surface available — the 1.4.6 flow, page for page.
+        case native
+    }
+
+    /// Step 1 of the fallback flow: a pick from `DemoFoods`. There is no
+    /// scan or search here. Their own food waits behind `PaywallGate`, in the
+    /// Scan tab, after `onboarding_complete`.
+    private var nativeFoodSearch: some View {
+        OnboardingFoodCheckPage(
+            species: $chosenSpecies,
+            onSample: { product in
+                // A sample is not their food. It gets the same scored payoff
+                // and personalised re-score, but it is not written to History
+                // and does not set the `searched_food*` targeting attributes.
+                isExampleFood = true
+                selectedProduct = product
+                withStandardAnimation { currentPage = resultPage }
+            },
+            onBack: { navigate(to: 0) }
+        )
+    }
+
+    /// Fires the placement once, on arrival.
+    ///
+    /// The surface covers every onboarding step, so a finished run ends
+    /// onboarding outright rather than returning to a page here.
+    private func presentFlowIfNeeded() {
+        guard flowMode == .idle else { return }
+        flowMode = .surface
+        OnboardingFlowCallbacks.reset()
+
+        var didPresent = false
+        let handler = PaywallPresentationHandler()
+        handler.onPresent { _ in didPresent = true }
+        handler.onSkip { _ in
+            Task { @MainActor in withStandardAnimation { flowMode = .native } }
+        }
+        handler.onError { _ in
+            Task { @MainActor in withStandardAnimation { flowMode = .native } }
+        }
+        handler.onCustomCallback { callback in
+            await OnboardingFlowCallbacks.handle(callback)
+        }
+
+        SuperwallSafe.register(
+            placement: "onboarding_flow",
+            handler: handler
+        ) {
+            // Non-gated, so this runs on dismissal — and immediately when the
+            // SDK isn't ready at all.
+            Task { @MainActor in
+                if let outcome = OnboardingFlowCallbacks.takeOutcome() {
+                    await applyFlowOutcome(outcome)
+                } else if didPresent {
+                    // Presented, then dismissed without reporting. Nothing was
+                    // gathered, so finish onboarding rather than re-showing the
+                    // flow they just left — the app is gated behind it.
+                    finishFromSurface(createdPet: false)
+                } else {
+                    withStandardAnimation { flowMode = .native }
+                }
+            }
+        }
+    }
+
+    /// Replays everything the surface gathered into the state the rest of
+    /// onboarding's exit path already expects, then finishes.
+    private func applyFlowOutcome(_ outcome: OnboardingFlowCallbacks.Outcome) async {
+        petName = outcome.petName
+        chosenSpecies = outcome.species
+        selectedAllergens = outcome.allergens
+        selectedGroups = outcome.groups
+
+        // An empty gtin means skipped, or an example food — neither is theirs,
+        // so neither gets saved to History or carried into targeting.
+        if !outcome.gtin.isEmpty,
+           let product = await LocalCatalogStore.shared.product(gtin: outcome.gtin) {
+            selectedProduct = product
+            if chosenSpecies == nil { chosenSpecies = product.species }
+
+            let summary = OnboardingFoodResult(
+                name: product.name,
+                brand: product.brand,
+                verdict: outcome.verdict ?? .good,
+                score: outcome.score,
+                flagCount: outcome.flagCount
+            )
+            // Both are set so `finishOnboarding`'s `personalizedFood ?? demoFood`
+            // reports the verdict the user was actually left looking at.
+            demoFood = summary
+            if outcome.isPersonalised { personalizedFood = summary }
+        }
+
+        finishFromSurface(createdPet: outcome.createdPet)
+    }
+
+    /// The surface's exit. Routes into the same `finishOnboarding` the native
+    /// flow uses, so persistence, attributes, the review arm and
+    /// `onboarding_complete` all behave identically on both paths.
+    private func finishFromSurface(createdPet: Bool) {
+        ReviewPrompt.recordOnboardingCompleted(sawPersonalizedResult: personalizedFood != nil)
+        finishOnboarding(createdPet: createdPet)
     }
 
     /// The shared centered layout used by the welcome/profile/groups pages.
@@ -145,7 +266,7 @@ struct OnboardingView: View {
 
             navigationButtons
                 .padding(.horizontal, SpacingTokens.screenPadding)
-                .padding(.bottom, SpacingTokens.xxl)
+                .padding(.bottom, SpacingTokens.ctaBottomInset)
         }
         // Anchor the CTA to the bottom so the auto-focused name field's keyboard
         // can't lift "Continue" into the thumb zone next to the allergen chips —
@@ -161,13 +282,21 @@ struct OnboardingView: View {
             OnboardingFoodResultView(
                 product: product,
                 species: petSpecies,
+                savesToHistory: !isExampleFood,
                 onBack: { withStandardAnimation { currentPage = searchPage } },
                 onScored: { summary in
                     demoFood = summary
                     // Set now as well as after the re-score: a user who drops out between
                     // here and the personalised result screen still reaches the paywall with a verdict
                     // attached for targeting.
-                    SuperwallUserAttributes.setSearchedFood(summary)
+                    //
+                    // Not for an example, though: `searched_food` is what audience
+                    // 166983 ("Got Aha Moment") targets on, and a food the owner
+                    // does not feed is not an aha moment. Those users fall through
+                    // to the unconditional audience, which is correct.
+                    if !isExampleFood {
+                        SuperwallUserAttributes.setSearchedFood(summary)
+                    }
                 },
                 onContinue: { navigate(to: profilePage) }
             )
@@ -186,9 +315,14 @@ struct OnboardingView: View {
             species: petSpecies,
             allergens: selectedAllergens,
             groups: selectedGroups,
+            savesToHistory: !isExampleFood,
             onScored: { summary in
                 personalizedFood = summary
-                SuperwallUserAttributes.setSearchedFood(summary)
+                // Same rule as the demo screen: the aha paywall reads these
+                // as "your pet's bowl", which a sample is not.
+                if !isExampleFood {
+                    SuperwallUserAttributes.setSearchedFood(summary)
+                }
             },
             onContinue: { finishOnboarding(createdPet: petName.isNotBlank) }
         )
@@ -280,10 +414,11 @@ struct OnboardingView: View {
             }
             .primaryButtonStyle()
         } else {
-            Button(currentPage == 0 ? "Get Started" : "Continue") {
+            Button("Continue") {
                 navigate(to: currentPage + 1)
             }
             .primaryButtonStyle()
+            .accessibilityIdentifier(currentPage == 0 ? "onboarding-start" : "onboarding-continue")
         }
     }
 
@@ -324,20 +459,6 @@ struct OnboardingView: View {
             showNameValidation = true
             isNameFocused = true
         }
-    }
-
-    /// Deletes a previously demoed food from History when the user picks a different one.
-    ///
-    /// The demo saves as soon as it scores so that a user who leaves mid-flow still lands in
-    /// an app with something in it. That means every food they *try* gets written, and only
-    /// the one they carry to the personalised result screen gets replaced.
-    private func discardDemoScan(keeping gtin: String) {
-        guard let previous = selectedProduct?.gtin, previous != gtin else { return }
-        let stale = try? modelContext.fetch(
-            FetchDescriptor<Scan>(predicate: #Predicate<Scan> { $0.barcode == previous })
-        )
-        stale?.forEach(modelContext.delete)
-        try? modelContext.save()
     }
 
     /// Persists the pet and pushes every Superwall targeting attribute. Shared by

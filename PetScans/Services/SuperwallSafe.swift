@@ -16,6 +16,12 @@ enum SuperwallSafe {
     /// the SDK's own answer rather than a flag this app has to keep in sync.
     static var isReady: Bool { Superwall.isInitialized }
 
+    /// False until configured. `subscriptionStatus.isActive` rather than
+    /// matching `.active(_)`, whose set can hold lapsed entitlements.
+    static var isSubscribed: Bool {
+        isReady && Superwall.shared.subscriptionStatus.isActive
+    }
+
     static func setUserAttributes(_ attributes: [String: Any]) {
         guard isReady else { return }
         Superwall.shared.setUserAttributes(attributes)
@@ -51,5 +57,37 @@ enum SuperwallSafe {
             return
         }
         Superwall.shared.register(placement: placement, params: params, feature: feature)
+    }
+
+    /// Gated variant that also takes a presentation handler.
+    ///
+    /// Needed by any placement presenting a *surface* rather than a paywall —
+    /// the handler is the only way to attach `onCustomCallback`, which is how
+    /// a code-first screen asks the app to do something (search the bundled
+    /// catalogue, open the scanner, score a product).
+    ///
+    /// `onSkip` matters as much as the callbacks: it fires when no paywall is
+    /// shown at all (no campaign, no audience match, a load failure), and a
+    /// caller replacing a native screen has to be able to tell that apart from
+    /// "the user finished" so it can fall back rather than skip the step.
+    static func register(
+        placement: String,
+        params: [String: Any]? = nil,
+        handler: PaywallPresentationHandler,
+        feature: @escaping () -> Void
+    ) {
+        guard isReady else {
+            // Same contract as above: the feature runs so nobody is stranded.
+            // The caller sees no `onSkip`, which is why callers must treat
+            // "feature ran, handler never fired" as the fallback case too.
+            feature()
+            return
+        }
+        Superwall.shared.register(
+            placement: placement,
+            params: params,
+            handler: handler,
+            feature: feature
+        )
     }
 }

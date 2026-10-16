@@ -4,7 +4,7 @@ import XCTest
 ///
 /// The fork replaced a segmented `Picker` that defaulted to `.dog`, and the thing worth
 /// protecting is not that the animals draw — it is that nothing is preselected, that a
-/// tap actually writes the species, and that the brand grid follows it. A regression in
+/// tap actually writes the species, and that the food samples follow it. A regression in
 /// any of those puts the demo back to being scored against an assumption.
 final class CompanionOnboardingTests: XCTestCase {
 
@@ -17,11 +17,47 @@ final class CompanionOnboardingTests: XCTestCase {
         app.launch()
     }
 
-    func testSpeciesForkDrivesTheBrandGrid() throws {
+
+    /// The food check is a pick from `DemoFoods`. There is no scan or search
+    /// before the paywall any more. The first sample per species is the one
+    /// these tests tap.
+    private let pedigree = "food-check-sample-00023100143408"
+    private let whiskas = "food-check-sample-00058496701246"
+
+    /// Waits for an element's hittability to settle on `expected`.
+    ///
+    /// `waitForExistence` on the keyboard returns the moment it exists, which
+    /// is *before* it finishes animating up — so an instantaneous
+    /// `isHittable` check against a control the keyboard is about to cover
+    /// races the animation and fails perhaps one run in three. The guarantee
+    /// under test is where the control ends up, not where it is mid-slide.
+    private func waitForHittable(
+        _ element: XCUIElement,
+        toBe expected: Bool,
+        timeout: TimeInterval = 5,
+        _ message: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            if element.isHittable == expected { return }
+            usleep(100_000)
+        }
+        XCTAssertEqual(element.isHittable, expected, message, file: file, line: line)
+    }
+
+    private func pick(_ sample: String, file: StaticString = #filePath, line: UInt = #line) {
+        let row = app.buttons[sample]
+        XCTAssertTrue(row.waitForExistence(timeout: 10), "sample \(sample) missing", file: file, line: line)
+        row.tap()
+    }
+
+    func testSpeciesForkDrivesTheSamples() throws {
         // Welcome — the pair carries the promise here and is deliberately not a control.
-        XCTAssertTrue(app.buttons["Get Started"].waitForExistence(timeout: 10), "welcome CTA")
+        XCTAssertTrue(app.buttons["onboarding-start"].waitForExistence(timeout: 10), "welcome CTA")
         capture("companion-01-welcome")
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
 
         let dog = app.buttons["companion-pick-dog"]
         let cat = app.buttons["companion-pick-cat"]
@@ -33,49 +69,43 @@ final class CompanionOnboardingTests: XCTestCase {
         XCTAssertFalse(dog.isSelected, "dog must not be preselected")
         XCTAssertFalse(cat.isSelected, "cat must not be preselected")
 
-        // The keyboard must not be up. The brand grid was added because users left this
-        // screen without typing, and an auto-raised keyboard covers it.
+        // The keyboard must not be up. Nothing on this page takes text, and an
+        // auto-raised keyboard would cover the samples.
         XCTAssertFalse(app.keyboards.element.exists, "keyboard should not be raised on arrival")
 
-        // Unchosen state shows the cross-species list, and it must not be shorter than
-        // the chosen one — skipping the question used to cost two tiles.
-        let chips = app.buttons.matching(identifier: "catalog-brand-chip")
-        XCTAssertTrue(chips.element(boundBy: 0).waitForExistence(timeout: 5), "brand grid")
-        XCTAssertEqual(chips.count, 8, "the unchosen grid must match the chosen one at 8 brands")
+        // Unchosen, the samples are the dog's, matching the `.dog` the demo
+        // scores against when the question is skipped.
+        XCTAssertTrue(app.buttons[pedigree].waitForExistence(timeout: 5), "samples before a species is chosen")
+        XCTAssertEqual(app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH 'food-check-sample-'")).count, 3,
+                       "three samples")
         capture("companion-02-picker-unchosen")
 
-        // Pick the cat. The grid has to follow: Friskies is cat-only, Pedigree dog-only.
+        // Pick the cat. The samples have to follow.
         cat.tap()
-        XCTAssertTrue(app.buttons["Friskies"].waitForExistence(timeout: 5),
-                      "cat brands did not load after choosing cat")
-        XCTAssertFalse(app.buttons["Pedigree"].exists, "dog brand still present after choosing cat")
+        XCTAssertTrue(app.buttons[whiskas].waitForExistence(timeout: 5),
+                      "cat samples did not load after choosing cat")
+        XCTAssertFalse(app.buttons[pedigree].exists, "dog sample still present after choosing cat")
         XCTAssertTrue(cat.isSelected, "cat should read as selected")
         capture("companion-03-picked-cat")
 
         // The mis-tap escape hatch: the unchosen animal stays tappable.
         XCTAssertTrue(dog.isHittable, "the unchosen animal must remain tappable")
         dog.tap()
-        XCTAssertTrue(app.buttons["Pedigree"].waitForExistence(timeout: 5),
-                      "switching back to dog did not restore the dog grid")
+        XCTAssertTrue(app.buttons[pedigree].waitForExistence(timeout: 5),
+                      "switching back to dog did not restore the dog samples")
         XCTAssertTrue(dog.isSelected, "dog should read as selected after correcting")
         capture("companion-04-corrected-to-dog")
     }
 
     func testCompanionReachesTheResultScreen() throws {
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
 
         let dog = app.buttons["companion-pick-dog"]
         XCTAssertTrue(dog.waitForExistence(timeout: 10), "picker")
         dog.tap()
 
-        // Tap a brand tile rather than typing — this is the tap-first path.
-        let brand = app.buttons["Pedigree"]
-        XCTAssertTrue(brand.waitForExistence(timeout: 5), "brand tile")
-        brand.tap()
+        pick(pedigree)
 
-        let firstResult = app.scrollViews.buttons.firstMatch
-        XCTAssertTrue(firstResult.waitForExistence(timeout: 20), "no catalog results for the brand tile")
-        firstResult.tap()
 
         // The companion is decorative to VoiceOver, so assert on the verdict chrome
         // it sits above rather than on the rig itself.
@@ -89,19 +119,14 @@ final class CompanionOnboardingTests: XCTestCase {
     /// on, and so the species chosen on page 1 is provably the one that reaches the
     /// personalised verdict five screens later.
     func testCompanionCarriesThroughToThePersonalisedVerdict() throws {
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
 
         let cat = app.buttons["companion-pick-cat"]
         XCTAssertTrue(cat.waitForExistence(timeout: 10), "picker")
         cat.tap()
 
-        let brand = app.buttons["Friskies"]
-        XCTAssertTrue(brand.waitForExistence(timeout: 5), "cat brand tile")
-        brand.tap()
+        pick(whiskas)
 
-        let firstResult = app.scrollViews.buttons.firstMatch
-        XCTAssertTrue(firstResult.waitForExistence(timeout: 20), "catalog results")
-        firstResult.tap()
 
         let ahaContinue = app.buttons["aha-continue"]
         XCTAssertTrue(ahaContinue.waitForExistence(timeout: 30), "demo verdict")
@@ -156,37 +181,32 @@ final class CompanionOnboardingTests: XCTestCase {
     // agreement with what the screen is showing.
 
     func testSpeciesSurvivesBackNavigation() throws {
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
 
         let cat = app.buttons["companion-pick-cat"]
         XCTAssertTrue(cat.waitForExistence(timeout: 10), "picker")
         cat.tap()
-        XCTAssertTrue(app.buttons["Friskies"].waitForExistence(timeout: 5), "cat grid")
+        XCTAssertTrue(app.buttons[whiskas].waitForExistence(timeout: 5), "cat samples")
 
         // Back to the welcome page and forward again.
         app.buttons["Back"].firstMatch.tap()
-        XCTAssertTrue(app.buttons["Get Started"].waitForExistence(timeout: 5), "welcome")
-        app.buttons["Get Started"].tap()
+        XCTAssertTrue(app.buttons["onboarding-start"].waitForExistence(timeout: 5), "welcome")
+        app.buttons["onboarding-start"].tap()
 
         XCTAssertTrue(cat.waitForExistence(timeout: 5), "picker after returning")
         XCTAssertTrue(cat.isSelected, "the species choice must survive leaving the screen")
-        XCTAssertTrue(app.buttons["Friskies"].waitForExistence(timeout: 5),
-                      "the grid must still match the remembered species")
+        XCTAssertTrue(app.buttons[whiskas].waitForExistence(timeout: 5),
+                      "the samples must still match the remembered species")
     }
 
     func testCorrectingSpeciesAfterScoringRescoresAgainstTheNewOne() throws {
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
 
         let dog = app.buttons["companion-pick-dog"]
         XCTAssertTrue(dog.waitForExistence(timeout: 10), "picker")
         dog.tap()
 
-        let pedigree = app.buttons["Pedigree"]
-        XCTAssertTrue(pedigree.waitForExistence(timeout: 5), "dog brand")
-        pedigree.tap()
-        let firstResult = app.scrollViews.buttons.firstMatch
-        XCTAssertTrue(firstResult.waitForExistence(timeout: 20), "results")
-        firstResult.tap()
+        pick(pedigree)
         XCTAssertTrue(app.buttons["aha-continue"].waitForExistence(timeout: 30), "first verdict")
 
         // Back out and switch species. The demo has already been scored once against
@@ -194,24 +214,19 @@ final class CompanionOnboardingTests: XCTestCase {
         app.buttons["Back"].firstMatch.tap()
         XCTAssertTrue(dog.waitForExistence(timeout: 10), "back at the picker")
         app.buttons["companion-pick-cat"].tap()
-        XCTAssertTrue(app.buttons["Friskies"].waitForExistence(timeout: 5),
-                      "grid must follow the corrected species")
-        XCTAssertFalse(app.buttons["Pedigree"].exists, "stale dog brand still on screen")
+        XCTAssertTrue(app.buttons[whiskas].waitForExistence(timeout: 5),
+                      "samples must follow the corrected species")
+        XCTAssertFalse(app.buttons[pedigree].exists, "stale dog sample still on screen")
         capture("audit-repeat-species-corrected")
     }
 
     func testTheSameFoodScoresTheSameWayTwice() throws {
         func verdictLabel() -> String {
-            app.buttons["Get Started"].tap()
+            app.buttons["onboarding-start"].tap()
             let dog = app.buttons["companion-pick-dog"]
             XCTAssertTrue(dog.waitForExistence(timeout: 10))
             dog.tap()
-            let brand = app.buttons["Pedigree"]
-            XCTAssertTrue(brand.waitForExistence(timeout: 5))
-            brand.tap()
-            let first = app.scrollViews.buttons.firstMatch
-            XCTAssertTrue(first.waitForExistence(timeout: 20))
-            first.tap()
+            pick(pedigree)
             XCTAssertTrue(app.buttons["aha-continue"].waitForExistence(timeout: 30))
             // The verdict word is the only thing the user reads as the answer.
             for word in ["Excellent", "Good", "Caution", "Avoid"] where app.staticTexts[word].exists {
@@ -235,12 +250,9 @@ final class CompanionOnboardingTests: XCTestCase {
     /// the only way past this page — onboarding gates the whole app, so a Continue that
     /// silently refuses to advance would be a dead end rather than a validation.
     func testProfileRefusesToAdvanceWithoutANameAndSaysWhy() throws {
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
         app.buttons["companion-pick-dog"].firstMatch.tap()
-        app.buttons["Pedigree"].tap()
-        let first = app.scrollViews.buttons.firstMatch
-        XCTAssertTrue(first.waitForExistence(timeout: 20))
-        first.tap()
+        pick(pedigree)
         XCTAssertTrue(app.buttons["aha-continue"].waitForExistence(timeout: 30))
         app.buttons["aha-continue"].tap()
 
@@ -281,20 +293,16 @@ final class CompanionOnboardingTests: XCTestCase {
     /// Captures every screen in order so the set can be reviewed side by side. Its value
     /// is the artefacts, not the assertions.
     func testCaptureEveryScreenInOrder() throws {
-        XCTAssertTrue(app.buttons["Get Started"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["onboarding-start"].waitForExistence(timeout: 10))
         capture("audit-0-welcome")
-        app.buttons["Get Started"].tap()
+        app.buttons["onboarding-start"].tap()
 
         XCTAssertTrue(app.buttons["companion-pick-dog"].waitForExistence(timeout: 10))
         capture("audit-1-search-unchosen")
         app.buttons["companion-pick-dog"].tap()
         capture("audit-1b-search-chosen")
 
-        app.buttons["Pedigree"].tap()
-        let first = app.scrollViews.buttons.firstMatch
-        XCTAssertTrue(first.waitForExistence(timeout: 20))
-        capture("audit-2-results-list")
-        first.tap()
+        pick(pedigree)
 
         XCTAssertTrue(app.buttons["aha-continue"].waitForExistence(timeout: 30))
         capture("audit-3-demo-verdict")
@@ -330,19 +338,17 @@ final class CompanionOnboardingTests: XCTestCase {
             return e.frame.origin.y
         }
 
-        let welcomeY = ctaY(app.buttons["Get Started"])
-        app.buttons["Get Started"].tap()
+        let welcomeY = ctaY(app.buttons["onboarding-start"])
+        app.buttons["onboarding-start"].tap()
 
-        // The search page must not raise the keyboard on arrival — the brand grid is
+        // The food check must not raise the keyboard on arrival — the samples are
         // the point of the screen and a keyboard covers it.
         XCTAssertTrue(app.buttons["companion-pick-dog"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.keyboards.element.exists,
                        "the search page must not auto-raise the keyboard")
 
         app.buttons["companion-pick-dog"].firstMatch.tap()
-        app.buttons["Pedigree"].firstMatch.tap()
-        let first = app.scrollViews.buttons.firstMatch
-        XCTAssertTrue(first.waitForExistence(timeout: 20)); first.tap()
+        pick(pedigree)
 
         let resultY = ctaY(app.buttons["aha-continue"])
         app.buttons["aha-continue"].tap()
@@ -352,11 +358,11 @@ final class CompanionOnboardingTests: XCTestCase {
 
         // Profile does raise it, and Done is the way back out.
         XCTAssertTrue(app.keyboards.element.waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["Continue"].firstMatch.isHittable,
-                       "Continue is anchored below the keyboard by design")
+        waitForHittable(app.buttons["Continue"].firstMatch, toBe: false,
+                        "Continue is anchored below the keyboard by design")
         app.buttons["keyboard-done"].firstMatch.tap()
-        XCTAssertTrue(app.buttons["Continue"].firstMatch.isHittable,
-                      "Done must make Continue reachable again")
+        waitForHittable(app.buttons["Continue"].firstMatch, toBe: true,
+                        "Done must make Continue reachable again")
 
         app.textFields["pet-name-field"].tap()
         app.textFields["pet-name-field"].typeText("Rufus\n")

@@ -124,7 +124,13 @@
 		FA200002 /* AvoidancePreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100002 /* AvoidancePreferences.swift */; };
 		FA200003 /* CameraPermission.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100003 /* CameraPermission.swift */; };
 		FA200004 /* AvoidanceGroupPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100004 /* AvoidanceGroupPicker.swift */; };
+		FA2000F1 /* OnboardingFlowCallbacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000F1 /* OnboardingFlowCallbacks.swift */; };
+		FA2000F2 /* FoodCheckScannerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000F2 /* FoodCheckScannerPresenter.swift */; };
+		FA2000F3 /* ConfigReadyGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000F3 /* ConfigReadyGate.swift */; };
+		FA2000F4 /* CompanionExport.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000F4 /* CompanionExport.swift */; };
+		FA2000F5 /* OnboardingFoodCheckPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000F5 /* OnboardingFoodCheckPage.swift */; };
 		FA200005 /* SuperwallSafe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100005 /* SuperwallSafe.swift */; };
+		FA2000F6 /* PaywallGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1000F6 /* PaywallGate.swift */; };
 		FA200042 /* ReviewPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100042 /* ReviewPrompt.swift */; };
 		FA200043 /* ShareCardRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100043 /* ShareCardRenderer.swift */; };
 		FA200044 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA100044 /* ShareCardView.swift */; };
@@ -268,7 +274,13 @@
 		FA100002 /* AvoidancePreferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidancePreferences.swift; sourceTree = "<group>"; };
 		FA100003 /* CameraPermission.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPermission.swift; sourceTree = "<group>"; };
 		FA100004 /* AvoidanceGroupPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvoidanceGroupPicker.swift; sourceTree = "<group>"; };
+		FA1000F1 /* OnboardingFlowCallbacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFlowCallbacks.swift; sourceTree = "<group>"; };
+		FA1000F2 /* FoodCheckScannerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodCheckScannerPresenter.swift; sourceTree = "<group>"; };
+		FA1000F3 /* ConfigReadyGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigReadyGate.swift; sourceTree = "<group>"; };
+		FA1000F4 /* CompanionExport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionExport.swift; sourceTree = "<group>"; };
+		FA1000F5 /* OnboardingFoodCheckPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingFoodCheckPage.swift; sourceTree = "<group>"; };
 		FA100005 /* SuperwallSafe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperwallSafe.swift; sourceTree = "<group>"; };
+		FA1000F6 /* PaywallGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallGate.swift; sourceTree = "<group>"; };
 		FA100042 /* ReviewPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewPrompt.swift; sourceTree = "<group>"; };
 		FA100043 /* ShareCardRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardRenderer.swift; sourceTree = "<group>"; };
 		FA100044 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
@@ -381,7 +393,9 @@
 		A4000006 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FA1000F1 /* OnboardingFlowCallbacks.swift */,
 				FA100005 /* SuperwallSafe.swift */,
+				FA1000F6 /* PaywallGate.swift */,
 				AHA10004 /* OnboardingFoodScorer.swift */,
 				FA100042 /* ReviewPrompt.swift */,
 				FA100043 /* ShareCardRenderer.swift */,
@@ -538,6 +552,9 @@
 		F7D835242F0720A200414B32 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				FA1000F5 /* OnboardingFoodCheckPage.swift */,
+				FA1000F3 /* ConfigReadyGate.swift */,
+				FA1000F2 /* FoodCheckScannerPresenter.swift */,
 				F7D835202F0720A200414B32 /* OnboardingBenefitsPage.swift */,
 				F7D835212F0720A200414B32 /* OnboardingPetSetupPage.swift */,
 				F7D835412F0720A200414B32 /* OnboardingAvoidanceGroupsPage.swift */,
@@ -551,6 +568,7 @@
 		F7F30C802F05B208008389D8 /* DesignSystem */ = {
 			isa = PBXGroup;
 			children = (
+				FA1000F4 /* CompanionExport.swift */,
 				F79CB1822F1431B5007B2E84 /* FloatingElementsView.swift */,
 				F79CB1832F1431B5007B2E84 /* StepProgressBar.swift */,
 				F7F30C7C2F05B208008389D8 /* ColorTokens.swift */,
@@ -695,7 +713,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				LM100002 /* LaunchMetrics.swift in Sources */,
+				FA2000F1 /* OnboardingFlowCallbacks.swift in Sources */,
+				FA2000F2 /* FoodCheckScannerPresenter.swift in Sources */,
+				FA2000F3 /* ConfigReadyGate.swift in Sources */,
+				FA2000F4 /* CompanionExport.swift in Sources */,
+				FA2000F5 /* OnboardingFoodCheckPage.swift in Sources */,
 				FA200005 /* SuperwallSafe.swift in Sources */,
+				FA2000F6 /* PaywallGate.swift in Sources */,
 				FA200042 /* ReviewPrompt.swift in Sources */,
 				FA200043 /* ShareCardRenderer.swift in Sources */,
 				FA200044 /* ShareCardView.swift in Sources */,
@@ -961,7 +985,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -976,7 +1000,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.6;
+				MARKETING_VERSION = 1.4.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -991,7 +1015,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1006,7 +1030,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.4.6;
+				MARKETING_VERSION = 1.4.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -1019,10 +1043,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.4.6;
+				MARKETING_VERSION = 1.4.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
@@ -1036,10 +1060,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 2;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.4.6;
+				MARKETING_VERSION = 1.4.7;
 				PRODUCT_BUNDLE_IDENTIFIER = com.petscans.app.uitests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;

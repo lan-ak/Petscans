@@ -8,12 +8,34 @@ struct ScannerView: View {
     @StateObject private var viewModel = ScannerViewModel()
     @StateObject private var cameraPermission = CameraPermission()
     @State private var showingCatalogSearch = false
+    /// Read once at creation. A user arriving from onboarding has already
+    /// seen `onboarding_complete`'s paywall, so this is true and the camera
+    /// starts as before. See `PaywallGate` for who arrives with it false.
+    @State private var gateOpen = PaywallGate.isOpen
 
     private var useMockScanner: Bool {
         ProcessInfo.processInfo.arguments.contains("-MockScanner")
     }
 
     var body: some View {
+        if gateOpen {
+            scanner
+        } else {
+            ScanGateView(onUnlock: unlock)
+                // Presented on arrival rather than waiting for a tap: this is
+                // the first tab, so a user who never taps would otherwise never
+                // see a paywall, and nothing behind it works until they have.
+                .onAppear(perform: unlock)
+        }
+    }
+
+    private func unlock() {
+        PaywallGate.unlock(source: "scanner_tab") {
+            withStandardAnimation { gateOpen = true }
+        }
+    }
+
+    private var scanner: some View {
         NavigationStack {
             Group {
                 switch viewModel.step {
@@ -289,4 +311,39 @@ struct ScannerView: View {
 #Preview {
     ScannerView()
         .modelContainer(for: Scan.self, inMemory: true)
+}
+
+/// The Scan tab before any paywall has been seen.
+///
+/// Usually on screen for only a moment, since `ScannerView` presents the gate
+/// on arrival. It stays if that paywall is gated and closed without a
+/// purchase. The button then goes straight through, because by then a
+/// paywall has been seen.
+private struct ScanGateView: View {
+    let onUnlock: () -> Void
+
+    var body: some View {
+        VStack(spacing: SpacingTokens.md) {
+            Image(systemName: "camera.viewfinder")
+                .font(.system(size: SpacingTokens.iconXLarge))
+                .foregroundColor(ColorTokens.brandPrimary)
+
+            Text("Scan your pet's food")
+                .displaySmall()
+
+            Text("Point your camera at any bag or can and see what's really in it.")
+                .bodySmall()
+                .foregroundColor(ColorTokens.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+
+            Button("Start scanning", action: onUnlock)
+                .primaryButtonStyle()
+                .padding(.horizontal)
+        }
+        .padding(SpacingTokens.sm)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(ColorTokens.backgroundPrimary.ignoresSafeArea())
+        .accessibilityIdentifier("scan-gate")
+    }
 }

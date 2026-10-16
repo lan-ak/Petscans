@@ -166,6 +166,13 @@ struct PetScansApp: App {
 
             ContentView()
                 .task { await deferredInit() }
+                #if DEBUG
+                // Tooling, not product: `-ExportCompanions` renders the
+                // code-drawn companion rigs to PNG so the Superwall
+                // onboarding surface can ship the same artwork rather than a
+                // hand-redrawn copy of it. No-ops without the argument.
+                .task { CompanionExport.runIfRequested() }
+                #endif
                 .tint(ColorTokens.brandPrimary)
                 .background(ColorTokens.backgroundPrimary)
                 .onOpenURL { url in

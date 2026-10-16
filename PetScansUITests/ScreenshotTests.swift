@@ -216,22 +216,13 @@ final class ScreenshotTests: XCTestCase {
 
         // Promise → straight into the demo. The flow is demo-first: nothing is asked
         // before the user has seen the app score a real food.
-        tapButton("Get Started")
+        tapButton("onboarding-start")
 
-        // Search page (shared ProductCatalogSearchView). Multi-term query exercises
-        // the fuzzy brand+protein matching.
-        let searchField = app.textFields["catalog-search-field"]
-        XCTAssertTrue(searchField.waitForExistence(timeout: 5), "search field")
-        searchField.tap()
-        searchField.typeText("purina chicken")
-        takeScreenshot(named: "aha-02-search")
-
-        // First result → result page.
-        let firstResult = app.buttons.containing(
-            NSPredicate(format: "label CONTAINS[c] %@", "chicken")
-        ).firstMatch
-        XCTAssertTrue(firstResult.waitForExistence(timeout: 8), "a search result")
-        firstResult.tap()
+        // Food check: a pick from `DemoFoods`. Scan and search wait behind the paywall.
+        let sample = app.buttons["food-check-sample-00023100143408"]
+        XCTAssertTrue(sample.waitForExistence(timeout: 8), "Pedigree sample")
+        takeScreenshot(named: "aha-02-samples")
+        sample.tap()
 
         // Result page. This used to wait on a coach-mark tour's "tour-next" button, but no
         // such button exists — `OnboardingFoodResultView` documents that the reveal is
@@ -289,12 +280,10 @@ final class ScreenshotTests: XCTestCase {
         let historyTab = app.tabBars.buttons["History"]
         XCTAssertTrue(historyTab.waitForExistence(timeout: 10), "reached main app after onboarding")
         historyTab.tap()
-        XCTAssertTrue(app.collectionViews["history-view"].waitForExistence(timeout: 5), "history view")
-        let savedScan = app.buttons.containing(
-            NSPredicate(format: "label CONTAINS[c] %@", "purina")
-        ).firstMatch
-        XCTAssertTrue(savedScan.waitForExistence(timeout: 5), "searched food auto-saved to history")
-        takeScreenshot(named: "aha-08-history-saved")
+        // A sample is not food they feed, so History starts empty.
+        XCTAssertTrue(app.staticTexts["No Scans Yet"].waitForExistence(timeout: 5),
+                      "the sample food was saved to History")
+        takeScreenshot(named: "aha-08-history-empty")
     }
 
     /// The catalog text-search reached from the camera / Identify Product view:
