@@ -7,9 +7,16 @@
 
 declare module "superwall/navigation" {
   interface SuperwallRoutes {
+    "food-check": true;
     "index": true;
+    "no-camera": true;
+    "not-found": true;
+    "personalised": true;
+    "pet-setup": true;
     "plans": true;
-    "stakes": true;
+    "result": true;
+    "search": true;
+    "watch-list": true;
   }
 }
 
@@ -19,6 +26,7 @@ declare module "superwall/hooks" {
   interface SuperwallProducts {
     "primary": true;
     "secondary": true;
+    "tertiary": true;
   }
 
   interface SuperwallStripeProducts {

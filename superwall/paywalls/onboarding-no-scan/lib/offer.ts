@@ -31,3 +31,14 @@ export const num = (value?: string | number): number | undefined => {
  */
 export const has = (...values: (string | number | undefined)[]): boolean =>
   values.every((value) => value !== undefined && value !== "");
+
+/**
+ * Coerce a store variable for interpolation into `t()`.
+ *
+ * Every call site is already inside a `has(...)` guard, so the fallback is
+ * unreachable — but `has` narrows at runtime and not in the type system, and
+ * the compiler is right that a bare `string | undefined` must never reach a
+ * message. Spelling the empty string out keeps "undefined" off the screen even
+ * if a guard is ever edited away.
+ */
+export const s = (value?: string | number): string | number => value ?? "";

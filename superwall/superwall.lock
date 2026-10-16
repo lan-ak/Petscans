@@ -5,10 +5,22 @@
     "ios": "34340"
   },
   "paywalls": {
-    "onboarding": {
+    "onboarding-flow": {
       "ios": {
-        "paywallId": "263121",
-        "snapshot": "0b6324c01b8c79e553029366aeefbd5509113a4873f908f87eb3f65eb21843b7"
+        "paywallId": "275901",
+        "snapshot": "22184357c6e5a48bade29bb3ce9b92cb78c37170e68ff00f598df802660006d6"
+      }
+    },
+    "onboarding-no-scan": {
+      "ios": {
+        "paywallId": "276012",
+        "snapshot": "2ab6bce7aeb84739e19248c306dfe0d90699d4844ddd02275786907830b0b30e"
+      }
+    },
+    "onboarding-scan": {
+      "ios": {
+        "paywallId": "276019",
+        "snapshot": "a2adeeb53f087bb0b01f7171490f369733923a71c760c9b16b6e332e645994ad"
       }
     }
   },

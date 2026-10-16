@@ -26,9 +26,22 @@
   --corner: 12px;
   --pad: 16px;
 
-  /* Fixed chrome. env() is 0 in previews, so every inset carries a floor. */
-  --nav-h: max(80px, calc(env(safe-area-inset-top, 0px) + 44px));
-  --footer-pb: max(calc(env(safe-area-inset-bottom, 0px) + 14px), 50px);
+  /*
+   * No env() anywhere in this file. The framework pads `[data-sw-root]` by the
+   * insets once, and each page's scroll container carries that inset as its own
+   * padding — so a page or layout that also reads `env()` pads that edge twice.
+   * These are plain distances inside an already-inset box: `--nav-h` is just
+   * the toolbar's height, and the footer padding is breathing room above a CTA
+   * that `position: sticky` has already parked above the home indicator.
+   */
+  --nav-h: 44px;             /* SpacingTokens.minTouchTarget */
+  --footer-pb: 24px;         /* SpacingTokens.ctaBottomInset */
+
+  /* `[data-sw-root]` paints this. Paired with `background` in config.ts, which
+     the framework writes on <html>: that is what shows when an iOS scroll
+     rubber-bands past the end, and the two must carry the same colors or every
+     bounce flashes white. Without it the root box is transparent. */
+  --sw-background: var(--bg);
 }
 
 /* Dark mode is the class the SDK stamps, never prefers-color-scheme. */
@@ -44,6 +57,8 @@
   --score-moderate: #ff9f0a;
   --score-poor: #ff453a;
   --alert-high-bg: rgba(255, 69, 58, 0.18);
+
+  --sw-background: var(--bg);
 }
 
 html {
@@ -101,8 +116,14 @@ button:focus {
 
 /* ---------------------------------------------------------------- navbar */
 
+/*
+ * Absolute, not fixed: in `layout.tsx` this resolves against
+ * `[data-sw-content]` — the box that starts after the insets — so the toolbar
+ * sits below the status bar with no inset arithmetic. Fixed would ignore the
+ * insets and ride along with a page during a route transition.
+ */
 .navbar {
-  position: fixed;
+  position: absolute;
   inset: 0 0 auto 0;
   z-index: 10;
   display: flex;
@@ -135,41 +156,43 @@ button:focus {
 
 /* ------------------------------------------------------------------ page */
 
+/*
+ * `min-height: 100%`, not `100vh`. The page's parent is `[data-sw-route]`
+ * (absolute, inset 0, overflow auto), so its height is definite and a
+ * percentage resolves against it. `100vh` is the whole viewport — taller than
+ * the inset box by exactly the insets, which makes the whole paywall scroll
+ * when it should fit.
+ */
 .page {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 100vh;
-  padding: var(--nav-h) var(--pad) 130px;
-  background: var(--bg);
+  gap: 16px;               /* SpacingTokens.sm */
+  min-height: 100%;
+  padding: var(--nav-h) var(--pad) 0;
 }
 
-.page--stakes {
-  justify-content: center;
-}
-
+/* The footer is sticky now, so the page no longer reserves room beneath it. */
 .page--plans {
   gap: 16px;
-  padding-bottom: 360px;
 }
 
-/* ------------------------------------------------------- page 0: the hero */
+/* -------------------------------------------- page 1: what a scan returns */
 
 .hero {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;              /* SpacingTokens.sm */
   width: 100%;
-  padding: 8px 22px;
-  margin-top: 22px;
+  padding: 0;
+  margin-top: 0;
 }
 
 .eyebrow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
+  gap: 8px;               /* SpacingTokens.xxs */
+  padding: 8px 16px;      /* xxs / sm */
   border-radius: 100px;
   background: var(--secondary);
   color: var(--primary);
@@ -186,18 +209,10 @@ button:focus {
   text-align: center;
 }
 
-.hero__kicker {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.25;
-  text-align: center;
-}
-
 .hero__sub {
   margin: 0;
   color: var(--text-50);
-  font-size: 16px;
+  font-size: 15px;        /* TypographyTokens.body */
   font-weight: 400;
   line-height: 1.45;
   text-align: center;
@@ -206,10 +221,10 @@ button:focus {
 .result-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;              /* SpacingTokens.cardGap */
   width: 100%;
-  padding: 18px;
-  border-radius: 20px;
+  padding: 16px;          /* SpacingTokens.cardPadding */
+  border-radius: 16px;    /* SpacingTokens.radiusLarge */
   background: var(--card-surface);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
@@ -217,9 +232,11 @@ button:focus {
 .result-card__top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  /* The ring leads, the food sits beside it — not pushed to opposite edges. */
+  justify-content: flex-start;
+  gap: 12px;               /* SpacingTokens.xs */
   width: 100%;
+  min-width: 0;
 }
 
 .result-card__food {
@@ -229,13 +246,6 @@ button:focus {
   min-width: 0;
 }
 
-.result-card__brand {
-  color: var(--text-50);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
 
 .result-card__name {
   display: -webkit-box;
@@ -247,17 +257,12 @@ button:focus {
   line-height: 1.25;
 }
 
-.result-card__divider {
-  width: 100%;
-  height: 1px;
-  background: var(--secondary);
-}
 
 .result-card__verdict {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14px;
+  font-size: 13px;        /* TypographyTokens.bodySmall */
   font-weight: 600;
 }
 
@@ -272,150 +277,52 @@ button:focus {
 .score-dot--excellent { background: var(--score-excellent); }
 .score-dot--good { background: var(--score-good); }
 .score-dot--moderate { background: var(--score-moderate); }
+.score-dot--poor { background: var(--score-poor); }
 
-.mystery-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.mystery-card {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 16px 8px;
-  border: 1.5px dashed #b3b3b3;
-  border-radius: 16px;
-}
-
-.mystery-card__emoji {
-  font-size: 26px;
-  line-height: 1;
-}
-
-.mystery-card__badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
-  border: 1.5px dashed #b3b3b3;
-  border-radius: 50%;
-  color: #808080;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.mystery-card__label {
-  color: var(--text-50);
-  font-size: 12px;
-  font-weight: 600;
-  text-align: center;
-}
-
-/* --------------------------------------------------- page 1: the stakes */
-
-.stakes {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-}
-
-.stakes__headline {
-  margin: 0;
-  font-size: 27px;
-  font-weight: 700;
-  line-height: 1.2;
-  text-align: center;
-}
-
-.stakes__lede {
-  margin: 0;
-  color: var(--text-50);
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.chip {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 15px 9px 14px;
-  border-radius: 100px;
-  background: var(--alert-high-bg);
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.chip__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--score-poor);
+/*
+ * The score ring. `--score` is set inline from the user attribute, and the
+ * conic gradient reads it as a percentage — one element, no SVG, no library.
+ * `--ring` is the band colour, so the sweep and the verdict dot below it are
+ * always the same hue.
+ */
+.score-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 50px;             /* SpacingTokens.iconScoreSmall */
+  height: 50px;
   flex: none;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--ring) 0 calc(var(--score, 0) * 1%),
+    var(--secondary) calc(var(--score, 0) * 1%) 100%
+  );
 }
 
-.stat-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 22px 18px;
-  border-radius: 20px;
+.score-ring--excellent { --ring: var(--score-excellent); }
+.score-ring--good      { --ring: var(--score-good); }
+.score-ring--moderate  { --ring: var(--score-moderate); }
+.score-ring--poor      { --ring: var(--score-poor); }
+
+.score-ring__value {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   background: var(--card-surface);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
-}
-
-.stat-card__figure {
-  color: var(--score-poor);
-  font-size: 38px;
+  font-size: 17px;         /* TypographyTokens.scoreValue */
   font-weight: 700;
-  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
 }
 
-.stat-card__caption {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 500;
-  line-height: 1.4;
-  text-align: center;
-}
-
-.stakes__close {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.4;
-  text-align: center;
-}
-
-/* ---------------------------------------------------- page 2: the plans */
+/* ----------------------------------------------------- page 2: the plans */
 
 .plans__headline {
   margin: 0;
   padding: 0 16px;
-  font-size: 26px;
+  font-size: 22px;        /* TypographyTokens.displaySmall */
   font-weight: 600;
   text-align: center;
 }
@@ -482,7 +389,7 @@ button:focus {
   display: flex;
   align-items: center;
   min-height: 34px;
-  font-size: 18px;
+  font-size: 17px;        /* TypographyTokens.labelLarge */
   font-weight: 400;
 }
 
@@ -493,17 +400,20 @@ button:focus {
   opacity: 0.5;
 }
 
+/* No scrolling, so this panel has to fit the shortest screen it ships to.
+   It carries one review, not two, and pads only vertically — the page gutter
+   already handles the sides. */
 .bento {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;              /* SpacingTokens.cardGap */
   width: 100%;
-  padding: 16px;
+  padding: 0;
 }
 
 .accolades {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
 }
 
@@ -512,8 +422,8 @@ button:focus {
   flex: 1;
   align-items: center;
   justify-content: space-between;
-  gap: 3px;
-  padding: 10px 16px;
+  gap: 4px;               /* SpacingTokens.xxxs */
+  padding: 12px 16px;     /* xs / sm */
   border-radius: var(--corner);
   background: var(--secondary);
 }
@@ -530,15 +440,14 @@ button:focus {
 }
 
 .accolade__label {
-  flex: 1;
   min-width: 0;
-  padding: 0 6px;
-  font-size: 15px;
+  font-size: 12px;        /* TypographyTokens.caption */
   font-weight: 500;
-  line-height: 19px;
+  line-height: 1.25;
   text-align: center;
-  /* The label carries its own line break — it must never wrap past two. */
-  white-space: pre;
+  /* Honours the catalog's line break, but may still wrap if a translation
+     runs long — `pre` could not, which is how the tile overflowed. */
+  white-space: pre-line;
 }
 
 .review {
@@ -561,25 +470,25 @@ button:focus {
 .review__left {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .review__title {
-  font-size: 16px;
+  font-size: 15px;        /* TypographyTokens.labelMedium */
   font-weight: 600;
 }
 
 .review__stars {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .review__right {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 5px;
+  gap: 4px;
 }
 
 .review__meta {
@@ -589,21 +498,25 @@ button:focus {
 
 .review__body {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;        /* TypographyTokens.bodySmall */
   line-height: 20px;
 }
 
 /* --------------------------------------------------------- fixed footers */
 
+/* A pinned action stack: sticky in the page, never fixed. Sticky honours the
+   scroll container's padding, so it parks above the home indicator by itself
+   and the content scrolls under it to the screen edge. */
 .footer {
-  position: fixed;
-  inset: auto 0 0 0;
+  position: sticky;
+  bottom: 0;
   z-index: 20;
+  margin-top: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 17px var(--pad) var(--footer-pb);
+  gap: 12px;              /* SpacingTokens.xs */
+  padding: 16px 0 var(--footer-pb);
   background: var(--bg);
 }
 
@@ -612,12 +525,15 @@ button:focus {
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: 65px;
+  min-height: 52px;       /* PrimaryButtonStyle */
+  padding: 16px;          /* SpacingTokens.sm */
   border-radius: var(--corner);
   background: var(--primary);
   color: var(--cta-text);
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 17px;        /* TypographyTokens.labelLarge */
+  font-weight: 600;
+  line-height: 1.2;
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.2);
 }
 
 .plan-list {
@@ -632,7 +548,7 @@ button:focus {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 3px;
+  gap: 4px;
   width: 100%;
   min-height: 54px;
   padding: 12px 16px;
@@ -646,7 +562,7 @@ button:focus {
 }
 
 .plan--callout {
-  padding-top: 30px;
+  padding-top: 32px;      /* SpacingTokens.xl */
 }
 
 .plan__left {
@@ -657,21 +573,18 @@ button:focus {
 }
 
 .plan__label {
-  font-size: 18px;
+  font-size: 17px;        /* TypographyTokens.labelLarge */
   font-weight: 600;
   text-transform: capitalize;
 }
 
 .plan__caption {
   width: 100%;
-  font-size: 14px;
+  font-size: 13px;        /* TypographyTokens.bodySmall */
   font-weight: 400;
   text-align: left;
 }
 
-.plan__price {
-  font-size: 14px;
-}
 
 .plan__callout {
   position: absolute;
@@ -690,35 +603,40 @@ button:focus {
   padding: 4px 8px;
 }
 
+/* The v6 selector: an empty ring that fills with a check and takes the brand
+   colour once chosen. Selection reads at a glance here in a way a price never
+   did — the terms live in the caption to its left. */
 .plan__radio {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 32px;
   height: 32px;
+  flex: none;
   border: 2px solid var(--border);
   border-radius: 100px;
   color: var(--primary);
-  flex: none;
 }
 
 .plan--selected .plan__radio {
   border-color: var(--primary);
 }
 
+
+
 .magic-words {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  font-size: 16px;
+  font-size: 15px;        /* TypographyTokens.body */
   font-weight: 500;
 }
 
 .pricing-copy {
   width: 100%;
-  font-size: 14px;
+  font-size: 12px;        /* TypographyTokens.caption */
   text-align: center;
   opacity: 0.75;
 }
@@ -727,16 +645,102 @@ button:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding-top: 2px;
-  color: #8e8e93;
+  gap: 8px;
+  padding-top: 4px;       /* SpacingTokens.xxxs */
+  color: var(--text-50);
   font-size: 12px;
+}
+
+
+
+
+
+/* --------------------------------------------- page 1: the companion + samples */
+
+/*
+ * The companion rig, at the size the app gives a payoff moment
+ * (`CompanionSize.prominent`). Transparent PNG, so it composites onto whichever
+ * ground is painted behind it — which is why the drop-shadow is restated for
+ * dark rather than inherited.
+ */
+.companion {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  margin: 0 auto;
+  filter: drop-shadow(0 10px 18px rgba(18, 43, 30, 0.12));
+}
+
+/*
+ * The cat rig is drawn lighter than the dog. Measured off the exported alpha,
+ * it covers 0.289 of its own height squared against the dog's 0.332, so at a
+ * shared height it reads about 13% smaller. sqrt(0.332 / 0.289) = 1.072 is the
+ * height that gives the two rigs equal visual mass — which is why this is 116
+ * and not a round number. Re-measure if the rigs are ever redrawn.
+ */
+.companion--dog {
+  height: 108px;          /* CompanionSize.prominent */
+}
+
+.companion--cat {
+  height: 116px;
+}
+
+:root.dark .companion {
+  filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}
+
+.sample-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;               /* SpacingTokens.cardGap */
+}
+
+/* In the sample cards the verdict sits under the name, not under a divider. */
+.result-card__verdict--inline {
+  margin-top: 4px;         /* SpacingTokens.xxxs */
+}
+
+/* Laurel | figure over label | laurel. Side by side the figure and a
+   two-line label overran the tile — half a 393pt screen is ~173px, and
+   "3,000" plus "ingredients" plus two laurels does not fit across it. */
+.accolade__stat {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;               /* SpacingTokens.xxxs */
+}
+
+.accolade__figure {
+  font-size: 22px;         /* TypographyTokens.displaySmall */
+  font-weight: 700;
+  line-height: 1;
+  color: var(--primary);
+}
+
+/*
+ * Short phones (iPhone SE, 667pt). The companion is the most compressible
+ * thing on this page — shrinking it keeps the third sample card above the
+ * fold, which matters more than the rig's size.
+ */
+@media (max-height: 700px) {
+  .companion--dog { height: 84px; }
+  .companion--cat { height: 90px; }   /* the same 1.072 ratio */
+  .page { gap: 12px; padding-top: 44px; }
+  .hero { gap: 12px; }
+  .hero__headline { font-size: 22px; }
+  .result-card { padding: 12px; }
+  .timeline__body { padding-bottom: 12px; }
+  .footer { gap: 8px; padding-top: 12px; }
+  .sample-list { gap: 8px; }
 }
 
 /* ----------------------------------------------------- exit offer drawer */
 
 .drawer {
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 100;
   display: flex;
@@ -757,7 +761,7 @@ button:focus {
   flex-direction: column;
   gap: 16px;
   width: 100%;
-  padding: 24px 20px calc(40px + env(safe-area-inset-bottom, 0px));
+  padding: 24px var(--pad) var(--footer-pb);
   border-radius: 16px 16px 0 0;
   background: var(--card-surface);
   animation: drawer-rise 280ms cubic-bezier(0.32, 0.72, 0, 1);
@@ -775,7 +779,7 @@ button:focus {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .drawer__title {
@@ -788,7 +792,7 @@ button:focus {
 
 .drawer__sub {
   margin: 0;
-  font-size: 14px;
+  font-size: 13px;        /* TypographyTokens.bodySmall */
   line-height: 1.4;
   text-align: center;
   opacity: 0.6;
@@ -804,11 +808,11 @@ button:focus {
 }
 
 .drawer__plan-title {
-  font-size: 18px;
+  font-size: 17px;        /* TypographyTokens.labelLarge */
 }
 
 .drawer__plan-detail {
-  font-size: 14px;
+  font-size: 13px;        /* TypographyTokens.bodySmall */
   line-height: 1.4;
   opacity: 0.65;
 }
@@ -817,12 +821,16 @@ button:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 60px;
-  border-radius: 16px;
+  min-height: 52px;       /* PrimaryButtonStyle — same button as .cta */
+  padding: 16px;
+  border-radius: var(--corner);
   background: var(--primary);
   color: var(--cta-text);
-  font-size: 17px;
+  font-size: 17px;        /* TypographyTokens.labelLarge */
+  font-weight: 600;
+  line-height: 1.2;
   text-align: center;
+  box-shadow: 0 4px 16px rgba(52, 199, 89, 0.2);
 }
 
 .drawer__dismiss {
@@ -830,25 +838,7 @@ button:focus {
   align-items: center;
   justify-content: center;
   padding: 8px;
-  font-size: 14px;
+  font-size: 13px;        /* TypographyTokens.bodySmall */
   text-align: center;
   opacity: 0.45;
-}
-
-.plan__caption-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 2px 6px;
-  width: 100%;
-}
-
-/* In the row the caption sizes to its text so the anchor can sit beside it. */
-.plan__caption-row .plan__caption {
-  width: auto;
-}
-
-.plan__anchor {
-  font-size: 14px;
-  opacity: 0.5;
 }
