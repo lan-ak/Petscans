@@ -41,6 +41,13 @@ A playbook that ships a scripted opening line is a seed network with extra steps
 | **Bone marrow treats, mostly wheat** (Noise playbook `18677`, campaign `3988`) | Noise | 2 slides, ~30s. One fixed product (MaroSnacks `00079100902071`). Panel read — wheat #1, sugar #3 — then wheat profile → 0 · Avoid | Creator's own dog; "I've never read this bag" | **LIVE** 2026-08-07 |
 | **A cat food that's mostly corn** (Noise playbook `18675`, campaign `3988`) | Noise | Cat mirror of 18677. Meow Mix Original Choice `00829274513760`. Corn #1 and #4 → corn profile → 0 · Avoid | Creator's own cat; obligate-carnivore framing | **LIVE** 2026-08-07 |
 
+| **The 3% rule** (dog `24167`, cat `24168`, campaign `19792` PetScans v2) | Noise image slideshow (listicle, 7 slides) | Hook on the "with = 3%" naming rule → 95 / 25 / 3 / flavor rules → list is by weight before cooking → "or just scan it with PetScans" (real app screenshot) | No pet needed. Creator's own pet photo on slide 1 encouraged for variation. Names no food brand | **DRAFT** 2026-10-04 |
+| **Treats ranked by ingredient #1** (dog `24169`, cat `24170`, campaign `19792` PetScans v2) | Noise image slideshow (ranked countdown) | Worst → best by the first printed ingredient vs the front-of-pack claim → single-ingredient treat wins → PetScans screenshot | Pool of label-verified products per slot so posts don't match | **DRAFT** 2026-10-04 |
+
+These are the first true image slideshows (18675–18677 are filmed scenes stored as slideshows).
+Solution captions are deliberately second-person ("scan it with PetScans"), not first-person
+testimony, because slideshow creators may never have used the app or owned the pet.
+
 **Campaign 3988 went live 2026-08-07** — niche, static, **$1,000 budget over 2026-08-07 →
 2026-09-06**, flat $4 CPM in US and CA (≈250K views). All three pools run simultaneously, so the
 release-window staggering below does not separate them — they are differentiated by shape and
