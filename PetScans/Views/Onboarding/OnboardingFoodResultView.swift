@@ -665,6 +665,7 @@ struct OnboardingPersonalizedResultView: View {
         // The decision above still runs under UI testing; only the sheet is withheld.
         guard !PetScansApp.isUITesting else { return }
         requestReview()
+        ReviewPrompt.logRequested(from: .onboardingPeak)
     }
 
     /// Replaces the row the demo saved with the personalised one.

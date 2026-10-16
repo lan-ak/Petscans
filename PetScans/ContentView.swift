@@ -108,6 +108,7 @@ struct MainTabView: View {
         // walks — presenting it would steal whichever tap landed 2.5s after the tab bar.
         guard !PetScansApp.isUITesting else { return }
         requestReview()
+        ReviewPrompt.logRequested(from: .launch)
     }
 }
 

@@ -282,6 +282,7 @@ struct ProductScoreView: View {
         guard !PetScansApp.isUITesting else { return }
 
         requestReview()
+        ReviewPrompt.logRequested(from: .scanResult)
     }
 
     // MARK: - Unreadable Scan Banner

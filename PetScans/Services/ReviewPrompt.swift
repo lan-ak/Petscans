@@ -124,6 +124,33 @@ enum ReviewPrompt {
         return true
     }
 
+    /// Which screen made the ask. The raw value is what Superwall records.
+    enum Source: String {
+        case onboardingPeak = "onboarding_peak"
+        case launch = "launch"
+        case scanResult = "scan_result"
+    }
+
+    /// Records that the rating sheet was requested, as the `review_requested` placement.
+    ///
+    /// Without it there is no way to answer "was this user asked?": ratings are anonymous
+    /// and `requestReview` reports nothing back. This is the *request*, not the sheet —
+    /// iOS still declines to show it to anyone who turned in-app ratings off or is past
+    /// the three-a-year cap, and tells the app neither.
+    ///
+    /// Same rule as `onboarding_step`: a registered placement presents a paywall if one is
+    /// ever attached to the name, and one landing here would cover the rating sheet. Keep
+    /// it out of campaigns.
+    static func logRequested(from source: Source) {
+        SuperwallSafe.register(
+            placement: "review_requested",
+            params: [
+                "source": source.rawValue,
+                "session_count": UserDefaults.standard.integer(forKey: Key.sessionCount),
+            ]
+        )
+    }
+
     /// Arms the ask for a user who has just finished onboarding.
     ///
     /// No pre-prompt: the system sheet is the ask. What stands in for sentiment is that they
