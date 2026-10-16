@@ -37,6 +37,7 @@ final class ScreenshotTests: XCTestCase {
         // include a Merrick chew scoring 46, and matching on the brand picked that up
         // instead of the hero. Pin to the product.
         openScan(brandOrName: "Texas Beef")
+        waitForProductImage()
         Thread.sleep(forTimeInterval: 1.0)
         takeScreenshot(named: "01_HeroScore", floats: ["card": floatTarget("hero-rating")])
     }
@@ -69,6 +70,7 @@ final class ScreenshotTests: XCTestCase {
     func test03_AllergenAlert() throws {
         launchSeeded()
         openScan(brandOrName: "Milk-Bone")
+        waitForProductImage()
         Thread.sleep(forTimeInterval: 1.0)
 
         let banner = floatTarget("allergen-banner")
@@ -361,6 +363,19 @@ final class ScreenshotTests: XCTestCase {
 
         let scoreView = app.scrollViews["product-score-view"]
         XCTAssertTrue(scoreView.waitForExistence(timeout: 10))
+    }
+
+    /// The product photo is fetched over the network, and a fixed sleep lost that race
+    /// at 6.3": shot 1 went out with a spinner where the bag should be. Fails rather
+    /// than capture one.
+    ///
+    /// It waits on the spinner going away rather than on the photo appearing: SwiftUI
+    /// treats the loaded, unlabelled image as decorative, so it never shows up in the
+    /// accessibility tree to wait for.
+    private func waitForProductImage() {
+        let spinner = app.scrollViews["product-score-view"].activityIndicators.firstMatch
+        let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: spinner)
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 15), .completed, "product photo never loaded")
     }
 
     // MARK: - Helper Methods

@@ -27,6 +27,7 @@ set of coordinates works at every device size.
 Usage: compose_marketing_shots.py <raw_dir> <out_dir> <W> <H>
 """
 import json
+import math
 import os
 import sys
 
@@ -196,18 +197,25 @@ def snap_edge(profile, edge, up, down, band):
     return best
 
 
-def snap_band(profile, top, height, limit, band):
+def snap_band(profile, top, height, limit, band, cover):
     """Slide a float so both its edges land between elements, not through them.
 
     A card enlarged over the screen it came from spills past the row it replaces, and
     wherever its edge lands it cuts whatever is underneath. Half a word showing above
     a floated card is the single thing that makes one of these frames look broken
     rather than composed.
+
+    `cover` is the source row's (top, bottom) in the same coordinates. A shift that
+    uncovers any of it is never taken: the gutter search once slid shot 6's AAFCO
+    card far enough up that the row's own last line showed beneath it, which is the
+    same broken look from the other side.
     """
     best, best_cost = top, None
     for shift in range(-limit, limit + 1):
         t, b = top + shift, top + height + shift
         if t < 0 or b >= len(profile[1]):
+            continue
+        if t > cover[0] or b < cover[1]:
             continue
         # A small penalty on distance keeps the card near its source when several
         # offsets are equally clean.
@@ -312,6 +320,7 @@ def compose(name, caption, crop_top, crop_bottom, out_path):
             card_h,
             round(H * FLOAT_SNAP),
             max(2, card_h // 60),
+            (math.floor(source_y - panel_y), math.ceil(source_y - panel_y + source_h)),
         )
         card_y = max(round(caption_bottom + H * 0.02), min(card_y, round(H - card_h * 0.55)))
 

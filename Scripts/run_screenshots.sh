@@ -27,10 +27,14 @@ SCHEME="PetScans"
 OUTPUT_DIR="$PROJECT_DIR/Screenshots"
 
 # Device, App Store size class, and the pixel dimensions that size expects.
-declare -a DEVICES=("iPhone 17 Pro Max" "iPhone 14 Plus")
-declare -a SIZES=("6.9" "6.5")
-declare -a WIDTHS=(1320 1284)
-declare -a HEIGHTS=(2868 2778)
+#
+# 6.3" (APP_IPHONE_61, "iPhone with Dynamic Island, medium display") has been the
+# one *required* iPhone size since October 2026. Without it App Store Connect flags
+# the version's screenshots as an error, even with the 6.9" and 6.5" sets in place.
+declare -a DEVICES=("iPhone 17 Pro Max" "iPhone 14 Plus" "iPhone 17")
+declare -a SIZES=("6.9" "6.5" "6.3")
+declare -a WIDTHS=(1320 1284 1206)
+declare -a HEIGHTS=(2868 2778 2622)
 
 # The App Store shot list. Other tests in the suite (onboarding, smoke) are not part
 # of the listing and are not run here.
