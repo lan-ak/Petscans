@@ -74,6 +74,9 @@ struct CompanionView: View {
     /// Staggers arrival when more than one is on screen. Two characters appearing on
     /// the same frame read as one image; 120ms apart they read as two animals.
     var entranceDelay: Double = 0
+    /// Off when the caller moves the whole rig (the launch splash's hop) and so
+    /// has to draw the ground shadow itself, outside the motion.
+    var showsContactShadow = true
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -121,11 +124,13 @@ struct CompanionView: View {
         ZStack {
             // Stays put while the body sways above it — a contact shadow that slides
             // with the animal is a drop shadow, and drop shadows float.
-            CompanionArt.contact
-                .fill(ColorTokens.contactShadow)
-                .blur(radius: 7 * u)
-                .scaleEffect(x: concern <= -0.5 ? 1.04 : 1, y: 1, anchor: .center)
-                .animation(moodAnimation, value: mood)
+            if showsContactShadow {
+                CompanionArt.contact
+                    .fill(ColorTokens.contactShadow)
+                    .blur(radius: 7 * u)
+                    .scaleEffect(x: concern <= -0.5 ? 1.04 : 1, y: 1, anchor: .center)
+                    .animation(moodAnimation, value: mood)
+            }
 
             ZStack {
                 chestLayer
