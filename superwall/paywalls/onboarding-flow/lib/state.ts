@@ -1,4 +1,5 @@
 import type { ScoredFood, Species } from "./callbacks";
+import type { DemoResult, IngredientDetail } from "./demoResults";
 
 /**
  * Cross-route state for the whole onboarding flow.
@@ -15,12 +16,14 @@ import type { ScoredFood, Species } from "./callbacks";
 interface OnboardingState {
   /** Chosen on the food-check screen. Null until the owner actually taps one. */
   species: Species | null;
-  /** The demo verdict, scored before anything is known about the pet. */
+  /** The picked food's baked cold result, which the result page renders. */
+  demo: DemoResult | null;
+  /** The same verdict in `rescoreForPet`'s shape, for step 5 to compare against. */
   food: ScoredFood | null;
-  /** True when `food` came from `exampleFood` rather than the user's own pick. */
+  /** The ingredient the detail sheet is showing. */
+  ingredient: IngredientDetail | null;
+  /** True when `food` is a `DemoFoods` pick (always, in 1.4.8) — not their food. */
   isExample: boolean;
-  /** The query or barcode that missed, echoed on the recovery screens. */
-  missedTerm: string;
 
   /** Step 3. The one required answer in the whole flow. */
   petName: string;
@@ -35,9 +38,10 @@ interface OnboardingState {
 
 export const state: OnboardingState = {
   species: null,
+  demo: null,
   food: null,
+  ingredient: null,
   isExample: false,
-  missedTerm: "",
   petName: "",
   allergens: [],
   groups: [],
@@ -46,9 +50,10 @@ export const state: OnboardingState = {
 
 export function reset() {
   state.species = null;
+  state.demo = null;
   state.food = null;
+  state.ingredient = null;
   state.isExample = false;
-  state.missedTerm = "";
   state.petName = "";
   state.allergens = [];
   state.groups = [];

@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef } from "react";
 import { useActions } from "superwall/hooks";
 
 /**
@@ -20,52 +21,62 @@ import { useActions } from "superwall/hooks";
  *   WHERE name = 'onboarding_flow_event'
  */
 export type FoodCheckEvent =
-  /** A route rendered. `step` carries which. The funnel's denominators. */
+  /** A route was first shown. `step` carries which. The funnel's denominators. */
   | "step"
-  /** A route was completed and the user moved on. */
-  | "step_done"
-  /** A path was chosen: scan, search or example. */
-  | "path_chosen"
-  /** A query was actually submitted — the thing we currently cannot see. */
-  | "search_attempted"
-  /** Submitted, ran, returned nothing. Today indistinguishable from silence. */
-  | "search_no_results"
-  /** The catalogue read threw or the bridge failed. */
-  | "search_failed"
-  /** Camera prompt answered. `granted` carries the outcome. */
-  | "camera_permission"
-  /** A barcode read cleanly but isn't in the catalogue. The coverage signal. */
-  | "scan_not_found"
-  /** The scanner was opened and dismissed without a read. */
-  | "scan_abandoned"
-  /** A food was scored and shown. */
+  /** A food was picked and its result shown. `term` is the GTIN. */
   | "result_shown"
   /** Reached the end and handed off to `onboarding_complete`. */
   | "completed";
+
+/*
+ * Eight events for a full run: six `step`s, one `result_shown`, one
+ * `completed`. Each is a `register` on the device, so this is kept to what
+ * the funnel query reads. Gone, because another event already said it:
+ * `step_done` (the next `step`), `path_chosen` (there is one path, and
+ * `result_shown` fires on the same tap), and a `step` per ingredient sheet,
+ * which counted a glance at "Biotin" as a funnel step.
+ */
 
 export interface TrackParams {
   /** Which route. Query the funnel on this, not on route order. */
   step?: string;
   /** The query or barcode that missed. The catalogue backlog, one row at a time. */
   term?: string;
-  path?: "scan" | "search" | "example";
-  granted?: string;
+  path?: "sample";
   score?: number;
-  results?: number;
-  /** Allergens or avoidance groups picked, for the question pages. */
-  count?: number;
-  reason?: string;
 }
 
+/**
+ * Stable for the life of the page. It used to be a new function on every
+ * render, and each page logs its `step` in an effect keyed on it — so every
+ * re-render re-fired the step: each keystroke in the name field, and every
+ * page still mounted under the top of the stack. One run sent 70 placements,
+ * `food_check` alone 25 times.
+ */
 export function useTrack() {
   const { customPlacement } = useActions();
+  const send = useRef(customPlacement);
+  send.current = customPlacement;
 
-  return (event: FoodCheckEvent, params: TrackParams = {}) => {
+  return useCallback((event: FoodCheckEvent, params: TrackParams = {}) => {
     // Undefined values would serialise as nulls the SQL has to special-case.
     const clean: Record<string, string | number> = { event };
     for (const [k, v] of Object.entries(params)) {
       if (v !== undefined && v !== "") clean[k] = v as string | number;
     }
-    customPlacement("onboarding_flow_event", clean);
-  };
+    send.current("onboarding_flow_event", clean);
+  }, []);
+}
+
+/** Logs `step` once, the first time the page is shown — never per render. */
+export function useStep(step: string, params: Omit<TrackParams, "step"> = {}) {
+  const track = useTrack();
+  const sent = useRef(false);
+  const latest = useRef(params);
+  latest.current = params;
+  useEffect(() => {
+    if (sent.current) return;
+    sent.current = true;
+    track("step", { step, ...latest.current });
+  }, [step, track]);
 }

@@ -3,45 +3,58 @@ import { useHaptics, useTranslation } from "superwall/hooks";
 import { useRouter } from "superwall/navigation";
 import { Companion } from "../components/Companions";
 import { StepDots } from "../components/StepDots";
+import type { Species } from "../lib/callbacks";
 import { quickPickAllergens, state } from "../lib/state";
-import { useTrack } from "../lib/track";
+import { useStep } from "../lib/track";
 
 /**
- * Step 3 — the profile.
+ * Step 3 — `OnboardingPetSetupPage` → `PetFormView` → `AllergenSelectionView`.
  *
- * The page that used to lose 48% of arrivals when it came *first*; it now sits
- * after the payoff that earns it. The companion is the only thing on it that
- * says who the form is about, which is why it stays.
+ * Native order: the companion, "Let's meet your pet", the name field, the
+ * Dog/Cat segmented control, a divider, the allergen question with its quick
+ * picks and "Search for more...", the footnote. The name is the one required
+ * answer, and it gates leaving this page.
  *
- * The name is the one required answer in the whole flow, and it gates leaving
- * this page rather than the final submit — by the time the watch list is done
- * the name is already valid.
+ * Allergens picked in search that aren't quick picks show as extra selected
+ * chips, which is how native shows them too; tapping one removes it.
  */
 export default function PetSetup() {
   const router = useRouter();
   const { t } = useTranslation();
   const haptics = useHaptics();
-  const track = useTrack();
+  useStep("pet_setup");
 
   const [name, setName] = useState(state.petName);
+  const [species, setSpecies] = useState<Species>(state.species ?? "dog");
   const [allergens, setAllergens] = useState<string[]>(state.allergens);
-  // Blank until a submit has been attempted, so the field is not red before
-  // the user has had a chance to type in it.
+  // Blank until a submit has been attempted, so the field isn't red first.
   const [showError, setShowError] = useState(false);
 
+  // This page stays mounted under the search sheet, so pick up what was
+  // chosen there when it comes back to the top.
   useEffect(() => {
-    track("step", { step: "pet_setup" });
-  }, [track]);
+    if (router.name === "pet-setup") setAllergens(state.allergens);
+  }, [router.name]);
 
-  const picks = quickPickAllergens(state.species);
+  const picks = quickPickAllergens(species);
+  const pickIds = new Set(picks.map((p) => p.id));
+  const extras = allergens.filter((a) => !pickIds.has(a)).sort();
 
-  const toggleAllergen = (id: string) => {
-    haptics.selection();
-    const next = allergens.includes(id)
-      ? allergens.filter((a) => a !== id)
-      : [...allergens, id];
+  const setAll = (next: string[]) => {
     setAllergens(next);
     state.allergens = next;
+  };
+
+  const toggle = (id: string) => {
+    haptics.selection();
+    setAll(allergens.includes(id) ? allergens.filter((a) => a !== id) : [...allergens, id]);
+  };
+
+  const chooseSpecies = (next: Species) => {
+    if (next === species) return;
+    haptics.selection();
+    setSpecies(next);
+    state.species = next;
   };
 
   const advance = () => {
@@ -52,48 +65,61 @@ export default function PetSetup() {
     }
     haptics.medium();
     state.petName = name.trim();
-    track("step_done", { step: "pet_setup", count: allergens.length });
     router.push("watch-list");
   };
+
+  const error = showError && !name.trim();
 
   return (
     <div className="page">
       <div className="page__body">
-        <div className="scroller">
-          <div className="hero hero--inline">
-            <Companion species={state.species ?? "dog"} />
+        <div className="scroller form">
+          <div className="form__hero">
+            <Companion species={species} />
           </div>
 
           <h1 className="page__title page__title--center">{t("petSetup.title")}</h1>
 
-          <label className="field-label" htmlFor="pet-name">
-            {t("petSetup.nameLabel")}
-          </label>
-          <div className={`field${showError && !name.trim() ? " field--error" : ""}`}>
-            <input
-              id="pet-name"
-              className="field__input"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setShowError(false);
-              }}
-              placeholder={t("petSetup.namePlaceholder")}
-              autoComplete="off"
-              autoCorrect="off"
-              autoCapitalize="words"
-              enterKeyHint="done"
-              // Return dismisses the keyboard and leaves the user here. It
-              // deliberately does not advance: the allergen chips sit below,
-              // and moving on off a return press would skip past them.
-              onKeyDown={(e) => {
-                if (e.key === "Enter") e.currentTarget.blur();
-              }}
-            />
+          <div className="form__fields">
+            <div className="form__name">
+              <input
+                id="pet-name"
+                className={`input${error ? " input--error" : ""}`}
+                value={name}
+                aria-label={t("petSetup.namePlaceholder")}
+                placeholder={t("petSetup.namePlaceholder")}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setShowError(false);
+                }}
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="words"
+                enterKeyHint="done"
+                // Return dismisses the keyboard and stays here: the allergen
+                // chips sit below, and advancing would skip past them.
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") e.currentTarget.blur();
+                }}
+              />
+              {error ? <p className="field-error">{t("petSetup.nameError")}</p> : null}
+            </div>
+
+            <div className="segmented" role="radiogroup" aria-label={t("petSetup.species")}>
+              {(["dog", "cat"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  role="radio"
+                  aria-checked={species === s}
+                  className={`segmented__item${species === s ? " segmented__item--on" : ""}`}
+                  onClick={() => chooseSpecies(s)}
+                >
+                  {t(`index.${s}`)}
+                </button>
+              ))}
+            </div>
           </div>
-          {showError && !name.trim() ? (
-            <p className="field-error">{t("petSetup.nameError")}</p>
-          ) : null}
 
           <div className="divider" />
 
@@ -101,6 +127,7 @@ export default function PetSetup() {
             <p className="section-label">{t("petSetup.allergenLabel")}</p>
             <p className="section-note">{t("petSetup.allergenOptional")}</p>
           </div>
+
           <div className="chips">
             {picks.map((pick) => {
               const on = allergens.includes(pick.id);
@@ -110,13 +137,36 @@ export default function PetSetup() {
                   type="button"
                   className={`chip${on ? " chip--on" : ""}`}
                   aria-pressed={on}
-                  onClick={() => toggleAllergen(pick.id)}
+                  onClick={() => toggle(pick.id)}
                 >
                   {pick.name}
                 </button>
               );
             })}
+            {extras.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className="chip chip--on"
+                aria-pressed="true"
+                onClick={() => toggle(id)}
+              >
+                {capitalise(id)}
+              </button>
+            ))}
           </div>
+
+          <button
+            type="button"
+            className="btn btn--soft"
+            onClick={() => {
+              haptics.light();
+              router.push("allergen-search");
+            }}
+          >
+            <SearchGlyph />
+            <span className="btn--soft__label">{t("petSetup.searchMore")}</span>
+          </button>
 
           <p className="footnote">{t("petSetup.footnote")}</p>
         </div>
@@ -129,5 +179,20 @@ export default function PetSetup() {
         </div>
       </div>
     </div>
+  );
+}
+
+/** Swift's `.capitalized`, which is how native prints a searched allergen. */
+export function capitalise(id: string): string {
+  return id.replace(/\b\p{L}/gu, (c) => c.toUpperCase());
+}
+
+/** `magnifyingglass` */
+export function SearchGlyph({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="2.4" />
+      <path d="m15.5 15.5 5 5" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+    </svg>
   );
 }

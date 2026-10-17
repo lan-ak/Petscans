@@ -1,32 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useHaptics, useTranslation } from "superwall/hooks";
 import { useRouter } from "superwall/navigation";
+import { GroupIcon } from "../components/GroupIcon";
 import { StepDots } from "../components/StepDots";
 import { AVOIDANCE_GROUPS, state } from "../lib/state";
-import { useTrack } from "../lib/track";
+import { useStep } from "../lib/track";
 
 /**
- * Step 4 — the watch list.
+ * Step 4 — `OnboardingAvoidanceGroupsPage` → `AvoidanceGroupPicker`.
  *
- * These feed scoring on every scan afterwards, not just the one in
- * onboarding. Each row carries its examples because the category names alone
- * mean little to a lay owner: "ultra-processed" needs "hydrolyzed protein"
- * next to it to land.
- *
- * Nothing is required. Picking none is a legitimate answer and the app scores
- * fine without any, so this page has no validation and no error state.
+ * Each row is `AvoidanceGroupRow`: the group's icon, its name and examples,
+ * and a square check. A picked row fills with the brand green and its text
+ * turns white, as natively. Nothing is required.
  */
 export default function WatchList() {
   const router = useRouter();
   const { t } = useTranslation();
   const haptics = useHaptics();
-  const track = useTrack();
+  useStep("watch_list");
 
   const [picked, setPicked] = useState<string[]>(state.groups);
-
-  useEffect(() => {
-    track("step", { step: "watch_list" });
-  }, [track]);
 
   const toggle = (id: string) => {
     haptics.selection();
@@ -38,32 +31,41 @@ export default function WatchList() {
   return (
     <div className="page">
       <div className="page__body">
-        <div className="page__head">
-          <h1 className="page__title">{t("watchList.title")}</h1>
-          <p className="page__sub">{t("watchList.body")}</p>
-        </div>
+        <div className="scroller scroller--groups">
+          <div className="page__head page__head--groups">
+            <h1 className="page__title">{t("watchList.title")}</h1>
+            <p className="page__sub page__sub--lg">{t("watchList.body")}</p>
+          </div>
 
-        <div className="scroller scroller--gap">
-          {AVOIDANCE_GROUPS.map((group) => {
-            const on = picked.includes(group.id);
-            return (
-              <button
-                key={group.id}
-                type="button"
-                className={`avoid${on ? " avoid--on" : ""}`}
-                aria-pressed={on}
-                onClick={() => toggle(group.id)}
-              >
-                <span className="avoid__text">
-                  <span className="avoid__name">{group.name}</span>
-                  <span className="avoid__examples">{group.examples}</span>
-                </span>
-                <span className={`avoid__box${on ? " avoid__box--on" : ""}`} aria-hidden="true">
-                  {on ? "✓" : ""}
-                </span>
-              </button>
-            );
-          })}
+          <div className="groups">
+            {AVOIDANCE_GROUPS.map((group) => {
+              const on = picked.includes(group.id);
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  className={`group${on ? " group--on" : ""}`}
+                  aria-pressed={on}
+                  onClick={() => toggle(group.id)}
+                >
+                  <span className="group__icon">
+                    <GroupIcon id={group.id} />
+                  </span>
+                  <span className="group__text">
+                    <span className="group__name">{group.name}</span>
+                    <span className="group__examples">{group.examples}</span>
+                  </span>
+                  <span className={`group__box${on ? " group__box--on" : ""}`} aria-hidden="true">
+                    {on ? (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : null}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         <div className="actions">
@@ -73,7 +75,6 @@ export default function WatchList() {
             className="btn btn--primary pressable"
             onClick={() => {
               haptics.medium();
-              track("step_done", { step: "watch_list", count: picked.length });
               router.push("personalised");
             }}
           >

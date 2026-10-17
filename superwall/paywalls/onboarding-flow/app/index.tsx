@@ -60,7 +60,7 @@ export default function Index() {
               router.push("food-check");
             }}
           >
-            {t("promise.cta")}
+            {t("common.continue")}
           </button>
         </div>
       </div>

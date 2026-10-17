@@ -136,6 +136,20 @@ export function VerdictCard({ verdict }: { verdict: string }) {
 }
 
 /**
+ * `RatingLabelView(size: .medium)` — the compact badge on the personalised
+ * card. The icon at 24, the word at heading1, the same tint and ring.
+ */
+export function VerdictBadge({ verdict }: { verdict: string }) {
+  const tone = verdictTone(verdict);
+  return (
+    <div className="verdict verdict--in verdict--medium" style={{ color: `var(--score-${tone})` }}>
+      <VerdictMark verdict={verdict} size={24} />
+      <span className="verdict__word">{verdict}</span>
+    </div>
+  );
+}
+
+/**
  * One axis — Safety, Processing, Suitability — as a labelled 8px bar, the
  * height `ScoreExplanationCard` uses. Returns nothing for an axis the app
  * marked inapplicable (`-1`), rather than drawing an empty bar that reads

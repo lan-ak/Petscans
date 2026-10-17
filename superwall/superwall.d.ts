@@ -7,15 +7,14 @@
 
 declare module "superwall/navigation" {
   interface SuperwallRoutes {
+    "allergen-search": true;
     "food-check": true;
     "index": true;
-    "no-camera": true;
-    "not-found": true;
+    "ingredient": true;
     "personalised": true;
     "pet-setup": true;
     "plans": true;
     "result": true;
-    "search": true;
     "watch-list": true;
   }
 }

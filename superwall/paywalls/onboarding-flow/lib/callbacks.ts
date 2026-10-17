@@ -1,7 +1,10 @@
 import { useActions } from "superwall/hooks";
 
 /**
- * Typed wrappers over `useActions().requestCallback` — nothing else. Each one
+ * Typed wrappers over `useActions().requestCallback` — nothing else. Two are
+ * left in 1.4.8: `rescoreForPet` (step 5) and `onboardingDone` (the exit).
+ * Step 2 is baked in (`lib/demoResults`), and the binary refuses
+ * `scanBarcode` / `searchCatalog` until a paywall has opened. Each one
  * is a single call naming a handler in `FoodCheckCallbacks.swift`; the types
  * exist so a renamed field is a compile error rather than an undefined at
  * runtime.
@@ -14,15 +17,6 @@ import { useActions } from "superwall/hooks";
  *
  * Swift side: `FoodCheckCallbacks.handle(_:)`.
  */
-
-/** One row of `ProductCatalogService.search`, flattened for the webview. */
-export interface CatalogRow {
-  gtin: string;
-  name: string;
-  brand: string;
-  /** `CatalogProduct.variantCount` — how many pack sizes this row folds in. */
-  variants: number;
-}
 
 /** One line of `ScoreBreakdown.flags`, already resolved to display strings. */
 export interface ScoredFlag {
@@ -60,18 +54,6 @@ export type Species = "dog" | "cat";
  * `requestCallback<T>` constrains its generic to one — the app can put extra
  * keys on a reply and the webview must not care.
  */
-type SearchAnswer = {
-  rows?: CatalogRow[];
-} & Record<string, unknown>;
-
-type ScanAnswer = {
-  /** False when the camera read a barcode the catalogue doesn't carry. */
-  found?: boolean;
-  /** Present whether or not it was found, so the miss can be echoed back. */
-  barcode?: string;
-  food?: ScoredFood;
-} & Record<string, unknown>;
-
 type ScoreAnswer = {
   food?: ScoredFood;
 } & Record<string, unknown>;
@@ -95,13 +77,10 @@ export type BridgeResult<T> =
  * The surface would sit on a spinner with no way out. Every call is therefore
  * raced against a deadline and a timeout is treated as the failure it is.
  *
- * Generous on purpose: the catalogue is SQLite on the device and the scanner
- * waits on a human, so this is a stuck-forever guard, not a latency budget.
+ * Generous on purpose: the catalogue is SQLite on the device, so this is a
+ * stuck-forever guard, not a latency budget.
  */
 const CALLBACK_TIMEOUT_MS = 20_000;
-/** The scanner is a person pointing a camera; it gets its own, longer limit. */
-const SCAN_TIMEOUT_MS = 120_000;
-
 function withDeadline<T>(work: Promise<T>, ms: number): Promise<T | null> {
   return Promise.race([
     work,
@@ -110,68 +89,9 @@ function withDeadline<T>(work: Promise<T>, ms: number): Promise<T | null> {
 }
 
 export function useCallbacks() {
-  const { requestCallback, requestPermission } = useActions();
+  const { requestCallback } = useActions();
 
   return {
-    /**
-     * Free-text catalogue search. Mirrors
-     * `ProductCatalogService.search(query:limit:)` including the species
-     * re-ranking, so the rows arrive in the same order the native screen
-     * showed them.
-     */
-    async search(query: string, species: Species | null): Promise<BridgeResult<CatalogRow[]>> {
-      const r = await withDeadline(
-        requestCallback<SearchAnswer>("searchCatalog", {
-          variables: { query, species: species ?? "" },
-        }),
-        CALLBACK_TIMEOUT_MS,
-      );
-      if (!r || r.status !== "success") return { ok: false };
-      return { ok: true, value: r.data?.rows ?? [] };
-    },
-
-    /**
-     * Opens the native scanner and waits. Resolves `found: false` when the
-     * barcode read fine but isn't in the catalogue — the state that decides
-     * whether any of this helps, because if coverage is the real problem then
-     * scanning fails exactly where typing does.
-     */
-    async scan(species: Species | null): Promise<BridgeResult<ScanAnswer>> {
-      const r = await withDeadline(
-        requestCallback<ScanAnswer>("scanBarcode", { variables: { species: species ?? "" } }),
-        SCAN_TIMEOUT_MS,
-      );
-      if (!r || r.status !== "success") return { ok: false };
-      return { ok: true, value: r.data ?? {} };
-    },
-
-    /** Scores a catalogue row through `OnboardingFoodScorer`. */
-    async score(gtin: string, species: Species | null): Promise<BridgeResult<ScoredFood>> {
-      const r = await withDeadline(
-        requestCallback<ScoreAnswer>("scoreProduct", {
-          variables: { gtin, species: species ?? "" },
-        }),
-        CALLBACK_TIMEOUT_MS,
-      );
-      if (!r || r.status !== "success" || !r.data?.food) return { ok: false };
-      return { ok: true, value: r.data.food };
-    },
-
-    /**
-     * A real, scored food from the bundled catalogue, picked by the app — the
-     * zero-input path for someone who hasn't got the bag in front of them.
-     * Not a hardcoded fixture: it has to be a genuine row so the score, the
-     * flags and the wording are the same machinery every other result uses.
-     */
-    async example(species: Species | null): Promise<BridgeResult<ScoredFood>> {
-      const r = await withDeadline(
-        requestCallback<ScoreAnswer>("exampleFood", { variables: { species: species ?? "" } }),
-        CALLBACK_TIMEOUT_MS,
-      );
-      if (!r || r.status !== "success" || !r.data?.food) return { ok: false };
-      return { ok: true, value: r.data.food };
-    },
-
     /**
      * Re-scores the chosen food against the finished profile. The same call
      * the native personalised screen makes, so the before/after the user sees
@@ -203,10 +123,11 @@ export function useCallbacks() {
     },
 
     /**
-     * Hands the whole profile back before `close()`. The app persists the
-     * `Pet`, writes the avoidance preferences, pushes every Superwall
-     * targeting attribute, and fires `onboarding_complete` — which campaign
-     * 64348 answers with the paywall, exactly as it does today.
+     * Hands the whole profile back on the way into the plans step. The app
+     * holds it until the surface closes, then persists the `Pet`, writes the
+     * avoidance preferences, pushes every Superwall targeting attribute, and
+     * fires `onboarding_complete`, which presents nothing on 1.4.8+ (campaign
+     * 64348 only answers older versions).
      */
     async finish(
       // Only ever "completed": the flow has no exit, so the surface never
@@ -232,6 +153,11 @@ export function useCallbacks() {
           petName: detail.petName,
           allergens: detail.allergens.join(","),
           groups: detail.groups.join(","),
+          // Empty for a pick. The surface is live on 1.4.7 as well as 1.4.8,
+          // and 1.4.7's handler (built from an uncommitted tree, so its source
+          // is gone) may read a gtin as the owner's own food — saving the demo
+          // to History and setting `searched_food`, which sends them to the
+          // aha paywall about a bag they don't feed. Empty is safe on both.
           gtin: detail.isExample ? "" : (detail.food?.gtin ?? ""),
           score: final?.score ?? -1,
           verdict: final?.verdict ?? "",
@@ -243,8 +169,5 @@ export function useCallbacks() {
         CALLBACK_TIMEOUT_MS,
       );
     },
-
-    /** The OS camera prompt. Denial is an outcome, not an error. */
-    requestPermission,
   };
 }

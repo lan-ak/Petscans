@@ -4,26 +4,54 @@ import { definePaywall } from "superwall/config";
  * The whole of onboarding, steps 0 through 5 — promise, food check, demo
  * result, pet profile, watch list, personalised verdict.
  *
- * Why this is a surface and not a SwiftUI page: 1.4.6 turned that step into a
- * mandatory search gate, and the measured cost was onboarding completion
- * falling from 71% to 35% with no way to revert short of another release. Of
- * the 15 users who quit at the step in the 30 days to 2026-10-04, *zero* had
- * ever completed a search — they were leaving before any result existed. The
- * fix is a branch (scan / search / example) plus a way out, and all three need
- * to be tunable without a submission.
+ * The 1.4.8 native flow rebuilt as a surface, so step 1 and everything after
+ * it can change without a submission. 1.4.6 made that step a mandatory
+ * search and completion fell from 71% to 35%; 1.4.7 offered scan, search or
+ * an example and lost installs on non-US barcodes and half-typed queries;
+ * 1.4.8 is a one-tap pick from `DemoFoods`. Each of those took a release.
  *
- * Sells nothing. The paywall still happens where it always did, at
- * `onboarding_complete`, off campaign 64348.
+ * The native flow stays in the binary as the fallback. `OnboardingView`
+ * registers `onboarding_flow` and drops to SwiftUI on skip or error — no
+ * campaign, no audience match, no config, or a webview that fails to load.
+ *
+ * Ends on the paywall. The plans step is `onboarding-scan`'s (276012) plans
+ * page and exit offer, so onboarding and the offer are one presentation
+ * rather than a surface that closes and a paywall that opens behind it.
+ *
+ * Served by campaign "Onboarding V2" (111017) to app version 1.4.8 and
+ * later. The app still registers `onboarding_complete` when this closes, but
+ * campaign "Onboarding" (64348) only answers versions below 1.4.8, so nobody
+ * gets a second paywall; 1.4.7 and earlier keep the native flow and the
+ * 276019 / 276012 paywalls.
+ *
+ * Having products also means this surface's `paywallOpen` now counts as
+ * "seen" for `PaywallGate`, which is correct: the paywall is in the flow.
  */
 export default definePaywall({
   name: "Onboarding — Full Flow",
 
   /**
-   * No product slots. This surface never calls `purchase()`; it hands the
-   * finished profile back to the app, which persists the pet and fires
-   * `onboarding_complete`.
+   * 276012's three slots, with its reference names, so analytics keyed on
+   * primary/secondary/tertiary read the same on both paywalls:
+   *
+   *   primary    yearly_5999_trial   $59.99/yr, 3-day free trial
+   *   secondary  monthly_899         $8.99/mo,  no trial
+   *   tertiary   annual_39.99        the exit offer only, never a row
    */
-  products: {},
+  products: {
+    primary: "yearly_5999_trial",
+    secondary: "monthly_899",
+    tertiary: "annual_39.99",
+  },
+
+  notifications: {
+    trialReminder: {
+      enabled: true,
+      title: "Your PetScans trial is ending soon",
+      body: "Keep every scan, safety score and allergen alert for your pet. Cancel anytime before you're charged.",
+      beforeTrialEndDays: 2,
+    },
+  },
 
   /** Matches the native onboarding chrome it replaces: full screen, no dimming. */
   presentation: { style: "fullscreen" },
@@ -44,6 +72,12 @@ export default definePaywall({
    */
   featureGating: "nonGated",
   onDeviceCacheEnabled: true,
+
+  /**
+   * The webview itself never scrolls or bounces: each page is a fixed frame
+   * and its content scrolls inside `.scroller` (see `.page` in theme.css).
+   */
+  scrollEnabled: false,
 
   /** `ColorTokens.backgroundPrimary`, so the hand-off from native doesn't flash. */
   background: { light: "#f0f9f4", dark: "#1a1f1c" },
