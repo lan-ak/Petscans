@@ -8,13 +8,13 @@ control against four weekly prices.
 | Arm | Paywall (directory) | Plans page | Exit offer | Share |
 |---|---|---|---|---|
 | Control | `onboarding-flow` (275901) | `yearly_5999_trial` ($59.99/yr, 3-day trial) + `monthly_899` | `annual_39.99` ($0.99 for 30 days, then $39.99/yr) | 10% |
-| A | `onboarding-flow-weekly-a` | weekly A + `monthly_899` | none | 22.5% |
-| B | `onboarding-flow-weekly-b` | weekly B + `monthly_899` | none | 22.5% |
-| C | `onboarding-flow-weekly-c` | weekly C + `monthly_899` | none | 22.5% |
-| D | `onboarding-flow-weekly-d` | weekly D + `monthly_899` | none | 22.5% |
+| A | `onboarding-flow-weekly-a` | `weekly_399` ($3.99/wk) + `monthly_899` | none | 22.5% |
+| B | `onboarding-flow-weekly-b` | `weekly_499` ($4.99/wk) + `monthly_899` | none | 22.5% |
+| C | `onboarding-flow-weekly-c` | `weekly_599` ($5.99/wk) + `monthly_899` | none | 22.5% |
+| D | `onboarding-flow-weekly-d` | `weekly_699` ($6.99/wk) + `monthly_899` | none | 22.5% |
 
-The weekly products have no trial and no intro offer. Fill in the IDs in each
-arm's `config.ts` (`WEEKLY_<arm>_PRODUCT_ID`) and in
+The weekly products have no trial and no intro offer: `weekly_399` (A),
+`weekly_499` (B), `weekly_599` (C) and `weekly_699` (D). They are listed in
 `superwall-products.md`.
 
 All five arms run the same pages: the weekly directories re-export
@@ -28,7 +28,7 @@ same branch the monthly row already uses.
 
 ## Setup
 
-1. Put the four weekly product IDs into the configs, then `npm run typecheck`.
+1. `npm run typecheck`.
 2. `npm run push` creates the four new paywalls (production untouched) and
    records their IDs in `superwall.lock`. Commit the lock.
 3. Preview each arm in the studio and make one sandbox purchase of its weekly

@@ -14,14 +14,13 @@ export default definePaywall({
   name: "Onboarding — Full Flow · Weekly A",
 
   /**
-   *   primary    weekly, arm A      no trial, no intro offer
+   *   primary    weekly_399         $3.99/wk, no trial, no intro offer
    *   secondary  monthly_899        $8.99/mo, no trial, as on the control
    *
    * No `tertiary`: the weekly arms have no exit offer.
    */
   products: {
-    // TODO: arm A's weekly product ID from App Store Connect.
-    primary: "WEEKLY_A_PRODUCT_ID",
+    primary: "weekly_399",
     secondary: "monthly_899",
   },
 

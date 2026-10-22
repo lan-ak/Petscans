@@ -25,10 +25,10 @@ per arm. No trial and no intro offer on any of them.
 
 | Product ID | Period | Price (US) | Intro offer | Arm |
 |---|---|---|---|---|
-| _TODO_ | Weekly | _TODO_ | none | A (`onboarding-flow-weekly-a`) |
-| _TODO_ | Weekly | _TODO_ | none | B (`onboarding-flow-weekly-b`) |
-| _TODO_ | Weekly | _TODO_ | none | C (`onboarding-flow-weekly-c`) |
-| _TODO_ | Weekly | _TODO_ | none | D (`onboarding-flow-weekly-d`) |
+| `weekly_399` | Weekly | $3.99 / wk | none | A (`onboarding-flow-weekly-a`) |
+| `weekly_499` | Weekly | $4.99 / wk | none | B (`onboarding-flow-weekly-b`) |
+| `weekly_599` | Weekly | $5.99 / wk | none | C (`onboarding-flow-weekly-c`) |
+| `weekly_699` | Weekly | $6.99 / wk | none | D (`onboarding-flow-weekly-d`) |
 
 ## In‑App Purchase (one‑time)
 
