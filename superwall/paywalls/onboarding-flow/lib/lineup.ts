@@ -3,7 +3,7 @@ import { createContext, useContext } from "react";
 /**
  * Which plans the flow's last step sells. Every page and component is shared
  * between this paywall and the weekly price-test arms
- * (`onboarding-flow-weekly-a` … `-d`); the lineup is the only thing that
+ * (`onboarding-weekly-a` … `-d`); the lineup is the only thing that
  * differs besides the products themselves.
  *
  * - `yearly` — this paywall and its hard variant, the control: `annual_39.99`

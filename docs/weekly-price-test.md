@@ -1,17 +1,17 @@
 # Weekly price test
 
-A five-way split on the onboarding paywall: the current yearly offer as a 10%
+A five-way split on the onboarding paywall: the current yearly offer as a 12%
 control against four weekly prices.
 
 ## Arms
 
 | Arm | Paywall (directory) | Plans page | Exit offer | Share |
 |---|---|---|---|---|
-| Control | `onboarding-flow` (275901) | `annual_39.99` ($0.99 for 30 days, then $39.99/yr) + `monthly_499` | none | 10% |
-| A | `onboarding-flow-weekly-a` (283637) | `weekly_399` ($3.99/wk) + `monthly_899` | none | 22.5% |
-| B | `onboarding-flow-weekly-b` (283638) | `weekly_499` ($4.99/wk) + `monthly_899` | none | 22.5% |
-| C | `onboarding-flow-weekly-c` (283639) | `weekly_599` ($5.99/wk) + `monthly_899` | none | 22.5% |
-| D | `onboarding-flow-weekly-d` (283640) | `weekly_699` ($6.99/wk) + `monthly_899` | none | 22.5% |
+| Control | `onboarding-flow-hard` (281659, no close button) | `annual_39.99` ($0.99 for 30 days, then $39.99/yr) + `monthly_499` | none | 12% |
+| A | `onboarding-weekly-a` (283646) | `weekly_399` ($3.99/wk) + `monthly_899` | none | 22% |
+| B | `onboarding-weekly-b` (283647) | `weekly_499` ($4.99/wk) + `monthly_899` | none | 22% |
+| C | `onboarding-weekly-c` (283648) | `weekly_599` ($5.99/wk) + `monthly_899` | none | 22% |
+| D | `onboarding-weekly-d` (283649) | `weekly_699` ($6.99/wk) + `monthly_899` | none | 22% |
 
 The weekly products have no trial and no intro offer: `weekly_399` (A),
 `weekly_499` (B), `weekly_599` (C) and `weekly_699` (D). They are listed in
@@ -30,13 +30,13 @@ already uses.
 ## Setup
 
 1. `npm run typecheck`.
-2. `npm run push`. The four arms already exist (283637–283640, in
+2. `npm run push`. The four arms already exist (283646–283649, in
    `superwall.lock`); a push uploads new drafts and leaves production alone.
 3. Preview each arm in the studio and make one sandbox purchase of its weekly
    plan.
 4. In campaign **Onboarding V2** (111017), on the audience that serves 275901
-   today, add the four weekly paywalls and set the split to 10 / 22.5 / 22.5 /
-   22.5 / 22.5. Superwall keeps each user in their arm for good.
+   today, add the four weekly paywalls and set the split to 12 / 22 / 22 /
+   22 / 22 (whole numbers only). Superwall keeps each user in their arm for good.
 5. Check what the later placements sell to these users, so nobody is quoted
    weekly in onboarding and yearly afterwards:
    - `analysis_complete`: campaign **In-App** (65702). If it presents a yearly

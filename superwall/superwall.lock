@@ -53,28 +53,24 @@
         "snapshot": "3ae63c8eb6ba2e470dac215f224f57acc9123f9511f8c5f868993a464d44a352"
       }
     },
-    "onboarding-flow-weekly-a": {
+    "onboarding-weekly-a": {
       "ios": {
-        "paywallId": "283637",
-        "snapshot": "6eb8a3a645b12af63487386512b397155d616591ce03a8674a2a9458c1aa9174"
+        "paywallId": "283646"
       }
     },
-    "onboarding-flow-weekly-b": {
+    "onboarding-weekly-b": {
       "ios": {
-        "paywallId": "283638",
-        "snapshot": "3a0608f5e0d4fb51b7a6772c0ef7ecc01c64a17875acf130bef9fee52753bd97"
+        "paywallId": "283647"
       }
     },
-    "onboarding-flow-weekly-c": {
+    "onboarding-weekly-c": {
       "ios": {
-        "paywallId": "283639",
-        "snapshot": "089e2fc11499ce5da0bd73d443ef4348a23dca05af66a1f73c964645f6ab0223"
+        "paywallId": "283648"
       }
     },
-    "onboarding-flow-weekly-d": {
+    "onboarding-weekly-d": {
       "ios": {
-        "paywallId": "283640",
-        "snapshot": "df9d200c26fd3fd43177360cf54de682a51365fa994e282517f5b9c975200c46"
+        "paywallId": "283649"
       }
     }
   },
