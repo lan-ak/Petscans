@@ -8,8 +8,6 @@ In Onboarding V2 (111017), the version audience (188278, "1.4.8 and later",
 80% `onboarding-flow-hard` / 20% `onboarding-flow`) was deleted, since 1.4.8
 goes to everyone. Audience 194695 now catches every `onboarding_flow` call at
 12 / 22 / 22 / 22 / 22. `onboarding-flow` (275901) is no longer served.
-Push from `superwall/` with `SUPERWALL_API_HOST=https://api.superwall.com`:
-the gitignored `.env` there points at staging, which rejects uploads.
 
 ## Arms
 
