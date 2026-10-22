@@ -25,7 +25,6 @@ declare module "superwall/hooks" {
   interface SuperwallProducts {
     "primary": true;
     "secondary": true;
-    "tertiary": true;
   }
 
   interface SuperwallStripeProducts {

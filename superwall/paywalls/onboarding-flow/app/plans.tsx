@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useActions,
   useDevice,
@@ -35,11 +35,23 @@ const SELECTABLE = ["primary", "secondary"] as const;
 export default function Plans() {
   const { getProduct } = useProducts();
   const { purchase } = usePurchase();
-  const { openUrl, restore } = useActions();
+  const { openUrl, restore, setUserAttributes } = useActions();
   const { hostPlatform } = useDevice();
   const haptics = useHaptics();
   const { t } = useTranslation();
   useStep("plans");
+
+  /*
+   * Tells campaign 64348 this user has seen an onboarding paywall. On 1.4.8+
+   * that campaign's `onboarding_complete` audience only matches users without
+   * this flag, so it catches the native fallback (the surface never loaded)
+   * without showing a second paywall to someone who just closed this one. It
+   * is set on arrival, long before they can close, so it has landed by the
+   * time the app registers `onboarding_complete`.
+   */
+  useEffect(() => {
+    setUserAttributes({ onboarding_paywall_seen: true });
+  }, [setUserAttributes]);
 
   const [selectedIndex, setSelectedIndex] = useState(0);
 

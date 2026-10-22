@@ -31,17 +31,19 @@ export default definePaywall({
   name: "Onboarding — Full Flow",
 
   /**
-   * 276012's three slots, with its reference names, so analytics keyed on
-   * primary/secondary/tertiary read the same on both paywalls:
+   * The app-wide offer, identical on every PetScans paywall (2026-10-17):
    *
-   *   primary    yearly_5999_trial   $59.99/yr, 3-day free trial
-   *   secondary  monthly_899         $8.99/mo,  no trial
-   *   tertiary   annual_39.99        the exit offer only, never a row
+   *   primary    annual_39.99   $39.99/yr after a 30-day $0.99 intro
+   *   secondary  monthly_499    $4.99/mo, no intro
+   *
+   * The monthly has no intro offer, so tapping it is the no-offer branch:
+   * the header changes, the timeline goes and the reviews show instead.
+   * There is no exit offer any more. The only cheaper thing to offer
+   * was this same annual.
    */
   products: {
-    primary: "yearly_5999_trial",
-    secondary: "monthly_899",
-    tertiary: "annual_39.99",
+    primary: "annual_39.99",
+    secondary: "monthly_499",
   },
 
   notifications: {

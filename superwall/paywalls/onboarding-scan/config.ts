@@ -15,29 +15,19 @@ export default definePaywall({
   name: "Onboarding — After a Scan",
 
   /**
-   * Three slots, matching 245894's reference names exactly so audience rules
-   * and analytics keyed on primary/secondary/tertiary keep working.
+   * The app-wide offer, identical on every PetScans paywall (2026-10-17):
    *
-   * The two plans the user chooses between:
+   *   primary    annual_39.99   $39.99/yr after a 30-day $0.99 intro
+   *   secondary  monthly_499    $4.99/mo, no intro
    *
-   *   primary    yearly_5999_trial   $59.99/yr, 3-day free trial
-   *   secondary  monthly_899         $8.99/mo,  no trial
-   *
-   * The monthly deliberately carries no introductory offer — `monthly_899`,
-   * not `monthly_899_intro`. That is what makes the no-trial branch a real
-   * path rather than dead code: tapping monthly swaps the header, drops the
-   * timeline (there is nothing to count down) and shows the reviews instead.
-   *
-   * `tertiary` is the **intro offer, and it is only ever the exit offer** —
-   * annual_39.99 is $39.99/yr behind a 30-day $0.99 intro. It is never one of
-   * the two rows on the page; it exists so the drawer has something genuinely
-   * better to put in front of someone on their way out. Selling it as a plan
-   * would undercut the primary row it is supposed to rescue.
+   * The monthly has no intro offer, so tapping it is the no-offer branch:
+   * the header changes, the timeline goes and the reviews show instead.
+   * There is no exit offer any more. The only cheaper thing to offer
+   * was this same annual.
    */
   products: {
-    primary: "yearly_5999_trial",
-    secondary: "monthly_899",
-    tertiary: "annual_39.99",
+    primary: "annual_39.99",
+    secondary: "monthly_499",
   },
 
   presentation: { style: "fullscreen" },

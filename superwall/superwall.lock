@@ -8,21 +8,61 @@
     "onboarding-flow": {
       "ios": {
         "paywallId": "275901",
-        "snapshot": "8b9722c60b030fe4df01715caa4416748f3114f5b84cec9f0bbddfebb094e038"
+        "snapshot": "062bc4c968ce962a94ce540bde691bf59c345c90ab71fd95ee059f502ffd457e"
       }
     },
     "onboarding-no-scan": {
       "ios": {
         "paywallId": "276012",
-        "snapshot": "2ab6bce7aeb84739e19248c306dfe0d90699d4844ddd02275786907830b0b30e"
+        "snapshot": "3dec47cce065627d12493f67c9702f4102be34c44042df64923b57995be2961b"
       }
     },
     "onboarding-scan": {
       "ios": {
         "paywallId": "276019",
-        "snapshot": "a2adeeb53f087bb0b01f7171490f369733923a71c760c9b16b6e332e645994ad"
+        "snapshot": "6ec74d6d23e9630224aa148ac8c117dc4de56aebe719f93583a6ea17c426c881"
+      }
+    },
+    "in-app-soft": {
+      "ios": {
+        "paywallId": "281647",
+        "snapshot": "8e6c2fc0c6a3e26e3de241ad237ddfe110bc0b0524cd02fa56c8b1219cd43616"
+      }
+    },
+    "in-app-hard": {
+      "ios": {
+        "paywallId": "281648",
+        "snapshot": "69b5be3290a5d4774ea929f8065edb17751d53abcab75196cfa3d1d40602a00c"
+      }
+    },
+    "onboarding-flow-hard": {
+      "ios": {
+        "paywallId": "281659",
+        "snapshot": "17c1b48d4b235d119a923f75de51e57fc92aec4653d2d467228ded1b389e8dd2"
+      }
+    },
+    "onboarding-no-scan-hard": {
+      "ios": {
+        "paywallId": "281660",
+        "snapshot": "d5fd61ac1254bb95e5032c9ad8047b8eec1dda6419c37dd93b1771357383e69d"
+      }
+    },
+    "onboarding-scan-hard": {
+      "ios": {
+        "paywallId": "281661",
+        "snapshot": "3ae63c8eb6ba2e470dac215f224f57acc9123f9511f8c5f868993a464d44a352"
       }
     }
   },
-  "funnels": {}
+  "funnels": {},
+  "origins": {
+    "paywall/in-app-soft": {
+      "paywallId": "166440",
+      "url": "https://user-content.superwalleditor.com/runtime/sha/42a65c08d8e3/store/document/05WCW_Qnmocu14brXvuLl"
+    },
+    "paywall/in-app-hard": {
+      "paywallId": "174002",
+      "url": "https://user-content.superwalleditor.com/runtime/sha/0569f088e91e/store/document/9_uBYmvO51LsVmTPJN-L2"
+    }
+  }
 }
