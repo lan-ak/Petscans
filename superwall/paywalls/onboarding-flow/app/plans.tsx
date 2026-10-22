@@ -10,6 +10,7 @@ import {
 import laurelLeft from "../assets/laurel-left.png";
 import laurelRight from "../assets/laurel-right.png";
 import { BellRing, Check, Crown, Star, UnlockKeyhole } from "../components/PaywallIcons";
+import { useLineup } from "../lib/lineup";
 import { has, num, offerKind, s } from "../lib/offer";
 import { petLabel } from "../lib/state";
 import { useStep } from "../lib/track";
@@ -31,6 +32,10 @@ const SELECTABLE = ["primary", "secondary"] as const;
  *
  * The app still registers `onboarding_complete` when the surface closes; on
  * 1.4.8+ nothing answers it, since campaign 64348 is gated to older versions.
+ *
+ * The weekly price-test arms show this page too, with a weekly plan in the
+ * primary slot. It has no trial, so it takes the no-offer branch (reviews,
+ * not the timeline), and it gets no "Save X%" badge: see `savingsPercent`.
  */
 export default function Plans() {
   const { getProduct } = useProducts();
@@ -39,6 +44,7 @@ export default function Plans() {
   const { hostPlatform } = useDevice();
   const haptics = useHaptics();
   const { t } = useTranslation();
+  const lineup = useLineup();
   useStep("plans");
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -65,10 +71,10 @@ export default function Plans() {
   /** Timeline when the selected plan has a trial, reviews when it doesn't — as 276012. */
   const showTimeline = kind !== "none";
 
-  const savings = savingsPercent(
-    num(primary?.variables.rawPrice),
-    num(secondary?.variables.rawPrice),
-  );
+  const savings =
+    lineup === "yearly"
+      ? savingsPercent(num(primary?.variables.rawPrice), num(secondary?.variables.rawPrice))
+      : undefined;
 
   /** Restore is a store concept; the Web SDK has no receipts to restore. */
   const native = hostPlatform === "ios" || hostPlatform === "android";
@@ -256,6 +262,11 @@ export default function Plans() {
  * What the annual plan saves against twelve months of the monthly — the only
  * comparison a buyer can act on. Renders nothing until both prices arrive, or
  * if there is no saving to claim.
+ *
+ * Yearly lineup only. The sum treats the primary as an annual price, so on a
+ * weekly arm it would read $4.99 a week as a 95% saving on the monthly. Above
+ * about $2.07 a week, a weekly plan costs more per month than the monthly, so
+ * there is no honest saving to claim.
  */
 function savingsPercent(annualRaw?: number, monthlyRaw?: number) {
   if (!annualRaw || !monthlyRaw) return undefined;

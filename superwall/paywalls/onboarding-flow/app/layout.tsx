@@ -4,6 +4,7 @@ import { useRouter } from "superwall/navigation";
 import { ExitOfferDrawer } from "../components/ExitOfferDrawer";
 import { ChevronLeft } from "../components/Icons";
 import { X } from "../components/PaywallIcons";
+import { type Lineup, LineupContext } from "../lib/lineup";
 import "./theme.css";
 
 /**
@@ -27,8 +28,16 @@ import "./theme.css";
  *
  * Being a surface still matters: if the data later says otherwise, putting an
  * exit back is a config change rather than a submission.
+ *
+ * The weekly price-test arms render this same layout from their own
+ * `app/layout.tsx` with `lineup="weekly"`, which has no exit offer: there the
+ * first close closes.
  */
 export default function Layout({ children }: PropsWithChildren) {
+  return <FlowLayout lineup="yearly">{children}</FlowLayout>;
+}
+
+export function FlowLayout({ lineup, children }: PropsWithChildren<{ lineup: Lineup }>) {
   const router = useRouter();
   const { t } = useTranslation();
   const haptics = useHaptics();
@@ -45,7 +54,7 @@ export default function Layout({ children }: PropsWithChildren) {
 
   const dismiss = () => {
     haptics.light();
-    if (!offerSpent) {
+    if (lineup === "yearly" && !offerSpent) {
       setOfferSpent(true);
       setDrawerOpen(true);
       return;
@@ -54,7 +63,7 @@ export default function Layout({ children }: PropsWithChildren) {
   };
 
   return (
-    <>
+    <LineupContext.Provider value={lineup}>
       <nav className="navbar">
         {router.name === "ingredient" ? (
           // `IngredientDetailSheet`'s bar: an inline title and Done.
@@ -115,7 +124,7 @@ export default function Layout({ children }: PropsWithChildren) {
           }}
         />
       ) : null}
-    </>
+    </LineupContext.Provider>
   );
 }
 

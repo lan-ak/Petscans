@@ -18,6 +18,18 @@ Use the **Product ID** column verbatim when wiring products into a Superwall pay
 | `yearly_7999_intro` | Yearly | $79.99 / yr | **$0.99 first month** (pay up front) | Then renews at $79.99/yr. |
 | `yearly_5999_trial` | Yearly | $59.99 / yr | **3‑day free trial** | Then renews at $59.99/yr. |
 
+### Weekly (price test)
+
+Four weekly prices for the onboarding price test (`weekly-price-test.md`), one
+per arm. No trial and no intro offer on any of them.
+
+| Product ID | Period | Price (US) | Intro offer | Arm |
+|---|---|---|---|---|
+| _TODO_ | Weekly | _TODO_ | none | A (`onboarding-flow-weekly-a`) |
+| _TODO_ | Weekly | _TODO_ | none | B (`onboarding-flow-weekly-b`) |
+| _TODO_ | Weekly | _TODO_ | none | C (`onboarding-flow-weekly-c`) |
+| _TODO_ | Weekly | _TODO_ | none | D (`onboarding-flow-weekly-d`) |
+
 ## In‑App Purchase (one‑time)
 
 | Product ID | Type | Price (US) | Notes |
