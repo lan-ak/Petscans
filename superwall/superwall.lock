@@ -55,22 +55,26 @@
     },
     "onboarding-weekly-a": {
       "ios": {
-        "paywallId": "283646"
+        "paywallId": "283646",
+        "snapshot": "d044419fa2a251f56503805fa56d3bbaf90c463c38daab9cd05dee269a0722d7"
       }
     },
     "onboarding-weekly-b": {
       "ios": {
-        "paywallId": "283647"
+        "paywallId": "283647",
+        "snapshot": "99623cba000a9215b9c2052cb260dbd40af1b3eaae70cf1edce2b741716de5dc"
       }
     },
     "onboarding-weekly-c": {
       "ios": {
-        "paywallId": "283648"
+        "paywallId": "283648",
+        "snapshot": "3ee1a3687fef9ed0186538fa921bd7241971aa18664554a8411e984c61bd108f"
       }
     },
     "onboarding-weekly-d": {
       "ios": {
-        "paywallId": "283649"
+        "paywallId": "283649",
+        "snapshot": "fbf9d537ff8e34b13434015e007af238ec94fe61f9a3069ed5ab46bc4b79355f"
       }
     }
   },
