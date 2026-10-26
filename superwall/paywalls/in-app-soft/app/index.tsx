@@ -22,8 +22,8 @@ type Reference = (typeof SELECTABLE)[number];
  *
  * Eligibility is the store's answer (`useIntroductoryOffer`), the original's
  * `hasIntroductoryOffer`. On top of that the page checks the *selected*
- * product, because the monthly carries no intro. Without that check, an
- * eligible user who taps monthly would see "In -2 Days - Reminder" and
+ * product, because the weekly carries no intro. Without that check, an
+ * eligible user who taps weekly would see "In -2 Days - Reminder" and
  * "Redeem 0 days", which is what the dashboard original rendered.
  */
 export default function Index() {

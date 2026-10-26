@@ -25,14 +25,15 @@ export default definePaywall({
   platforms: ["ios"],
 
   /*
-   * The app-wide offer, identical on every PetScans paywall (2026-10-17):
+   * The in-app offer (2026-10-26): the app-wide annual, with a weekly in
+   * place of the monthly. The onboarding paywalls still sell monthly_499.
    *
    *   primary    annual_39.99   $39.99/yr after a 30-day $0.99 intro
-   *   secondary  monthly_499    $4.99/mo, no intro
+   *   secondary  weekly_499     $4.99/wk, no intro
    */
   products: {
     primary: "annual_39.99",
-    secondary: "monthly_499",
+    secondary: "weekly_499",
   },
 
   presentation: { style: "fullscreen" },

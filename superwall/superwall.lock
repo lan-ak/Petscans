@@ -26,13 +26,13 @@
     "in-app-soft": {
       "ios": {
         "paywallId": "281647",
-        "snapshot": "8e6c2fc0c6a3e26e3de241ad237ddfe110bc0b0524cd02fa56c8b1219cd43616"
+        "snapshot": "d41b8582d5ff68c4b7be8889200c117e690ab602d249563085e96cea6571e3ef"
       }
     },
     "in-app-hard": {
       "ios": {
         "paywallId": "281648",
-        "snapshot": "69b5be3290a5d4774ea929f8065edb17751d53abcab75196cfa3d1d40602a00c"
+        "snapshot": "0b1612e1712de3a7f0e0194aa2c94b6909b7950219525ea061e7c3b8bc2ed046"
       }
     },
     "onboarding-flow-hard": {
